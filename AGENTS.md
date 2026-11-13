@@ -28,3 +28,12 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- Tenant data is isolated by `org_id` + RLS; app code never uses the service-role client — privileged changes go through SECURITY DEFINER SQL functions with explicit role checks.
+- Platform roles (`platform_roles`) and org roles (`organization_members.role`) are separate tables; never derive one from the other.
+- Every AI call goes through `meteredGenerate` in `src/lib/ai.functions.ts` (entitlement → credits → provider → usage event); never call the gateway directly from elsewhere.
+- Untrusted content (profile, documents, websites) enters prompts only via `quoteUntrusted`; AI may only create pending approvals for registered capability keys.
+- Agents, capabilities, connectors and modules are code manifests in `src/lib/registry/`; external-write capabilities must require approval.
+- Never show sample or invented metrics; unconnected integrations show "Not configured".
+- Run `tests/sql/rls_isolation.sql` (via SQL tool; it self-rolls back) and `bunx vitest run` after schema or permission changes.

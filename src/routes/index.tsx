@@ -1,13 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Sparkles, Target, LineChart, Zap, Megaphone, Users } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Surge — AI Growth Platform" },
-      { name: "description", content: "Surge runs AI growth agents that find customers, write campaigns and optimize every channel." },
-      { property: "og:title", content: "Surge — AI Growth Platform" },
-      { property: "og:description", content: "AI growth agents that find customers, write campaigns and optimize every channel." },
+      { title: "AI Growth OS — The operating system for business growth" },
+      { name: "description", content: "AI Growth OS helps you understand your business, find opportunities and act on them — with AI that explains itself and asks before it acts." },
+      { property: "og:title", content: "AI Growth OS — The operating system for business growth" },
+      { property: "og:description", content: "Understand your business, find opportunities and act on them — with AI that asks before it acts." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -16,12 +16,11 @@ export const Route = createFileRoute("/")({
 });
 
 const features = [
-  { icon: Target, title: "Find your buyers", text: "Agents scan signals across the web to surface high-intent prospects daily." },
-  { icon: Megaphone, title: "Ship campaigns", text: "On-brand ads, emails and posts generated, tested and launched in minutes." },
-  { icon: LineChart, title: "Optimize nonstop", text: "Budgets and messaging rebalance automatically toward what converts." },
+  { icon: Target, title: "Understand your business", text: "Upload plans and brand guides, add your website. Every fact keeps its source." },
+  { icon: Megaphone, title: "Get clear recommendations", text: "Plain-language advice with reasoning, expected impact and risks." },
+  { icon: LineChart, title: "Stay in control", text: "AI proposes, you approve. Every action and AI run is logged." },
 ];
 
-const stats = [["3.4×", "pipeline growth"], ["-62%", "cost per lead"], ["40h", "saved weekly"]];
 
 function Index() {
   return (
@@ -29,29 +28,29 @@ function Index() {
       <div className="bg-glow">
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
           <span className="flex items-center gap-2 font-display text-xl font-bold">
-            <Zap className="h-5 w-5 text-primary" /> Surge
+            <Zap className="h-5 w-5 text-primary" /> AI Growth OS
           </span>
           <div className="hidden gap-8 text-sm text-muted-foreground md:flex">
             <a href="#features" className="hover:text-foreground">Features</a>
-            <a href="#results" className="hover:text-foreground">Results</a>
+            <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
           </div>
-          <a href="#start" className="rounded-full border border-border px-4 py-2 text-sm hover:bg-secondary">Get early access</a>
+          <Link to="/auth" search={{ redirect: undefined }} className="rounded-full border border-border px-4 py-2 text-sm hover:bg-secondary">Sign in</Link>
         </nav>
 
         <header className="mx-auto max-w-5xl px-6 pb-24 pt-20 text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1 text-xs text-muted-foreground">
-            <Sparkles className="h-3.5 w-3.5 text-primary" /> Autonomous growth, now in beta
+            <Sparkles className="h-3.5 w-3.5 text-primary" /> Early access
           </span>
           <h1 className="mt-8 text-5xl font-extrabold leading-[1.05] tracking-tight md:text-7xl">
-            Your growth team,<br /><span className="text-gradient">powered by AI.</span>
+            The operating system<br /><span className="text-gradient">for business growth.</span>
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-            Surge deploys AI agents that find customers, launch campaigns and optimize every channel — around the clock.
+            Tell it what you want to achieve. Your AI Growth Officer learns your business, explains what it finds, and sends every action to you for approval.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-3">
-            <a href="#start" className="inline-flex items-center gap-2 rounded-full bg-gradient-primary px-6 py-3 font-semibold text-primary-foreground shadow-glow transition-transform hover:scale-105">
-              Start growing <ArrowRight className="h-4 w-4" />
-            </a>
+            <Link to="/auth" search={{ redirect: undefined }} className="inline-flex items-center gap-2 rounded-full bg-gradient-primary px-6 py-3 font-semibold text-primary-foreground shadow-glow transition-transform hover:scale-105">
+              Start free trial <ArrowRight className="h-4 w-4" />
+            </Link>
             <a href="#features" className="rounded-full border border-border px-6 py-3 font-medium hover:bg-secondary">See how it works</a>
           </div>
         </header>
@@ -67,28 +66,15 @@ function Index() {
         ))}
       </section>
 
-      <section id="results" className="mx-auto max-w-6xl px-6 py-20">
-        <div className="grid gap-10 rounded-3xl border border-border bg-card p-12 md:grid-cols-3">
-          {stats.map(([v, l]) => (
-            <div key={l} className="text-center">
-              <div className="font-display text-5xl font-extrabold text-gradient">{v}</div>
-              <div className="mt-2 text-muted-foreground">{l}</div>
-            </div>
-          ))}
-        </div>
-      </section>
 
       <section id="start" className="mx-auto max-w-3xl px-6 py-24 text-center">
         <Users className="mx-auto h-8 w-8 text-primary" />
-        <h2 className="mt-6 text-4xl font-extrabold md:text-5xl">Ready to surge ahead?</h2>
-        <p className="mt-4 text-muted-foreground">Join the waitlist and get your first AI growth agent free.</p>
-        <form className="mx-auto mt-8 flex max-w-md gap-2" onSubmit={(e) => e.preventDefault()}>
-          <input type="email" required placeholder="you@company.com" className="flex-1 rounded-full border border-input bg-secondary px-5 py-3 outline-none focus:ring-2 focus:ring-ring" />
-          <button className="rounded-full bg-gradient-primary px-6 py-3 font-semibold text-primary-foreground">Join</button>
-        </form>
+        <h2 className="mt-6 text-4xl font-extrabold md:text-5xl">Make growth measurable.</h2>
+        <p className="mt-4 text-muted-foreground">14-day free trial with 200 AI credits. No card required.</p>
+        <Link to="/auth" search={{ redirect: undefined }} className="mt-8 inline-flex rounded-full bg-gradient-primary px-6 py-3 font-semibold text-primary-foreground">Create your account</Link>
       </section>
 
-      <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">© 2026 Surge</footer>
+      <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">© 2026 AI Growth OS</footer>
     </div>
   );
 }
