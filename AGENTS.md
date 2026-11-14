@@ -43,4 +43,6 @@ use the editor.
 - Leaf routes use the shared pageHead helper for unique metadata; visual roles come from global light/dark design tokens.
 - Profile confirmation uses one role-checked SQL transaction for profile, facts and audit; repeated key/source confirmations update rather than duplicate facts.
 - Tenant/workspace associations are immutable on mutable AI knowledge records, preventing cross-workspace reassignment through UPDATE.
+- AI context readers require explicit organization/workspace scope, fail closed on read errors, and use verified facts rather than descriptive profile mirrors; this prevents stale edits from bypassing confirmation.
+- Key customer content by organization/workspace to remount local drafts and in-flight handlers on switching; document extraction requires both identifiers and validates immutable storage identity.
 - Monthly plan credits are lazily granted by a role-checked SQL function before usage and account reads, with a unique organization/month ledger key; no idle polling or duplicate grants.

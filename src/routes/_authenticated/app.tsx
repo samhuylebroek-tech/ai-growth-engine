@@ -110,7 +110,7 @@ function Shell() {
           <Button variant="ghost" size="icon" onClick={() => setOpen(true)} aria-label="Open menu"><Menu className="h-5 w-5" /></Button>
           <span className="font-display font-bold">AI Growth OS</span>
         </div>
-        <div className="mx-auto max-w-6xl px-4 py-6 md:px-10 md:py-10"><Outlet /></div>
+        <div key={`${o.org?.id}/${o.workspace?.id}`} className="mx-auto max-w-6xl px-4 py-6 md:px-10 md:py-10"><Outlet /></div>
       </main>
     </div>
   );

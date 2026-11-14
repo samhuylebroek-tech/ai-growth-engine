@@ -64,6 +64,20 @@
       "when": 1794640175697,
       "tag": "0008_idempotent_monthly_credit_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794659728968,
+      "tag": "0009_context_identity_guards",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794659836286,
+      "tag": "0010_context_guard_record_fields",
+      "breakpoints": true
     }
   ]
 }

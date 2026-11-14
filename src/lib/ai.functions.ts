@@ -5,7 +5,8 @@ import { CREDIT_RULES, creditsForTokens, estimateCostEur } from "@/lib/credits";
 import { capabilityByKey } from "@/lib/registry/capabilities";
 import { quoteUntrusted } from "@/lib/security/upload";
 import { validatePublicUrl } from "@/lib/security/url";
-import { approvedContextFacts, parseDiscovery, type Discovery } from "@/lib/discovery";
+import { parseDiscovery, type Discovery } from "@/lib/discovery";
+import { requireWorkspace, readConversation, readDocument, workspaceContext } from "@/lib/security/context";
 import { validateUpload } from "@/lib/security/upload";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
@@ -69,28 +70,6 @@ function friendly(e: unknown): string {
   return "Something went wrong.";
 }
 
-async function workspaceContext(sb: DB, workspaceId: string) {
-  const [{ data: bp }, { data: facts }, { data: recommendations }, { data: workspace }] = await Promise.all([
-    sb.from("business_profiles").select("*").eq("workspace_id", workspaceId).maybeSingle(),
-    sb.from("business_facts").select("key,value,source_type,verified").eq("workspace_id", workspaceId).order("created_at", { ascending: false }).limit(60),
-    sb.from("approvals").select("title,reasoning,status").eq("workspace_id", workspaceId).order("created_at", { ascending: false }).limit(10),
-    sb.from("workspaces").select("name,kind").eq("id", workspaceId).maybeSingle(),
-  ]);
-  const userFacts = approvedContextFacts(facts ?? []);
-  const profile = bp ? JSON.stringify({
-    website: bp.website, description: bp.description, industry: bp.industry, business_model: bp.business_model,
-    offerings: bp.offerings, audiences: bp.audiences, markets: bp.markets, competitors: bp.competitors,
-    objectives: bp.objectives, monthly_budget_eur: bp.monthly_budget_eur,
-  }) : "{}";
-  return [
-    `BUSINESS PROFILE (entered by the customer):\n${quoteUntrusted("profile", profile)}`,
-    `VERIFIED FACTS:\n${quoteUntrusted("verified-facts", userFacts.map((f) => `- ${f.key}: ${f.value}`).join("\n") || "(none)")}`,
-    `WORKSPACE:\n${quoteUntrusted("workspace", JSON.stringify(workspace ?? {}))}`,
-    `PREVIOUS RECOMMENDATIONS (not facts; respect rejected decisions):\n${quoteUntrusted("recommendations", JSON.stringify(recommendations ?? []))}`,
-    "Unconfirmed website/document claims are excluded from approved business context. Ask for evidence when context is missing.",
-  ].join("\n\n");
-}
-
 const GROWTH_OFFICER_INSTRUCTIONS = `You are the Chief Growth Officer inside AI Growth OS, a growth operating system for businesses.
 Speak plainly to a business owner. No jargon about AI, APIs or prompts.
 Ground every recommendation in the business context provided. Clearly separate facts, assumptions and estimates.
@@ -128,27 +107,22 @@ export const askGrowthOfficer = createServerFn({ method: "POST" })
     try {
       await requireRole(sb, data.orgId, "member");
       await assertEntitled(sb, data.orgId, "ai_assistant");
-      const { data: ws } = await sb.from("workspaces").select("id,org_id").eq("id", data.workspaceId).maybeSingle();
-      if (!ws || ws.org_id !== data.orgId) throw new Error("Workspace not found.");
+      await requireWorkspace(sb, data);
 
       let conversationId = data.conversationId;
-      if (conversationId) {
-        const { data: existing } = await sb.from("conversations").select("id,org_id,workspace_id").eq("id", conversationId).maybeSingle();
-        if (!existing || existing.org_id !== data.orgId || existing.workspace_id !== data.workspaceId) throw new Error("Conversation not found in this workspace.");
-      }
+      const history = conversationId ? await readConversation(sb, data, conversationId, userId) : [];
       if (!conversationId) {
         const { data: c, error } = await sb.from("conversations").insert({ org_id: data.orgId, workspace_id: data.workspaceId, user_id: userId, title: data.message.slice(0, 80) }).select("id").single();
         if (error) throw new Error("Could not start conversation.");
         conversationId = c.id;
       }
-      const { data: history } = await sb.from("messages").select("role,content").eq("conversation_id", conversationId).order("created_at", { ascending: false }).limit(12);
       await sb.from("messages").insert({ conversation_id: conversationId, org_id: data.orgId, role: "user", content: data.message });
 
       const { data: run, error: runErr } = await sb.from("agent_runs").insert({ org_id: data.orgId, workspace_id: data.workspaceId, agent_key: "growth_officer", user_id: userId }).select("id").single();
       if (runErr) throw new Error("Could not start agent run.");
       runId = run.id;
 
-      const ctx = await workspaceContext(sb, data.workspaceId);
+      const ctx = await workspaceContext(sb, data);
       const input = [
         ...(history ?? []).reverse().map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
         { role: "user" as const, content: `${ctx}\n\nQUESTION:\n${data.message}` },
@@ -188,11 +162,12 @@ function parseFacts(text: string): { key: string; value: string; confidence: num
 
 export const extractDocumentFacts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ documentId: z.string().uuid() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ documentId: z.string().uuid(), orgId: z.string().uuid(), workspaceId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }): Promise<Result<{ facts: number; credits: number }>> => {
     const sb = context.supabase as DB;
-    const { data: doc } = await sb.from("documents").select("*").eq("id", data.documentId).maybeSingle();
-    if (!doc) return { ok: false, error: "Document not found." };
+    let doc;
+    try { doc = await readDocument(sb, data, data.documentId); }
+    catch (e) { return { ok: false, error: friendly(e) }; }
     let runId: string | null = null;
     try {
       await requireRole(sb, doc.org_id, "member");
@@ -225,7 +200,10 @@ export const extractDocumentFacts = createServerFn({ method: "POST" })
       if (!runId || !capability) throw new Error("Could not start document reading.");
       const r = await meteredGenerate(sb, context.userId, doc.org_id, runId, capability.credits, { instructions: FACTS_INSTRUCTIONS, input: [content], maxOutputTokens: 2000 });
       const facts = parseFacts(r.text);
-      if (facts.length) await sb.from("business_facts").insert(facts.map((f) => ({ org_id: doc.org_id, workspace_id: doc.workspace_id, key: f.key, value: f.value, confidence: f.confidence, source_type: "document" as const, source_ref: doc.name })));
+      if (facts.length) {
+        const saved = await sb.from("business_facts").insert(facts.map((f) => ({ org_id: doc.org_id, workspace_id: doc.workspace_id, key: f.key, value: f.value, confidence: f.confidence, source_type: "document" as const, source_ref: `document:${doc.id}:${doc.name}`, verified: false })));
+        if (saved.error) throw new Error("Could not save extracted facts.");
+      }
       await sb.from("documents").update({ status: "ready" }).eq("id", doc.id);
       await sb.from("agent_runs").update({ status: "succeeded", summary: `Extracted ${facts.length} facts from ${doc.name}`, finished_at: new Date().toISOString() }).eq("id", runId);
       return { ok: true, data: { facts: facts.length, credits: r.credits } };
@@ -236,7 +214,7 @@ export const extractDocumentFacts = createServerFn({ method: "POST" })
     }
   });
 
-async function safeFetch(raw: string): Promise<string> {
+async function safeFetch(raw: string): Promise<{ text: string; url: string }> {
   let current = raw;
   for (let hop = 0; hop < 4; hop++) {
     const v = validatePublicUrl(current);
@@ -246,11 +224,11 @@ async function safeFetch(raw: string): Promise<string> {
       const res = await fetch(v.url.toString(), { redirect: "manual", signal: ctrl.signal, headers: { "user-agent": "AIGrowthOS-Analyzer/1.0", accept: "text/html" } });
       if (res.status >= 300 && res.status < 400) { const loc = res.headers.get("location"); if (!loc) throw new Error("Bad redirect"); current = new URL(loc, v.url).toString(); continue; }
       if (!res.ok) throw new Error(`The website responded with status ${res.status}.`);
-      const reader = res.body?.getReader(); if (!reader) return "";
+      const reader = res.body?.getReader(); if (!reader) return { text: "", url: v.url.toString() };
       const chunks: Uint8Array[] = []; let size = 0;
       while (true) { const { done, value } = await reader.read(); if (done) break; size += value.length; chunks.push(value); if (size > 600_000) { await reader.cancel(); break; } }
       const html = new TextDecoder().decode(chunks.reduce((a, c) => { const n = new Uint8Array(a.length + c.length); n.set(a); n.set(c, a.length); return n; }, new Uint8Array()));
-      return html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+      return { url: v.url.toString(), text: html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim() };
     } finally { clearTimeout(t); }
   }
   throw new Error("Too many redirects.");
@@ -268,7 +246,7 @@ export const analyzeWebsite = createServerFn({ method: "POST" })
       orgId = ws.org_id;
       await requireRole(sb, orgId, "member");
       await assertEntitled(sb, orgId, "ai_assistant");
-      const text = await safeFetch(data.url);
+      const { text, url: sourceUrl } = await safeFetch(data.url);
       if (text.length < 50) throw new Error("The website had too little readable text to analyze.");
       const { data: run } = await sb.from("agent_runs").insert({ org_id: orgId, workspace_id: ws.id, agent_key: "business_intelligence", user_id: context.userId }).select("id").single();
       runId = run?.id ?? null;
@@ -278,7 +256,7 @@ export const analyzeWebsite = createServerFn({ method: "POST" })
         instructions: FACTS_INSTRUCTIONS, input: [{ role: "user", content: `${quoteUntrusted(data.url, text, 20000)}\nReturn JSON.` }], maxOutputTokens: 2000,
       });
       const facts = parseFacts(r.text);
-      if (facts.length) await sb.from("business_facts").insert(facts.map((f) => ({ org_id: orgId, workspace_id: ws.id, key: f.key, value: f.value, confidence: f.confidence, source_type: "website" as const, source_ref: data.url })));
+      if (facts.length) await sb.from("business_facts").insert(facts.map((f) => ({ org_id: orgId, workspace_id: ws.id, key: f.key, value: f.value, confidence: f.confidence, source_type: "website" as const, source_ref: sourceUrl, verified: false })));
       await sb.from("agent_runs").update({ status: "succeeded", summary: `Analyzed ${data.url}: ${facts.length} facts`, finished_at: new Date().toISOString() }).eq("id", runId);
       return { ok: true, data: { facts: facts.length, credits: r.credits } };
     } catch (e) {
@@ -304,8 +282,8 @@ export const discoverBusiness = createServerFn({ method: "POST" })
       const pages: string[] = [];
       for (const url of [valid.url.toString(), new URL("/about", valid.url).toString(), new URL("/services", valid.url).toString()]) {
         try {
-          const text = await safeFetch(url);
-          if (text.length >= 50) { sources.push(url); pages.push(quoteUntrusted(url, text, 8000)); }
+          const page = await safeFetch(url);
+          if (page.text.length >= 50 && !sources.includes(page.url)) { sources.push(page.url); pages.push(quoteUntrusted(page.url, page.text, 8000)); }
         } catch (e) { if (sources.length === 0 && url === valid.url.toString()) throw e; }
       }
       if (!pages.length) throw new Error("The website has no accessible public text. You can enter your business details instead.");

@@ -38,3 +38,11 @@ Reservation/refund state machine; server quotas/rate limits; discovery draft per
 
 ## Later
 MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social, ads, CRM, email, revenue)
+
+## Critical context isolation and customer completion
+- [ ] Audit and harden organization/workspace context, messages, document identity and stale workspace requests.
+- [ ] Add and run adversarial server/database isolation tests with separate users and workspaces.
+- [ ] Exercise onboarding, confirmed context and PDF/DOCX/XLSX/CSV/TXT document workflows.
+- [ ] Review customer desktop/mobile interactions and repair safe workflow gaps.
+- [ ] Update handover with exact evidence, limitations and next priorities.
+- [B] Owner initialization, live payments and deployment remain explicitly deferred.
