@@ -16,7 +16,12 @@ Plan: .lovable/plan.md · Report: docs/HANDOVER.md · Status: [x] done+verified 
 13. [~] Billing profile/VAT fields done; PaymentProvider + Stripe stub open
 14. [x] Docs + handover report
 
+## Secure platform owner initialization
+- [ ] Confirm the requesting user's authenticated account through preview sign-in before changing privileges.
+- [ ] Add administration-only, one-time initialization with an immutable audit entry; enforce owner-only server access.
+- [ ] Run initialization/permission tests and verify the confirmed user's owner-center access.
+
 ## Blocked on you
-- [B] Platform owner account (D8) · [B] Real prices (D3) · [B] GitHub (D1) · [B] Stripe account (payments)
+- [B] Platform owner account (D8; awaiting secure sign-in confirmation) · [B] Real prices (D3) · [B] Stripe account (payments)
 ## Later
 MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social, ads, CRM, email, revenue)
