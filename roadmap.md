@@ -40,9 +40,12 @@ Reservation/refund state machine; server quotas/rate limits; discovery draft per
 MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social, ads, CRM, email, revenue)
 
 ## Critical context isolation and customer completion
-- [ ] Audit and harden organization/workspace context, messages, document identity and stale workspace requests.
-- [ ] Add and run adversarial server/database isolation tests with separate users and workspaces.
-- [ ] Exercise onboarding, confirmed context and PDF/DOCX/XLSX/CSV/TXT document workflows.
-- [ ] Review customer desktop/mobile interactions and repair safe workflow gaps.
-- [ ] Update handover with exact evidence, limitations and next priorities.
+- [x] Harden scoped AI readers, verified-only evidence, message/run/document/profile identity and local workspace remounts.
+- [x] Adversarial tests: Vitest 50/50; SQL isolation 39/39, context 13/13, monthly 6/6.
+- [~] Real website → confirmation → reload → real chat; TXT/CSV/PDF extraction and byte-identical downloads; existing DOCX/XLSX download/readback, Word re-extraction. Fresh Excel extraction and post-save inline edit still need verification.
+- [x] Eight customer phone pages checked without horizontal overflow; document download, confirmation and loading/error/retry repaired.
+- [x] Handover records root causes, exact changes/evidence, test fixture effects and limitations.
+- [ ] Separate workspace membership/ACL model if members must not access other workspaces in the same organization; current organization sharing is not workspace-level authorization.
+- [ ] Storage-policy adversarial suite, canonical fact conflict resolution, persistent discovery drafts and full document hostile-input checks.
+- [ ] Atomic credits/refunds and server quotas/rate limits; account/invitation, approval policy and connector completion.
 - [B] Owner initialization, live payments and deployment remain explicitly deferred.
