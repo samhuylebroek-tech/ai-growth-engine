@@ -1,0 +1,7 @@
+# Business discovery — 2026-11-14
+Website is the first step. Authenticated member+ discovery securely reads the supplied page plus bounded /about and /services attempts. Existing URL/redirect/time/size guards and untrusted content quoting remain.
+AI returns validated editable findings for identity, description, industry, model, offerings, audiences, markets, positioning, tone, USPs, competitors and channels. Missing information stays blank. Sources are restricted to fetched URLs; unsupported provenance becomes an assumption. Confidence is the model's estimate, not an independently calibrated score.
+Eight opportunity categories are supported. Users can edit, accept, reject or save an opportunity. Saved/accepted opportunities remain unverified hypotheses.
+Only explicitly confirmed details enter approved context. Profile, confirmation facts and audit are saved by one role-checked SQL transaction. Repeated key/source confirmation updates an existing fact.
+Verified: real Foodlo website returned 9 findings and 8 opportunities, 9 source links; findings began unconfirmed; individual confirmation and phone review worked. This did not overwrite the user's Foodlo profile. A separate clearly named verification organization was used to save/reload a manual profile, edit and confirm knowledge, process documents and test AI/approvals.
+Remaining: persist discovery drafts before confirmation; discover actual internal links rather than conventional paths; retain original excerpt evidence and confirmation actor/timestamp per fact; independent confidence calibration.

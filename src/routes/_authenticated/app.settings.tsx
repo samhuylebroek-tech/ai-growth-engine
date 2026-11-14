@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -11,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export const Route = createFileRoute("/_authenticated/app/settings")({ component: SettingsPage });
+export const Route = createFileRoute("/_authenticated/app/settings")({ head: () => pageHead("Organization settings", "Manage workspaces, invitations and team."), component: SettingsPage });
 
 function SettingsPage() {
   const o = useOrg(); const qc = useQueryClient(); const orgId = o.org?.id; const admin = can(o.role, "members.manage");
@@ -26,7 +27,7 @@ function SettingsPage() {
   } });
   const invites = useQuery({ queryKey: ["invites", orgId], enabled: !!orgId && admin, queryFn: async () => (await supabase.from("invitations").select("*").eq("org_id", orgId!).is("accepted_at", null).order("created_at", { ascending: false })).data ?? [] });
 
-  async function rename(e: React.FormEvent) { e.preventDefault(); const { error } = await supabase.from("organizations").update({ name: orgName }).eq("id", orgId!); if (error) toast.error("Not allowed"); else { toast.success("Saved"); await supabase.rpc("log_audit", { _org: orgId!, _action: "organization.renamed", _target_type: "organization", _target_id: orgId! }); o.refresh(); } }
+  async function rename(e: React.FormEvent) { e.preventDefault(); if (!orgId || !o.org) return; const { error } = await supabase.from("organizations").update({ name: orgName.trim() || o.org.name }).eq("id", orgId); if (error) toast.error("Not allowed"); else { toast.success("Saved"); await supabase.rpc("log_audit", { _org: orgId, _action: "organization.renamed", _target_type: "organization", _target_id: orgId }); o.refresh(); } }
   async function invite(e: React.FormEvent) {
     e.preventDefault();
     const { error } = await supabase.from("invitations").insert({ org_id: orgId!, email: email.trim().toLowerCase(), role, invited_by: o.userId });
@@ -56,7 +57,7 @@ function SettingsPage() {
         {can(o.role, "workspace.create") && <Panel><form onSubmit={addWs} className="space-y-3"><Label>Add a brand or workspace</Label><Input value={wsName} onChange={(e) => setWsName(e.target.value)} required maxLength={120} placeholder="e.g. Second brand" /><Button size="sm">Create workspace</Button></form></Panel>}
       </div>
       <h2 className="mb-3 mt-10 font-semibold">Members</h2>
-      <div className="divide-y divide-border rounded-xl border border-border">{members.data?.map((m) => (
+      <div className="divide-y divide-border rounded-lg border border-border">{members.data?.map((m) => (
         <div key={m.user_id} className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm">
           <span className="flex-1">{m.user_id === o.userId ? `You (${o.email})` : m.name}</span>
           {admin && m.role !== "owner" && m.user_id !== o.userId ? (
@@ -75,7 +76,7 @@ function SettingsPage() {
             <Button type="submit">Create invite link</Button>
           </form>
           <p className="mt-2 text-xs text-muted-foreground">Invitation emails are not sent automatically yet. Copy the link and share it. It works only for that email address and expires in 7 days.</p>
-          {invites.data?.length ? <div className="mt-3 divide-y divide-border rounded-xl border border-border">{invites.data.map((i) => (
+          {invites.data?.length ? <div className="mt-3 divide-y divide-border rounded-lg border border-border">{invites.data.map((i) => (
             <div key={i.id} className="flex flex-wrap items-center gap-3 px-4 py-2.5 text-sm"><span className="flex-1">{i.email} · <span className="capitalize text-muted-foreground">{i.role}</span></span>
               <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(link(i.token)); toast.success("Link copied"); }}><Copy className="mr-1 h-3.5 w-3.5" /> Copy link</Button>
               <Button size="sm" variant="ghost" onClick={async () => { await supabase.from("invitations").delete().eq("id", i.id); qc.invalidateQueries({ queryKey: ["invites"] }); }} aria-label="Revoke"><Trash2 className="h-4 w-4" /></Button></div>

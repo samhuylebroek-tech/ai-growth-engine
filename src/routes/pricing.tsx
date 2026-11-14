@@ -27,11 +27,11 @@ function Pricing() {
       </nav>
       <header className="mx-auto max-w-3xl px-6 pb-12 pt-12 text-center">
         <h1 className="text-4xl font-extrabold md:text-5xl">Pricing that grows with you</h1>
-        <p className="mt-4 text-muted-foreground">Every plan starts with a 14-day free trial. No card required.</p>
+        <p className="mt-4 text-muted-foreground">Every plan starts with a 14-day free trial. No card required.</p><p className="mt-3 text-sm text-warning">Indicative prices — not yet approved for sale. Online checkout is unavailable.</p>
       </header>
       <div className="mx-auto grid max-w-6xl gap-4 px-6 pb-24 md:grid-cols-3 lg:grid-cols-5">
         {q.data?.plans.map((p) => (
-          <div key={p.key} className={`flex flex-col rounded-2xl border bg-card p-6 ${p.key === "professional" ? "border-primary/50 shadow-glow" : "border-border"}`}>
+          <div key={p.key} className={`flex min-w-0 flex-col rounded-lg border bg-card p-5 ${p.key === "professional" ? "border-primary/50" : "border-border"}`}>
             <div className="font-semibold">{p.name}</div>
             <p className="mt-1 text-xs text-muted-foreground">{p.description}</p>
             <div className="mt-4 font-display text-3xl font-bold">{p.price_monthly_eur === null ? "Custom" : `€${Number(p.price_monthly_eur)}`}<span className="text-sm font-normal text-muted-foreground">{p.price_monthly_eur !== null && "/mo"}</span></div>
@@ -41,7 +41,7 @@ function Pricing() {
                 <li key={e.feature_key} className="flex gap-2"><Check className="h-4 w-4 shrink-0 text-primary" />{e.limit_value === null ? "Unlimited" : e.limit_value} {LABEL[e.feature_key]}</li>
               ))}
             </ul>
-            <Link to="/auth" search={{ redirect: undefined }} className="mt-6 rounded-full bg-secondary px-4 py-2 text-center text-sm font-medium hover:bg-primary hover:text-primary-foreground">{p.key === "enterprise" ? "Contact us" : "Start free trial"}</Link>
+            <Link to="/auth" search={{ redirect: undefined }} className="mt-6 rounded-md bg-secondary px-4 py-2 text-center text-sm font-medium hover:bg-primary hover:text-primary-foreground">Start free trial</Link>
           </div>
         ))}
       </div>

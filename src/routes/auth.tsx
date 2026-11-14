@@ -63,7 +63,7 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-background bg-glow px-4">
       <div className="w-full max-w-sm">
         <Link to="/" className="mb-8 flex items-center justify-center gap-2 font-display text-lg font-bold"><Zap className="h-5 w-5 text-primary" /> AI Growth OS</Link>
-        <div className="rounded-2xl border border-border bg-card p-7">
+        <div className="rounded-lg border border-border bg-card p-7">
           <h1 className="text-xl font-bold">{mode === "signin" ? "Welcome back" : mode === "signup" ? "Create your account" : "Reset your password"}</h1>
           {sent ? <p className="mt-4 text-sm text-muted-foreground">{sent}</p> : (
             <>
@@ -82,8 +82,8 @@ function AuthPage() {
             </>
           )}
           <div className="mt-6 space-y-2 text-center text-sm text-muted-foreground">
-            {mode === "signin" && <><button className="hover:text-foreground" onClick={() => { setMode("forgot"); setSent(null); }}>Forgot password?</button><div>New here? <button className="text-primary hover:underline" onClick={() => { setMode("signup"); setSent(null); }}>Create an account</button></div></>}
-            {mode !== "signin" && <button className="text-primary hover:underline" onClick={() => { setMode("signin"); setSent(null); }}>Back to sign in</button>}
+            {mode === "signin" && <><Button variant="link" onClick={() => { setMode("forgot"); setSent(null); }}>Forgot password?</Button><div>New here? <Button variant="link" onClick={() => { setMode("signup"); setSent(null); }}>Create an account</Button></div></>}
+            {mode !== "signin" && <Button variant="link" onClick={() => { setMode("signin"); setSent(null); }}>Back to sign in</Button>}
           </div>
         </div>
       </div>

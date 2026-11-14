@@ -26,6 +26,11 @@ begin
   execute 'set local role authenticated';
   ob := public.create_organization('Org B','WS B');
   select id into wb from public.workspaces where org_id = ob;
+  -- Immutable tenant associations prevent bypass via UPDATE, even within the actor's org.
+  insert into public.business_facts(org_id,workspace_id,key,value,source_type) values(ob,wb,'own','own','user');
+  begin update public.business_facts set workspace_id=wa where org_id=ob; fail:=fail+1; failures:=failures||' cross_workspace_fact_update'; exception when others then pass:=pass+1; end;
+  begin perform public.confirm_business_profile(wa,'{}','[{"key":"test","value":"x","source_type":"user","confidence":1,"verified":true}]'); fail:=fail+1; failures:=failures||' cross_tenant_confirmation'; exception when others then pass:=pass+1; end;
+  if not public.has_platform_role('platform_owner') then pass:=pass+1; else fail:=fail+1; failures:=failures||' org_owner_is_platform_owner'; end if;
 
   -- B cannot see A's data
   select count(*) into n from public.organizations where id = oa; if n = 0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' B_sees_orgA'; end if;
@@ -61,6 +66,7 @@ begin
   exception when others then pass:=pass+1; end;
   begin perform public.decide_approval(ap, true, 'x'); fail:=fail+1; failures:=failures||' viewer_approves'; exception when others then pass:=pass+1; end;
   begin perform public.consume_credits(oa, 1, 'x'); fail:=fail+1; failures:=failures||' viewer_spends'; exception when others then pass:=pass+1; end;
+  begin perform public.confirm_business_profile(wa,'{}','[{"key":"test","value":"x","source_type":"user","confidence":1,"verified":true}]'); fail:=fail+1; failures:=failures||' viewer_confirms'; exception when others then pass:=pass+1; end;
   update public.organization_members set role = 'admin' where org_id = oa and user_id = uv; get diagnostics n = row_count; if n = 0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' viewer_self_promote'; end if;
   execute 'reset role';
 
@@ -73,6 +79,10 @@ begin
   if public.decide_approval(ap, true, 'ok') = 'approved' then pass:=pass+1; else fail:=fail+1; failures:=failures||' approve'; end if;
   begin perform public.decide_approval(ap, false, 'again'); fail:=fail+1; failures:=failures||' double_decide'; exception when others then pass:=pass+1; end;
   select count(*) into n from public.audit_logs where org_id = oa; if n >= 2 then pass:=pass+1; else fail:=fail+1; failures:=failures||' audit_written'; end if;
+  perform public.confirm_business_profile(wa,'{"description":"Confirmed business"}','[{"key":"identity","value":"Business A","source_type":"user","source_ref":"confirmation","confidence":1,"verified":true}]');
+  perform public.confirm_business_profile(wa,'{"description":"Confirmed business"}','[{"key":"identity","value":"Business A","source_type":"user","source_ref":"confirmation","confidence":1,"verified":true}]');
+  select count(*) into n from public.business_facts where workspace_id=wa and key='identity'; if n=1 then pass:=pass+1; else fail:=fail+1; failures:=failures||' confirmation_duplicate'; end if;
+  select count(*) into n from public.business_profiles where workspace_id=wa and description='Confirmed business'; if n=1 then pass:=pass+1; else fail:=fail+1; failures:=failures||' confirmation_not_saved'; end if;
   execute 'reset role';
 
   -- anon sees plans only

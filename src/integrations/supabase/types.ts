@@ -1025,6 +1025,10 @@ export type Database = {
         Args: { _amount: number; _note: string; _org: string }
         Returns: undefined
       }
+      confirm_business_profile: {
+        Args: { _facts: Json; _profile: Json; _workspace: string }
+        Returns: undefined
+      }
       consume_credits: {
         Args: { _amount: number; _org: string; _ref: string }
         Returns: number
@@ -1038,6 +1042,7 @@ export type Database = {
         Args: { _approve: boolean; _id: string; _note: string }
         Returns: Database["public"]["Enums"]["approval_status"]
       }
+      ensure_monthly_credit_grant: { Args: { _org: string }; Returns: number }
       has_org_role: {
         Args: { _min: Database["public"]["Enums"]["org_role"]; _org: string }
         Returns: boolean

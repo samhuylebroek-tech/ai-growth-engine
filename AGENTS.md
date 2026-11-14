@@ -37,3 +37,10 @@ use the editor.
 - Agents, capabilities, connectors and modules are code manifests in `src/lib/registry/`; external-write capabilities must require approval.
 - Never show sample or invented metrics; unconnected integrations show "Not configured".
 - Run `tests/sql/rls_isolation.sql` (via SQL tool; it self-rolls back) and `bunx vitest run` after schema or permission changes.
+- Website discovery returns schema-validated, source-allowlisted findings; confirmation is explicit and only verified facts enter approved AI context.
+- Office files are parsed with bounded ZIP expansion and XML entity rejection; parsing modules are dynamically imported inside authenticated server handlers.
+- The service worker caches only the static offline fallback, never authenticated pages, tenant data, API responses, or files.
+- Leaf routes use the shared pageHead helper for unique metadata; visual roles come from global light/dark design tokens.
+- Profile confirmation uses one role-checked SQL transaction for profile, facts and audit; repeated key/source confirmations update rather than duplicate facts.
+- Tenant/workspace associations are immutable on mutable AI knowledge records, preventing cross-workspace reassignment through UPDATE.
+- Monthly plan credits are lazily granted by a role-checked SQL function before usage and account reads, with a unique organization/month ledger key; no idle polling or duplicate grants.

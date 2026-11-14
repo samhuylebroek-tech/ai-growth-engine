@@ -28,3 +28,8 @@ UI → askGrowthOfficer (requireSupabaseAuth, RLS as user)
 - Privileged state changes (org creation, credits, approval decisions, invite acceptance, audit) are SECURITY DEFINER SQL functions with explicit checks.
 - Registries live in code, not the DB: adding an agent/capability/connector/extension is one manifest entry. `defineCapability` refuses external writes without approval.
 - Payments: no provider is active. Plan changes are manual by platform owners and audited.
+
+## 2026-11-14 additions
+Discovery validation lives in src/lib/discovery.ts; discoverBusiness is authenticated and uses existing meteredGenerate. Office parser is dynamically imported inside document extraction; fflate and fast-xml-parser are bundled dependencies, with no filesystem/runtime asset loading.
+confirm_business_profile provides one role-checked SQL transaction for confirmation and audit. Workspace associations are immutable via triggers. ensure_monthly_credit_grant performs lazy, lock-serialized grants with a partial unique organization/month ledger index; no idle scheduler required.
+Leaf metadata uses pageHead. Shared semantic light/dark tokens remain in styles.css. Service worker intercepts only same-origin GET navigations, falling back to one cached static page on network failure; never caches successful tenant responses.

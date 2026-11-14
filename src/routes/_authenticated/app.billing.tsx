@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -10,13 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export const Route = createFileRoute("/_authenticated/app/billing")({ component: Billing });
+export const Route = createFileRoute("/_authenticated/app/billing")({ head: () => pageHead("Plan and usage", "Plans, entitlements and credit history."), component: Billing });
 
 const FEATURE_LABEL: Record<string, string> = { workspaces: "Workspaces", seats: "Team seats", documents: "Documents", integrations: "Integrations", client_orgs: "Client organizations", ai_assistant: "AI Growth Officer", approvals: "Approval center" };
 
 function Billing() {
   const o = useOrg(); const orgId = o.org?.id;
   const q = useQuery({ queryKey: ["billing", orgId], enabled: !!orgId, queryFn: async () => {
+    if (!orgId) throw new Error("No organization selected.");
+    if (o.role !== "viewer") await supabase.rpc("ensure_monthly_credit_grant", { _org: orgId });
     const [sub, bal, ledger, usage, plans, ents, bp] = await Promise.all([
       supabase.from("subscriptions").select("*").eq("org_id", orgId!).maybeSingle(),
       supabase.rpc("credit_balance", { _org: orgId! }),
@@ -42,14 +45,14 @@ function Billing() {
       <div className="grid gap-2 sm:grid-cols-3">{d?.ents.filter((e) => e.plan_key === d.sub?.plan_key).map((e) => (
         <div key={e.feature_key} className="flex justify-between rounded-lg border border-border px-4 py-2.5 text-sm"><span>{FEATURE_LABEL[e.feature_key] ?? e.feature_key}</span><span className="text-muted-foreground">{e.limit_value === null ? "Unlimited" : e.limit_value}</span></div>
       ))}</div>
-      <h2 className="mb-3 mt-10 font-semibold">Change plan</h2>
+      <h2 className="mb-3 mt-10 font-semibold">Change plan</h2><p className="mb-3 text-xs text-muted-foreground">Indicative prices only — not approved for sale. Checkout is unavailable.</p>
       <Panel className="border-warning/30 bg-warning/5 text-sm">Online payment is not switched on yet, so plans can't be bought here. Contact us to upgrade — the platform team can move your organization to any plan.</Panel>
       <div className="mt-4 grid gap-3 md:grid-cols-3">{d?.plans.filter((p) => p.key !== "trial").map((p) => (
         <Panel key={p.key} className={p.key === d.sub?.plan_key ? "border-primary/40" : ""}><div className="font-semibold">{p.name}</div><div className="mt-1 font-display text-2xl font-bold">{p.price_monthly_eur === null ? "Custom" : `€${Number(p.price_monthly_eur)}`}<span className="text-sm font-normal text-muted-foreground">{p.price_monthly_eur !== null && " /mo"}</span></div><div className="text-xs text-muted-foreground">{p.monthly_credits ? `${p.monthly_credits.toLocaleString()} credits / mo` : "Custom credits"}</div></Panel>
       ))}</div>
-      {can(o.role, "billing.manage") && <BillingProfile orgId={orgId!} initial={d?.bp ?? null} />}
+      {orgId && d && can(o.role, "billing.manage") && <BillingProfile key={`${orgId}-${d.bp?.legal_name ?? ""}`} orgId={orgId} initial={d.bp ?? null} />}
       <h2 className="mb-3 mt-10 font-semibold">Credit history</h2>
-      <div className="divide-y divide-border rounded-xl border border-border text-sm">{d?.ledger.map((l) => (
+      <div className="divide-y divide-border rounded-lg border border-border text-sm">{d?.ledger.map((l) => (
         <div key={l.id} className="flex justify-between px-4 py-2"><span className="text-muted-foreground">{new Date(l.created_at).toLocaleString()} · {l.reason.replace("_", " ")}</span><span className={l.delta > 0 ? "text-success" : ""}>{l.delta > 0 ? "+" : ""}{l.delta}</span></div>
       ))}</div>
     </>
@@ -66,7 +69,7 @@ function BillingProfile({ orgId, initial }: { orgId: string; initial: { legal_na
   return (
     <>
       <h2 className="mb-3 mt-10 font-semibold">Billing details</h2>
-      <form onSubmit={save} className="grid gap-3 rounded-xl border border-border p-5 md:grid-cols-2">
+      <form onSubmit={save} className="grid gap-3 rounded-lg border border-border p-5 md:grid-cols-2">
         <div className="space-y-1.5"><Label>Legal name</Label><Input value={f.legal_name} onChange={(e) => setF({ ...f, legal_name: e.target.value })} maxLength={200} /></div>
         <div className="space-y-1.5"><Label>Country (2-letter code)</Label><Input value={f.country} onChange={(e) => setF({ ...f, country: e.target.value })} maxLength={2} placeholder="BE" /></div>
         <div className="space-y-1.5"><Label>VAT number</Label><Input value={f.vat_id} onChange={(e) => setF({ ...f, vat_id: e.target.value })} maxLength={30} /><p className="text-xs text-muted-foreground">Stored only. VAT validation starts when payments go live.</p></div>

@@ -22,3 +22,15 @@
 - DNS-rebinding: hostnames resolving to private IPs are not resolved/checked (Workers has no DNS API); mitigated by no internal network on Workers.
 - Word/Excel parsing not implemented (files stored, not read).
 - Credits are reserved before the AI call and not refunded if the provider fails.
+
+## 2026-11-14 customer release
+- Added immutable tenant/workspace associations on knowledge and AI workflow rows.
+- Supplied chat conversation IDs are checked against organization and workspace before history/write.
+- Only verified facts enter approved context; source strings are allowlisted against fetched pages.
+- Atomic confirmation checks member+ role and writes profile/facts/audit in one transaction.
+- DOCX/XLSX: 40MB expanded archive limit, 2000-entry limit, XML DTD/entity rejection, 50K retained text. No macros or external Office resources are executed.
+- Upload FileList async mutation defect fixed; batch counter improves client quota feedback (not server-enforced quotas).
+- Expired trial/past-due credit denial now enforced in SQL; lazy monthly grants have an organization/month unique key.
+- Offline cache stores only public fallback HTML. No authenticated pages, API payloads or documents.
+- Actual isolation result: 39/39; monthly credits 6/6; Vitest 41/41. SQL suites deliberately throw at the end to roll back fixtures.
+- Remaining: server-enforced quotas, rate/concurrency limits, robust reservation/refund settlement, DNS-resolution/rebinding guard, full ASVS audit, owner-only overview hardening, auth settings re-verification. Personal owner initialization is deferred.

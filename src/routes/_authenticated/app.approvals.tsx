@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -10,7 +11,7 @@ import { capabilityByKey } from "@/lib/registry/capabilities";
 import { PageHeader, Panel, StatusChip, EmptyState } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/_authenticated/app/approvals")({ component: Approvals });
+export const Route = createFileRoute("/_authenticated/app/approvals")({ head: () => pageHead("Approvals", "Review growth actions and track decisions."), component: Approvals });
 
 function Approvals() {
   const o = useOrg(); const qc = useQueryClient(); const [tab, setTab] = useState<"pending" | "decided">("pending");
@@ -29,7 +30,7 @@ function Approvals() {
   return (
     <>
       <PageHeader title="Approvals" description="Nothing that affects the outside world happens without a person saying yes." />
-      <div className="mb-5 flex gap-1 rounded-lg bg-muted p-1 text-sm w-fit">{(["pending", "decided"] as const).map((t) => <button key={t} onClick={() => setTab(t)} className={`rounded-md px-3 py-1 capitalize ${tab === t ? "bg-background" : "text-muted-foreground"}`}>{t}</button>)}</div>
+      <div className="mb-5 flex gap-1 rounded-lg bg-muted p-1 text-sm w-fit">{(["pending", "decided"] as const).map((t) => <Button key={t} variant={tab === t ? "secondary" : "ghost"} size="sm" onClick={() => setTab(t)} aria-pressed={tab === t} className="capitalize">{t}</Button>)}</div>
       {q.data?.length ? <div className="space-y-3">{q.data.map((a) => {
         const cap = capabilityByKey(a.capability_key);
         return (

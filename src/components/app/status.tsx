@@ -30,9 +30,9 @@ export function StatusChip({ status, children }: { status: string; children?: Re
 
 export function PageHeader({ title, description, actions }: { title: string; description?: string; actions?: ReactNode }) {
   return (
-    <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+    <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{title}</h1>
+        <h1 className="text-2xl font-semibold md:text-3xl">{title}</h1>
         {description && <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{description}</p>}
       </div>
       {actions}
@@ -42,7 +42,7 @@ export function PageHeader({ title, description, actions }: { title: string; des
 
 export function EmptyState({ icon, title, text, action }: { icon?: ReactNode; title: string; text: string; action?: ReactNode }) {
   return (
-    <div className="rounded-xl border border-dashed border-border p-10 text-center">
+    <div className="py-12 text-center">
       {icon && <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">{icon}</div>}
       <h3 className="font-semibold">{title}</h3>
       <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">{text}</p>
@@ -52,5 +52,5 @@ export function EmptyState({ icon, title, text, action }: { icon?: ReactNode; ti
 }
 
 export function Panel({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cn("rounded-xl border border-border bg-card p-5", className)}>{children}</div>;
+  return <div className={cn("min-w-0 rounded-lg border border-border bg-card p-5", className)}>{children}</div>;
 }

@@ -1,8 +1,9 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { EXTENSIONS } from "@/lib/registry/extensions";
 import { PageHeader, Panel, StatusChip } from "@/components/app/status";
 
-export const Route = createFileRoute("/_authenticated/app/modules")({ component: Modules });
+export const Route = createFileRoute("/_authenticated/app/modules")({ head: () => pageHead("Modules", "Growth modules and availability."), component: Modules });
 
 function Modules() {
   return (

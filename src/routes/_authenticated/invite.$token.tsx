@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -5,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/invite/$token")({
-  head: () => ({ meta: [{ title: "Join organization — AI Growth OS" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ ...pageHead("Join organization", "Accept your verified invitation."), meta: [...pageHead("Join organization", "Accept your verified invitation.").meta, { name: "robots", content: "noindex" }] }),
   component: AcceptInvite,
 });
 

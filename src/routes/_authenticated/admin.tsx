@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -11,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/_authenticated/admin")({
-  head: () => ({ meta: [{ title: "Owner center — AI Growth OS" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ ...pageHead("Owner center", "Restricted platform administration."), meta: [...pageHead("Owner center", "Restricted platform administration.").meta, { name: "robots", content: "noindex" }] }),
   component: Admin,
 });
 

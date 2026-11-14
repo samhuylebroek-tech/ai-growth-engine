@@ -43,6 +43,27 @@
       "when": 1794610899225,
       "tag": "0005_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794639708932,
+      "tag": "0006_tenant_workspace_invariants",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794639875702,
+      "tag": "0007_atomic_business_confirmation",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794640175697,
+      "tag": "0008_idempotent_monthly_credit_grants",
+      "breakpoints": true
     }
   ]
 }

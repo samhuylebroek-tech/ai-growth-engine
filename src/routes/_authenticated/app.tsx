@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
-  LayoutDashboard, Sparkles, Building2, FileText, CheckSquare, Activity, Plug, Bot, Boxes, Settings, CreditCard, Shield, LogOut, Zap, Menu, X,
+  LayoutDashboard, Sparkles, Building2, FileText, CheckSquare, Activity, Plug, Bot, Boxes, Settings, CreditCard, Shield, LogOut, Zap, Menu, X, Sun, Moon,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { OrgProvider, useOrg } from "@/lib/org-context";
@@ -57,10 +57,11 @@ function Shell() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className={cn("fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-border bg-surface transition-transform md:static md:translate-x-0", open ? "translate-x-0" : "-translate-x-full")}>
+      <a href="#main-content" className="sr-only z-50 focus:not-sr-only focus:fixed focus:bg-card focus:p-3">Skip to content</a>
+      <aside className={cn("fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-border bg-surface transition-transform md:sticky md:top-0 md:h-dvh md:translate-x-0", open ? "translate-x-0" : "-translate-x-full")}>
         <div className="flex items-center justify-between px-5 py-5">
           <Link to="/app" className="flex items-center gap-2 font-display font-bold"><Zap className="h-4 w-4 text-primary" /> AI Growth OS</Link>
-          <button className="md:hidden" onClick={() => setOpen(false)} aria-label="Close menu"><X className="h-5 w-5" /></button>
+          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(false)} aria-label="Close menu"><X className="h-5 w-5" /></Button>
         </div>
         <div className="px-3">
           <select
@@ -83,8 +84,8 @@ function Shell() {
               <div className="px-3 pb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">{g.group}</div>
               {g.items.map((it) => (
                 <Link key={it.to} to={it.to} onClick={() => setOpen(false)} activeOptions={{ exact: "exact" in it }}
-                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                  activeProps={{ className: "bg-secondary text-foreground" }}>
+                   className="flex min-h-10 items-center gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                   activeProps={{ className: "bg-card font-semibold text-foreground shadow-sm" }}>
                   <it.icon className="h-4 w-4" /> {it.label}
                 </Link>
               ))}
@@ -100,16 +101,16 @@ function Shell() {
         <div className="border-t border-border p-3">
           <div className="truncate px-3 text-xs text-muted-foreground">{o.email}</div>
           <div className="px-3 text-[11px] capitalize text-muted-foreground/70">{o.role}</div>
-          <button onClick={signOut} className="mt-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"><LogOut className="h-4 w-4" /> Sign out</button>
+          <div className="mt-2 flex items-center justify-between"><Button variant="ghost" onClick={signOut} className="text-muted-foreground"><LogOut className="h-4 w-4" /> Sign out</Button><Button variant="ghost" size="icon" aria-label="Toggle color theme" title="Toggle color theme" onClick={() => { const dark = document.documentElement.classList.toggle("dark"); localStorage.setItem("ago.theme", dark ? "dark" : "light"); }}><Sun className="hidden dark:block" /><Moon className="dark:hidden" /></Button></div>
         </div>
       </aside>
       {open && <div className="fixed inset-0 z-30 bg-background/70 md:hidden" onClick={() => setOpen(false)} />}
-      <main className="min-w-0 flex-1">
+      <main id="main-content" className="min-w-0 flex-1">
         <div className="flex items-center gap-3 border-b border-border px-4 py-3 md:hidden">
-          <button onClick={() => setOpen(true)} aria-label="Open menu"><Menu className="h-5 w-5" /></button>
+          <Button variant="ghost" size="icon" onClick={() => setOpen(true)} aria-label="Open menu"><Menu className="h-5 w-5" /></Button>
           <span className="font-display font-bold">AI Growth OS</span>
         </div>
-        <div className="mx-auto max-w-6xl px-5 py-8 md:px-10 md:py-10"><Outlet /></div>
+        <div className="mx-auto max-w-6xl px-4 py-6 md:px-10 md:py-10"><Outlet /></div>
       </main>
     </div>
   );

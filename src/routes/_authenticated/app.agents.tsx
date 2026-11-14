@@ -1,9 +1,10 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { AGENTS } from "@/lib/registry/agents";
 import { CAPABILITIES, capabilityByKey } from "@/lib/registry/capabilities";
 import { PageHeader, Panel, StatusChip } from "@/components/app/status";
 
-export const Route = createFileRoute("/_authenticated/app/agents")({ component: Agents });
+export const Route = createFileRoute("/_authenticated/app/agents")({ head: () => pageHead("Agents and capabilities", "Growth specialists and available capabilities."), component: Agents });
 
 const RISK: Record<string, string> = { read: "Reads data", write_internal: "Changes data inside the platform", write_external: "Acts outside the platform — always needs approval" };
 
@@ -19,7 +20,7 @@ function Agents() {
         </Panel>
       ))}</div>
       <h2 className="mb-3 mt-10 font-semibold">Capabilities</h2>
-      <div className="overflow-hidden rounded-xl border border-border"><table className="w-full text-sm"><thead className="bg-muted/50 text-left text-xs text-muted-foreground"><tr><th className="px-4 py-2">Capability</th><th className="px-4 py-2">What it touches</th><th className="px-4 py-2">Min. role</th><th className="px-4 py-2">Credits</th><th className="px-4 py-2">Status</th></tr></thead>
+      <div className="overflow-x-auto rounded-lg border border-border"><table className="w-full min-w-[640px] text-sm"><thead className="bg-muted/50 text-left text-xs text-muted-foreground"><tr><th className="px-4 py-2">Capability</th><th className="px-4 py-2">What it touches</th><th className="px-4 py-2">Min. role</th><th className="px-4 py-2">Credits</th><th className="px-4 py-2">Status</th></tr></thead>
         <tbody className="divide-y divide-border">{CAPABILITIES.map((c) => <tr key={c.key}><td className="px-4 py-2.5"><div className="font-medium">{c.name}</div><div className="text-xs text-muted-foreground">{c.description}</div></td><td className="px-4 py-2.5 text-xs text-muted-foreground">{RISK[c.risk]}</td><td className="px-4 py-2.5 capitalize">{c.minRole}</td><td className="px-4 py-2.5">{c.credits}</td><td className="px-4 py-2.5"><StatusChip status={c.status} /></td></tr>)}</tbody></table></div>
     </>
   );

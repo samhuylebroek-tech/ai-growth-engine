@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -12,7 +13,7 @@ import { extractDocumentFacts } from "@/lib/ai.functions";
 import { PageHeader, StatusChip, EmptyState } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/_authenticated/app/documents")({ component: Documents });
+export const Route = createFileRoute("/_authenticated/app/documents")({ head: () => pageHead("Documents", "Private documents and evidence extraction."), component: Documents });
 
 function Documents() {
   const o = useOrg(); const qc = useQueryClient(); const ws = o.workspace?.id; const orgId = o.org?.id;
@@ -23,23 +24,25 @@ function Documents() {
 
   async function upload(files: FileList | null) {
     if (!files || !orgId || !ws) return;
+    const selectedFiles = Array.from(files);
     const { data: ent } = await supabase.rpc("org_entitlement", { _org: orgId, _feature: "documents" });
-    for (const file of Array.from(files)) {
+    let uploadedCount = q.data?.length ?? 0;
+    for (const file of selectedFiles) {
       const v = validateUpload(file.name, file.type, file.size);
       if (!v.ok) { toast.error(`${file.name}: ${v.reason}`); continue; }
-      if (typeof ent === "number" && (q.data?.length ?? 0) >= ent) { toast.error(`Your plan allows ${ent} documents. Upgrade for more.`); break; }
+      if (typeof ent === "number" && uploadedCount >= ent) { toast.error(`Your plan allows ${ent} documents. Upgrade for more.`); break; }
       setBusy(file.name);
       const path = `${orgId}/${ws}/${crypto.randomUUID()}-${safeFileName(file.name)}`;
       const up = await supabase.storage.from("documents").upload(path, file, { contentType: file.type || "application/octet-stream" });
       if (up.error) { toast.error(`Upload failed: ${file.name}`); continue; }
       const { error } = await supabase.from("documents").insert({ org_id: orgId, workspace_id: ws, name: file.name.slice(0, 200), storage_path: path, mime: file.type || "application/octet-stream", size_bytes: file.size, uploaded_by: o.userId });
-      if (error) { await supabase.storage.from("documents").remove([path]); toast.error("Could not save document"); }
+      if (error) { await supabase.storage.from("documents").remove([path]); toast.error("Could not save document"); } else uploadedCount++;
     }
     setBusy(null); refresh();
   }
   async function runExtract(id: string) {
-    setBusy(id); const r = await extract({ data: { documentId: id } }); setBusy(null); refresh();
-    if (r.ok) toast.success(`Extracted ${r.data.facts} facts (${r.data.credits} credits). Review them in Business profile.`); else toast.error(r.error);
+    setBusy(id);
+    try { const r = await extract({ data: { documentId: id } }); if (r.ok) toast.success(`Extracted ${r.data.facts} facts (${r.data.credits} credits). Review them in Business profile.`); else toast.error(r.error); } catch { toast.error("Document reading could not finish."); } finally { setBusy(null); refresh(); }
   }
   async function remove(id: string, path?: string) {
     const doc = q.data?.find((d) => d.id === id); if (!doc) return;
@@ -54,9 +57,9 @@ function Documents() {
     <>
       <PageHeader title="Documents" description="Business plans, brand guidelines, pricing and strategy files. Stored privately for your organization only."
         actions={canUpload && <><input ref={input} type="file" multiple hidden accept=".pdf,.docx,.xlsx,.csv,.txt,.md" onChange={(e) => { upload(e.target.files); e.target.value = ""; }} /><Button onClick={() => input.current?.click()} disabled={!!busy}><Upload className="mr-1.5 h-4 w-4" />{busy ? "Working…" : "Upload"}</Button></>} />
-      <p className="mb-4 text-xs text-muted-foreground">PDF, TXT, MD and CSV can be read by AI. Word and Excel files are stored but not yet read automatically. Max 20 MB.</p>
+      <p className="mb-4 text-xs text-muted-foreground">PDF, DOCX, XLSX, CSV, TXT & MD · Max 20 MB · Private storage</p>
       {q.data?.length ? (
-        <div className="divide-y divide-border rounded-xl border border-border">{q.data.map((d) => (
+        <div className="divide-y divide-border rounded-lg border border-border">{q.data.map((d) => (
           <div key={d.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
             <FileText className="h-4 w-4 text-muted-foreground" />
             <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{d.name}</div><div className="text-xs text-muted-foreground">{(d.size_bytes / 1024).toFixed(0)} KB · {new Date(d.created_at).toLocaleDateString()}</div></div>

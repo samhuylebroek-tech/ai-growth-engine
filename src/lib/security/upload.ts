@@ -25,5 +25,5 @@ export function safeFileName(name: string): string {
 /** Wrap untrusted text before it enters a prompt so the model treats it as data. */
 export function quoteUntrusted(label: string, text: string, max = 12000): string {
   const clean = text.replace(/<\/?untrusted[^>]*>/gi, "").slice(0, max);
-  return `<untrusted source="${label.replace(/"/g, "")}">\n${clean}\n</untrusted>`;
+  return `<untrusted source="${label.replace(/[<>"&]/g, "")}">\n${clean}\n</untrusted>`;
 }
