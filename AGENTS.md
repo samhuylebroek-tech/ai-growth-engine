@@ -54,3 +54,5 @@ use the editor.
 - Home and intelligence share one scoped summary query; question handoffs are session-only and keyed by organization/workspace so drafts never cross contexts.
 - Conversation messages are loaded only after verifying their parent conversation belongs to the active organization/workspace and authenticated user, because messages have no workspace column.
 - Owner-center server reads require the exact Platform Owner role and fail closed, so general platform staff cannot access owner operations.
+- The command center normalizes workspace-filtered runs, documents and approvals into typed, entity-deduplicated events; bounded foreground polling avoids fictional realtime and never polls credit grants.
+- Home display preferences are keyed by user, organization and workspace; attention and active work stay visible while secondary sections can move or hide.

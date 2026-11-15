@@ -15,7 +15,7 @@ export function GrowthQuestion({ compact = false }: { compact?: boolean }) {
     sessionStorage.setItem(growthDraftKey(o.org.id, o.workspace.id), message.trim());
     navigate({ to: "/app/growth-officer" });
   }
-  const prompts = compact ? ["Prioritize my next growth move", "Build a 30-day action plan"] : ["Find my biggest growth opportunities", "Create a 30-day action plan", "What information am I missing?"];
+  const prompts = compact ? ["Prioritize my next growth move", "Build a 30-day action plan"] : ["Find my biggest growth opportunities", "Which tasks need attention today?", "What information am I missing?"];
   return <div>
     <form onSubmit={e => { e.preventDefault(); start(question); }} className="rounded-lg border border-border bg-card p-3 focus-within:border-primary/50">
       <Textarea aria-label="Ask Growth Officer" value={question} onChange={e => setQuestion(e.target.value)} disabled={!allowed} maxLength={4000} rows={compact ? 2 : 3} placeholder={allowed ? "What would you like to work on?" : "Member access is required to ask a question"} className="min-h-16 resize-none border-0 bg-transparent p-1 text-sm shadow-none focus-visible:ring-0" />

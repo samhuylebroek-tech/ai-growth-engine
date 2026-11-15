@@ -1,4 +1,10 @@
 # AI Growth OS — Task Queue
+## Ultimate homescreen — delivered available-data experience 2026-11-15
+- [x] Unified scoped activity stream/history, active AI work, attention, results and honest unavailable scheduling/performance states.
+- [x] Global context/actions/attention access and user-scoped section order, visibility and density preferences.
+- [x] Signed-in detail navigation, real AI question/result readback, org switching, preference reload and desktop/tablet/phone; 83 tests passed. Report: docs/HOMESCREEN.md.
+- [B] Campaign/project/task/calendar/analytics experiences require those unavailable modules; full restricted-user/concurrent-workflow/multi-workspace browser matrix remains unverified, not simulated.
+
 ## Complete product remake — delivered frontend, 2026-11-15
 - [x] Replace tool-first navigation with six primary destinations, contextual tabs and shared search.
 - [x] Rebuild Home around verified intelligence, priorities, scoped Growth Officer question and display preferences.
