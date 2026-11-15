@@ -59,3 +59,6 @@ use the editor.
 
 - Execution work uses workspace-scoped projects/tasks/campaigns and typed parent-scoped execution_notes; composite foreign keys and triggers prevent cross-workspace links.
 - Recommendation conversion and explicit next recurrence use role-checked atomic SQL RPCs with unique source/request keys; no scheduler or external execution is implied.
+- Execution collections traverse scoped ID keysets under a creation watermark and reject incomplete/non-advancing reads; list filters run over the collected set before display pagination.
+- AI execution context accepts only bounded explicit record references, refetches as the caller and quotes operational text separately from verified facts.
+- Specialist analyses are single user-started metered calls with validated domain output and private source-linked conversation results; they never recursively dispatch agents.

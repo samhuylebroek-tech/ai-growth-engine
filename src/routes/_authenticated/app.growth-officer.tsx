@@ -14,6 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import { PlanReview } from "@/components/execution/plan-review";
+import { ExecutionContextPicker } from "@/components/execution/context-picker";
+import type { ExecutionRef } from "@/lib/execution-context";
 import { consumeGrowthDraft, growthDraftKey } from "@/lib/growth-draft";
 
 export const Route = createFileRoute("/_authenticated/app/growth-officer")({ head: () => pageHead("Growth Officer", "Evidence-aware conversations and recommendations."), component: GrowthOfficer });
@@ -26,9 +28,10 @@ function GrowthOfficer() {
   const [pending, setPending] = useState<string | null>(null);
   const end = useRef<HTMLDivElement>(null);
   const restoredDraft = useRef<string | null>(null);
+  const [executionContext, setExecutionContext] = useState<ExecutionRef[]>([]);
   const [contextOpen, setContextOpen] = useState(false);
   useEffect(() => {
-    setConv(null); setPending(null);
+    setConv(null); setPending(null); setExecutionContext([]);
     if (!o.org || !o.workspace) { setText(""); return; }
     const key = growthDraftKey(o.org.id, o.workspace.id);
     if (restoredDraft.current === key) return;
@@ -59,7 +62,7 @@ function GrowthOfficer() {
     if (!o.org || !o.workspace || !message.trim() || busy || !can(o.workspaceRole, "ai.use")) return;
     setBusy(true); setPending(message); setText("");
     try {
-      const r = await ask({ data: { orgId: o.org.id, workspaceId: o.workspace.id, conversationId: conv, message } });
+      const r = await ask({ data: { orgId: o.org.id, workspaceId: o.workspace.id, conversationId: conv, message, executionContext } });
       if (!r.ok) { toast.error(r.error); setText(message); return; }
       setConv(r.data.conversationId);
       if (r.data.proposals) toast.success(`${r.data.proposals} action${r.data.proposals > 1 ? "s" : ""} sent to Approvals`);
@@ -87,6 +90,7 @@ function GrowthOfficer() {
           {msgs.isError && <p role="alert" className="text-sm text-destructive">Conversation could not load.<Button variant="link" onClick={() => msgs.refetch()}>Retry</Button></p>}
           {!conv && !pending ? <div className="py-10"><Sparkles className="mb-6 h-7 w-7 text-primary" /><h2 className="max-w-lg text-2xl font-semibold leading-snug">A clear next move.<br />Built around your business.</h2><p className="mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground">{verified.length ? `${verified.length} confirmed business facts are available in ${o.workspace?.name}.` : "Your business context is not confirmed yet. I’ll make missing evidence and assumptions explicit."}</p><div className="mt-7 grid gap-2 sm:grid-cols-2">{STARTERS.map(starter => <Button key={starter} variant="outline" className="h-auto min-h-16 justify-between whitespace-normal p-3 text-left text-xs" disabled={!allowed || busy} onClick={() => setText(starter)}>{starter}<ArrowUpRight className="shrink-0 text-muted-foreground" /></Button>)}</div></div> : <div className="space-y-6 pb-4">{list.map(m => <div key={m.id}><Bubble role={m.role} content={m.content} />{m.role === "assistant" && allowed && <div className="mt-3"><PlanReview sourceId={m.id} content={m.content} /></div>}</div>)}{pending && <><Bubble role="user" content={pending} /><div role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Sparkles className="h-4 w-4 text-primary" />Working on your question…</div></>}<div ref={end} /></div>}
         </div>
+        {allowed && <div className="mt-3"><ExecutionContextPicker value={executionContext} onChange={setExecutionContext} disabled={busy} /></div>}
         {allowed ? <form onSubmit={e => { e.preventDefault(); send(text); }} className="mt-5 rounded-lg border border-border bg-card p-3 focus-within:border-primary/50"><Textarea aria-label="Question for Growth Officer" value={text} onChange={e => setText(e.target.value)} rows={3} maxLength={4000} placeholder="Ask a question or describe your next goal…" className="min-h-20 resize-none border-0 bg-transparent p-1 shadow-none focus-visible:ring-0" onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(text); } }} /><div className="mt-2 flex items-center justify-between gap-2"><span className="flex items-center gap-1.5 text-[10px] text-muted-foreground"><BookOpen className="h-3 w-3" />{verified.length} confirmed facts · workspace-scoped</span><Button type="submit" size="icon" disabled={busy || !text.trim()} aria-label="Send" title="Send question"><Send /></Button></div></form> : <p className="mt-5 text-sm text-muted-foreground">Viewer access · conversations are read-only.</p>}
         <p className="mt-3 text-[10px] text-muted-foreground">AI credits apply · <Link to="/app/billing" className="underline">View usage</Link> · Verify important decisions.</p>
       </div>

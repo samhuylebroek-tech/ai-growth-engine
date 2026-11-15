@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -58,6 +58,8 @@ import {
   type Note,
 } from "@/lib/execution";
 
+import { pageSlice } from "@/lib/pagination";
+
 const label = (s: string) => s.replace(/_/g, " ");
 const due = (item: WorkItem) => ("due_date" in item ? item.due_date : item.end_date);
 const inputClass = "min-w-0 rounded-md border border-border bg-background px-2 py-2 text-xs";
@@ -73,6 +75,7 @@ export function ExecutionWorkspace({
   const qc = useQueryClient();
   const navigate = useNavigate();
   const q = useQuery(executionOptions(o.org?.id, o.workspace?.id, o.userId));
+  const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [view, setView] = useState("list");
   const [filter, setFilter] = useState(kind === "tasks" ? "mine" : "all");
@@ -113,6 +116,8 @@ export function ExecutionWorkspace({
           String(due(x)) < today &&
           !["done", "cancelled", "completed", "archived"].includes(x.status))),
   );
+  useEffect(() => { setPage(1); }, [search, filter, status, priority, kind]);
+  const paged = pageSlice(filtered, page);
   async function refresh() {
     await qc.invalidateQueries({ queryKey: ["execution"] });
   }
@@ -265,7 +270,7 @@ export function ExecutionWorkspace({
         <>
           {view === "list" && (
             <div className="divide-y divide-border border-y border-border">
-              {filtered.map((x) => (
+              {paged.rows.map((x) => (
                 <div key={x.id} className="flex min-w-0 flex-wrap items-center gap-3 py-4">
                   {kind === "tasks" && editable && (
                     <Button
@@ -330,6 +335,7 @@ export function ExecutionWorkspace({
               ))}
             </div>
           )}
+          {view === "list" && <div className="my-4 flex items-center justify-between gap-3"><p className="text-xs text-muted-foreground">{paged.total} matching {kind} · page {paged.page} of {paged.pages}</p><div className="flex gap-1"><Button variant="outline" size="icon" aria-label="Previous work page" disabled={paged.page === 1} onClick={() => setPage(paged.page - 1)}><ChevronLeft /></Button><Button variant="outline" size="icon" aria-label="Next work page" disabled={paged.page === paged.pages} onClick={() => setPage(paged.page + 1)}><ChevronRight /></Button></div></div>}
           {view === "kanban" && (
             <div className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
               {STATUSES[kind].map((s) => (

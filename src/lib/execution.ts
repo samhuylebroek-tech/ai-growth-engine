@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { collectPages } from "@/lib/pagination";
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
@@ -110,53 +111,39 @@ export function taskProgress(tasks: Task[]) {
 }
 export function executionOptions(orgId?: string, workspaceId?: string, userId?: string) {
   return queryOptions({
-    queryKey: ["execution", "v1", orgId, workspaceId, userId],
+    queryKey: ["execution", "v2", orgId, workspaceId, userId],
     enabled: !!orgId && !!workspaceId,
     refetchInterval: 30000,
     refetchIntervalInBackground: false,
     queryFn: async () => {
       if (!orgId || !workspaceId) throw new Error("Choose a workspace");
-      const [projects, tasks, campaigns, notes, events, members, approvals] = await Promise.all([
-        supabase
-          .from("projects")
-          .select("*")
-          .eq("org_id", orgId)
-          .eq("workspace_id", workspaceId)
-          .order("updated_at", { ascending: false }),
-        supabase
-          .from("tasks")
-          .select("*")
-          .eq("org_id", orgId)
-          .eq("workspace_id", workspaceId)
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("campaigns")
-          .select("*")
-          .eq("org_id", orgId)
-          .eq("workspace_id", workspaceId)
-          .order("updated_at", { ascending: false }),
-        supabase
-          .from("execution_notes")
-          .select("*")
-          .eq("org_id", orgId)
-          .eq("workspace_id", workspaceId)
-          .order("created_at"),
-        supabase
-          .from("activity_events")
-          .select("*")
-          .eq("org_id", orgId)
-          .eq("workspace_id", workspaceId)
-          .order("created_at", { ascending: false })
-          .limit(200),
-        supabase.rpc("execution_workspace_members", { _workspace: workspaceId }),
-        supabase
-          .from("approvals")
-          .select("id,title,status")
-          .eq("org_id", orgId)
-          .eq("workspace_id", workspaceId),
+      const watermark = new Date().toISOString();
+      function all<K extends "projects" | "tasks" | "campaigns" | "execution_notes" | "approvals">(table: K) {
+        // Build predicates with concrete table types; the client generic cannot narrow shared columns.
+        return collectPages<Database["public"]["Tables"][K]["Row"]>(async (cursor, size) => {
+          const build = () => {
+            if (table === "projects") return supabase.from("projects").select("*").eq("org_id", orgId ?? "").eq("workspace_id", workspaceId ?? "").lte("created_at", watermark).order("id").limit(size);
+            if (table === "tasks") return supabase.from("tasks").select("*").eq("org_id", orgId ?? "").eq("workspace_id", workspaceId ?? "").lte("created_at", watermark).order("id").limit(size);
+            if (table === "campaigns") return supabase.from("campaigns").select("*").eq("org_id", orgId ?? "").eq("workspace_id", workspaceId ?? "").lte("created_at", watermark).order("id").limit(size);
+            if (table === "execution_notes") return supabase.from("execution_notes").select("*").eq("org_id", orgId ?? "").eq("workspace_id", workspaceId ?? "").lte("created_at", watermark).order("id").limit(size);
+            return supabase.from("approvals").select("*").eq("org_id", orgId ?? "").eq("workspace_id", workspaceId ?? "").lte("created_at", watermark).order("id").limit(size);
+          };
+          const query = build();
+          const result = await (cursor ? query.gt("id", cursor) : query);
+          return { data: result.data as Database["public"]["Tables"][K]["Row"][] | null, error: result.error };
+        });
+      }
+      const [projectRows, taskRows, campaignRows, noteRows, events, members, approvalRows] = await Promise.all([
+        all("projects"), all("tasks"), all("campaigns"), all("execution_notes"),
+        supabase.from("activity_events").select("*").eq("org_id", orgId).eq("workspace_id", workspaceId).order("created_at", { ascending: false }).order("id").limit(200),
+        supabase.rpc("execution_workspace_members", { _workspace: workspaceId }), all("approvals"),
       ]);
-      for (const r of [projects, tasks, campaigns, notes, events, members, approvals])
-        if (r.error) throw r.error;
+      for (const result of [events, members]) if (result.error) throw result.error;
+      const projects = { data: projectRows.sort((a,b) => b.updated_at.localeCompare(a.updated_at) || a.id.localeCompare(b.id)) };
+      const tasks = { data: taskRows.sort((a,b) => b.created_at.localeCompare(a.created_at) || a.id.localeCompare(b.id)) };
+      const campaigns = { data: campaignRows.sort((a,b) => b.updated_at.localeCompare(a.updated_at) || a.id.localeCompare(b.id)) };
+      const notes = { data: noteRows.sort((a,b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id)) };
+      const approvals = { data: approvalRows };
       return {
         projects: projects.data ?? [],
         tasks: tasks.data ?? [],
