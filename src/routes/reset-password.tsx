@@ -50,7 +50,7 @@ function ResetPassword() {
       <div className="w-full max-w-sm rounded-lg border border-border bg-card p-7 text-center">
         <h1 className="text-xl font-bold">This reset link isn't valid</h1>
         <p className="mt-3 text-sm text-muted-foreground">Request a new password-reset link and open it directly from your email.</p>
-        <Button asChild className="mt-6 w-full"><Link to="/auth">Request a new link</Link></Button>
+        <Button asChild className="mt-6 w-full"><Link to="/auth" search={{ redirect: undefined }}>Request a new link</Link></Button>
       </div>
     </div>
   );

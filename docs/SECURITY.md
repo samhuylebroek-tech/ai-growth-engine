@@ -1,41 +1,27 @@
-# Security
+# Security — 2026-11-15
 
 ## Controls in place
-- **Tenant isolation**: RLS on every public table; every tenant row carries `org_id`; helper functions are SECURITY DEFINER with fixed `search_path`. `anon` has no privileges except `plans`/`plan_entitlements` of public plans.
-- **Roles**: owner > admin > member > viewer. Owner cannot be granted via update (trigger). Platform roles live in a separate table with no insert path for users.
-- **Server enforcement**: server functions re-check role and entitlement; DB re-checks again.
-- **Credits**: ledger is append-only; only `consume_credits` (member+, ≤1000, row-locked) and `admin_grant_credits` (platform owner) write to it.
-- **Approvals**: only `decide_approval` can change status (admin+, pending only, audited).
-- **Uploads**: extension/MIME allowlist, 20 MB cap (client + bucket), private bucket, path scoped by org id, storage RLS by org membership.
-- **SSRF**: website analysis allows only public http(s) hosts on 80/443, blocks private/loopback/link-local IPs and IP literals, re-validates every redirect hop, 8 s timeout, 600 KB cap.
-- **Prompt injection**: all customer/document/website content is wrapped in `<untrusted>` blocks; instructions tell the model to treat it as data; AI cannot execute actions — it can only create pending approvals for registered capabilities.
-- **Auth**: email verification on, password reset page, Google sign-in, redirect targets sanitized to same-origin paths.
+- **Tenant/workspace isolation**: RLS on every public table; restrictive workspace policies cover knowledge, documents, conversations/messages, runs, approvals, extensions, scoped connectors, usage and private storage. Explicit assignments are capped by organization role; only organization owners retain all-workspace administration. Removal clears assignments.
+- **Roles**: owner > admin > member > viewer. Owner cannot be granted through membership updates. Platform roles live separately with no user insert path; owner-center reads require the exact Platform Owner role.
+- **Server enforcement**: authenticated server functions re-check organization/workspace roles and entitlements. Privileged SQL functions use fixed `search_path` and explicit caller/run/workspace checks. No app code uses a service-role client.
+- **Credits**: the ledger is append-only. Role-checked SQL functions reserve, settle and refund atomically; final settlement inserts usage in the same transaction. Direct client usage/reservation inserts are denied. Additional settlement cannot overdraw the balance.
+- **Invitations**: secured creation/acceptance checks seat entitlement, matching confirmed email, expiry and single use. Acceptance grants no implicit workspace access; direct invitation inserts are revoked.
+- **Approvals**: workspace admins decide pending items through an audited SQL function. Blocked organization capabilities cannot be proposed or approved, but can be rejected.
+- **Uploads**: extension/MIME allowlist, 20 MB cap, private bucket, immutable org/workspace paths and workspace storage RLS. Office parsing bounds ZIP expansion and rejects XML DTD/entities; document content is untrusted.
+- **SSRF**: website analysis permits public HTTP(S) hosts on 80/443, blocks private/loopback/link-local IPs and IP literals, revalidates redirects, times out after 8 seconds and caps reads at 600 KB.
+- **Prompt injection**: customer/document/website content is quoted as untrusted data. AI cannot execute actions; it can only propose registered, policy-allowed capabilities for approval.
+- **Auth/recovery**: email verification remains on; reset requires a recovery-type link/session; OAuth returns to a same-origin public path and intended destinations are sanitized. Google and managed Microsoft buttons exist; OIDC uses the dedicated custom provider.
+- **Offline privacy**: only the static public fallback is cached, never tenant pages, API payloads or documents.
 
-## Tests
-- `tests/sql/rls_isolation.sql` — 33 database-level checks with three temporary users (two tenants + a viewer). Self-rolls back. Last result: **33 pass, 0 fail** (2026-11-13).
-- `src/test/rules.test.ts` — 31 unit tests (roles, approval transitions, credit math, SSRF, uploads, registry rule). Last result: **31 pass**.
+## Fresh verification
+- Vitest: **59 passed, 0 failed** across 6 files.
+- Rollback-only database checks: **119 passed, 0 failed** — tenant isolation 39, workspace/storage 30, context identity 13, monthly credits 6, credit lifecycle 14, invitations 12 and approval policies 5.
+- Signed-in browser: policy persistence/restoration, no-email invitation create/revoke, invalid recovery rejection, real AI response/readback and settled credit history passed with zero page errors. External Microsoft/OIDC/SAML authentication and multi-account UI acceptance were not exercised.
 
-## Known gaps / risks
-- MFA, SSO/SCIM, session revocation UI, account deletion flow: not built.
-- Leaked-password (HIBP) check: not verified as enabled.
-- Rate limiting of AI calls is credit-based only; no per-minute limiter yet.
-- DNS-rebinding: hostnames resolving to private IPs are not resolved/checked (Workers has no DNS API); mitigated by no internal network on Workers.
-- Word/Excel parsing not implemented (files stored, not read).
-- Credits are reserved before the AI call and not refunded if the provider fails.
-
-## 2026-11-14 customer release
-- Added immutable tenant/workspace associations on knowledge and AI workflow rows.
-- Supplied chat conversation IDs are checked against organization and workspace before history/write.
-- Only verified facts enter approved context; source strings are allowlisted against fetched pages.
-- Atomic confirmation checks member+ role and writes profile/facts/audit in one transaction.
-- DOCX/XLSX: 40MB expanded archive limit, 2000-entry limit, XML DTD/entity rejection, 50K retained text. No macros or external Office resources are executed.
-- Upload FileList async mutation defect fixed; batch counter improves client quota feedback (not server-enforced quotas).
-- Expired trial/past-due credit denial now enforced in SQL; lazy monthly grants have an organization/month unique key.
-- Offline cache stores only public fallback HTML. No authenticated pages, API payloads or documents.
-- Actual isolation result: 39/39; monthly credits 6/6; Vitest 41/41. SQL suites deliberately throw at the end to roll back fixtures.
-- Remaining: server-enforced quotas, rate/concurrency limits, robust reservation/refund settlement, DNS-resolution/rebinding guard, full ASVS audit, owner-only overview hardening, auth settings re-verification. Personal owner initialization is deferred.
-
-## Current workspace authorization — 2026-11-15
-Explicit workspace assignments now apply to knowledge, documents, conversations/messages, runs, approvals, extensions, scoped connector connections and private storage. Organization owners have explicit all-workspace administration; organization admins and members do not. Assignments are capped by organization role, owner-managed and audited. Existing non-owner access was converted to explicit assignments. New members receive no automatic assignments. Team removal clears old assignments.
-Workspace creation checks active plans and quota atomically; direct inserts are revoked. Sensitive confirmation/approval SQL functions and every AI entry point check workspace authorization. The owner overview now requires the exact platform_owner role and fails closed on role/read errors. No platform privileges were assigned.
-Fresh results: Vitest 58/58; tenant isolation 39/39; context identities 13/13; monthly credits 6/6; workspace/storage suite 28/28 before the member-removal extension. Additional removal/rejoin checks are reported in the handover. SQL tests deliberately roll back. Storage deletion itself must use the Storage API; the SQL suite tests its authorization predicate, not a successful direct storage deletion. No full security certification, SSO implementation, hostile-file completion or background-job execution is claimed.
+## Known gaps and risks
+- MFA, SAML/SCIM, organization-specific OIDC routing, domain verification, group/role mapping, session-revocation UI and account deletion/export are unfinished. SAML configuration was declined; no SAML success is claimed.
+- Microsoft sign-in is enabled but not tested with an external account. OIDC requires administrator provider configuration. Enterprise entitlements do not prove provider readiness.
+- No per-minute/concurrency AI limiter. Additional credit settlement is capped by remaining balance rather than hard maximum-cost pre-budgeting.
+- DNS resolution/rebinding checks are limited by the runtime; public-host validation and redirect revalidation remain in place.
+- Full hostile-file coverage, background-job authorization, workspace-specific audit redaction, rate limits and formal OWASP/GDPR/ISO/SOC2 assessment remain open. No compliance certification is claimed.
+- Personal Platform Owner initialization, live payments, production publishing and external actions remain deferred; no platform privileges were granted.

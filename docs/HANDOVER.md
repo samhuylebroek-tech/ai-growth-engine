@@ -1,4 +1,24 @@
 # Autonomous customer release handover — 2026-11-14
+## Foundation completion and final-quality follow-up — verified 2026-11-15
+
+### Delivered in this session
+- Added database-atomic AI credit reservations, actual-usage settlement, unused-reservation refunds and provider-failure refunds. Reservation, settlement, usage-event insertion and ledger writes share one SQL transaction; direct client writes to AI usage history are revoked. Additional settlement cannot overdraw the organization; if the remaining balance cannot cover the full actual charge, the recorded charge is capped at the reservation plus remaining balance.
+- Added server-enforced invitation creation and acceptance. Invitations require a valid unique email, an active seat entitlement and available seats at both creation and acceptance. Acceptance requires the matching confirmed email, is single-use and grants no implicit workspace assignment. Direct invitation inserts are revoked. The settings page uses the secured function and still sends no email.
+- Password recovery now requires a recovery-type URL and a recovery session before showing the password form; invalid/incomplete links receive a useful recovery action. No current-password field is sent on the recovery page.
+- Microsoft managed sign-in is enabled and visible beside the branded Google button. Organization OIDC uses the platform's dedicated custom provider and same-origin return path. Neither Microsoft nor OIDC was exercised with a real external identity account. OIDC still requires administrator configuration; SAML setup was declined and remains unconfigured; SCIM, domain verification, organization-specific role mapping and session-revocation UI are not implemented.
+- Organization action policies are now editable by administrators. Blocked capabilities are rejected by a database trigger on new proposals and cannot be approved; existing pending items can still be rejected. Growth Officer also filters blocked proposals. The browser test restored the verification organization's recommendation policy to Approval required.
+
+### Exact fresh evidence
+- **59 Vitest tests passed across 6 files.** Latest automatic application check: **build OK** after the recovery navigation correction.
+- **119 database checks passed, 0 failed:** tenant isolation 39, workspace/storage authorization 30, context isolation 13, monthly credits 6, credit reservation/settlement 14, invitation lifecycle 12 and approval policies 5. Each suite deliberately raises its final result to roll back all fixtures. The first credit test exposed test evaluation ordering, then a real settlement variable/column collision; the function was corrected and the complete suite passed afterward.
+- Signed-in browser journey: Google, Microsoft and organization-SSO controls were visible; an invalid recovery URL was rejected; a recommendation policy was blocked, reloaded, restored and reloaded; a no-email test invitation was created and revoked; a real Growth Officer answer completed and its conversation survived reload; Plan & usage displayed the resulting **−3 reservation and +2 refund** with **162 credits remaining**. The answer identified existing conflicting verification facts instead of inventing a business identity.
+- Desktop screenshots of sign-in, policies, chat and credit history were inspected. Phone-width Approvals and Organization settings had no document-wide horizontal overflow. **Zero browser page errors** occurred. No Microsoft/OIDC external redirect, SAML flow, real invitation email or multi-account UI acceptance was exercised.
+
+### Remaining scope and risks
+The full final-quality directive is **not complete**. Rate/concurrency limits and hard maximum-cost pre-budgeting remain open; actual settlement can be capped by available balance as described above. Multi-account UI role assignment/revocation, full signup/email delivery/reset delivery, account deletion, MFA, session revocation and enterprise domain/linking/role-mapping workflows remain incomplete. SAML is not configured and no ACS/entity values or successful SAML validation are claimed. Specialized agents remain honestly Planned; connector OAuth/execution, module toggles, discovery draft persistence/conflict resolution, document versions/hostile-input matrix, accessibility/performance/PWA published testing and public homepage polish remain. No official security/privacy certification is claimed.
+Personal Platform Owner initialization, live payments, production publishing, external marketing actions and outbound customer emails remain deferred. No platform role was granted and no production action occurred.
+
+---
 ## Ultimate completion directive — verified progress 2026-11-15
 
 ### Delivered in this bounded session

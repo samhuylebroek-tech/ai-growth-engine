@@ -128,17 +128,22 @@ export const askGrowthOfficer = createServerFn({ method: "POST" })
       const { clean, proposals } = parseProposals(r.text);
       const reply = clean || "I couldn't produce an answer this time.";
       await sb.from("messages").insert({ conversation_id: conversationId, org_id: data.orgId, role: "assistant", content: reply });
-      for (const p of proposals) {
+      const policyResult = await sb.from("policies").select("capability_key,mode").eq("org_id", data.orgId).eq("mode", "blocked");
+      if (policyResult.error) throw new Error("Could not check organization action policies.");
+      const blocked = new Set(policyResult.data.map((p) => p.capability_key));
+      const allowedProposals = proposals.filter((p) => !blocked.has(p.capability));
+      for (const p of allowedProposals) {
         const cap = capabilityByKey(p.capability);
         if (!cap) continue;
-        await sb.from("approvals").insert({
+        const saved = await sb.from("approvals").insert({
           org_id: data.orgId, workspace_id: data.workspaceId, run_id: runId, capability_key: cap.key, title: p.title,
           reasoning: p.reasoning, expected_impact: p.expected_impact, risk: p.risk, requested_by: userId,
           payload: { source: "growth_officer", capability_status: cap.status },
         });
+        if (saved.error) throw new Error("Could not save an action proposal.");
       }
       await sb.from("agent_runs").update({ status: "succeeded", summary: reply.slice(0, 300), finished_at: new Date().toISOString() }).eq("id", runId);
-      return { ok: true, data: { conversationId, reply, proposals: proposals.length, credits: r.credits } };
+      return { ok: true, data: { conversationId, reply, proposals: allowedProposals.length, credits: r.credits } };
     } catch (e) {
       if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(e), finished_at: new Date().toISOString() }).eq("id", runId);
       return { ok: false, error: friendly(e) };

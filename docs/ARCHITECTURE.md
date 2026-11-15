@@ -10,17 +10,18 @@ TanStack Start (React 19, SSR on Cloudflare Workers) + Lovable Cloud (Postgres, 
 | AI orchestration | `src/lib/ai.functions.ts` (server functions), `src/lib/ai/provider.server.ts` (provider abstraction), `agent_runs`, `ai_usage_events`, `conversations`, `messages` |
 | Registries | Code-first manifests in `src/lib/registry/` (agents, capabilities, connectors, extensions) |
 | Approvals | `approvals`, `policies`, SQL `decide_approval` (pending → approved/rejected only, admin+) |
-| Commercial | `plans`, `plan_entitlements`, `subscriptions`, `credit_ledger` (append-only), `billing_profiles`; SQL `consume_credits`, `credit_balance`, `org_entitlement`, `admin_grant_credits` |
+| Commercial | `plans`, `plan_entitlements`, `subscriptions`, `credit_ledger` (append-only), `ai_credit_reservations`, `billing_profiles`; SQL reservation/settlement/refund, balance, entitlement and owner-adjustment functions |
 | Owner center | `/admin`, `src/lib/admin.functions.ts`, reads via platform-staff RLS policies |
 
 ## Request flow for an AI call
 ```text
 UI → askGrowthOfficer (requireSupabaseAuth, RLS as user)
-  → has_org_role(member) → entitlement check (plan_entitlements)
-  → consume_credits(reserve)  [row lock on org, balance check]
+  → org/workspace member checks → entitlement and monthly-grant checks
+  → reserve_ai_credits(run)  [org row lock, owner/workspace/balance check]
   → provider.generate()       [untrusted context quoted]
-  → settle extra credits → ai_usage_events (tokens, € estimate)
-  → proposals → approvals(pending)  [only registered capability keys]
+  → settle_ai_credits(run)   [actual usage + ledger + reservation, atomic]
+     or refund_ai_credits(run) after provider failure
+  → proposals → approvals(pending)  [registered, not policy-blocked capabilities]
 ```
 
 ## Key decisions
@@ -37,3 +38,6 @@ Leaf metadata uses pageHead. Shared semantic light/dark tokens remain in styles.
 ## 2026-11-15 workspace authorization
 `workspace_members` records explicit assignments for non-owner organization members. `has_workspace_role` requires active organization membership, caps the assignment by the organization role and explicitly permits organization owners to administer every workspace. Existing sharing was backfilled as assignments; new invitations grant organization membership only. Removal clears all workspace assignments, so rejoining cannot revive stale access.
 Restrictive RLS policies compose with existing permissive policies on workspace content, messages, usage and connector scope. Storage uses validated org/workspace paths. `confirm_business_profile` and `decide_approval` enforce workspace access despite SECURITY DEFINER execution. AI server functions check member access before provider work. `create_workspace` locks the organization, validates the active entitlement, creates the workspace/profile and audit event atomically; direct authenticated inserts are revoked. Page search uses `src/lib/navigation.ts`. Owner overview requires the exact Platform Owner role through a shared fail-closed server guard; no owner was initialized.
+
+## 2026-11-15 credit, invitation, policy and identity completion
+`ai_credit_reservations` keys one reservation per run. `reserve_ai_credits`, `settle_ai_credits` and `refund_ai_credits` serialize on the organization row; settlement inserts `ai_usage_events` and ledger changes atomically, and direct authenticated usage/reservation inserts are revoked. `create_invitation` and `accept_invitation` enforce seat quotas and confirmed matching emails without assigning workspaces. `guard_approval_proposal` and `decide_approval` enforce blocked organization policies. Microsoft managed OAuth and the dedicated custom OIDC provider are client authentication paths; SAML is unconfigured and SCIM is not implemented. See docs/ENTERPRISE_AUTH.md.
