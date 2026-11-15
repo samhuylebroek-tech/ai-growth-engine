@@ -3,6 +3,7 @@
 - [~] Re-audit workspace authorization and complete the remaining customer journey, including invitations, roles and account lifecycle.
 - [ ] Add atomic AI credit reservation, settlement/refund and abuse controls with regression tests.
 - [~] Add supported enterprise authentication without claiming unconfigured OIDC, SAML or SCIM as available.
+- [~] Fold the final quality directive's customer, SAML, workflow, agent and integration requirements into the current foundation work.
 - [ ] Re-run automated, database and signed-in browser verification; update handover with exact evidence and remaining limits.
 - [B] Personal Platform Owner initialization, live payments, production publishing and real external marketing actions remain explicitly deferred.
 
