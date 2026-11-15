@@ -980,6 +980,35 @@ export type Database = {
           },
         ]
       }
+      workspace_members: {
+        Row: {
+          created_at: string
+          role: Database["public"]["Enums"]["org_role"]
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          role: Database["public"]["Enums"]["org_role"]
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          role?: Database["public"]["Enums"]["org_role"]
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_members_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspaces: {
         Row: {
           created_at: string
@@ -1037,10 +1066,18 @@ export type Database = {
         Args: { _name: string; _workspace_name: string }
         Returns: string
       }
+      create_workspace: {
+        Args: { _name: string; _org: string }
+        Returns: string
+      }
       credit_balance: { Args: { _org: string }; Returns: number }
       decide_approval: {
         Args: { _approve: boolean; _id: string; _note: string }
         Returns: Database["public"]["Enums"]["approval_status"]
+      }
+      document_path_access: {
+        Args: { _min: Database["public"]["Enums"]["org_role"]; _path: string }
+        Returns: boolean
       }
       ensure_monthly_credit_grant: { Args: { _org: string }; Returns: number }
       has_org_role: {
@@ -1049,6 +1086,13 @@ export type Database = {
       }
       has_platform_role: {
         Args: { _role: Database["public"]["Enums"]["platform_role"] }
+        Returns: boolean
+      }
+      has_workspace_role: {
+        Args: {
+          _min?: Database["public"]["Enums"]["org_role"]
+          _workspace: string
+        }
         Returns: boolean
       }
       is_org_member: { Args: { _org: string }; Returns: boolean }
@@ -1070,6 +1114,14 @@ export type Database = {
       role_rank: {
         Args: { _r: Database["public"]["Enums"]["org_role"] }
         Returns: number
+      }
+      set_workspace_member: {
+        Args: {
+          _role?: Database["public"]["Enums"]["org_role"]
+          _user: string
+          _workspace: string
+        }
+        Returns: undefined
       }
       shares_org_with: { Args: { _user: string }; Returns: boolean }
       ws_org: { Args: { _ws: string }; Returns: string }

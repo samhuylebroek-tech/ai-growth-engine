@@ -1,0 +1,2 @@
+CREATE OR REPLACE FUNCTION public.clear_removed_member_workspace_access() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN DELETE FROM public.workspace_members wm USING public.workspaces w WHERE wm.workspace_id=w.id AND w.org_id=OLD.org_id AND wm.user_id=OLD.user_id; RETURN OLD; END $$;
+CREATE TRIGGER clear_removed_member_workspace_access AFTER DELETE ON public.organization_members FOR EACH ROW EXECUTE FUNCTION public.clear_removed_member_workspace_access();

@@ -29,7 +29,7 @@ function GrowthOfficer() {
   useEffect(() => { end.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs.data, pending]);
 
   async function send(message: string) {
-    if (!o.org || !o.workspace || !message.trim() || busy || !can(o.role, "ai.use")) return;
+    if (!o.org || !o.workspace || !message.trim() || busy || !can(o.workspaceRole, "ai.use")) return;
     setBusy(true); setPending(message); setText("");
     try {
       const r = await ask({ data: { orgId: o.org.id, workspaceId: o.workspace.id, conversationId: conv, message } });
@@ -41,7 +41,7 @@ function GrowthOfficer() {
     } catch { toast.error("The answer could not finish. Your question is preserved."); setText(message); }
     finally { setBusy(false); setPending(null); }
   }
-  const allowed = can(o.role, "ai.use");
+  const allowed = can(o.workspaceRole, "ai.use");
   const list = msgs.data ?? [];
   return (
     <div className="grid h-[calc(100dvh-10rem)] min-h-[420px] gap-6 md:h-[calc(100dvh-5rem)] md:grid-cols-[200px_1fr]">

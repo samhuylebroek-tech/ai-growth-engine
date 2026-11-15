@@ -1,14 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requirePlatformOwner } from "@/lib/security/owner";
 
-// Owner control center data. Authorization: platform staff only; all reads go through RLS
+// Owner control center data. Authorization: platform owner only; all reads go through RLS
 // policies that grant platform staff read access (no service-role client used).
 export const getOwnerOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const sb = context.supabase;
-    const { data: staff } = await sb.rpc("is_platform_staff");
-    if (!staff) return { ok: false as const, error: "Platform staff only." };
+    try { await requirePlatformOwner(sb); }
+    catch { return { ok: false as const, error: "Platform Owner access required." }; }
     const since = new Date(Date.now() - 30 * 864e5).toISOString();
     const [orgs, subs, plans, usage] = await Promise.all([
       sb.from("organizations").select("id,name,type,status,created_at").order("created_at", { ascending: false }).limit(1000),
@@ -16,6 +17,7 @@ export const getOwnerOverview = createServerFn({ method: "GET" })
       sb.from("plans").select("*").order("tier"),
       sb.from("ai_usage_events").select("org_id,cost_estimate_eur,credits_charged,input_tokens,output_tokens,model").gte("created_at", since).limit(10000),
     ]);
+    for (const result of [orgs, subs, plans, usage]) if (result.error) return { ok: false as const, error: "The owner overview could not load." };
     const planMap = new Map((plans.data ?? []).map((p) => [p.key, p]));
     const costByOrg = new Map<string, { cost: number; credits: number; calls: number }>();
     for (const u of usage.data ?? []) {

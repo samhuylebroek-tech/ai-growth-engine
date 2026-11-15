@@ -46,3 +46,7 @@ use the editor.
 - AI context readers require explicit organization/workspace scope, fail closed on read errors, and use verified facts rather than descriptive profile mirrors; this prevents stale edits from bypassing confirmation.
 - Key customer content by organization/workspace to remount local drafts and in-flight handlers on switching; document extraction requires both identifiers and validates immutable storage identity.
 - Monthly plan credits are lazily granted by a role-checked SQL function before usage and account reads, with a unique organization/month ledger key; no idle polling or duplicate grants.
+- Workspace access requires explicit workspace assignments capped by organization role; organization owners retain all-workspace administration, and restrictive policies also protect storage and scoped RPCs.
+- Workspace creation goes through the atomic quota-checked SQL function, not direct inserts, to prevent concurrent plan-limit bypasses.
+- Shared code navigation drives the drawer and page-search dialog so visible destinations remain consistent and implemented.
+- Owner-center server reads require the exact Platform Owner role and fail closed, so general platform staff cannot access owner operations.

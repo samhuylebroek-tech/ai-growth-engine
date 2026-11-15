@@ -65,7 +65,7 @@ function Documents() {
     if (removed.error) toast.error("Document removed from the list; stored file cleanup could not finish.");
     refresh();
   }
-  const canUpload = can(o.role, "documents.upload");
+  const canUpload = can(o.workspaceRole, "documents.upload");
   return (
     <>
       <PageHeader title="Documents" description="Business plans, brand guidelines, pricing and strategy files. Stored privately for your organization only."
@@ -81,7 +81,7 @@ function Documents() {
             <StatusChip status={d.status} />
             <Button size="icon" variant="ghost" onClick={() => download(d.id)} aria-label={`Download ${d.name}`} title="Download document"><Download className="h-4 w-4" /></Button>
             {canUpload && <Button size="sm" variant="outline" onClick={() => runExtract(d.id)} disabled={!!busy}><Wand2 className="mr-1 h-3.5 w-3.5" />{busy === d.id ? "Reading…" : "Extract facts"}</Button>}
-            {can(o.role, "members.manage") && <Button size="sm" variant="ghost" onClick={() => remove(d.id)} aria-label="Delete"><Trash2 className="h-4 w-4" /></Button>}
+            {can(o.workspaceRole, "members.manage") && <Button size="sm" variant="ghost" onClick={() => remove(d.id)} aria-label="Delete"><Trash2 className="h-4 w-4" /></Button>}
           </div>
         ))}</div>
       ) : !q.isLoading && !q.isError ? <EmptyState icon={<FileText className="h-5 w-5" />} title="No documents yet" text="Upload a business plan or brand guide so the Growth Officer can learn from it." /> : null}

@@ -108,6 +108,8 @@ export const askGrowthOfficer = createServerFn({ method: "POST" })
       await requireRole(sb, data.orgId, "member");
       await assertEntitled(sb, data.orgId, "ai_assistant");
       await requireWorkspace(sb, data);
+      const access = await sb.rpc("has_workspace_role", { _workspace: data.workspaceId, _min: "member" });
+      if (access.error || !access.data) throw new Error("You need member access to this workspace.");
 
       let conversationId = data.conversationId;
       const history = conversationId ? await readConversation(sb, data, conversationId, userId) : [];
@@ -171,6 +173,8 @@ export const extractDocumentFacts = createServerFn({ method: "POST" })
     let runId: string | null = null;
     try {
       await requireRole(sb, doc.org_id, "member");
+      const access = await sb.rpc("has_workspace_role", { _workspace: doc.workspace_id, _min: "member" });
+      if (access.error || !access.data) throw new Error("You need member access to this workspace.");
       await assertEntitled(sb, doc.org_id, "ai_assistant");
       const ext = doc.name.split(".").pop()?.toLowerCase();
       const validation = validateUpload(doc.name, doc.mime, doc.size_bytes);
@@ -245,6 +249,8 @@ export const analyzeWebsite = createServerFn({ method: "POST" })
       if (!ws) throw new Error("Workspace not found.");
       orgId = ws.org_id;
       await requireRole(sb, orgId, "member");
+      const access = await sb.rpc("has_workspace_role", { _workspace: ws.id, _min: "member" });
+      if (access.error || !access.data) throw new Error("You need member access to this workspace.");
       await assertEntitled(sb, orgId, "ai_assistant");
       const { text, url: sourceUrl } = await safeFetch(data.url);
       if (text.length < 50) throw new Error("The website had too little readable text to analyze.");
@@ -275,6 +281,8 @@ export const discoverBusiness = createServerFn({ method: "POST" })
       const { data: ws } = await sb.from("workspaces").select("id,org_id").eq("id", data.workspaceId).maybeSingle();
       if (!ws) throw new Error("Workspace not found.");
       await requireRole(sb, ws.org_id, "member");
+      const access = await sb.rpc("has_workspace_role", { _workspace: ws.id, _min: "member" });
+      if (access.error || !access.data) throw new Error("You need member access to this workspace.");
       await assertEntitled(sb, ws.org_id, "ai_assistant");
       const valid = validatePublicUrl(data.url);
       if (!valid.ok) throw new Error(valid.reason);

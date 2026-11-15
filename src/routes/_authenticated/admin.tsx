@@ -23,7 +23,7 @@ function Admin() {
   const q = useQuery({ queryKey: ["owner"], queryFn: () => fn() });
   const [grant, setGrant] = useState<Record<string, string>>({});
   if (q.isLoading) return <div className="p-10 text-sm text-muted-foreground">Loading…</div>;
-  if (!q.data?.ok) return <div className="p-10"><p className="text-sm">This area is for platform staff only.</p><Link to="/app" className="text-sm text-primary">Back to app</Link></div>;
+  if (!q.data?.ok) return <div className="p-10"><p className="text-sm">{q.data?.error ?? "This area requires Platform Owner access."}</p><Link to="/app" className="text-sm text-primary">Back to app</Link></div>;
   const { rows, totals, plans } = q.data;
 
   async function setPlan(orgId: string, planKey: string) {

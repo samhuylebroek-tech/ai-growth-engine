@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Copy, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/lib/org-context";
-import { assignableRoles, can, type OrgRole } from "@/lib/permissions";
+import { assignableRoles, can, hasRole, type OrgRole } from "@/lib/permissions";
 import { PageHeader, Panel } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,17 @@ function SettingsPage() {
   const o = useOrg(); const qc = useQueryClient(); const orgId = o.org?.id; const admin = can(o.role, "members.manage");
   const [orgName, setOrgName] = useState(""); const [email, setEmail] = useState(""); const [role, setRole] = useState<OrgRole>("member");
   const [wsName, setWsName] = useState(""); const [newOrg, setNewOrg] = useState("");
+  const [creatingWs, setCreatingWs] = useState(false);
+  const assignments = useQuery({ queryKey: ["workspace-assignments", orgId], enabled: !!orgId && o.role === "owner", queryFn: async () => {
+    const ids = o.workspaces.map(w => w.id); if (!ids.length) return [];
+    const result = await supabase.from("workspace_members").select("workspace_id,user_id,role").in("workspace_id", ids);
+    if (result.error) throw result.error; return result.data ?? [];
+  } });
+  async function assignWorkspace(workspaceId: string, userId: string, role: string) {
+    const { error } = await supabase.rpc("set_workspace_member", { _workspace: workspaceId, _user: userId, ...(role === "none" ? {} : { _role: role as OrgRole }) });
+    if (error) { toast.error(error.message); return; }
+    toast.success("Workspace access saved"); await qc.invalidateQueries({ queryKey: ["workspace-assignments", orgId] }); await o.refresh();
+  }
   const members = useQuery({ queryKey: ["members", orgId], enabled: !!orgId, queryFn: async () => {
     const { data: m } = await supabase.from("organization_members").select("user_id,role,created_at").eq("org_id", orgId!);
     const ids = (m ?? []).map((x) => x.user_id);
@@ -39,12 +50,13 @@ function SettingsPage() {
   async function removeMember(userId: string) { const { error } = await supabase.from("organization_members").delete().eq("org_id", orgId!).eq("user_id", userId); if (error) toast.error("Not allowed"); else await supabase.rpc("log_audit", { _org: orgId!, _action: "member.removed", _target_type: "user", _target_id: userId }); qc.invalidateQueries({ queryKey: ["members"] }); }
   async function addWs(e: React.FormEvent) {
     e.preventDefault();
-    const { data: lim } = await supabase.rpc("org_entitlement", { _org: orgId!, _feature: "workspaces" });
-    if (typeof lim === "number" && o.workspaces.length >= lim) { toast.error(`Your plan allows ${lim} workspace${lim > 1 ? "s" : ""}.`); return; }
-    const { data, error } = await supabase.from("workspaces").insert({ org_id: orgId!, name: wsName }).select("id").single();
-    if (error) { toast.error("Not allowed"); return; }
-    await supabase.from("business_profiles").insert({ workspace_id: data.id, org_id: orgId! });
-    setWsName(""); o.refresh(); toast.success("Workspace created");
+    if (!orgId || creatingWs) return;
+    setCreatingWs(true);
+    try {
+      const { data, error } = await supabase.rpc("create_workspace", { _org: orgId, _name: wsName.trim() });
+      if (error) { toast.error(error.message); return; }
+      setWsName(""); if (data) o.setWorkspaceId(data); await o.refresh(); toast.success("Workspace created");
+    } finally { setCreatingWs(false); }
   }
   async function createOrg(e: React.FormEvent) { e.preventDefault(); const { data, error } = await supabase.rpc("create_organization", { _name: newOrg, _workspace_name: newOrg }); if (error) toast.error(error.message); else { setNewOrg(""); o.setOrgId(data as string); o.refresh(); } }
   const link = (t: string) => `${window.location.origin}/invite/${t}`;
@@ -54,8 +66,17 @@ function SettingsPage() {
       <PageHeader title="Organization" description={`${o.org?.name} · your role: ${o.role}`} />
       <div className="grid gap-4 md:grid-cols-2">
         {can(o.role, "org.update") && <Panel><form onSubmit={rename} className="space-y-3"><Label>Organization name</Label><Input defaultValue={o.org?.name} onChange={(e) => setOrgName(e.target.value)} required maxLength={120} /><Button size="sm">Save</Button></form></Panel>}
-        {can(o.role, "workspace.create") && <Panel><form onSubmit={addWs} className="space-y-3"><Label>Add a brand or workspace</Label><Input value={wsName} onChange={(e) => setWsName(e.target.value)} required maxLength={120} placeholder="e.g. Second brand" /><Button size="sm">Create workspace</Button></form></Panel>}
+        {can(o.role, "workspace.create") && <Panel><form onSubmit={addWs} className="space-y-3"><Label htmlFor="new-workspace">Add a brand or workspace</Label><Input id="new-workspace" value={wsName} onChange={(e) => setWsName(e.target.value)} required maxLength={120} placeholder="e.g. Second brand" /><Button size="sm" disabled={creatingWs}>{creatingWs ? "Creating…" : "Create workspace"}</Button></form></Panel>}
       </div>
+      <section className="mt-8">
+        <h2 className="mb-3 font-semibold">Workspaces & access</h2>
+        {assignments.isError && <p role="alert" className="text-sm text-destructive">Workspace access could not load. <Button variant="link" onClick={() => assignments.refetch()}>Retry</Button></p>}
+        <div className="divide-y divide-border">{o.workspaces.map(w => <div key={w.id} className="py-4">
+          <div className="flex items-center justify-between gap-3"><h3 className="text-sm font-semibold">{w.name}</h3><Button variant="outline" size="sm" onClick={() => o.setWorkspaceId(w.id)} disabled={o.workspace?.id === w.id}>{o.workspace?.id === w.id ? "Selected" : "Open workspace"}</Button></div>
+          {o.role === "owner" && members.data?.filter(m => m.role !== "owner").map(m => <div key={m.user_id} className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm"><span>{m.name}</span><select aria-label={`Workspace access for ${m.name} in ${w.name}`} className="rounded-md border border-border bg-background px-3" disabled={assignments.isLoading} value={assignments.data?.find(a => a.user_id === m.user_id && a.workspace_id === w.id)?.role ?? "none"} onChange={e => assignWorkspace(w.id, m.user_id, e.target.value)}><option value="none">No access</option>{(["viewer", "member", "admin"] as const).filter(r => hasRole(m.role, r)).map(r => <option key={r} value={r}>{r}</option>)}</select></div>)}
+        </div>)}</div>
+        <p className="mt-2 text-xs text-muted-foreground">Organization owners can administer all workspaces. Other team members need an explicit assignment.</p>
+      </section>
       <h2 className="mb-3 mt-10 font-semibold">Members</h2>
       <div className="divide-y divide-border rounded-lg border border-border">{members.data?.map((m) => (
         <div key={m.user_id} className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm">

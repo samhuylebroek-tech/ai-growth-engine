@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_authenticated/app/profile")({ head: () =
 const SOURCE_LABEL: Record<string, string> = { user: "You", document: "Document", website: "Website", ai_assumption: "AI assumption", external: "External research" };
 
 function Profile() {
-  const o = useOrg(); const qc = useQueryClient(); const ws = o.workspace?.id; const edit = can(o.role, "profile.edit");
+  const o = useOrg(); const qc = useQueryClient(); const ws = o.workspace?.id; const edit = can(o.workspaceRole, "profile.edit");
   const [k, setK] = useState(""); const [v, setV] = useState("");
   const [editing, setEditing] = useState<string | null>(null); const [value, setValue] = useState("");
   const q = useQuery({

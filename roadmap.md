@@ -1,4 +1,12 @@
 # AI Growth OS — Task Queue
+## Ultimate product completion — active 2026-11-15
+- [x] Refine shell, collapsible navigation, global page search and evidence-based overview.
+- [x] Explicit workspace access assignments, database/storage authorization and adversarial tests.
+- [~] Atomic workspace creation and owner-managed access UI implemented; scoped approvals/activity improved. Multi-user assignment UI, invitations and full lifecycle verification remain.
+- [x] Signed-in desktop/tablet/phone navigation, saved knowledge → real AI → history readback, regression suites and handover.
+- [ ] Complete remaining customer, commercial, enterprise, connector and agent phases after core verification.
+- [B] Personal owner initialization, payments, outbound communications and publishing are explicitly deferred.
+
 Plan: .lovable/plan.md · Report: docs/HANDOVER.md · Status: [x] done+verified · [~] partial · [ ] open · [B] blocked
 
 1. [x] Cloud, design tokens, public site + Pricing
@@ -45,7 +53,7 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [~] Real website → confirmation → reload → real chat; TXT/CSV/PDF extraction and byte-identical downloads; existing DOCX/XLSX download/readback, Word re-extraction. Fresh Excel extraction and post-save inline edit still need verification.
 - [x] Eight customer phone pages checked without horizontal overflow; document download, confirmation and loading/error/retry repaired.
 - [x] Handover records root causes, exact changes/evidence, test fixture effects and limitations.
-- [ ] Separate workspace membership/ACL model if members must not access other workspaces in the same organization; current organization sharing is not workspace-level authorization.
-- [ ] Storage-policy adversarial suite, canonical fact conflict resolution, persistent discovery drafts and full document hostile-input checks.
+- [x] Explicit workspace membership/ACL model, restrictive content/storage authorization and owner-managed assignments implemented (2026-11-15).
+- [~] Storage-policy read/upload authorization suite passed; successful Storage API deletion lifecycle, canonical fact conflict resolution, persistent discovery drafts and full document hostile-input checks remain.
 - [ ] Atomic credits/refunds and server quotas/rate limits; account/invitation, approval policy and connector completion.
 - [B] Owner initialization, live payments and deployment remain explicitly deferred.

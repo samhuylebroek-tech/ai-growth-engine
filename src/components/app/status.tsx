@@ -30,9 +30,9 @@ export function StatusChip({ status, children }: { status: string; children?: Re
 
 export function PageHeader({ title, description, actions }: { title: string; description?: string; actions?: ReactNode }) {
   return (
-    <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-6">
+    <div className="mb-7 flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-semibold md:text-3xl">{title}</h1>
+        <h1 className="text-2xl font-semibold">{title}</h1>
         {description && <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{description}</p>}
       </div>
       {actions}

@@ -7,7 +7,7 @@ begin
  (ub,'context-b@test.local','authenticated','authenticated','00000000-0000-0000-0000-000000000000');
  perform set_config('request.jwt.claims',json_build_object('sub',ua,'role','authenticated')::text,true); execute 'set local role authenticated';
  oa:=public.create_organization('Context A','Workspace A'); select id into wa from public.workspaces where org_id=oa;
- insert into public.workspaces(org_id,name) values(oa,'Workspace A2') returning id into wa2;
+ execute 'reset role'; insert into public.workspaces(org_id,name) values(oa,'Workspace A2') returning id into wa2; execute 'set local role authenticated';
  insert into public.conversations(org_id,workspace_id,user_id,title) values(oa,wa,ua,'Private A') returning id into ca;
  insert into public.documents(org_id,workspace_id,name,storage_path,mime,size_bytes,uploaded_by) values(oa,wa,'a.txt',oa::text||'/'||wa::text||'/a.txt','text/plain',5,ua) returning id into da;
  insert into public.business_facts(org_id,workspace_id,key,value,source_type,verified) values(oa,wa,'secret','A-only','user',true),(oa,wa2,'secret','A2-only','user',true),(oa,wa,'hypothesis','not evidence','ai_assumption',false);

@@ -30,7 +30,7 @@ function Onboarding() {
   const [choices, setChoices] = useState<Record<number, "accepted" | "saved" | "rejected">>({});
   const [goals, setGoals] = useState(""); const [budget, setBudget] = useState("");
   const [busy, setBusy] = useState(false); const [error, setError] = useState(""); const [sources, setSources] = useState<string[]>([]);
-  const editable = can(o.role, "profile.edit");
+  const editable = can(o.workspaceRole, "profile.edit");
   useEffect(() => {
     if (!o.workspace) return;
     let active = true;

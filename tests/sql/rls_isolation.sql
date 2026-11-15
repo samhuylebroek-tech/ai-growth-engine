@@ -20,6 +20,7 @@ begin
   execute 'reset role';
   -- viewer joins org A
   insert into public.organization_members(org_id,user_id,role) values (oa, uv, 'viewer');
+  insert into public.workspace_members(workspace_id,user_id,role) values(wa,uv,'viewer');
 
   -- user B creates org B
   perform set_config('request.jwt.claims', json_build_object('sub',ub,'role','authenticated')::text, true);

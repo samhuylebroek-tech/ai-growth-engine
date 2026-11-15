@@ -1,9 +1,9 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
-  LayoutDashboard, Sparkles, Building2, FileText, CheckSquare, Activity, Plug, Bot, Boxes, Settings, CreditCard, Shield, LogOut, Zap, Menu, X, Sun, Moon,
+  Shield, LogOut, Zap, Menu, X, Sun, Moon, Search, ChevronDown,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { OrgProvider, useOrg } from "@/lib/org-context";
@@ -11,40 +11,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { NAVIGATION } from "@/lib/navigation";
+import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
+import { pageHead } from "@/lib/page-head";
 
 export const Route = createFileRoute("/_authenticated/app")({
-  head: () => ({ meta: [{ title: "AI Growth OS" }, { name: "robots", content: "noindex" }] }),
+  head: () => pageHead("Workspace", "Your business growth workspace."),
   component: () => <OrgProvider><Shell /></OrgProvider>,
 });
-
-const NAV = [
-  { group: "Home", items: [
-    { to: "/app", label: "Overview", icon: LayoutDashboard, exact: true },
-    { to: "/app/growth-officer", label: "Growth Officer", icon: Sparkles },
-  ] },
-  { group: "Know", items: [
-    { to: "/app/profile", label: "Business profile", icon: Building2 },
-    { to: "/app/documents", label: "Documents", icon: FileText },
-  ] },
-  { group: "Operate", items: [
-    { to: "/app/approvals", label: "Approvals", icon: CheckSquare },
-    { to: "/app/activity", label: "AI activity", icon: Activity },
-  ] },
-  { group: "Connect", items: [
-    { to: "/app/integrations", label: "Integrations", icon: Plug },
-    { to: "/app/agents", label: "Agents", icon: Bot },
-    { to: "/app/modules", label: "Modules", icon: Boxes },
-  ] },
-  { group: "Settings", items: [
-    { to: "/app/settings", label: "Organization", icon: Settings },
-    { to: "/app/billing", label: "Plan & usage", icon: CreditCard },
-  ] },
-] as const;
 
 function Shell() {
   const o = useOrg();
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState(false);
+  const [collapsed, setCollapsed] = useState<string[]>([]);
   const qc = useQueryClient(); const navigate = useNavigate();
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setSearch(s => !s); } if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("keydown", key); return () => document.removeEventListener("keydown", key);
+  }, []);
 
   async function signOut() {
     await qc.cancelQueries(); qc.clear();
@@ -53,15 +38,16 @@ function Shell() {
   }
 
   if (o.loading) return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">Loading…</div>;
+  if (o.error) return <div role="alert" className="flex min-h-screen flex-col items-center justify-center gap-4"><p>Your workspace could not load.</p><Button onClick={() => o.refresh()}>Retry</Button></div>;
   if (o.memberships.length === 0) return <CreateOrganization />;
 
   return (
     <div className="flex min-h-screen bg-background">
       <a href="#main-content" className="sr-only z-50 focus:not-sr-only focus:fixed focus:bg-card focus:p-3">Skip to content</a>
-      <aside className={cn("fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-border bg-surface transition-transform md:sticky md:top-0 md:h-dvh md:translate-x-0", open ? "translate-x-0" : "-translate-x-full")}>
+      <aside className={cn("fixed inset-y-0 left-0 z-40 flex w-60 shrink-0 flex-col border-r border-border bg-surface transition-transform lg:sticky lg:top-0 lg:h-dvh lg:translate-x-0", open ? "translate-x-0" : "-translate-x-full")}>
         <div className="flex items-center justify-between px-5 py-5">
           <Link to="/app" className="flex items-center gap-2 font-display font-bold"><Zap className="h-4 w-4 text-primary" /> AI Growth OS</Link>
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(false)} aria-label="Close menu"><X className="h-5 w-5" /></Button>
+          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(false)} aria-label="Close menu"><X className="h-5 w-5" /></Button>
         </div>
         <div className="px-3">
           <select
@@ -79,13 +65,14 @@ function Shell() {
           )}
         </div>
         <nav className="mt-4 flex-1 space-y-5 overflow-y-auto px-3 pb-6">
-          {NAV.map((g) => (
+          <Button variant="outline" className="w-full justify-start text-muted-foreground" onClick={() => setSearch(true)}><Search className="h-4 w-4" /> Search pages</Button>
+          {NAVIGATION.map((g) => (
             <div key={g.group}>
-              <div className="px-3 pb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">{g.group}</div>
-              {g.items.map((it) => (
+              <Button variant="ghost" size="sm" className="mb-1 w-full justify-between px-3 text-xs text-muted-foreground" aria-expanded={!collapsed.includes(g.group)} onClick={() => setCollapsed(c => c.includes(g.group) ? c.filter(x => x !== g.group) : [...c, g.group])}>{g.group}<ChevronDown className={cn("h-3 w-3 transition-transform", collapsed.includes(g.group) && "-rotate-90")} /></Button>
+              {!collapsed.includes(g.group) && g.items.map((it) => (
                 <Link key={it.to} to={it.to} onClick={() => setOpen(false)} activeOptions={{ exact: "exact" in it }}
                    className="flex min-h-10 items-center gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                   activeProps={{ className: "bg-card font-semibold text-foreground shadow-sm" }}>
+                   activeProps={{ className: "bg-accent font-semibold text-primary" }}>
                   <it.icon className="h-4 w-4" /> {it.label}
                 </Link>
               ))}
@@ -104,13 +91,15 @@ function Shell() {
           <div className="mt-2 flex items-center justify-between"><Button variant="ghost" onClick={signOut} className="text-muted-foreground"><LogOut className="h-4 w-4" /> Sign out</Button><Button variant="ghost" size="icon" aria-label="Toggle color theme" title="Toggle color theme" onClick={() => { const dark = document.documentElement.classList.toggle("dark"); localStorage.setItem("ago.theme", dark ? "dark" : "light"); }}><Sun className="hidden dark:block" /><Moon className="dark:hidden" /></Button></div>
         </div>
       </aside>
-      {open && <div className="fixed inset-0 z-30 bg-background/70 md:hidden" onClick={() => setOpen(false)} />}
+      {open && <div className="fixed inset-0 z-30 bg-foreground/30 lg:hidden" onClick={() => setOpen(false)} />}
+      <CommandDialog open={search} onOpenChange={setSearch}><CommandInput placeholder="Find a page…" /><CommandList><CommandEmpty>No matching pages.</CommandEmpty>{NAVIGATION.map(g => <CommandGroup key={g.group} heading={g.group}>{g.items.map(it => <CommandItem key={it.to} value={`${g.group} ${it.label}`} onSelect={() => { setSearch(false); setOpen(false); navigate({ to: it.to }); }}><it.icon />{it.label}</CommandItem>)}</CommandGroup>)}</CommandList></CommandDialog>
       <main id="main-content" className="min-w-0 flex-1">
-        <div className="flex items-center gap-3 border-b border-border px-4 py-3 md:hidden">
+        <div className="flex items-center gap-3 border-b border-border px-4 py-3 lg:hidden">
           <Button variant="ghost" size="icon" onClick={() => setOpen(true)} aria-label="Open menu"><Menu className="h-5 w-5" /></Button>
           <span className="font-display font-bold">AI Growth OS</span>
+          <Button variant="ghost" size="icon" className="ml-auto" onClick={() => setSearch(true)} aria-label="Search pages"><Search /></Button>
         </div>
-        <div key={`${o.org?.id}/${o.workspace?.id}`} className="mx-auto max-w-6xl px-4 py-6 md:px-10 md:py-10"><Outlet /></div>
+        <div key={`${o.org?.id}/${o.workspace?.id}`} className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-8">{!o.workspace && <div role="status" className="mb-6 border-l-2 border-warning pl-4 text-sm">No workspace access has been assigned. Ask your organization owner to assign access.</div>}<Outlet /></div>
       </main>
     </div>
   );
