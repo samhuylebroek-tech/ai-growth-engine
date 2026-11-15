@@ -71,6 +71,54 @@ export type Database = {
           },
         ]
       }
+      ai_credit_reservations: {
+        Row: {
+          charged: number | null
+          created_at: string
+          org_id: string
+          reserved: number
+          run_id: string
+          settled_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          charged?: number | null
+          created_at?: string
+          org_id: string
+          reserved: number
+          run_id: string
+          settled_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          charged?: number | null
+          created_at?: string
+          org_id?: string
+          reserved?: number
+          run_id?: string
+          settled_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_credit_reservations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_credit_reservations_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: true
+            referencedRelation: "agent_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_usage_events: {
         Row: {
           cost_estimate_eur: number
@@ -1062,6 +1110,14 @@ export type Database = {
         Args: { _amount: number; _org: string; _ref: string }
         Returns: number
       }
+      create_invitation: {
+        Args: {
+          _email: string
+          _org: string
+          _role: Database["public"]["Enums"]["org_role"]
+        }
+        Returns: string
+      }
       create_organization: {
         Args: { _name: string; _workspace_name: string }
         Returns: string
@@ -1111,6 +1167,11 @@ export type Database = {
         Args: { _feature: string; _org: string }
         Returns: number
       }
+      refund_ai_credits: { Args: { _run: string }; Returns: number }
+      reserve_ai_credits: {
+        Args: { _amount: number; _run: string }
+        Returns: number
+      }
       role_rank: {
         Args: { _r: Database["public"]["Enums"]["org_role"] }
         Returns: number
@@ -1122,6 +1183,18 @@ export type Database = {
           _workspace: string
         }
         Returns: undefined
+      }
+      settle_ai_credits: {
+        Args: {
+          _actual: number
+          _cost_estimate_eur: number
+          _input_tokens: number
+          _model: string
+          _output_tokens: number
+          _provider: string
+          _run: string
+        }
+        Returns: number
       }
       shares_org_with: { Args: { _user: string }; Returns: boolean }
       ws_org: { Args: { _ws: string }; Returns: string }

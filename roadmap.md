@@ -1,4 +1,11 @@
 # AI Growth OS — Task Queue
+## Foundation completion, workspace authorization and enterprise authentication — active 2026-11-15
+- [~] Re-audit workspace authorization and complete the remaining customer journey, including invitations, roles and account lifecycle.
+- [ ] Add atomic AI credit reservation, settlement/refund and abuse controls with regression tests.
+- [~] Add supported enterprise authentication without claiming unconfigured OIDC, SAML or SCIM as available.
+- [ ] Re-run automated, database and signed-in browser verification; update handover with exact evidence and remaining limits.
+- [B] Personal Platform Owner initialization, live payments, production publishing and real external marketing actions remain explicitly deferred.
+
 ## Ultimate product completion — active 2026-11-15
 - [x] Refine shell, collapsible navigation, global page search and evidence-based overview.
 - [x] Explicit workspace access assignments, database/storage authorization and adversarial tests.

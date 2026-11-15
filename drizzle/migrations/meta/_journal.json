@@ -99,6 +99,20 @@
       "when": 1794733495827,
       "tag": "0013_clear_workspace_access_on_team_removal",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1794746670699,
+      "tag": "0014_atomic_credit_lifecycle_and_invitation_quotas",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1794746788802,
+      "tag": "0015_fix_credit_settlement_variable_collision",
+      "breakpoints": true
     }
   ]
 }

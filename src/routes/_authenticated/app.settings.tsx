@@ -41,9 +41,8 @@ function SettingsPage() {
   async function rename(e: React.FormEvent) { e.preventDefault(); if (!orgId || !o.org) return; const { error } = await supabase.from("organizations").update({ name: orgName.trim() || o.org.name }).eq("id", orgId); if (error) toast.error("Not allowed"); else { toast.success("Saved"); await supabase.rpc("log_audit", { _org: orgId, _action: "organization.renamed", _target_type: "organization", _target_id: orgId }); o.refresh(); } }
   async function invite(e: React.FormEvent) {
     e.preventDefault();
-    const { error } = await supabase.from("invitations").insert({ org_id: orgId!, email: email.trim().toLowerCase(), role, invited_by: o.userId });
-    if (error) { toast.error("Could not create invitation"); return; }
-    await supabase.rpc("log_audit", { _org: orgId!, _action: "member.invited", _target_type: "invitation", _target_id: email, _metadata: { role } });
+    const { error } = await supabase.rpc("create_invitation", { _org: orgId!, _email: email, _role: role });
+    if (error) { toast.error(error.message); return; }
     setEmail(""); qc.invalidateQueries({ queryKey: ["invites"] }); toast.success("Invitation created — copy the link and send it yourself.");
   }
   async function changeRole(userId: string, r: OrgRole) { const { error } = await supabase.from("organization_members").update({ role: r }).eq("org_id", orgId!).eq("user_id", userId); if (error) toast.error("Not allowed"); else await supabase.rpc("log_audit", { _org: orgId!, _action: "member.role_changed", _target_type: "user", _target_id: userId, _metadata: { role: r } }); qc.invalidateQueries({ queryKey: ["members"] }); }

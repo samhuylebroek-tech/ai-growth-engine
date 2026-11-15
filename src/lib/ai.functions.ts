@@ -30,34 +30,29 @@ async function assertEntitled(sb: DB, orgId: string, feature: string) {
   return ent.limit_value;
 }
 
-async function charge(sb: DB, orgId: string, amount: number, ref: string) {
-  if (amount <= 0) return;
-  const { error } = await sb.rpc("consume_credits", { _org: orgId, _amount: amount, _ref: ref });
-  if (error) {
-    if (error.message.includes("insufficient")) throw new Error("Not enough AI credits left this period.");
+/** Runs one metered AI call. Reservation, final usage and settlement/refund are database-atomic. */
+async function meteredGenerate(sb: DB, userId: string, orgId: string, runId: string, reserve: number, opts: Parameters<Awaited<ReturnType<typeof loadProvider>>["generate"]>[0]) {
+  const reservation = await sb.rpc("reserve_ai_credits", { _run: runId, _amount: reserve });
+  if (reservation.error) {
+    if (reservation.error.message.includes("insufficient")) throw new Error("Not enough AI credits left this period.");
     throw new Error("Could not reserve AI credits.");
   }
-}
-
-async function recordUsage(sb: DB, p: { orgId: string; runId: string | null; userId: string; provider: string; model: string; inTok: number; outTok: number; credits: number }) {
-  await sb.from("ai_usage_events").insert({
-    org_id: p.orgId, run_id: p.runId, user_id: p.userId, provider: p.provider, model: p.model,
-    input_tokens: p.inTok, output_tokens: p.outTok, cost_estimate_eur: estimateCostEur(p.model, p.inTok, p.outTok), credits_charged: p.credits,
-  });
-}
-
-/** Runs one metered AI call: entitlement → reserve credits → generate → settle → record usage. */
-async function meteredGenerate(sb: DB, userId: string, orgId: string, runId: string, reserve: number, opts: Parameters<Awaited<ReturnType<typeof loadProvider>>["generate"]>[0]) {
-  await charge(sb, orgId, reserve, `run:${runId}`);
-  const provider = await loadProvider();
-  const r = await provider.generate(opts);
-  const actual = creditsForTokens(r.inputTokens, r.outputTokens);
-  let charged = reserve;
-  if (actual > reserve) {
-    try { await charge(sb, orgId, actual - reserve, `run:${runId}:settle`); charged = actual; } catch { /* balance exhausted; keep reserve */ }
+  try {
+    const provider = await loadProvider();
+    const r = await provider.generate(opts);
+    const actual = creditsForTokens(r.inputTokens, r.outputTokens);
+    const settled = await sb.rpc("settle_ai_credits", {
+      _run: runId, _actual: actual, _provider: r.provider, _model: r.model,
+      _input_tokens: r.inputTokens, _output_tokens: r.outputTokens,
+      _cost_estimate_eur: estimateCostEur(r.model, r.inputTokens, r.outputTokens),
+    });
+    if (settled.error || settled.data === null) throw new Error("Could not settle AI credit usage.");
+    return { ...r, credits: settled.data };
+  } catch (error) {
+    const refunded = await sb.rpc("refund_ai_credits", { _run: runId });
+    if (refunded.error) throw new Error("The AI call failed and its credit refund could not be completed.");
+    throw error;
   }
-  await recordUsage(sb, { orgId, runId, userId, provider: r.provider, model: r.model, inTok: r.inputTokens, outTok: r.outputTokens, credits: charged });
-  return { ...r, credits: charged };
 }
 
 async function loadProvider() {
