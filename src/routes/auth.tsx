@@ -16,8 +16,8 @@ function safeRedirect(r: unknown): string {
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>) => ({ redirect: typeof s["redirect"] === "string" ? s["redirect"] : undefined }),
   head: () => ({ meta: [
-    { title: "Sign in — AI Growth OS" }, { name: "description", content: "Sign in or create your AI Growth OS account." },
-    { property: "og:title", content: "Sign in — AI Growth OS" }, { property: "og:description", content: "Sign in or create your AI Growth OS account." },
+    { title: "Sign in — AI Growth Engine" }, { name: "description", content: "Sign in or create your AI Growth Engine account." },
+    { property: "og:title", content: "Sign in — AI Growth Engine" }, { property: "og:description", content: "Sign in or create your AI Growth Engine account." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
   ] }),
   component: AuthPage,
@@ -68,7 +68,7 @@ function AuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background bg-glow px-4">
       <div className="w-full max-w-sm">
-        <Link to="/" className="mb-8 flex items-center justify-center gap-2 font-display text-lg font-bold"><Zap className="h-5 w-5 text-primary" /> AI Growth OS</Link>
+        <Link to="/" className="mb-8 flex items-center justify-center gap-2 font-display text-lg font-bold"><Zap className="h-5 w-5 text-primary" /> AI Growth Engine</Link>
         <div className="rounded-lg border border-border bg-card p-7">
           <h1 className="text-xl font-bold">{mode === "signin" ? "Welcome back" : mode === "signup" ? "Create your account" : "Reset your password"}</h1>
           {sent ? <p className="mt-4 text-sm text-muted-foreground">{sent}</p> : (

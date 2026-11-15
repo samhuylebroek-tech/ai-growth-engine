@@ -1,4 +1,9 @@
 # Autonomous customer release handover — 2026-11-14
+## Complete product remake — 2026-11-15
+The current frontend replaces the previous tool-first shell with six primary destinations, contextual tabs and a Growth Officer-centered Home. Knowledge, conversations/results/export, growth areas, source search, activity, approval-policy presentation, settings tabs, credit summaries and onboarding presentation have been rebuilt without changing schema, role grants, hosted authentication or AI metering. Existing URLs and customer data remain.
+
+Fresh verification and limitations are detailed in `docs/PRODUCT_REMAKE.md`: real signed-in question → answer → saved conversation/readback/export, preferences/search, organization switching and private file lifecycle; 13 phone screens without overflow. A sixth-file quota denial was observed, not bypassed. A temporary test file was removed. One real AI answer used 1 settled credit (Foodlo available balance 191 → 190); its clearly labeled verification conversation remains. Current automated suite: 74 tests across 7 files. No fresh SQL suite or complete signup/multi-account invitation/approval decision/SSO flow is claimed in this frontend turn. Owner access remained denied. Production publishing, payments and owner initialization remain deferred.
+
 ## Foundation completion and final-quality follow-up — verified 2026-11-15
 
 ### Delivered in this session

@@ -84,9 +84,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "AI Growth OS" },
+      { title: "AI Growth Engine" },
       { name: "description", content: "The operating system for business growth." },
-      { property: "og:title", content: "AI Growth OS" },
+      { property: "og:title", content: "AI Growth Engine" },
       { property: "og:description", content: "The operating system for business growth." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

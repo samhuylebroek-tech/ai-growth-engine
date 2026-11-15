@@ -5,8 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({ meta: [
-    { title: "Pricing — AI Growth OS" }, { name: "description", content: "Simple plans for businesses, agencies and enterprises. Start with a 14-day free trial." },
-    { property: "og:title", content: "Pricing — AI Growth OS" }, { property: "og:description", content: "Simple plans for businesses, agencies and enterprises. Start with a 14-day free trial." },
+    { title: "Pricing — AI Growth Engine" }, { name: "description", content: "Simple plans for businesses, agencies and enterprises. Start with a 14-day free trial." },
+    { property: "og:title", content: "Pricing — AI Growth Engine" }, { property: "og:description", content: "Simple plans for businesses, agencies and enterprises. Start with a 14-day free trial." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
   ] }),
   component: Pricing,
@@ -22,7 +22,7 @@ function Pricing() {
   return (
     <div className="min-h-screen bg-background">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold"><Zap className="h-5 w-5 text-primary" /> AI Growth OS</Link>
+        <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold"><Zap className="h-5 w-5 text-primary" /> AI Growth Engine</Link>
         <Link to="/auth" search={{ redirect: undefined }} className="rounded-full border border-border px-4 py-2 text-sm hover:bg-secondary">Sign in</Link>
       </nav>
       <header className="mx-auto max-w-3xl px-6 pb-12 pt-12 text-center">

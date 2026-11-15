@@ -1,61 +1,51 @@
 import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Sparkles, ArrowUpRight, CheckSquare, FileText, Target, Plug } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState, type ReactNode } from "react";
+import { ArrowUpRight, CheckSquare, FileText, Target, Plug, Check, SlidersHorizontal, Compass, ArrowRight, BookOpen } from "lucide-react";
 import { useOrg } from "@/lib/org-context";
-import { PageHeader, StatusChip } from "@/components/app/status";
+import { can } from "@/lib/permissions";
+import { StatusChip } from "@/components/app/status";
+import { GrowthQuestion } from "@/components/app/growth-question";
+import { SectionHeading } from "@/components/app/section-heading";
 import { Button } from "@/components/ui/button";
+import { growthSummaryOptions } from "@/lib/growth-summary";
 
-export const Route = createFileRoute("/_authenticated/app/")({ head: () => pageHead("Overview", "Your objectives, approvals, credits and growth activity."), component: Overview });
+export const Route = createFileRoute("/_authenticated/app/")({ head: () => pageHead("Home", "Your business command center: priorities, verified intelligence and your Growth Officer."), component: Overview });
 
 function Overview() {
- const o = useOrg(); const orgId = o.org?.id; const wsId = o.workspace?.id;
- const q = useQuery({ queryKey: ["overview", orgId, wsId], enabled: !!orgId && !!wsId, queryFn: async () => {
-  if (!orgId || !wsId) throw new Error("No workspace selected.");
-  if (o.role !== "viewer") { const grant = await supabase.rpc("ensure_monthly_credit_grant", { _org: orgId }); if (grant.error) throw grant.error; }
-  const [bal, sub, approvals, bp, facts, runs, docs] = await Promise.all([
-   supabase.rpc("credit_balance", { _org: orgId }),
-   supabase.from("subscriptions").select("plan_key,status,trial_ends_at").eq("org_id", orgId).maybeSingle(),
-   supabase.from("approvals").select("id,title,reasoning,expected_impact,risk,status").eq("org_id", orgId).eq("workspace_id", wsId).eq("status", "pending").order("created_at", { ascending: false }).limit(4),
-   supabase.from("business_profiles").select("onboarding_completed_at,objectives").eq("org_id",orgId).eq("workspace_id",wsId).maybeSingle(),
-   supabase.from("business_facts").select("id,verified").eq("org_id",orgId).eq("workspace_id",wsId),
-   supabase.from("agent_runs").select("id,agent_key,status,summary,created_at").eq("org_id",orgId).eq("workspace_id",wsId).order("created_at", { ascending: false }).limit(5),
-   supabase.from("documents").select("id,status").eq("org_id",orgId).eq("workspace_id",wsId),
-  ]);
-  for (const result of [bal,sub,approvals,bp,facts,runs,docs]) if (result.error) throw result.error;
-  return { balance: bal.data, sub: sub.data, approvals: approvals.data ?? [], bp: bp.data, facts: facts.data ?? [], runs: runs.data ?? [], docs: docs.data ?? [] };
- } });
- const d = q.data; const objectives = Array.isArray(d?.bp?.objectives) ? d.bp.objectives.filter((x): x is string => typeof x === "string") : [];
- const confirmed = d?.facts.filter(f => f.verified).length ?? 0; const unconfirmed = d?.facts.filter(f => !f.verified).length ?? 0;
- const failedDocs = d?.docs.filter(doc => doc.status === "failed").length ?? 0;
- const days = d?.sub?.trial_ends_at ? Math.max(0,Math.ceil((new Date(d.sub.trial_ends_at).getTime()-Date.now())/864e5)) : null;
- return <>
-  <PageHeader title="Your growth overview" description={`${o.workspace?.name ?? "Workspace"} · ${o.org?.name ?? ""}`} actions={<Button asChild><Link to="/app/growth-officer"><Sparkles /> Ask Growth Officer</Link></Button>} />
-  {q.isLoading && <div role="status" className="py-10 text-sm text-muted-foreground">Loading your business overview…</div>}
-  {q.isError && <div role="alert" className="mb-6 flex flex-wrap items-center gap-3 text-sm text-destructive">Your overview could not load.<Button variant="outline" size="sm" onClick={() => q.refetch()}>Retry</Button></div>}
-  {d && <>
-   <div className="grid grid-cols-2 gap-x-6 gap-y-5 border-y border-border py-5 lg:grid-cols-4">
-    <Metric label="Organization credits" value={d.balance === null ? "Unavailable" : d.balance.toLocaleString()} note="Credit ledger · available balance" to="/app/billing" />
-    <Metric label="Confirmed facts" value={String(confirmed)} note="Knowledge base · user-confirmed" to="/app/profile" />
-    <Metric label="Needs review" value={String(unconfirmed)} note="Knowledge base · unconfirmed claims" to="/app/profile" />
-    <Metric label="Current plan" value={d.sub?.plan_key === "trial" ? "Free trial" : d.sub?.plan_key ?? "Not configured"} note={days !== null && d.sub?.status === "trialing" ? `${days} trial days remaining` : d.sub?.status ?? "No active subscription"} to="/app/billing" />
-   </div>
-   <div className="mt-8 grid gap-9 lg:grid-cols-[1.4fr_1fr]">
-    <section className="min-w-0"><div className="mb-4 flex items-center justify-between"><h2 className="font-semibold">Your next moves</h2><Button variant="ghost" size="sm" asChild><Link to="/app/approvals">All approvals <ArrowUpRight /></Link></Button></div>
-     {!d.bp?.onboarding_completed_at && <Action icon={<Target />} title="Complete your business profile" detail="Start with your website and confirm the findings." to="/app/onboarding" />}
-     {unconfirmed > 0 && <Action icon={<CheckSquare />} title={`Review ${unconfirmed} business claims`} detail="Confirm the information you want your Growth Officer to rely on." to="/app/profile" />}
-     {failedDocs > 0 && <Action icon={<FileText />} title={`${failedDocs} document${failedDocs===1?"":"s"} need attention`} detail="Review failed processing and retry." to="/app/documents" />}
-     {d.approvals.map(a => <article key={a.id} className="border-b border-border py-4"><div className="flex items-start justify-between gap-3"><Link to="/app/approvals" className="text-sm font-semibold hover:text-primary">{a.title}</Link><StatusChip status={a.risk}>{a.risk} risk</StatusChip></div>{a.reasoning && <p className="mt-2 text-sm text-muted-foreground">{a.reasoning}</p>}{a.expected_impact && <p className="mt-2 text-xs text-muted-foreground">Expected impact (estimate): {a.expected_impact}</p>}</article>)}
-     {!d.approvals.length && <div className="mt-4 border-l-2 border-primary pl-4"><p className="text-sm font-semibold">What should you focus on next?</p><p className="mt-1 text-sm text-muted-foreground">No growth recommendations are waiting for review.</p><Button variant="link" className="mt-2 h-auto p-0" asChild><Link to="/app/growth-officer">Discuss your next priority <ArrowUpRight /></Link></Button></div>}
-    </section>
-    <section className="min-w-0"><h2 className="mb-4 font-semibold">Business objectives</h2>{objectives.length ? <ul className="space-y-3">{objectives.map(x => <li key={x} className="flex items-start gap-3 text-sm"><Target className="mt-0.5 h-4 w-4 shrink-0 text-primary" />{x}</li>)}</ul> : <p className="text-sm text-muted-foreground">No objectives confirmed yet.</p>}<Button variant="link" className="mt-3 h-auto p-0" asChild><Link to="/app/onboarding">Review objectives <ArrowUpRight /></Link></Button>
-     <h2 className="mb-3 mt-8 font-semibold">Recent AI activity</h2>{d.runs.length ? <ul className="divide-y divide-border">{d.runs.map(r => <li key={r.id} className="py-3"><div className="flex items-start justify-between gap-3"><p className="min-w-0 text-sm">{r.summary ?? r.agent_key.replace(/_/g," ")}</p><StatusChip status={r.status} /></div><time className="mt-1 block text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</time></li>)}</ul> : <p className="text-sm text-muted-foreground">No AI runs in this workspace yet.</p>}<Button variant="link" className="mt-3 h-auto p-0" asChild><Link to="/app/activity">View activity <ArrowUpRight /></Link></Button>
-    </section>
-   </div>
-   <section className="mt-9 border-t border-border pt-6"><div className="flex items-center justify-between gap-3"><h2 className="font-semibold">Business performance</h2><Button variant="ghost" size="sm" asChild><Link to="/app/integrations"><Plug /> Data sources</Link></Button></div><div className="mt-4 grid gap-4 sm:grid-cols-3">{["Revenue","Customer acquisition","Customer retention"].map(label => <div key={label}><p className="text-sm">{label}</p><p className="mt-1 text-xs text-muted-foreground">Not configured</p></div>)}</div></section>
-  </>}
- </>;
+  const o = useOrg(); const q = useQuery(growthSummaryOptions(o.org?.id, o.workspace?.id, o.role));
+  const [configure, setConfigure] = useState(false); const [showActivity, setShowActivity] = useState(true); const [showPerformance, setShowPerformance] = useState(true);
+  useEffect(() => { const saved = localStorage.getItem("ago.home.preferences"); if (!saved) return; try { const p = JSON.parse(saved); setShowActivity(p.activity !== false); setShowPerformance(p.performance !== false); } catch { /* Ignore invalid display preferences. */ } }, []);
+  function preference(key: "activity" | "performance", value: boolean) { const activity = key === "activity" ? value : showActivity; const performance = key === "performance" ? value : showPerformance; setShowActivity(activity); setShowPerformance(performance); localStorage.setItem("ago.home.preferences", JSON.stringify({ activity, performance })); }
+  const d = q.data; const confirmed = d?.facts.filter(f => f.verified) ?? []; const unconfirmed = (d?.facts.length ?? 0) - confirmed.length;
+  const summary = confirmed.find(f => /description|business model|industry/i.test(f.key));
+  const objectives = Array.isArray(d?.profile?.objectives) ? d.profile.objectives.filter((x): x is string => typeof x === "string") : [];
+  const failed = d?.documents.filter(doc => doc.status === "failed") ?? []; const running = d?.runs.filter(r => r.status === "running" || r.status === "pending") ?? [];
+  const editable = can(o.workspaceRole, "profile.edit");
+  return <>
+    <div className="mb-8 flex items-start justify-between gap-3"><div><p className="section-label mb-3">{o.org?.name} / {o.workspace?.name}</p><h1 className="text-3xl font-semibold leading-tight">Welcome to your growth workspace.</h1><p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">{summary ? summary.value : "Your next move starts with a clear picture of your business."}</p></div><Button variant="ghost" size="icon" onClick={() => setConfigure(!configure)} aria-label="Customize Home" title="Customize Home"><SlidersHorizontal /></Button></div>
+    {configure && <div className="mb-6 flex flex-wrap gap-5 border-y border-border py-4 text-sm"><label className="flex items-center gap-2"><input type="checkbox" checked={showActivity} onChange={e => preference("activity", e.target.checked)} />Recent activity</label><label className="flex items-center gap-2"><input type="checkbox" checked={showPerformance} onChange={e => preference("performance", e.target.checked)} />Business performance</label></div>}
+    {q.isLoading && <div role="status" className="py-10 text-sm text-muted-foreground">Preparing your business brief…</div>}
+    {q.isError && <div role="alert" className="flex items-center gap-3 py-5 text-sm text-destructive">Your business brief could not load.<Button variant="outline" size="sm" onClick={() => q.refetch()}>Retry</Button></div>}
+    {d && <>
+      <div className="mb-8 flex flex-wrap items-center gap-x-6 gap-y-2 border-y border-border py-3 text-[11px] text-muted-foreground"><span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-primary" />{confirmed.length ? "Verified context available" : "Business context needs review"}</span><Link to="/app/profile" className="hover:text-foreground">{confirmed.length} confirmed facts · {unconfirmed} to review</Link><Link to="/app/billing" className="sm:ml-auto hover:text-foreground">{d.balance?.toLocaleString() ?? "Unavailable"} credits · {d.sub?.plan_key?.replace(/_/g, " ") ?? "Not configured"}</Link></div>
+      <div className="grid gap-10 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+        <section className="min-w-0"><SectionHeading eyebrow="Your intelligent partner" title="What shall we work on?" /><GrowthQuestion /><div className="mt-5 flex items-center gap-2 text-[11px] text-muted-foreground"><BookOpen className="h-3.5 w-3.5" />{confirmed.length ? `${confirmed.length} confirmed facts in this workspace` : "No confirmed facts yet — recommendations will have limited evidence"}<Button variant="link" size="sm" className="ml-auto px-0" asChild><Link to="/app/profile">Review context <ArrowUpRight /></Link></Button></div></section>
+        <section className="min-w-0"><SectionHeading eyebrow="Focus for today" title="Your priorities" action={<Button variant="ghost" size="sm" asChild><Link to="/app/approvals">Review all <ArrowUpRight /></Link></Button>} />
+          {editable && !d.profile?.onboarding_completed_at && <Priority icon={<Target />} title="Build your business foundation" detail="Discover your website and confirm the details." to="/app/onboarding" />}
+          {!!unconfirmed && <Priority icon={<CheckSquare />} title={`Review ${unconfirmed} business claims`} detail="Give your Growth Officer a reliable starting point." to="/app/profile" />}
+          {!!failed.length && <Priority icon={<FileText />} title={`${failed.length} documents need attention`} detail="Review processing and retry extraction." to="/app/documents" />}
+          {d.approvals.slice(0, 3).map(a => <Priority key={a.id} icon={<CheckSquare />} title={a.title} detail={`${a.risk} risk · awaiting a decision`} to="/app/approvals" />)}
+          {!unconfirmed && !failed.length && !d.approvals.length && <div className="border-y border-border py-5"><div className="flex items-center gap-2 text-sm font-medium"><Check className="h-4 w-4 text-primary" />Your review queue is clear</div><p className="mt-2 text-xs text-muted-foreground">{objectives[0] ? `Next focus: ${objectives[0]}` : "Choose a growth objective with your Growth Officer."}</p></div>}
+          {!!running.length && <p role="status" className="mt-3 text-xs text-warning">{running.length} AI tasks in progress</p>}
+        </section>
+      </div>
+      <section className="mt-10 border-t border-border pt-7"><SectionHeading eyebrow="Growth intelligence" title="Your business, in focus" action={<Button variant="ghost" size="sm" asChild><Link to="/app/intelligence">Open intelligence <ArrowUpRight /></Link></Button>} /><div className="grid gap-7 md:grid-cols-3"><div><Compass className="mb-3 h-5 w-5 text-primary" /><h3 className="text-sm font-semibold">A reliable starting point</h3><p className="mt-2 text-xs leading-relaxed text-muted-foreground">{confirmed.length ? `${confirmed.length} confirmed facts support your next analysis.` : "Confirm your business details before relying on strategic recommendations."}</p><Button variant="link" size="sm" className="mt-2 px-0" asChild><Link to="/app/profile">{confirmed.length ? "Explore knowledge" : "Confirm business details"} <ArrowRight /></Link></Button></div><div><Target className="mb-3 h-5 w-5 text-chart-2" /><h3 className="text-sm font-semibold">Your growth objectives</h3>{objectives.length ? <ul className="mt-2 space-y-2 text-xs text-muted-foreground">{objectives.slice(0, 3).map(x => <li key={x}>{x}</li>)}</ul> : <p className="mt-2 text-xs leading-relaxed text-muted-foreground">No objectives set for this workspace.</p>}<Button variant="link" size="sm" className="mt-2 px-0" asChild><Link to="/app/onboarding">Review objectives <ArrowRight /></Link></Button></div><div><Plug className="mb-3 h-5 w-5 text-warning" /><h3 className="text-sm font-semibold">Measured results</h3><p className="mt-2 text-xs leading-relaxed text-muted-foreground">Revenue, traffic and conversion data are not configured. Website and document research are available.</p><Button variant="link" size="sm" className="mt-2 px-0" asChild><Link to="/app/integrations">Review data sources <ArrowRight /></Link></Button></div></div></section>
+      {(showActivity || showPerformance) && <div className="mt-10 grid gap-10 border-t border-border pt-7 lg:grid-cols-2">{showActivity && <section className="min-w-0"><SectionHeading title="Recent work" action={<Button variant="ghost" size="sm" asChild><Link to="/app/activity">All activity <ArrowUpRight /></Link></Button>} />{d.runs.length ? <ul className="divide-y divide-border">{d.runs.slice(0, 3).map(r => <li key={r.id} className="flex items-start gap-3 py-3"><span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-secondary"><FileText className="h-3.5 w-3.5 text-muted-foreground" /></span><div className="min-w-0 flex-1"><p className="line-clamp-2 text-xs leading-relaxed">{r.agent_key.replace(/_/g, " ")}</p><time className="mt-1 block text-[10px] text-muted-foreground">{new Date(r.created_at).toLocaleString()}</time></div><StatusChip status={r.status} /></li>)}</ul> : <p className="text-sm text-muted-foreground">No AI work recorded in this workspace yet.</p>}</section>}{showPerformance && <section><SectionHeading title="Business performance" /><div className="divide-y divide-border">{["Revenue", "Acquisition", "Retention"].map(label => <div key={label} className="flex items-center justify-between gap-3 py-3 text-xs"><span>{label}</span><span className="text-muted-foreground">Not configured</span></div>)}</div><p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">Verified business measurements will appear here when their data sources are available.</p></section>}</div>}
+    </>}
+  </>;
 }
-function Metric({label,value,note,to}:{label:string;value:string;note:string;to:"/app/billing"|"/app/profile"}) { return <Link to={to} className="min-w-0"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-2 break-words text-xl font-semibold capitalize">{value}</p><p className="mt-1 text-xs text-muted-foreground">{note}</p></Link>; }
-function Action({icon,title,detail,to}:{icon:React.ReactNode;title:string;detail:string;to:"/app/onboarding"|"/app/profile"|"/app/documents"}) { return <Link to={to} className="flex items-start gap-3 border-b border-border py-4 hover:text-primary"><span className="mt-0.5 shrink-0 text-primary [&_svg]:h-4 [&_svg]:w-4">{icon}</span><div className="min-w-0 flex-1"><p className="text-sm font-semibold">{title}</p><p className="mt-1 text-sm text-muted-foreground">{detail}</p></div><ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground" /></Link>; }
+function Priority({ icon, title, detail, to }: { icon: ReactNode; title: string; detail: string; to: "/app/profile" | "/app/onboarding" | "/app/documents" | "/app/approvals" }) {
+  return <Link to={to} className="group flex items-start gap-3 border-b border-border py-4"><span className="mt-0.5 shrink-0 text-muted-foreground [&_svg]:h-4 [&_svg]:w-4">{icon}</span><div className="min-w-0 flex-1"><p className="text-sm font-medium group-hover:text-primary">{title}</p><p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{detail}</p></div><ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground" /></Link>;
+}

@@ -19,7 +19,7 @@ function Billing() {
   const o = useOrg(); const orgId = o.org?.id;
   const q = useQuery({ queryKey: ["billing", orgId], enabled: !!orgId, queryFn: async () => {
     if (!orgId) throw new Error("No organization selected.");
-    if (o.role !== "viewer") await supabase.rpc("ensure_monthly_credit_grant", { _org: orgId });
+    if (o.role !== "viewer") { const grant = await supabase.rpc("ensure_monthly_credit_grant", { _org: orgId }); if (grant.error) throw grant.error; }
     const [sub, bal, ledger, usage, plans, ents, bp] = await Promise.all([
       supabase.from("subscriptions").select("*").eq("org_id", orgId!).maybeSingle(),
       supabase.rpc("credit_balance", { _org: orgId! }),
@@ -29,17 +29,20 @@ function Billing() {
       supabase.from("plan_entitlements").select("*"),
       can(o.role, "billing.manage") ? supabase.from("billing_profiles").select("*").eq("org_id", orgId!).maybeSingle() : Promise.resolve({ data: null }),
     ]);
+    for (const result of [sub, bal, ledger, usage, plans, ents]) if (result.error) throw result.error;
     return { sub: sub.data, balance: bal.data ?? 0, ledger: ledger.data ?? [], used30: (usage.data ?? []).reduce((a, u) => a + u.credits_charged, 0), calls30: usage.data?.length ?? 0, plans: plans.data ?? [], ents: ents.data ?? [], bp: bp.data };
   } });
   const d = q.data; const plan = d?.plans.find((p) => p.key === d.sub?.plan_key);
   return (
     <>
-      <PageHeader title="Plan & usage" />
-      <div className="grid gap-4 md:grid-cols-3">
-        <Panel><div className="text-xs text-muted-foreground">Current plan</div><div className="mt-1 flex items-center gap-2 font-display text-xl font-bold">{plan?.name ?? "—"} {d?.sub && <StatusChip status={d.sub.status} />}</div>
-          {d?.sub?.trial_ends_at && d.sub.status === "trialing" && <div className="mt-1 text-xs text-muted-foreground">Trial ends {new Date(d.sub.trial_ends_at).toLocaleDateString()}</div>}</Panel>
-        <Panel><div className="text-xs text-muted-foreground">AI credits remaining</div><div className="mt-1 font-display text-xl font-bold">{d?.balance.toLocaleString() ?? "—"}</div><div className="text-xs text-muted-foreground">{plan?.monthly_credits?.toLocaleString()} included per period</div></Panel>
-        <Panel><div className="text-xs text-muted-foreground">Last 30 days</div><div className="mt-1 font-display text-xl font-bold">{d?.used30 ?? 0} credits</div><div className="text-xs text-muted-foreground">{d?.calls30 ?? 0} AI calls</div></Panel>
+      <PageHeader title="Plan & credits" description="Your subscription, usage and credit ledger." />
+      {q.isLoading && <p role="status" className="py-6 text-sm text-muted-foreground">Loading plan and usage…</p>}{q.isError && <p role="alert" className="py-5 text-sm text-destructive">Plan and usage could not load.<Button variant="link" onClick={() => q.refetch()}>Retry</Button></p>}
+      {d && <>
+      <div className="grid gap-6 border-y border-border py-6 md:grid-cols-3">
+        <div><div className="text-xs text-muted-foreground">Current plan</div><div className="mt-1 flex items-center gap-2 font-display text-xl font-bold">{plan?.name ?? "—"} {d?.sub && <StatusChip status={d.sub.status} />}</div>
+          {d?.sub?.trial_ends_at && d.sub.status === "trialing" && <div className="mt-1 text-xs text-muted-foreground">Trial ends {new Date(d.sub.trial_ends_at).toLocaleDateString()}</div>}</div>
+        <div><div className="text-xs text-muted-foreground">AI credits remaining</div><div className="mt-1 font-display text-xl font-bold">{d?.balance.toLocaleString() ?? "—"}</div><div className="text-xs text-muted-foreground">{plan?.monthly_credits?.toLocaleString()} included per period</div></div>
+        <div><div className="text-xs text-muted-foreground">Last 30 days</div><div className="mt-1 font-display text-xl font-bold">{d?.used30 ?? 0} credits</div><div className="text-xs text-muted-foreground">{d?.calls30 ?? 0} AI calls</div></div>
       </div>
       <h2 className="mb-3 mt-10 font-semibold">Your plan includes</h2>
       <div className="grid gap-2 sm:grid-cols-3">{d?.ents.filter((e) => e.plan_key === d.sub?.plan_key).map((e) => (
@@ -53,8 +56,9 @@ function Billing() {
       {orgId && d && can(o.role, "billing.manage") && <BillingProfile key={`${orgId}-${d.bp?.legal_name ?? ""}`} orgId={orgId} initial={d.bp ?? null} />}
       <h2 className="mb-3 mt-10 font-semibold">Credit history</h2>
       <div className="divide-y divide-border rounded-lg border border-border text-sm">{d?.ledger.map((l) => (
-        <div key={l.id} className="flex justify-between px-4 py-2"><span className="text-muted-foreground">{new Date(l.created_at).toLocaleString()} · {l.reason.replace("_", " ")}</span><span className={l.delta > 0 ? "text-success" : ""}>{l.delta > 0 ? "+" : ""}{l.delta}</span></div>
+        <div key={l.id} className="flex items-start justify-between gap-4 px-4 py-3"><span className="text-muted-foreground">{new Date(l.created_at).toLocaleString()} · {l.reason.replace("_", " ")}</span><span className={l.delta > 0 ? "text-success" : ""}>{l.delta > 0 ? "+" : ""}{l.delta}</span></div>
       ))}</div>
+      </>}
     </>
   );
 }

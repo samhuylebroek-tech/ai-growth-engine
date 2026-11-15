@@ -1,5 +1,5 @@
 import { pageHead } from "@/lib/page-head";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import { PageHeader, Panel } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/app/settings")({ head: () => pageHead("Organization settings", "Manage workspaces, invitations and team."), component: SettingsPage });
 
@@ -63,8 +64,10 @@ function SettingsPage() {
   return (
     <>
       <PageHeader title="Organization" description={`${o.org?.name} · your role: ${o.role}`} />
+      <Tabs defaultValue="workspace"><TabsList className="mb-6 max-w-full"><TabsTrigger value="workspace">Workspaces</TabsTrigger><TabsTrigger value="team">Team</TabsTrigger><TabsTrigger value="organization">Organization</TabsTrigger><TabsTrigger value="access">Sign-in</TabsTrigger></TabsList>
+      <TabsContent value="workspace">
       <div className="grid gap-4 md:grid-cols-2">
-        {can(o.role, "org.update") && <Panel><form onSubmit={rename} className="space-y-3"><Label>Organization name</Label><Input defaultValue={o.org?.name} onChange={(e) => setOrgName(e.target.value)} required maxLength={120} /><Button size="sm">Save</Button></form></Panel>}
+
         {can(o.role, "workspace.create") && <Panel><form onSubmit={addWs} className="space-y-3"><Label htmlFor="new-workspace">Add a brand or workspace</Label><Input id="new-workspace" value={wsName} onChange={(e) => setWsName(e.target.value)} required maxLength={120} placeholder="e.g. Second brand" /><Button size="sm" disabled={creatingWs}>{creatingWs ? "Creating…" : "Create workspace"}</Button></form></Panel>}
       </div>
       <section className="mt-8">
@@ -76,7 +79,8 @@ function SettingsPage() {
         </div>)}</div>
         <p className="mt-2 text-xs text-muted-foreground">Organization owners can administer all workspaces. Other team members need an explicit assignment.</p>
       </section>
-      <h2 className="mb-3 mt-10 font-semibold">Members</h2>
+      </TabsContent><TabsContent value="team">
+      <h2 className="mb-3 text-base font-semibold">Members</h2>
       <div className="divide-y divide-border rounded-lg border border-border">{members.data?.map((m) => (
         <div key={m.user_id} className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm">
           <span className="flex-1">{m.user_id === o.userId ? `You (${o.email})` : m.name}</span>
@@ -103,8 +107,10 @@ function SettingsPage() {
           ))}</div> : null}
         </>
       )}
+      </TabsContent><TabsContent value="organization"><section className="max-w-lg">{can(o.role, "org.update") && <Panel><form onSubmit={rename} className="space-y-3"><Label>Organization name</Label><Input defaultValue={o.org?.name} onChange={(e) => setOrgName(e.target.value)} required maxLength={120} /><Button size="sm">Save</Button></form></Panel>}</section>
       <h2 className="mb-3 mt-10 font-semibold">Another organization</h2>
-      <form onSubmit={createOrg} className="flex gap-2"><Input placeholder="New organization name" value={newOrg} onChange={(e) => setNewOrg(e.target.value)} required maxLength={120} className="max-w-xs" /><Button variant="outline">Create</Button></form>
+      <form onSubmit={createOrg} className="flex flex-wrap gap-2"><Input placeholder="New organization name" value={newOrg} onChange={(e) => setNewOrg(e.target.value)} required maxLength={120} className="max-w-xs" /><Button variant="outline">Create</Button></form>
+      </TabsContent><TabsContent value="access"><section className="max-w-2xl"><h2 className="font-semibold">Account & organization sign-in</h2><div className="mt-5 divide-y divide-border border-y border-border">{[["Email & password", "Available"], ["Google", "Available"], ["Microsoft", "Enabled · external sign-in unverified"], ["Organization OIDC", "Administrator configuration required"], ["SAML", "Not configured"], ["SCIM provisioning", "Not available"]].map(([name,status]) => <div key={name} className="flex flex-wrap justify-between gap-3 py-4 text-sm"><span>{name}</span><span className="text-xs text-muted-foreground">{status}</span></div>)}</div><p className="mt-5 text-xs leading-relaxed text-muted-foreground">Sign-in never grants organization or workspace access automatically. Organization owners manage assignments in Workspaces.</p><Button variant="outline" className="mt-5" asChild><Link to="/auth" search={{ redirect: undefined }}>Account sign-in</Link></Button></section></TabsContent></Tabs>
     </>
   );
 }

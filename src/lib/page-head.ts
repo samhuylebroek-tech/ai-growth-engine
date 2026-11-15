@@ -1,5 +1,5 @@
 export function pageHead(title: string, description: string) {
-  const fullTitle = `${title} — AI Growth OS`;
+  const fullTitle = title === "AI Growth Engine" ? title : `${title} — AI Growth Engine`;
   return { meta: [
     { title: fullTitle }, { name: "description", content: description },
     { property: "og:title", content: fullTitle }, { property: "og:description", content: description },

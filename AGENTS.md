@@ -50,4 +50,7 @@ use the editor.
 - Workspace access requires explicit workspace assignments capped by organization role; organization owners retain all-workspace administration, and restrictive policies also protect storage and scoped RPCs.
 - Workspace creation goes through the atomic quota-checked SQL function, not direct inserts, to prevent concurrent plan-limit bypasses.
 - Shared code navigation drives the drawer and page-search dialog so visible destinations remain consistent and implemented.
+- Group navigation into primary destinations with contextual tabs from the same manifest; retain existing route URLs so saved links remain valid.
+- Home and intelligence share one scoped summary query; question handoffs are session-only and keyed by organization/workspace so drafts never cross contexts.
+- Conversation messages are loaded only after verifying their parent conversation belongs to the active organization/workspace and authenticated user, because messages have no workspace column.
 - Owner-center server reads require the exact Platform Owner role and fail closed, so general platform staff cannot access owner operations.

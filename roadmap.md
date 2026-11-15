@@ -1,4 +1,13 @@
 # AI Growth OS — Task Queue
+## Complete product remake — delivered frontend, 2026-11-15
+- [x] Replace tool-first navigation with six primary destinations, contextual tabs and shared search.
+- [x] Rebuild Home around verified intelligence, priorities, scoped Growth Officer question and display preferences.
+- [x] Redesign existing conversations/export, growth directories, knowledge, sources, activity, settings and onboarding presentation.
+- [x] Verify real signed-in AI/result readback/export, organization draft reset, private document lifecycle and 13 phone pages; automated regressions passed.
+- [x] Record actual changes, evidence and unfinished definition-of-done journeys in docs/PRODUCT_REMAKE.md.
+- [~] Complete same-organization multi-workspace and multi-account/signup/approval/extraction browser matrix; structured editable results and specialist coordination are not implemented.
+- [B] Owner setup, payments, publishing, external campaigns and unapproved SSO activation remain deferred.
+
 ## Foundation completion, workspace authorization and enterprise authentication — active 2026-11-15
 - [~] Re-audit workspace authorization and complete the remaining customer journey, including invitations, roles and account lifecycle.
 - [x] Add atomic AI credit reservation, settlement/refund and regression tests; rate/concurrency limits and hard cost pre-budgeting remain open.

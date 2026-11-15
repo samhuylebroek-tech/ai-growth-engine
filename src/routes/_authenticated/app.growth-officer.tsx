@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Sparkles, Send, Plus } from "lucide-react";
+import { Sparkles, Send, Plus, BookOpen, ArrowUpRight, Copy, Download, CheckSquare, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/lib/org-context";
 import { can } from "@/lib/permissions";
@@ -13,20 +13,46 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
+import { consumeGrowthDraft, growthDraftKey } from "@/lib/growth-draft";
 
 export const Route = createFileRoute("/_authenticated/app/growth-officer")({ head: () => pageHead("Growth Officer", "Evidence-aware conversations and recommendations."), component: GrowthOfficer });
 
-const STARTERS = ["Create a growth strategy for the next 90 days", "Where are we likely losing customers?", "What opportunities might we be missing?", "Analyze our competitors"];
+const STARTERS = ["Find my biggest growth opportunities", "Create a 30-day action plan", "What information am I missing?", "Draft a marketing strategy using confirmed facts"];
 
 function GrowthOfficer() {
   const o = useOrg(); const qc = useQueryClient(); const ask = useServerFn(askGrowthOfficer);
   const [conv, setConv] = useState<string | null>(null); const [text, setText] = useState(""); const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
   const end = useRef<HTMLDivElement>(null);
-  useEffect(() => { setConv(null); setPending(null); setText(""); }, [o.workspace?.id]);
-  const convs = useQuery({ queryKey: ["convs", o.workspace?.id], enabled: !!o.workspace, queryFn: async () => (await supabase.from("conversations").select("id,title,created_at").eq("workspace_id", o.workspace!.id).order("created_at", { ascending: false }).limit(30)).data ?? [] });
-  const msgs = useQuery({ queryKey: ["msgs", conv], enabled: !!conv, queryFn: async () => (await supabase.from("messages").select("id,role,content,created_at").eq("conversation_id", conv!).order("created_at")).data ?? [] });
-  useEffect(() => { end.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs.data, pending]);
+  const restoredDraft = useRef<string | null>(null);
+  const [contextOpen, setContextOpen] = useState(false);
+  useEffect(() => {
+    setConv(null); setPending(null);
+    if (!o.org || !o.workspace) { setText(""); return; }
+    const key = growthDraftKey(o.org.id, o.workspace.id);
+    if (restoredDraft.current === key) return;
+    restoredDraft.current = key;
+    setText(consumeGrowthDraft(sessionStorage, o.org.id, o.workspace.id));
+  }, [o.org?.id, o.workspace?.id]);
+  const convs = useQuery({ queryKey: ["convs", o.org?.id, o.workspace?.id], enabled: !!o.org && !!o.workspace, queryFn: async () => {
+    if (!o.org || !o.workspace) return [];
+    const r = await supabase.from("conversations").select("id,title,created_at").eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).eq("user_id", o.userId).order("created_at", { ascending: false }).limit(30);
+    if (r.error) throw r.error; return r.data ?? [];
+  } });
+  const msgs = useQuery({ queryKey: ["msgs", conv, o.workspace?.id], enabled: !!conv && !!o.org && !!o.workspace, queryFn: async () => {
+    if (!conv || !o.org || !o.workspace) return [];
+    const owner = await supabase.from("conversations").select("id").eq("id", conv).eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).eq("user_id", o.userId).maybeSingle();
+    if (owner.error) throw owner.error;
+    if (!owner.data) throw new Error("Conversation unavailable in this workspace.");
+    const r = await supabase.from("messages").select("id,role,content,created_at").eq("org_id", o.org.id).eq("conversation_id", owner.data.id).order("created_at");
+    if (r.error) throw r.error; return r.data ?? [];
+  } });
+  const context = useQuery({ queryKey: ["officer-context", o.org?.id, o.workspace?.id], enabled: !!o.org && !!o.workspace, queryFn: async () => {
+    if (!o.org || !o.workspace) return [];
+    const r = await supabase.from("business_facts").select("id,key,value,verified").eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).order("created_at", { ascending: false });
+    if (r.error) throw r.error; return r.data ?? [];
+  } });
+  useEffect(() => { end.current?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "nearest" }); }, [msgs.data, pending]);
 
   async function send(message: string) {
     if (!o.org || !o.workspace || !message.trim() || busy || !can(o.workspaceRole, "ai.use")) return;
@@ -41,53 +67,34 @@ function GrowthOfficer() {
     } catch { toast.error("The answer could not finish. Your question is preserved."); setText(message); }
     finally { setBusy(false); setPending(null); }
   }
-  const allowed = can(o.workspaceRole, "ai.use");
-  const list = msgs.data ?? [];
-  return (
-    <div className="grid h-[calc(100dvh-10rem)] min-h-[420px] gap-6 md:h-[calc(100dvh-5rem)] md:grid-cols-[200px_1fr]">
-      <div className="hidden flex-col md:flex">
-        <Button variant="outline" size="sm" onClick={() => setConv(null)}><Plus className="mr-1 h-4 w-4" /> New conversation</Button>
-        <div className="mt-4 space-y-0.5 overflow-y-auto">{convs.data?.map((c) => (
-          <Button key={c.id} variant="ghost" onClick={() => setConv(c.id)} className={cn("block w-full truncate px-2 text-left text-sm text-muted-foreground", conv === c.id && "bg-secondary text-foreground")}>{c.title}</Button>
-        ))}</div>
-      </div>
-      <div className="flex min-h-0 flex-col">
-        <div className="mb-3 flex items-center gap-2 md:hidden"><select aria-label="Conversation" className="min-w-0 flex-1 rounded-md border border-border bg-card px-2 text-sm" value={conv ?? ""} onChange={e => setConv(e.target.value || null)}><option value="">New conversation</option>{convs.data?.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}</select><Button variant="ghost" size="icon" aria-label="New conversation" onClick={() => setConv(null)}><Plus /></Button></div>
-        <div className="flex-1 overflow-y-auto pr-1">
-          {!conv && !pending ? (
-            <div className="flex h-full flex-col items-center justify-center text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary"><Sparkles className="h-6 w-6" /></div>
-              <h1 className="mt-4 text-2xl font-bold">Your Chief Growth Officer</h1>
-              <p className="mt-2 max-w-md text-sm text-muted-foreground">Tell me what you want to achieve. I'll use your business profile and documents, explain my reasoning, and send any actions to you for approval.</p>
-              <div className="mt-6 grid w-full max-w-lg gap-2 sm:grid-cols-2">{STARTERS.map((s) => <Button variant="outline" key={s} disabled={!allowed || busy} onClick={() => send(s)} className="h-auto whitespace-normal p-3 text-left text-sm">{s}</Button>)}</div>
-            </div>
-          ) : (
-            <div className="space-y-5 pb-4">
-              {list.map((m) => <Bubble key={m.id} role={m.role} content={m.content} />)}
-              {pending && <><Bubble role="user" content={pending} /><div className="text-sm text-muted-foreground">Thinking…</div></>}
-              <div ref={end} />
-            </div>
-          )}
+  const allowed = can(o.workspaceRole, "ai.use"); const list = msgs.data ?? [];
+  const verified = context.data?.filter(f => f.verified) ?? [];
+  const title = convs.data?.find(c => c.id === conv)?.title;
+  async function exportConversation() {
+    if (!list.length) return;
+    const text = list.map(m => `## ${m.role === "user" ? "You" : "Growth Officer"}\n\n${m.content}`).join("\n\n---\n\n");
+    const url = URL.createObjectURL(new Blob([`# ${title ?? "Growth conversation"}\n\n${text}`], { type: "text/markdown" }));
+    const a = document.createElement("a"); a.href = url; a.download = "growth-conversation.md"; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  return <div>
+    <div className="mb-5 flex flex-wrap items-start justify-between gap-3"><div><p className="section-label mb-2">AI workspace / {o.workspace?.name}</p><h1 className="text-2xl font-semibold">Growth Officer</h1></div><div className="flex gap-1"><Button variant="ghost" size="icon" aria-label="View business context" title="Business context" onClick={() => setContextOpen(!contextOpen)}><BookOpen /></Button><Button variant="ghost" size="icon" aria-label="Export conversation" title="Export conversation" disabled={!list.length || busy} onClick={exportConversation}><Download /></Button><Button variant="outline" size="sm" disabled={busy} onClick={() => { setConv(null); setText(""); }}><Plus />New conversation</Button></div></div>
+    <div className="grid min-h-[560px] gap-6 lg:grid-cols-[176px_minmax(0,1fr)] xl:grid-cols-[176px_minmax(0,1fr)_224px]">
+      <aside className="hidden min-w-0 flex-col border-r border-border pr-4 lg:flex"><p className="section-label mb-4">Conversations</p>{convs.isLoading && <p role="status" className="text-xs text-muted-foreground">Loading history…</p>}{convs.isError && <p role="alert" className="text-xs text-destructive">History could not load.<Button variant="link" size="sm" onClick={() => convs.refetch()}>Retry</Button></p>}<div className="max-h-[600px] space-y-1 overflow-y-auto">{convs.data?.map(c => <Button key={c.id} variant="ghost" disabled={busy} onClick={() => setConv(c.id)} className={cn("h-auto w-full justify-start whitespace-normal break-words px-2 py-3 text-left text-xs text-muted-foreground", conv === c.id && "bg-secondary text-foreground")}><span className="line-clamp-3">{c.title}</span></Button>)}</div>{!convs.isLoading && !convs.data?.length && <p className="text-xs text-muted-foreground">No conversations yet.</p>}<Button variant="link" size="sm" className="mt-5 justify-start px-0" asChild><Link to="/app/activity">Activity & results <ArrowUpRight /></Link></Button></aside>
+      <div className="flex min-w-0 flex-col"><div className="mb-4 flex lg:hidden"><select aria-label="Conversation" className="w-full min-w-0 rounded-md border border-border bg-card px-3 text-xs" disabled={busy} value={conv ?? ""} onChange={e => setConv(e.target.value || null)}><option value="">New conversation</option>{convs.data?.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}</select></div>
+        <div className="max-h-[600px] min-h-[310px] flex-1 overflow-y-auto pr-1">
+          {msgs.isLoading && <p role="status" className="py-5 text-sm text-muted-foreground">Opening conversation…</p>}
+          {msgs.isError && <p role="alert" className="text-sm text-destructive">Conversation could not load.<Button variant="link" onClick={() => msgs.refetch()}>Retry</Button></p>}
+          {!conv && !pending ? <div className="py-10"><Sparkles className="mb-6 h-7 w-7 text-primary" /><h2 className="max-w-lg text-2xl font-semibold leading-snug">A clear next move.<br />Built around your business.</h2><p className="mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground">{verified.length ? `${verified.length} confirmed business facts are available in ${o.workspace?.name}.` : "Your business context is not confirmed yet. I’ll make missing evidence and assumptions explicit."}</p><div className="mt-7 grid gap-2 sm:grid-cols-2">{STARTERS.map(starter => <Button key={starter} variant="outline" className="h-auto min-h-16 justify-between whitespace-normal p-3 text-left text-xs" disabled={!allowed || busy} onClick={() => setText(starter)}>{starter}<ArrowUpRight className="shrink-0 text-muted-foreground" /></Button>)}</div></div> : <div className="space-y-6 pb-4">{list.map(m => <Bubble key={m.id} role={m.role} content={m.content} />)}{pending && <><Bubble role="user" content={pending} /><div role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Sparkles className="h-4 w-4 text-primary" />Working on your question…</div></>}<div ref={end} /></div>}
         </div>
-        {allowed ? (
-          <form onSubmit={(e) => { e.preventDefault(); send(text); }} className="mt-3 flex items-end gap-2 rounded-lg border border-border bg-card p-2">
-            <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={4000} placeholder="Ask anything about growing your business…" className="min-h-0 resize-none border-0 bg-transparent focus-visible:ring-0"
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(text); } }} />
-            <Button type="submit" size="icon" disabled={busy || !text.trim()} aria-label="Send"><Send className="h-4 w-4" /></Button>
-          </form>
-        ) : <p className="mt-3 text-center text-sm text-muted-foreground">Viewers can read but not ask. Ask an admin for member access.</p>}
-        <p className="mt-2 text-center text-[11px] text-muted-foreground">Each answer uses AI credits · <Link to="/app/billing" className="underline">see usage</Link> · AI can be wrong; verify important decisions.</p>
+        {allowed ? <form onSubmit={e => { e.preventDefault(); send(text); }} className="mt-5 rounded-lg border border-border bg-card p-3 focus-within:border-primary/50"><Textarea aria-label="Question for Growth Officer" value={text} onChange={e => setText(e.target.value)} rows={3} maxLength={4000} placeholder="Ask a question or describe your next goal…" className="min-h-20 resize-none border-0 bg-transparent p-1 shadow-none focus-visible:ring-0" onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(text); } }} /><div className="mt-2 flex items-center justify-between gap-2"><span className="flex items-center gap-1.5 text-[10px] text-muted-foreground"><BookOpen className="h-3 w-3" />{verified.length} confirmed facts · workspace-scoped</span><Button type="submit" size="icon" disabled={busy || !text.trim()} aria-label="Send" title="Send question"><Send /></Button></div></form> : <p className="mt-5 text-sm text-muted-foreground">Viewer access · conversations are read-only.</p>}
+        <p className="mt-3 text-[10px] text-muted-foreground">AI credits apply · <Link to="/app/billing" className="underline">View usage</Link> · Verify important decisions.</p>
       </div>
+      <aside className={cn("min-w-0 border-t border-border pt-5 xl:block xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0", !contextOpen && "hidden")}><p className="section-label mb-4">Business context</p><p className="text-sm font-semibold">{o.workspace?.name}</p>{context.isError ? <p role="alert" className="mt-3 text-xs text-destructive">Context could not load.</p> : <><p className="mt-2 text-[11px] text-muted-foreground">{verified.length} confirmed · {(context.data?.length ?? 0) - verified.length} awaiting review</p><div className="mt-4 space-y-4">{verified.slice(0,4).map(f => <div key={f.id}><h3 className="text-[11px] font-semibold">{f.key}</h3><p className="mt-1 line-clamp-3 text-[11px] leading-relaxed text-muted-foreground">{f.value}</p></div>)}</div>{!verified.length && <p className="mt-4 text-xs leading-relaxed text-muted-foreground">Unconfirmed claims are not trusted business evidence.</p>}</>}<Button variant="link" size="sm" className="mt-3 px-0" asChild><Link to="/app/profile">Review knowledge <ArrowUpRight /></Link></Button><div className="mt-6 border-t border-border pt-5"><p className="section-label mb-3">Related work</p><Button variant="ghost" size="sm" className="w-full justify-start px-0" asChild><Link to="/app/documents"><FileText />Documents</Link></Button><Button variant="ghost" size="sm" className="w-full justify-start px-0" asChild><Link to="/app/approvals"><CheckSquare />Review & approvals</Link></Button></div><p className="mt-6 text-[10px] leading-relaxed text-muted-foreground">Results are saved in your conversation. External actions require review; automatic execution is not configured.</p></aside>
     </div>
-  );
+  </div>;
 }
 
 function Bubble({ role, content }: { role: string; content: string }) {
-  return (
-    <div className={cn("flex", role === "user" ? "justify-end" : "justify-start")}>
-      <div className={cn("max-w-[92%] break-words rounded-lg px-4 py-3 text-sm leading-relaxed", role === "user" ? "whitespace-pre-wrap bg-secondary" : "prose-chat")}>
-        {role === "user" ? content : <ReactMarkdown skipHtml>{content}</ReactMarkdown>}
-      </div>
-    </div>
-  );
+  async function copy() { try { await navigator.clipboard.writeText(content); toast.success("Result copied"); } catch { toast.error("Could not copy this result"); } }
+  return <article className={cn("min-w-0 break-words", role === "user" ? "ml-6 rounded-lg bg-secondary p-4" : "border-b border-border py-4")}><div className="mb-3 flex items-center justify-between"><span className="flex items-center gap-2 text-[11px] font-semibold">{role === "user" ? "You" : <><Sparkles className="h-3.5 w-3.5 text-primary" />Growth Officer</>}</span>{role !== "user" && <Button variant="ghost" size="icon" aria-label="Copy result" title="Copy result" onClick={copy}><Copy /></Button>}</div><div className={cn("text-sm leading-relaxed", role === "user" ? "whitespace-pre-wrap" : "prose-chat")} >{role === "user" ? content : <ReactMarkdown skipHtml>{content}</ReactMarkdown>}</div></article>;
 }

@@ -24,6 +24,7 @@ import { Route as AuthenticatedAppBillingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppDocumentsRouteImport } from './routes/_authenticated/app.documents'
 import { Route as AuthenticatedAppGrowthOfficerRouteImport } from './routes/_authenticated/app.growth-officer'
 import { Route as AuthenticatedAppIntegrationsRouteImport } from './routes/_authenticated/app.integrations'
+import { Route as AuthenticatedAppIntelligenceRouteImport } from './routes/_authenticated/app.intelligence'
 import { Route as AuthenticatedAppModulesRouteImport } from './routes/_authenticated/app.modules'
 import { Route as AuthenticatedAppOnboardingRouteImport } from './routes/_authenticated/app.onboarding'
 import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/app.profile'
@@ -109,6 +110,12 @@ const AuthenticatedAppIntegrationsRoute =
     path: '/integrations',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppIntelligenceRoute =
+  AuthenticatedAppIntelligenceRouteImport.update({
+    id: '/intelligence',
+    path: '/intelligence',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppModulesRoute = AuthenticatedAppModulesRouteImport.update({
   id: '/modules',
   path: '/modules',
@@ -152,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/app/documents': typeof AuthenticatedAppDocumentsRoute
   '/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
   '/app/integrations': typeof AuthenticatedAppIntegrationsRoute
+  '/app/intelligence': typeof AuthenticatedAppIntelligenceRoute
   '/app/modules': typeof AuthenticatedAppModulesRoute
   '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
@@ -172,6 +180,7 @@ export interface FileRoutesByTo {
   '/app/documents': typeof AuthenticatedAppDocumentsRoute
   '/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
   '/app/integrations': typeof AuthenticatedAppIntegrationsRoute
+  '/app/intelligence': typeof AuthenticatedAppIntelligenceRoute
   '/app/modules': typeof AuthenticatedAppModulesRoute
   '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
@@ -195,6 +204,7 @@ export interface FileRoutesById {
   '/_authenticated/app/documents': typeof AuthenticatedAppDocumentsRoute
   '/_authenticated/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
   '/_authenticated/app/integrations': typeof AuthenticatedAppIntegrationsRoute
+  '/_authenticated/app/intelligence': typeof AuthenticatedAppIntelligenceRoute
   '/_authenticated/app/modules': typeof AuthenticatedAppModulesRoute
   '/_authenticated/app/onboarding': typeof AuthenticatedAppOnboardingRoute
   '/_authenticated/app/profile': typeof AuthenticatedAppProfileRoute
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/app/documents'
     | '/app/growth-officer'
     | '/app/integrations'
+    | '/app/intelligence'
     | '/app/modules'
     | '/app/onboarding'
     | '/app/profile'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/app/documents'
     | '/app/growth-officer'
     | '/app/integrations'
+    | '/app/intelligence'
     | '/app/modules'
     | '/app/onboarding'
     | '/app/profile'
@@ -260,6 +272,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/documents'
     | '/_authenticated/app/growth-officer'
     | '/_authenticated/app/integrations'
+    | '/_authenticated/app/intelligence'
     | '/_authenticated/app/modules'
     | '/_authenticated/app/onboarding'
     | '/_authenticated/app/profile'
@@ -383,6 +396,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIntegrationsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/intelligence': {
+      id: '/_authenticated/app/intelligence'
+      path: '/intelligence'
+      fullPath: '/app/intelligence'
+      preLoaderRoute: typeof AuthenticatedAppIntelligenceRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/modules': {
       id: '/_authenticated/app/modules'
       path: '/modules'
@@ -429,6 +449,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppDocumentsRoute: typeof AuthenticatedAppDocumentsRoute
   AuthenticatedAppGrowthOfficerRoute: typeof AuthenticatedAppGrowthOfficerRoute
   AuthenticatedAppIntegrationsRoute: typeof AuthenticatedAppIntegrationsRoute
+  AuthenticatedAppIntelligenceRoute: typeof AuthenticatedAppIntelligenceRoute
   AuthenticatedAppModulesRoute: typeof AuthenticatedAppModulesRoute
   AuthenticatedAppOnboardingRoute: typeof AuthenticatedAppOnboardingRoute
   AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
@@ -444,6 +465,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppDocumentsRoute: AuthenticatedAppDocumentsRoute,
   AuthenticatedAppGrowthOfficerRoute: AuthenticatedAppGrowthOfficerRoute,
   AuthenticatedAppIntegrationsRoute: AuthenticatedAppIntegrationsRoute,
+  AuthenticatedAppIntelligenceRoute: AuthenticatedAppIntelligenceRoute,
   AuthenticatedAppModulesRoute: AuthenticatedAppModulesRoute,
   AuthenticatedAppOnboardingRoute: AuthenticatedAppOnboardingRoute,
   AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,

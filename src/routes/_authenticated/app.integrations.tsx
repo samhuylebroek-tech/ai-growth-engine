@@ -1,30 +1,15 @@
 import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { Plug, ArrowUpRight, Globe2, FileText, Search } from "lucide-react";
 import { CONNECTORS } from "@/lib/registry/connectors";
-import { PageHeader, Panel, StatusChip } from "@/components/app/status";
+import { PageHeader, StatusChip } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
-
-export const Route = createFileRoute("/_authenticated/app/integrations")({ head: () => pageHead("Integrations", "Business connections and configuration status."), component: Integrations });
-
+import { Input } from "@/components/ui/input";
+export const Route = createFileRoute("/_authenticated/app/integrations")({ head: () => pageHead("Data sources", "Available research sources and integration configuration."), component: Integrations });
 function Integrations() {
-  const cats = [...new Set(CONNECTORS.map((c) => c.category))];
-  return (
-    <>
-      <PageHeader title="Integrations" description="Connect the tools your business already uses. Only working connections are shown as available — nothing is faked." />
-      {cats.map((cat) => (
-        <section key={cat} className="mb-8">
-          <h2 className="mb-3 text-sm font-medium text-muted-foreground">{cat}</h2>
-          <div className="grid gap-3 md:grid-cols-3">{CONNECTORS.filter((c) => c.category === cat).map((c) => (
-            <Panel key={c.key}>
-              <div className="flex items-start justify-between gap-2"><div className="font-semibold">{c.name}</div><StatusChip status={c.status === "implemented" ? "implemented" : "not_configured"} /></div>
-              <p className="mt-1 text-sm text-muted-foreground">{c.description}</p>
-              {c.key === "website" && <Button variant="outline" size="sm" className="mt-4" asChild><Link to="/app/onboarding">Discover business</Link></Button>}
-              {c.key === "documents" && <Button variant="outline" size="sm" className="mt-4" asChild><Link to="/app/documents">Open documents</Link></Button>}
-              {c.requires && <p className="mt-3 text-xs text-muted-foreground">Needs: {c.requires}</p>}
-            </Panel>
-          ))}</div>
-        </section>
-      ))}
-    </>
-  );
+ const [filter,setFilter] = useState("all"); const [search,setSearch] = useState("");
+ const categories = [...new Set(CONNECTORS.map(c => c.category))];
+ const items = CONNECTORS.filter(c => (filter === "all" || c.category === filter) && `${c.name} ${c.description}`.toLowerCase().includes(search.toLowerCase()));
+ return <><PageHeader title="Data sources" description="A stronger business picture starts with reliable sources." /><div className="mb-8 grid gap-6 border-y border-border py-6 md:grid-cols-2">{CONNECTORS.filter(c => c.status === "implemented").map(c => <div key={c.key} className="flex items-start gap-3">{c.key === "website" ? <Globe2 className="h-5 w-5 shrink-0 text-primary" /> : <FileText className="h-5 w-5 shrink-0 text-chart-2" />}<div><h2 className="text-sm font-semibold">{c.name}</h2><p className="mt-1 text-xs text-muted-foreground">{c.description}</p><Button variant="link" size="sm" className="mt-2 px-0" asChild><Link to={c.key === "website" ? "/app/onboarding" : "/app/documents"}>{c.key === "website" ? "Research website" : "Manage documents"}<ArrowUpRight /></Link></Button></div></div>)}</div><div className="mb-6 flex flex-wrap items-center gap-3"><div className="flex items-center gap-2"><Search className="h-4 w-4 text-muted-foreground" /><Input aria-label="Search data sources" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search sources…" className="max-w-xs" /></div><select aria-label="Source category" className="rounded-md border border-border bg-card px-3 text-xs" value={filter} onChange={e => setFilter(e.target.value)}><option value="all">All categories</option>{categories.map(c => <option key={c}>{c}</option>)}</select></div><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{items.map(c => <article key={c.key} className="rounded-lg border border-border bg-card p-5"><div className="mb-4 flex items-center justify-between gap-3"><Plug className="h-5 w-5 text-muted-foreground" /><StatusChip status={c.status === "implemented" ? "implemented" : "not_configured"} /></div><h3 className="text-sm font-semibold">{c.name}</h3><p className="mt-1 text-[10px] text-muted-foreground">{c.category}</p><p className="mt-3 text-xs leading-relaxed text-muted-foreground">{c.description}</p>{c.status === "planned" && <p className="mt-4 border-t border-border pt-3 text-[11px] text-muted-foreground">Connection setup is not available yet.</p>}{c.status === "implemented" && <Button variant="link" size="sm" className="mt-3 px-0" asChild><Link to={c.key === "website" ? "/app/onboarding" : "/app/documents"}>Open source <ArrowUpRight /></Link></Button>}</article>)}</div>{!items.length && <p className="py-10 text-sm text-muted-foreground">No sources match these filters.</p>}</>;
 }

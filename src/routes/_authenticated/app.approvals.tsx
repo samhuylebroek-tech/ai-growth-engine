@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/app/approvals")({ head: ()
 function Approvals() {
   const o = useOrg(); const qc = useQueryClient(); const [tab, setTab] = useState<"pending" | "decided">("pending");
   const [busy, setBusy] = useState<string | null>(null);
-  const [policyBusy, setPolicyBusy] = useState<string | null>(null);
+  const [policyBusy, setPolicyBusy] = useState<string | null>(null); const [showPolicies, setShowPolicies] = useState(false);
   const canManage = can(o.role, "policies.manage");
   const q = useQuery({ queryKey: ["approvals", o.org?.id, o.workspace?.id, tab], enabled: !!o.org && !!o.workspace, queryFn: async () => {
     if (!o.org || !o.workspace) return [];
@@ -53,7 +53,7 @@ function Approvals() {
   const canDecide = can(o.workspaceRole, "approvals.decide");
   return (
     <>
-      <PageHeader title="Approvals" description="Nothing that affects the outside world happens without a person saying yes." />
+      <PageHeader title="Review & approvals" description="Decide what moves forward." actions={canManage && <Button variant="outline" onClick={() => setShowPolicies(!showPolicies)} aria-expanded={showPolicies}>{showPolicies ? "Close policies" : "Action policies"}</Button>} />
       <div className="mb-5 flex gap-1 rounded-lg bg-muted p-1 text-sm w-fit">{(["pending", "decided"] as const).map((t) => <Button key={t} variant={tab === t ? "secondary" : "ghost"} size="sm" onClick={() => setTab(t)} aria-pressed={tab === t} className="capitalize">{t}</Button>)}</div>
       {q.isLoading && <p role="status" className="py-8 text-sm text-muted-foreground">Loading approvals…</p>}
       {q.isError && <p role="alert" className="text-sm text-destructive">Approvals could not load. <Button variant="link" onClick={() => q.refetch()}>Retry</Button></p>}
@@ -72,7 +72,7 @@ function Approvals() {
           </Panel>
         );
       })}</div> : <EmptyState icon={<CheckSquare className="h-5 w-5" />} title={tab === "pending" ? "Nothing waiting" : "No decisions yet"} text="When the Growth Officer recommends an action, it appears here for review." />}
-      {canManage && <section className="mt-10">
+      {canManage && showPolicies && <section className="mt-10">
         <h2 className="font-semibold">Action policies</h2>
         <p className="mt-1 text-sm text-muted-foreground">Block capabilities your organization does not want proposed. Every external action still requires approval.</p>
         {policies.isError && <p role="alert" className="mt-3 text-sm text-destructive">Policies could not load. <Button variant="link" onClick={() => policies.refetch()}>Retry</Button></p>}

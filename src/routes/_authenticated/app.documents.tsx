@@ -1,5 +1,5 @@
 import { pageHead } from "@/lib/page-head";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
@@ -12,13 +12,14 @@ import { validateUpload, safeFileName } from "@/lib/security/upload";
 import { extractDocumentFacts } from "@/lib/ai.functions";
 import { PageHeader, StatusChip, EmptyState } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/_authenticated/app/documents")({ head: () => pageHead("Documents", "Private documents and evidence extraction."), component: Documents });
 
 function Documents() {
   const o = useOrg(); const qc = useQueryClient(); const ws = o.workspace?.id; const orgId = o.org?.id;
   const extract = useServerFn(extractDocumentFacts); const input = useRef<HTMLInputElement>(null);
-  const [busy, setBusy] = useState<string | null>(null);
+  const [busy, setBusy] = useState<string | null>(null); const [search, setSearch] = useState("");
   const q = useQuery({ queryKey: ["docs", orgId, ws], enabled: !!ws && !!orgId, queryFn: async () => {
     if (!ws || !orgId) return [];
     const result = await supabase.from("documents").select("id,name,mime,size_bytes,status,created_at,storage_path").eq("org_id", orgId).eq("workspace_id", ws).order("created_at", { ascending: false });
@@ -68,14 +69,15 @@ function Documents() {
   const canUpload = can(o.workspaceRole, "documents.upload");
   return (
     <>
-      <PageHeader title="Documents" description="Business plans, brand guidelines, pricing and strategy files. Stored privately for your organization only."
+      <PageHeader title="Documents" description="Private source files for this workspace."
         actions={canUpload && <><input ref={input} type="file" multiple hidden accept=".pdf,.docx,.xlsx,.csv,.txt,.md" onChange={(e) => { upload(e.target.files); e.target.value = ""; }} /><Button onClick={() => input.current?.click()} disabled={!!busy}><Upload className="mr-1.5 h-4 w-4" />{busy ? "Working…" : "Upload"}</Button></>} />
       <p className="mb-4 text-xs text-muted-foreground">PDF, DOCX, XLSX, CSV, TXT & MD · Max 20 MB · Private storage</p>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><Input aria-label="Search documents" placeholder="Find a document…" value={search} onChange={e => setSearch(e.target.value)} className="max-w-sm" /><Button variant="link" size="sm" asChild><Link to="/app/profile">Review extracted knowledge</Link></Button></div>
       {q.isLoading && <p role="status">Loading documents…</p>}
       {q.isError && <p role="alert" className="text-destructive">Documents could not load. <Button variant="link" onClick={() => q.refetch()}>Retry</Button></p>}
       {q.data?.length ? (
-        <div className="divide-y divide-border rounded-lg border border-border">{q.data.map((d) => (
-          <div key={d.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
+        <div className="divide-y divide-border rounded-lg border border-border">{q.data.filter(d => d.name.toLowerCase().includes(search.toLowerCase())).map((d) => (
+          <div key={d.id} className="flex flex-wrap items-center gap-3 px-4 py-4">
             <FileText className="h-4 w-4 text-muted-foreground" />
             <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{d.name}</div><div className="text-xs text-muted-foreground">{(d.size_bytes / 1024).toFixed(0)} KB · {new Date(d.created_at).toLocaleDateString()}</div></div>
             <StatusChip status={d.status} />
@@ -84,7 +86,7 @@ function Documents() {
             {can(o.workspaceRole, "members.manage") && <Button size="sm" variant="ghost" onClick={() => remove(d.id)} aria-label="Delete"><Trash2 className="h-4 w-4" /></Button>}
           </div>
         ))}</div>
-      ) : !q.isLoading && !q.isError ? <EmptyState icon={<FileText className="h-5 w-5" />} title="No documents yet" text="Upload a business plan or brand guide so the Growth Officer can learn from it." /> : null}
+      ) : !q.isLoading && !q.isError ? <EmptyState icon={<FileText className="h-5 w-5" />} title="Bring your business knowledge together" text="Business plans, pricing and brand guides become source-backed claims for you to review." action={canUpload && <Button variant="outline" onClick={() => input.current?.click()} disabled={!!busy}><Upload />Upload your first document</Button>} /> : null}
     </>
   );
 }
