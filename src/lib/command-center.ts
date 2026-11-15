@@ -38,7 +38,7 @@ export function commandCenterOptions(orgId: string | undefined, workspaceId: str
         supabase.from("connector_connections").select("id,connector_key,status").eq("org_id", orgId).eq("workspace_id", workspaceId),
       ]);
       for (const result of [runs, active, documents, approvals, connections]) if (result.error) throw result.error;
-      return { activity: mergeActivity(runs.data ?? [], documents.data ?? [], approvals.data ?? []), runs: runs.data ?? [], active: active.data ?? [], activeCount: active.count ?? 0, connections: connections.data ?? [] };
+      return { activity: mergeActivity(runs.data ?? [], documents.data ?? [], approvals.data ?? []), runs: runs.data ?? [], documents: documents.data ?? [], active: active.data ?? [], activeCount: active.count ?? 0, connections: connections.data ?? [] };
     },
   };
 }

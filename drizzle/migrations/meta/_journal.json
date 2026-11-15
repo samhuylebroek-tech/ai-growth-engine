@@ -162,6 +162,13 @@
       "when": 1794755879080,
       "tag": "0022_execution_concurrent_scope_guards",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1794781424781,
+      "tag": "0023_execution_keyset_indexes",
+      "breakpoints": true
     }
   ]
 }

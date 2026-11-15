@@ -1,7 +1,7 @@
-import { LayoutDashboard, Sparkles, Building2, FileText, CheckSquare, Activity, Plug, Bot, Boxes, Settings, CreditCard, Compass, FolderKanban, Megaphone } from "lucide-react";
+import { LayoutDashboard, Sparkles, Building2, FileText, CheckSquare, Activity, Plug, Bot, Boxes, Settings, CreditCard, Compass, FolderKanban, Megaphone, Bell } from "lucide-react";
 
 export const NAVIGATION = [
-  { group: "Home", items: [{ to: "/app", label: "Home", icon: LayoutDashboard, exact: true }] },
+  { group: "Home", items: [{ to: "/app", label: "Home", icon: LayoutDashboard, exact: true }, { to: "/app/notifications", label: "Notifications", icon: Bell }] },
   { group: "Growth Officer", items: [{ to: "/app/growth-officer", label: "Growth Officer", icon: Sparkles }, { to: "/app/agents", label: "Specialists", icon: Bot }] },
   { group: "Intelligence", items: [{ to: "/app/intelligence", label: "Growth intelligence", icon: Compass }, { to: "/app/modules", label: "Growth areas", icon: Boxes }] },
   { group: "Work", items: [{ to: "/app/tasks", label: "Tasks", icon: CheckSquare }, { to: "/app/projects", label: "Projects", icon: FolderKanban }, { to: "/app/campaigns", label: "Campaigns", icon: Megaphone }, { to: "/app/approvals", label: "Review & approvals", icon: CheckSquare }, { to: "/app/activity", label: "Activity & results", icon: Activity }] },

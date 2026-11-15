@@ -1,14 +1,14 @@
 # AI Growth OS — Task Queue
 ## Overnight expansion — 2026-11-15
-- [ ] P0: Re-run baseline security/execution tests and preserve working journeys.
-- [ ] P1: Remove silent execution row limits, use deterministic scoped pagination and paged list rendering; test large datasets.
-- [ ] P1: Explicit bounded execution-context selection for AI, with permission checks and untrusted quoting.
-- [ ] P1: Central in-app notification first slice and supported asynchronous architecture assessment.
-- [ ] P2: Independently useful Strategy, Research, SEO and Content analyses with metering, validated output and saved source-linked results.
-- [ ] Verify signed-in desktop/mobile journeys and write exact expansion report and continuation notes.
+- [x] P0: Baseline 96 tests, 39 tenant RLS checks and 30 execution SQL checks passed; working execution preserved.
+- [~] P1: Silent execution limits removed with scoped ID keysets, five indexes and 50-row list display; 3,507-row synthetic traversal tested. Server-filtered bounded queries and snapshot consistency remain next-stage performance work.
+- [x] P1: Explicit selection of at most 12 authorized operational records for AI; refetched as caller, quoted as untrusted, denied/revoked reads fail closed.
+- [x] P1: Central derived in-app notifications and device-local read state; supported asynchronous architecture documented, not activated.
+- [x] P2: Four independent single-call specialist analyses, validated structured results, metering, private saved conversations, download and existing review-to-work action.
+- [x] Signed-in Content, Strategy, Research, SEO and Growth Officer selected-context replies; notification read/reload; phone layouts; 119 automated tests. Report: docs/OVERNIGHT_EXPANSION.md.
 - [B] Unattended scheduling depends on a verified reachable deployed callback; no publishing is authorized.
 - [B] External integrations, outbound delivery, payments, owner setup and SSO activation remain deferred.
-- [ ] Later packages: dedicated versioned content library, measured SEO audits, CRM, automation, BI, integrations, agency and retrieval.
+- [~] Future expansion outside this bounded delivery: dedicated versioned content library, measured SEO audits, CRM, automation, BI, integrations, agency and retrieval; not started here.
 
 ## Phase 1 — Business execution layer
 - [x] Secure workspace-scoped projects, tasks, campaigns, assignments, dependencies, comments, files and immutable activity.

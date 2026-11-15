@@ -338,7 +338,8 @@ export const runSpecialist = createServerFn({ method: "POST" })
       const selected = await selectedExecutionContext(sb, data, data.executionContext);
       const business = await workspaceContext(sb, data);
       const agent = SPECIALISTS[data.agent];
-      const run = await sb.from("agent_runs").insert({ org_id: data.orgId, workspace_id: data.workspaceId, user_id: context.userId, agent_key: data.agent, depth: 0 }).select("id").single();
+      const agentKey = data.agent === "strategy" ? "marketing_strategy" : data.agent === "research" ? "market_research" : data.agent;
+      const run = await sb.from("agent_runs").insert({ org_id: data.orgId, workspace_id: data.workspaceId, user_id: context.userId, agent_key: agentKey, depth: 0 }).select("id").single();
       if (run.error || !run.data) throw new Error("Could not start the analysis.");
       runId = run.data.id;
       const result = await meteredGenerate(sb, context.userId, data.orgId, runId, CREDIT_RULES.reserveGrowthOfficer, {

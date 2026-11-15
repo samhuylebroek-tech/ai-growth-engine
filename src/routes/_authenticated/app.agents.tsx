@@ -19,7 +19,7 @@ function Agents() {
       <div className="grid gap-4 md:grid-cols-2">{AGENTS.map((a) => (
         <Panel key={a.key}>
           <div className="flex items-start justify-between gap-2"><div className="font-semibold">{a.name}</div><StatusChip status={a.status} /></div>
-          <p className="mt-2 text-sm text-muted-foreground">{a.description}</p>{a.status === "implemented" && <Button variant="link" size="sm" className="mt-3 px-0" asChild><Link to={a.key === "growth_officer" ? "/app/growth-officer" : "/app/onboarding"}>{a.key === "growth_officer" ? "Open conversation" : "Research business"}<ArrowUpRight /></Link></Button>}{a.status === "planned" && <p className="mt-3 text-[11px] text-muted-foreground">Not operational yet.</p>}
+          <p className="mt-2 text-sm text-muted-foreground">{a.description}</p>{a.status === "implemented" && <Button variant="link" size="sm" className="mt-3 px-0" asChild><Link to={a.key === "growth_officer" ? "/app/growth-officer" : a.key === "business_intelligence" ? "/app/onboarding" : "/app/agents"}>{a.key === "growth_officer" ? "Open conversation" : a.key === "business_intelligence" ? "Research business" : "Open specialist workspace"}<ArrowUpRight /></Link></Button>}{a.status === "planned" && <p className="mt-3 text-[11px] text-muted-foreground">Not operational yet.</p>}
           <div className="mt-3 flex flex-wrap gap-1.5">{a.capabilities.map((k) => <span key={k} className="rounded-md bg-secondary px-2 py-0.5 text-xs">{capabilityByKey(k)?.name ?? k}</span>)}</div>
         </Panel>
       ))}</div>
