@@ -56,3 +56,6 @@ use the editor.
 - Owner-center server reads require the exact Platform Owner role and fail closed, so general platform staff cannot access owner operations.
 - The command center normalizes workspace-filtered runs, documents and approvals into typed, entity-deduplicated events; bounded foreground polling avoids fictional realtime and never polls credit grants.
 - Home display preferences are keyed by user, organization and workspace; attention and active work stay visible while secondary sections can move or hide.
+
+- Execution work uses workspace-scoped projects/tasks/campaigns and typed parent-scoped execution_notes; composite foreign keys and triggers prevent cross-workspace links.
+- Recommendation conversion and explicit next recurrence use role-checked atomic SQL RPCs with unique source/request keys; no scheduler or external execution is implied.

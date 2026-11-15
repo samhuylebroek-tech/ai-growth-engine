@@ -21,6 +21,7 @@ import { Route as AuthenticatedAppActivityRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAppAgentsRouteImport } from './routes/_authenticated/app.agents'
 import { Route as AuthenticatedAppApprovalsRouteImport } from './routes/_authenticated/app.approvals'
 import { Route as AuthenticatedAppBillingRouteImport } from './routes/_authenticated/app.billing'
+import { Route as AuthenticatedAppCampaignsRouteImport } from './routes/_authenticated/app.campaigns'
 import { Route as AuthenticatedAppDocumentsRouteImport } from './routes/_authenticated/app.documents'
 import { Route as AuthenticatedAppGrowthOfficerRouteImport } from './routes/_authenticated/app.growth-officer'
 import { Route as AuthenticatedAppIntegrationsRouteImport } from './routes/_authenticated/app.integrations'
@@ -28,7 +29,9 @@ import { Route as AuthenticatedAppIntelligenceRouteImport } from './routes/_auth
 import { Route as AuthenticatedAppModulesRouteImport } from './routes/_authenticated/app.modules'
 import { Route as AuthenticatedAppOnboardingRouteImport } from './routes/_authenticated/app.onboarding'
 import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/app.profile'
+import { Route as AuthenticatedAppProjectsRouteImport } from './routes/_authenticated/app.projects'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
+import { Route as AuthenticatedAppTasksRouteImport } from './routes/_authenticated/app.tasks'
 import { Route as AuthenticatedInviteTokenRouteImport } from './routes/_authenticated/invite.$token'
 
 const IndexRoute = IndexRouteImport.update({
@@ -92,6 +95,12 @@ const AuthenticatedAppBillingRoute = AuthenticatedAppBillingRouteImport.update({
   path: '/billing',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppCampaignsRoute =
+  AuthenticatedAppCampaignsRouteImport.update({
+    id: '/campaigns',
+    path: '/campaigns',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppDocumentsRoute =
   AuthenticatedAppDocumentsRouteImport.update({
     id: '/documents',
@@ -132,12 +141,23 @@ const AuthenticatedAppProfileRoute = AuthenticatedAppProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppProjectsRoute =
+  AuthenticatedAppProjectsRouteImport.update({
+    id: '/projects',
+    path: '/projects',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppSettingsRoute =
   AuthenticatedAppSettingsRouteImport.update({
     id: '/settings',
     path: '/settings',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppTasksRoute = AuthenticatedAppTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedInviteTokenRoute =
   AuthenticatedInviteTokenRouteImport.update({
     id: '/invite/$token',
@@ -156,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/app/agents': typeof AuthenticatedAppAgentsRoute
   '/app/approvals': typeof AuthenticatedAppApprovalsRoute
   '/app/billing': typeof AuthenticatedAppBillingRoute
+  '/app/campaigns': typeof AuthenticatedAppCampaignsRoute
   '/app/documents': typeof AuthenticatedAppDocumentsRoute
   '/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
   '/app/integrations': typeof AuthenticatedAppIntegrationsRoute
@@ -163,7 +184,9 @@ export interface FileRoutesByFullPath {
   '/app/modules': typeof AuthenticatedAppModulesRoute
   '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
+  '/app/projects': typeof AuthenticatedAppProjectsRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/app/tasks': typeof AuthenticatedAppTasksRoute
   '/invite/$token': typeof AuthenticatedInviteTokenRoute
   '/app/': typeof AuthenticatedAppIndexRoute
 }
@@ -177,6 +200,7 @@ export interface FileRoutesByTo {
   '/app/agents': typeof AuthenticatedAppAgentsRoute
   '/app/approvals': typeof AuthenticatedAppApprovalsRoute
   '/app/billing': typeof AuthenticatedAppBillingRoute
+  '/app/campaigns': typeof AuthenticatedAppCampaignsRoute
   '/app/documents': typeof AuthenticatedAppDocumentsRoute
   '/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
   '/app/integrations': typeof AuthenticatedAppIntegrationsRoute
@@ -184,7 +208,9 @@ export interface FileRoutesByTo {
   '/app/modules': typeof AuthenticatedAppModulesRoute
   '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
+  '/app/projects': typeof AuthenticatedAppProjectsRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/app/tasks': typeof AuthenticatedAppTasksRoute
   '/invite/$token': typeof AuthenticatedInviteTokenRoute
   '/app': typeof AuthenticatedAppIndexRoute
 }
@@ -201,6 +227,7 @@ export interface FileRoutesById {
   '/_authenticated/app/agents': typeof AuthenticatedAppAgentsRoute
   '/_authenticated/app/approvals': typeof AuthenticatedAppApprovalsRoute
   '/_authenticated/app/billing': typeof AuthenticatedAppBillingRoute
+  '/_authenticated/app/campaigns': typeof AuthenticatedAppCampaignsRoute
   '/_authenticated/app/documents': typeof AuthenticatedAppDocumentsRoute
   '/_authenticated/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
   '/_authenticated/app/integrations': typeof AuthenticatedAppIntegrationsRoute
@@ -208,7 +235,9 @@ export interface FileRoutesById {
   '/_authenticated/app/modules': typeof AuthenticatedAppModulesRoute
   '/_authenticated/app/onboarding': typeof AuthenticatedAppOnboardingRoute
   '/_authenticated/app/profile': typeof AuthenticatedAppProfileRoute
+  '/_authenticated/app/projects': typeof AuthenticatedAppProjectsRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/_authenticated/app/tasks': typeof AuthenticatedAppTasksRoute
   '/_authenticated/invite/$token': typeof AuthenticatedInviteTokenRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
@@ -225,6 +254,7 @@ export interface FileRouteTypes {
     | '/app/agents'
     | '/app/approvals'
     | '/app/billing'
+    | '/app/campaigns'
     | '/app/documents'
     | '/app/growth-officer'
     | '/app/integrations'
@@ -232,7 +262,9 @@ export interface FileRouteTypes {
     | '/app/modules'
     | '/app/onboarding'
     | '/app/profile'
+    | '/app/projects'
     | '/app/settings'
+    | '/app/tasks'
     | '/invite/$token'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
@@ -246,6 +278,7 @@ export interface FileRouteTypes {
     | '/app/agents'
     | '/app/approvals'
     | '/app/billing'
+    | '/app/campaigns'
     | '/app/documents'
     | '/app/growth-officer'
     | '/app/integrations'
@@ -253,7 +286,9 @@ export interface FileRouteTypes {
     | '/app/modules'
     | '/app/onboarding'
     | '/app/profile'
+    | '/app/projects'
     | '/app/settings'
+    | '/app/tasks'
     | '/invite/$token'
     | '/app'
   id:
@@ -269,6 +304,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/agents'
     | '/_authenticated/app/approvals'
     | '/_authenticated/app/billing'
+    | '/_authenticated/app/campaigns'
     | '/_authenticated/app/documents'
     | '/_authenticated/app/growth-officer'
     | '/_authenticated/app/integrations'
@@ -276,7 +312,9 @@ export interface FileRouteTypes {
     | '/_authenticated/app/modules'
     | '/_authenticated/app/onboarding'
     | '/_authenticated/app/profile'
+    | '/_authenticated/app/projects'
     | '/_authenticated/app/settings'
+    | '/_authenticated/app/tasks'
     | '/_authenticated/invite/$token'
     | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
@@ -375,6 +413,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBillingRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/campaigns': {
+      id: '/_authenticated/app/campaigns'
+      path: '/campaigns'
+      fullPath: '/app/campaigns'
+      preLoaderRoute: typeof AuthenticatedAppCampaignsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/documents': {
       id: '/_authenticated/app/documents'
       path: '/documents'
@@ -424,11 +469,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProfileRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/projects': {
+      id: '/_authenticated/app/projects'
+      path: '/projects'
+      fullPath: '/app/projects'
+      preLoaderRoute: typeof AuthenticatedAppProjectsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/settings': {
       id: '/_authenticated/app/settings'
       path: '/settings'
       fullPath: '/app/settings'
       preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/tasks': {
+      id: '/_authenticated/app/tasks'
+      path: '/tasks'
+      fullPath: '/app/tasks'
+      preLoaderRoute: typeof AuthenticatedAppTasksRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/invite/$token': {
@@ -446,6 +505,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAgentsRoute: typeof AuthenticatedAppAgentsRoute
   AuthenticatedAppApprovalsRoute: typeof AuthenticatedAppApprovalsRoute
   AuthenticatedAppBillingRoute: typeof AuthenticatedAppBillingRoute
+  AuthenticatedAppCampaignsRoute: typeof AuthenticatedAppCampaignsRoute
   AuthenticatedAppDocumentsRoute: typeof AuthenticatedAppDocumentsRoute
   AuthenticatedAppGrowthOfficerRoute: typeof AuthenticatedAppGrowthOfficerRoute
   AuthenticatedAppIntegrationsRoute: typeof AuthenticatedAppIntegrationsRoute
@@ -453,7 +513,9 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppModulesRoute: typeof AuthenticatedAppModulesRoute
   AuthenticatedAppOnboardingRoute: typeof AuthenticatedAppOnboardingRoute
   AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
+  AuthenticatedAppProjectsRoute: typeof AuthenticatedAppProjectsRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
+  AuthenticatedAppTasksRoute: typeof AuthenticatedAppTasksRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
@@ -462,6 +524,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAgentsRoute: AuthenticatedAppAgentsRoute,
   AuthenticatedAppApprovalsRoute: AuthenticatedAppApprovalsRoute,
   AuthenticatedAppBillingRoute: AuthenticatedAppBillingRoute,
+  AuthenticatedAppCampaignsRoute: AuthenticatedAppCampaignsRoute,
   AuthenticatedAppDocumentsRoute: AuthenticatedAppDocumentsRoute,
   AuthenticatedAppGrowthOfficerRoute: AuthenticatedAppGrowthOfficerRoute,
   AuthenticatedAppIntegrationsRoute: AuthenticatedAppIntegrationsRoute,
@@ -469,7 +532,9 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppModulesRoute: AuthenticatedAppModulesRoute,
   AuthenticatedAppOnboardingRoute: AuthenticatedAppOnboardingRoute,
   AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,
+  AuthenticatedAppProjectsRoute: AuthenticatedAppProjectsRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
+  AuthenticatedAppTasksRoute: AuthenticatedAppTasksRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 

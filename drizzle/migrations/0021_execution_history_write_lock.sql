@@ -1,0 +1,4 @@
+REVOKE ALL ON public.activity_events,public.execution_conversions FROM anon,authenticated; GRANT SELECT ON public.activity_events,public.execution_conversions TO authenticated; GRANT ALL ON public.activity_events,public.execution_conversions TO service_role;
+CREATE OR REPLACE FUNCTION public.execution_receipt_immutable() RETURNS trigger LANGUAGE plpgsql SET search_path=public AS $$ BEGIN RAISE EXCEPTION 'Execution history is immutable'; END $$;
+REVOKE ALL ON FUNCTION public.execution_receipt_immutable() FROM PUBLIC;
+CREATE TRIGGER execution_event_immutable BEFORE UPDATE OR DELETE ON public.activity_events FOR EACH ROW EXECUTE FUNCTION public.execution_receipt_immutable(); CREATE TRIGGER execution_conversion_immutable BEFORE UPDATE OR DELETE ON public.execution_conversions FOR EACH ROW EXECUTE FUNCTION public.execution_receipt_immutable();

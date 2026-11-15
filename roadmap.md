@@ -1,9 +1,16 @@
 # AI Growth OS — Task Queue
+## Phase 1 — Business execution layer
+- [x] Secure workspace-scoped projects, tasks, campaigns, assignments, dependencies, comments, files and immutable activity.
+- [x] Shared work views and details: list, Kanban, calendar, timeline, filters and personal deadlines.
+- [x] Editable, atomic and idempotent Growth Officer conversions with source relationships.
+- [x] Real Home priorities, attention, active work, upcoming deadlines and notifications.
+- [x] Vitest, rollback-only SQL/RLS checks, signed-in desktop/mobile journeys and factual delivery report.
+- [~] Large-workspace pagination and full concurrent/multi-account browser matrix remain unverified; unattended agents, scheduling and external execution are not part of this internal release. Report: docs/PHASE_1_EXECUTION.md.
 ## Ultimate homescreen — delivered available-data experience 2026-11-15
 - [x] Unified scoped activity stream/history, active AI work, attention, results and honest unavailable scheduling/performance states.
 - [x] Global context/actions/attention access and user-scoped section order, visibility and density preferences.
 - [x] Signed-in detail navigation, real AI question/result readback, org switching, preference reload and desktop/tablet/phone; 83 tests passed. Report: docs/HOMESCREEN.md.
-- [B] Campaign/project/task/calendar/analytics experiences require those unavailable modules; full restricted-user/concurrent-workflow/multi-workspace browser matrix remains unverified, not simulated.
+- [~] Projects/tasks/campaign planning and calendars delivered in Phase 1; connected analytics and full concurrent/multi-account browser matrix remain unavailable or unverified.
 
 ## Complete product remake — delivered frontend, 2026-11-15
 - [x] Replace tool-first navigation with six primary destinations, contextual tabs and shared search.

@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_events: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          metadata: Json
+          org_id: string
+          workspace_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          metadata?: Json
+          org_id: string
+          workspace_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          metadata?: Json
+          org_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_events_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_runs: {
         Row: {
           agent_key: string
@@ -449,6 +500,97 @@ export type Database = {
           },
         ]
       }
+      campaigns: {
+        Row: {
+          audience: string
+          budget_eur: number
+          category: string
+          channels: string[]
+          created_at: string
+          created_by: string
+          description: string
+          end_date: string | null
+          id: string
+          objective: string
+          org_id: string
+          owner_id: string | null
+          priority: string
+          results: string
+          source_message_id: string | null
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          audience?: string
+          budget_eur?: number
+          category?: string
+          channels?: string[]
+          created_at?: string
+          created_by?: string
+          description?: string
+          end_date?: string | null
+          id?: string
+          objective?: string
+          org_id: string
+          owner_id?: string | null
+          priority?: string
+          results?: string
+          source_message_id?: string | null
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          audience?: string
+          budget_eur?: number
+          category?: string
+          channels?: string[]
+          created_at?: string
+          created_by?: string
+          description?: string
+          end_date?: string | null
+          id?: string
+          objective?: string
+          org_id?: string
+          owner_id?: string | null
+          priority?: string
+          results?: string
+          source_message_id?: string | null
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaigns_source_message_id_fkey"
+            columns: ["source_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaigns_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connector_connections: {
         Row: {
           config: Json
@@ -624,6 +766,136 @@ export type Database = {
           },
           {
             foreignKeyName: "documents_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      execution_conversions: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          kind: string
+          org_id: string
+          request_key: string
+          result: Json
+          source_message_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind: string
+          org_id: string
+          request_key: string
+          result: Json
+          source_message_id: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: string
+          org_id?: string
+          request_key?: string
+          result?: Json
+          source_message_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "execution_conversions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "execution_conversions_source_message_id_fkey"
+            columns: ["source_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "execution_conversions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      execution_notes: {
+        Row: {
+          body: string
+          completed: boolean
+          content_type: string
+          created_at: string
+          created_by: string
+          due_date: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          kind: string
+          org_id: string
+          related_id: string | null
+          storage_path: string | null
+          title: string
+          user_id: string | null
+          workspace_id: string
+        }
+        Insert: {
+          body?: string
+          completed?: boolean
+          content_type?: string
+          created_at?: string
+          created_by?: string
+          due_date?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          kind: string
+          org_id: string
+          related_id?: string | null
+          storage_path?: string | null
+          title?: string
+          user_id?: string | null
+          workspace_id: string
+        }
+        Update: {
+          body?: string
+          completed?: boolean
+          content_type?: string
+          created_at?: string
+          created_by?: string
+          due_date?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          kind?: string
+          org_id?: string
+          related_id?: string | null
+          storage_path?: string | null
+          title?: string
+          user_id?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "execution_notes_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "execution_notes_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -932,6 +1204,85 @@ export type Database = {
         }
         Relationships: []
       }
+      projects: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string
+          description: string
+          end_date: string | null
+          id: string
+          objective: string
+          org_id: string
+          owner_id: string | null
+          priority: string
+          source_message_id: string | null
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string
+          description?: string
+          end_date?: string | null
+          id?: string
+          objective?: string
+          org_id: string
+          owner_id?: string | null
+          priority?: string
+          source_message_id?: string | null
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string
+          description?: string
+          end_date?: string | null
+          id?: string
+          objective?: string
+          org_id?: string
+          owner_id?: string | null
+          priority?: string
+          source_message_id?: string | null
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_source_message_id_fkey"
+            columns: ["source_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           billing_cycle: string
@@ -983,6 +1334,128 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "plans"
             referencedColumns: ["key"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          agent_key: string | null
+          campaign_id: string | null
+          created_at: string
+          created_by: string
+          description: string
+          due_date: string | null
+          id: string
+          labels: string[]
+          org_id: string
+          owner_id: string | null
+          parent_task_id: string | null
+          priority: string
+          project_id: string | null
+          recurrence: string
+          recurrence_source_id: string | null
+          source_message_id: string | null
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          agent_key?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          due_date?: string | null
+          id?: string
+          labels?: string[]
+          org_id: string
+          owner_id?: string | null
+          parent_task_id?: string | null
+          priority?: string
+          project_id?: string | null
+          recurrence?: string
+          recurrence_source_id?: string | null
+          source_message_id?: string | null
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          agent_key?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          due_date?: string | null
+          id?: string
+          labels?: string[]
+          org_id?: string
+          owner_id?: string | null
+          parent_task_id?: string | null
+          priority?: string
+          project_id?: string | null
+          recurrence?: string
+          recurrence_source_id?: string | null
+          source_message_id?: string | null
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_campaign_id_org_id_workspace_id_fkey"
+            columns: ["campaign_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "tasks_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_parent_task_id_org_id_workspace_id_fkey"
+            columns: ["parent_task_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "tasks_project_id_org_id_workspace_id_fkey"
+            columns: ["project_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "tasks_recurrence_source_id_fkey"
+            columns: ["recurrence_source_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_source_message_id_fkey"
+            columns: ["source_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1110,6 +1583,16 @@ export type Database = {
         Args: { _amount: number; _org: string; _ref: string }
         Returns: number
       }
+      convert_execution_plan: {
+        Args: {
+          _kind: string
+          _plan: Json
+          _request: string
+          _source: string
+          _workspace: string
+        }
+        Returns: Json
+      }
       create_invitation: {
         Args: {
           _email: string
@@ -1136,6 +1619,17 @@ export type Database = {
         Returns: boolean
       }
       ensure_monthly_credit_grant: { Args: { _org: string }; Returns: number }
+      execution_user_allowed: {
+        Args: { _user: string; _workspace: string }
+        Returns: boolean
+      }
+      execution_workspace_members: {
+        Args: { _workspace: string }
+        Returns: {
+          display_name: string
+          user_id: string
+        }[]
+      }
       has_org_role: {
         Args: { _min: Database["public"]["Enums"]["org_role"]; _org: string }
         Returns: boolean
@@ -1168,6 +1662,7 @@ export type Database = {
         Returns: number
       }
       refund_ai_credits: { Args: { _run: string }; Returns: number }
+      repeat_execution_task: { Args: { _task: string }; Returns: string }
       reserve_ai_credits: {
         Args: { _amount: number; _run: string }
         Returns: number

@@ -120,6 +120,48 @@
       "when": 1794747835016,
       "tag": "0016_enforce_approval_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794755060919,
+      "tag": "0017_business_execution_layer",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794755074302,
+      "tag": "0018_execution_history_record_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794755108967,
+      "tag": "0019_execution_members_and_manual_recurrence",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794755119167,
+      "tag": "0020_execution_source_author_identity",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1794755394319,
+      "tag": "0021_execution_history_write_lock",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1794755879080,
+      "tag": "0022_execution_concurrent_scope_guards",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+DO $$ DECLARE definition text; BEGIN SELECT pg_get_functiondef('public.guard_execution()'::regprocedure) INTO definition; definition:=replace(definition,'AND c.user_id=auth.uid() AND m.role=','AND c.user_id=CASE WHEN TG_OP=''INSERT'' THEN auth.uid() ELSE (n->>''created_by'')::uuid END AND m.role='); EXECUTE definition; END $$;
