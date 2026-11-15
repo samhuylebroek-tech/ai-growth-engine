@@ -2,7 +2,9 @@ import { supabase } from "@/integrations/supabase/client";
 import type { OrgRole } from "@/lib/permissions";
 
 export function growthSummaryOptions(orgId: string | undefined, workspaceId: string | undefined, role: OrgRole | null) {
-  return { queryKey: ["overview", orgId, workspaceId], enabled: !!orgId && !!workspaceId, queryFn: async () => {
+  // The remake changed bp/docs to profile/documents and expanded fact fields.
+  // Keep the invalidation prefix but never reuse an older mounted preview's cache.
+  return { queryKey: ["overview", "growth-summary-v2", orgId, workspaceId], enabled: !!orgId && !!workspaceId, queryFn: async () => {
     if (!orgId || !workspaceId) throw new Error("Select a workspace.");
     if (role !== "viewer") { const grant = await supabase.rpc("ensure_monthly_credit_grant", { _org: orgId }); if (grant.error) throw grant.error; }
     const [balance, subscription, approvals, profile, facts, runs, documents] = await Promise.all([
