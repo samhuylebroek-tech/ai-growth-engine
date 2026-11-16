@@ -92,7 +92,8 @@ function Onboarding() {
       if (saveError) throw new Error("Could not save the business profile. No partial changes were made.");
       if (first.title.trim()) {
         const t = Number(first.target);
-        const g = await supabase.from("growth_goals").insert({ org_id: o.org.id, workspace_id: o.workspace.id, title: first.title.trim().slice(0, 200), objective: "leads", metric: first.metric.trim().slice(0, 120) || "Result", target: Number.isFinite(t) && first.target !== "" ? t : null, due_date: first.due || null, priority: "primary" });
+        const existing = await supabase.from("growth_goals").select("id", { count: "exact", head: true }).eq("workspace_id", o.workspace.id).eq("priority", "primary").neq("status", "archived");
+        const g = await supabase.from("growth_goals").insert({ org_id: o.org.id, workspace_id: o.workspace.id, title: first.title.trim().slice(0, 200), objective: "leads", metric: first.metric.trim().slice(0, 120) || "Result", target: Number.isFinite(t) && first.target !== "" ? t : null, due_date: first.due || null, priority: (existing.count ?? 0) === 0 ? "primary" : "secondary" });
         await qc.invalidateQueries();
         if (g.error) { toast.error("Profile saved, but the first goal could not be added. Add it on the Goals page."); navigate({ to: "/app/goals" }); return; }
         toast.success("Profile confirmed and first goal set"); navigate({ to: "/app/goals" }); return;
