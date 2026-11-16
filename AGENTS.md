@@ -67,4 +67,3 @@ use the editor.
 - Settlement, refunds and coordination mutations require server-only accounting proof in addition to caller role checks; browser callers cannot forge paid execution. Completed coordination output is checkpointed before parsing.
 - Metered AI dispatch is claimed once; private receipts precede settlement. Single requests use scoped immutable keys and atomic answer/proposal persistence. Recovery never replays inference; unknown outcomes retain reservations.
 - Claimed delivery/outcome writes require server proof, caller/key and immutable run/reservation identity; revocation still denies reads, settlement, recovery and new dispatch, preserving paid output without restoring access.
-- Competitor observations are insert-only dated records (verified facts require a source URL); only review status and goal link are updatable via column grants, so history is never overwritten.

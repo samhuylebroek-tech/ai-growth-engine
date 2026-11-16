@@ -1,0 +1,1 @@
+- Competitor observations are insert-only and dated; verified facts need a source URL; only review status and goal link are updatable, so history is never overwritten.
