@@ -1,0 +1,1 @@
+- SEO checks are deterministic parsing of SSRF-guarded public pages saved as insert-only audits; keyword/traffic data only from connected providers, never estimated.
