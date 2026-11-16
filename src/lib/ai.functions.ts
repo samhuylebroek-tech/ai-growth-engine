@@ -15,7 +15,7 @@ import { executionSelectionSchema } from "@/lib/execution-context";
 import { selectedExecutionContext } from "@/lib/security/execution-context";
 import { SPECIALISTS, specialistKeySchema, parseSpecialistOutput, specialistMarkdown } from "@/lib/specialists";
 import { coordinationInputSchema, coordinationClaimSchema, coordinationReceiptSchema, COORDINATION_LIMITS, coordinateOnce, synthesisEvidence, type SpecialistAnalysis } from "@/lib/coordination";
-import { AISettlementPendingError, AINotStartedError, AIOutcomeUnknownError, mayCloseFailedCoordination } from "@/lib/ai-accounting";
+import { AISettlementPendingError, AINotStartedError, AIOutcomeUnknownError, mayCloseFailedCoordination, isConfirmedDispatchDenial } from "@/lib/ai-accounting";
 
 import { singleRequestSchema } from "@/lib/single-ai-request";
 
@@ -56,6 +56,7 @@ async function meteredGenerate(sb: DB, userId: string, orgId: string, runId: str
   try {
     const provider = await loadProvider();
     const claim = await sb.rpc("claim_ai_dispatch_verified", { _run: runId, _proof: accountingProof() });
+    if (claim.error && isConfirmedDispatchDenial(claim.error.message)) throw new AINotStartedError("This AI request did not start. Recover saved work before trying again.");
     if (claim.error || !claim.data) throw new AIOutcomeUnknownError();
     dispatchKey = claim.data;
     const r = await provider.generate(opts);
@@ -78,7 +79,12 @@ async function meteredGenerate(sb: DB, userId: string, orgId: string, runId: str
     if (dispatchKey) {
       const notStarted = error instanceof AINotStartedError;
       const outcome = await sb.rpc("record_ai_outcome_verified", { _run: runId, _key: dispatchKey, _not_started: notStarted, _ids: error instanceof AIOutcomeUnknownError ? error.diagnosticIds : {}, _proof: accountingProof() });
-      if (outcome.error || !notStarted) throw new AIOutcomeUnknownError();
+      if (outcome.error || !notStarted) {
+        const ids = error instanceof AIOutcomeUnknownError ? error.diagnosticIds : {};
+        // Private server diagnostics survive a failed receipt write; never log text or credentials.
+        if (outcome.error) console.error("AI outcome persistence failed", { runId, diagnosticIds: ids });
+        throw new AIOutcomeUnknownError(ids);
+      }
     } else if (error instanceof AIOutcomeUnknownError) throw error;
     const refunded = await sb.rpc("refund_ai_credits_verified", { _run: runId, _proof: accountingProof() });
     if (refunded.error) throw new Error("The AI call failed and its credit refund could not be completed.");

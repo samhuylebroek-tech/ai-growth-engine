@@ -38,7 +38,7 @@ Releases can share stable contracts; do not introduce duplicate project, campaig
 
 | Release | Deliverable | Current state / required gate |
 | --- | --- | --- |
-| 0 | Reliable existing AI, receipts, recovery, idempotency, concurrency/revocation, integrity, server pagination and design foundation | Partial. Existing 133 regression tests pass at inspection. This slice addresses preservation after revocation, not all R0 gates |
+| 0 | Reliable existing AI, receipts, recovery, idempotency, concurrency/revocation, integrity, server pagination and design foundation | Partial. Fresh 136 regression tests pass. Revoked delivery preservation and shared active-dispatch serialization implemented; expired-auth transport, complete concurrent matrix and server pagination remain |
 | 1 | Onboarding, discovery, approved knowledge, file processing, retrieval and context | Partial existing implementation. Full format/hostile-input matrix, source versions/expiry and retrieval evaluation remain |
 | 2 | Writing profiles/samples, approved style analysis, source-selected generation, rich editor/autosave/version compare/restore, quality/library | Not started as a dedicated operational module. Content specialist is not Content Studio |
 | 3 | Campaign strategy/content, editorial calendar, recurrence, exact-version approval, social/email planning | Campaign execution foundation exists; content/editorial lifecycle not started. Each occurrence gets independent content/version/approval |
@@ -69,7 +69,7 @@ Use ASVS 5.0 L2 and NIST SSDF as review baselines, not certification claims. Req
 
 ## Next vertical slices
 
-1. Finish R0 revoked-delivery preservation and persistent tests; then active concurrency, diagnostic handling and server pagination.
+1. R0 shared active-dispatch serialization and bounded diagnostics delivered; next test cross-user simultaneous claims/revocation and expired-auth delivery, then server pagination.
 2. R1 source-version/review and selected-source intelligence, not all-context injection.
 3. R2 authorized personal/shared writing profiles and one complete source-selected versioned editing/generation workflow.
 4. R3 campaign-linked editorial recurrence and version/channel/account/time approval; external publication disabled until separately authorized.

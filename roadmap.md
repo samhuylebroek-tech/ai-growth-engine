@@ -1,9 +1,16 @@
 # AI Growth OS — Task Queue
+## Resume autonomous master — 2026-11-16
+- [x] Fresh baseline inspection and regression run: 133 tests passed; existing architecture preserved.
+- [x] Release 0: close the cross-request active-dispatch race at the shared claim boundary, including document/website/team calls (0036).
+- [x] Preserve bounded provider diagnostic identifiers when outcome recording fails; explicit pre-dispatch denials are distinct from unknown outcomes; never replay inference.
+- [x] Persistent SQL checks: active dispatch 11, tenant isolation 39, coordination 18; 136 Vitest tests; signed-in two-session request, 1 usage event/credit, saved answer reload, phone/tablet verified.
+- [B] Full Release 0 transport identity, server pagination/performance and security gates remain; later releases wait on those gates.
+
 ## Master blueprint — controlled releases, 2026-11-16
 - [x] Full architecture/dependency map and capability status register: docs/MASTER_RELEASE_MAP.md; existing modules and URLs preserved.
 - [x] Release 0 slice: Store server-attested delivery/outcome for an already claimed dispatch after revocation; keep all reads, settlement, recovery and new dispatch role-checked.
 - [x] Persistent revocation/identity/immutability tests (16), receipt security (12), tenant isolation (39), full regression suite (133); real signed-in request/reload and desktop/phone/tablet verified.
-- [B] Remaining Release 0: active multi-session concurrency, transport investigation, large-workspace server pagination and full security matrix before claiming completion.
+- [B] Remaining Release 0: full cross-user simultaneous/revocation and expired-auth transport matrix, large-workspace server pagination and full security matrix before claiming completion.
 - [B] Releases 1–9 depend on prior release gates and the architecture map; no empty modules or unconfigured integrations.
 - [x] Release 0 progress report and exact next steps: docs/RELEASE_0_PROGRESS.md; prohibited external actions stay disabled.
 

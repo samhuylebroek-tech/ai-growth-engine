@@ -1,5 +1,46 @@
 # AI Growth Engine — Master Blueprint, Release 0 progress
 
+## Resume session — 16 November 2026, 12:36 UTC
+
+**Release 0 remains partial.** The highest-priority active-dispatch gap was reproduced and repaired; Releases 1–9 were not advanced past their dependency gates.
+
+### Implemented
+- Reproduced two independent users allocating requests before dispatch, then both claiming unresolved execution. Historical begin-request guards did not cover this interleaving.
+- Applied `drizzle/migrations/0036_serialize_active_ai_dispatch.sql`: the shared dispatch claim checks unresolved organization receipts under the existing organization lock, rechecks access after waiting, validates reservation identity, and retains sequential coordination prerequisites. Added a partial unresolved-receipt index. Applies to Growth Officer, specialists, coordinated steps, discovery, website and document calls using the same metered wrapper.
+- Added allowlisted, bounded correlation identifiers to unknown-outcome errors and private logging on failed outcome storage; no output text, provider messages or credentials are logged. Explicit pre-dispatch denials are classified separately from duplicate/ambiguous claim responses. Existing refund guards still refuse any previously claimed execution.
+- Added `tests/sql/active_ai_dispatch.sql` and three concrete accounting unit tests. Preserved architecture, navigation, models, output limits, current authorization and external-action restrictions.
+
+### Actual evidence
+| Check | Result |
+| --- | --- |
+| Fresh baseline | 133 tests passed across 18 files |
+| Final Vitest | 136 tests passed across 18 files |
+| Active-dispatch SQL | 11 passed, 0 failed: allocated-run race, replay denial, dispatching/unknown/delivered blockers, no blocked receipt, post-settlement release, no active refund, revoked delivery retained, revoked settlement denied, anonymous execute denied |
+| Tenant isolation SQL | 39 passed, 0 failed |
+| Coordination SQL | 18 passed, 0 failed |
+| Database readback | Claim guard and partial index exist; anonymous execute false; fixture verifier replacement absent |
+| Signed-in two isolated browser sessions | Simultaneous different questions for the same account: one request saved, other question retained without dispatch; database readback shows one succeeded request, one usage event, 1 AI credit |
+| Saved answer | Reopened from saved requests after reload with the actual answer visible |
+| Desktop/phone/tablet | 1280×1800, 390×844, 768×1024 screenshots inspected; mobile drawer opened/closed, saved answer visible, no horizontal overflow |
+| Browser/runtime | No page errors during the two-session flow; latest preview compilation observed build OK |
+
+SQL suites terminate with deliberate result exceptions to roll back all fixtures. One transcribed SQL invocation initially failed on a malformed test UUID; corrected execution passed. This was a test transcription error, not a deployed migration failure. PostgreSQL shell access was unavailable; actual checks used controlled database tools. The SQL concurrency test exercises the critical interleaving, not two overlapping physical transactions. The browser test uses two separate sessions of one account, not a claimed cross-user revocation browser test. One real development conversation and its 1-credit usage remain; no customer roles were altered.
+
+### Changed files
+- `drizzle/migrations/0036_serialize_active_ai_dispatch.sql` and tool-generated journal/snapshot entries.
+- `src/lib/ai.functions.ts`, `src/lib/ai-accounting.ts`, `src/test/ai-accounting.test.ts`.
+- `tests/sql/active_ai_dispatch.sql`, `roadmap.md`, `docs/MASTER_RELEASE_MAP.md`, this report.
+- All content routes, including index, inspected for their existing unique shared metadata; no page metadata edits were necessary.
+
+### Remaining and exact next task
+Next: a persistent two-different-user simultaneous claim/downgrade/delivery test through authenticated calls, including invalid/expired identity during delivery and failed storage, without inference replay or a public proof bypass. Then server-filtered execution pagination/aggregates and measured large-workspace performance. Provider-status investigation, permanently revoked accounting reconciliation, full hostile-file/account/accessibility matrix, and authorized workers remain incomplete. Direct database session access is unavailable in this sandbox; the rollback tool and authenticated browser remain usable.
+
+Release status: **0 partial; 1 partial; 2 not started; 3 campaign foundation only; 4 prompt specialists only; 5 not started; 6 notifications/execution foundation only, no workers; 7 platform usage only; 8 recommendation foundation only; 9 tenant/commercial foundation only.** No release completion percentage is invented.
+
+No owner elevation, payments, production deployment, external publication/messages/advertising, recurring publication, irreversible deletion or SSO activation occurred. No background work continues after this session.
+
+---
+
 16 November 2026. **Release 0 remains partial.** This delivery creates the full ten-release architecture/dependency map and completes the narrow revoked-access paid-output preservation slice. It does not deliver Content Studio, SEO, CRM, automation or the entire product transformation.
 
 ## Scope and actual implementation

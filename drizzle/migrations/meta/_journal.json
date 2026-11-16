@@ -253,6 +253,13 @@
       "when": 1794830441805,
       "tag": "0035_preserve_claimed_ai_delivery_after_revocation",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1794832314495,
+      "tag": "0036_serialize_active_ai_dispatch",
+      "breakpoints": true
     }
   ]
 }
