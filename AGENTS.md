@@ -65,3 +65,4 @@ use the editor.
 - Coordinated analyses are explicit two-specialist plus one-synthesis requests; role-checked SQL claims reserve the capped budget atomically and persist private results without recursive dispatch or blind retries.
 - Workspace record search reads at most five matches per category under caller RLS and explicit organization/workspace scope; conversation matches additionally require the requesting user.
 - Settlement, refunds and coordination mutations require server-only accounting proof in addition to caller role checks; browser callers cannot forge paid execution. Completed coordination output is checkpointed before parsing.
+- Metered AI dispatch is claimed once; immutable private delivery receipts precede settlement. Recovery never replays inference, and unknown remote outcomes retain reservations rather than claiming cancellation.

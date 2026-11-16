@@ -122,6 +122,91 @@ export type Database = {
           },
         ]
       }
+      ai_call_receipts: {
+        Row: {
+          actual_credits: number | null
+          cost_estimate_eur: number | null
+          created_at: string
+          delivered_at: string | null
+          diagnostic_ids: Json
+          dispatch_key: string
+          input_tokens: number | null
+          lease_expires_at: string
+          model: string | null
+          org_id: string
+          output_tokens: number | null
+          provider: string | null
+          provider_request_id: string | null
+          response_text: string | null
+          run_id: string
+          state: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          actual_credits?: number | null
+          cost_estimate_eur?: number | null
+          created_at?: string
+          delivered_at?: string | null
+          diagnostic_ids?: Json
+          dispatch_key?: string
+          input_tokens?: number | null
+          lease_expires_at?: string
+          model?: string | null
+          org_id: string
+          output_tokens?: number | null
+          provider?: string | null
+          provider_request_id?: string | null
+          response_text?: string | null
+          run_id: string
+          state?: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          actual_credits?: number | null
+          cost_estimate_eur?: number | null
+          created_at?: string
+          delivered_at?: string | null
+          diagnostic_ids?: Json
+          dispatch_key?: string
+          input_tokens?: number | null
+          lease_expires_at?: string
+          model?: string | null
+          org_id?: string
+          output_tokens?: number | null
+          provider?: string | null
+          provider_request_id?: string | null
+          response_text?: string | null
+          run_id?: string
+          state?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_call_receipts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_call_receipts_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: true
+            referencedRelation: "agent_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_call_receipts_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_credit_reservations: {
         Row: {
           charged: number | null
@@ -686,9 +771,11 @@ export type Database = {
           finished_at: string | null
           id: string
           input: Json
+          lease_expires_at: string
           message_id: string | null
           org_id: string
           partial_results: Json
+          receipt_protocol: boolean
           request_key: string
           run_ids: string[]
           status: string
@@ -702,9 +789,11 @@ export type Database = {
           finished_at?: string | null
           id?: string
           input: Json
+          lease_expires_at?: string
           message_id?: string | null
           org_id: string
           partial_results?: Json
+          receipt_protocol?: boolean
           request_key: string
           run_ids: string[]
           status?: string
@@ -718,9 +807,11 @@ export type Database = {
           finished_at?: string | null
           id?: string
           input?: Json
+          lease_expires_at?: string
           message_id?: string | null
           org_id?: string
           partial_results?: Json
+          receipt_protocol?: boolean
           request_key?: string
           run_ids?: string[]
           status?: string
@@ -1682,6 +1773,10 @@ export type Database = {
         Args: { _id: string; _proof: string; _step: number; _text: string }
         Returns: undefined
       }
+      claim_ai_dispatch_verified: {
+        Args: { _proof: string; _run: string }
+        Returns: string
+      }
       confirm_business_profile: {
         Args: { _facts: Json; _profile: Json; _workspace: string }
         Returns: undefined
@@ -1783,6 +1878,40 @@ export type Database = {
       org_entitlement: {
         Args: { _feature: string; _org: string }
         Returns: number
+      }
+      reconcile_ai_receipt_verified: {
+        Args: { _proof: string; _run: string }
+        Returns: number
+      }
+      record_ai_delivery_verified: {
+        Args: {
+          _actual: number
+          _cost: number
+          _input_tokens: number
+          _key: string
+          _model: string
+          _output_tokens: number
+          _proof: string
+          _provider: string
+          _provider_request_id: string
+          _run: string
+          _text: string
+        }
+        Returns: undefined
+      }
+      record_ai_outcome_verified: {
+        Args: {
+          _ids: Json
+          _key: string
+          _not_started: boolean
+          _proof: string
+          _run: string
+        }
+        Returns: undefined
+      }
+      recover_coordinated_analysis_verified: {
+        Args: { _close: boolean; _id: string; _proof: string }
+        Returns: Json
       }
       refund_ai_credits: { Args: { _run: string }; Returns: number }
       refund_ai_credits_verified: {

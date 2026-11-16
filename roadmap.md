@@ -1,4 +1,11 @@
 # AI Growth OS — Task Queue
+## Master product expansion — 2026-11-16
+- [ ] P0: Durable per-call dispatch claims, immutable provider receipts, safe reconciliation and interrupted-analysis recovery; test accounting and access boundaries.
+- [ ] P1/P2: Authorized writing profiles, grounded content editor/versioning, campaign-linked occurrences and exact-version human approval.
+- [ ] P3–P7: Measured SEO, growth intelligence, CRM, controlled automation/BI and commercial/agency expansion after complete core slices.
+- [ ] Publish factual implementation/test/dependency report for this work package and identify the precise continuation point.
+- [B] Deployment, owner initialization, live payments, social publication, outbound actions and unconfigured SSO remain explicitly prohibited.
+
 ## Next development phase — 2026-11-16
 - [x] Audit existing product and classify gaps; 128 automated tests and signed-in navigation/search/team-result checks. Report: docs/NEXT_DEVELOPMENT_PHASE.md.
 - [x] Deliver bounded specialist coordination, private checkpoints, server-attested accounting and saved synthesis; direct accounting forgery blocked.

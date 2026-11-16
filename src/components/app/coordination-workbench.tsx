@@ -3,13 +3,13 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
-import { Network, Download } from "lucide-react";
+import { Network, Download, RotateCcw, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { ExecutionContextPicker } from "@/components/execution/context-picker";
 import { PlanReview } from "@/components/execution/plan-review";
-import { runCoordinatedAnalysis } from "@/lib/ai.functions";
+import { runCoordinatedAnalysis, recoverCoordinatedAnalysis } from "@/lib/ai.functions";
 import { SPECIALISTS, type SpecialistKey } from "@/lib/specialists";
 import { COORDINATION_LIMITS } from "@/lib/coordination";
 import type { ExecutionRef } from "@/lib/execution-context";
@@ -19,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export function CoordinationWorkbench() {
   const o = useOrg(); const qc = useQueryClient(); const run = useServerFn(runCoordinatedAnalysis);
+  const recover = useServerFn(recoverCoordinatedAnalysis);
   const [agents, setAgents] = useState<SpecialistKey[]>(["strategy", "research"]);
   const [request, setRequest] = useState(""); const [refs, setRefs] = useState<ExecutionRef[]>([]);
   const [busy, setBusy] = useState(false);
@@ -28,7 +29,7 @@ export function CoordinationWorkbench() {
     refetchInterval: busy ? 5000 : false, refetchIntervalInBackground: false,
     queryFn: async () => {
       if (!o.org || !o.workspace) return [];
-      const response = await supabase.from("coordinated_analyses").select("id,input,status,conversation_id,message_id,error,created_at").eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).eq("user_id", o.userId).order("created_at", { ascending: false }).limit(20);
+      const response = await supabase.from("coordinated_analyses").select("id,input,status,conversation_id,message_id,error,created_at,partial_results,lease_expires_at").eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).eq("user_id", o.userId).order("created_at", { ascending: false }).limit(20);
       if (response.error) throw response.error; return response.data;
     },
   });
@@ -63,6 +64,21 @@ export function CoordinationWorkbench() {
     if (message.error) { toast.error("Could not open the saved result."); return; }
     setResult({ reply: message.data.content, messageId: row.message_id });
   }
+  async function recoverRow(row: NonNullable<typeof history.data>[number]) {
+    if (!o.org || !o.workspace || busy) return;
+    setBusy(true);
+    try {
+      const response = await recover({ data: { orgId: o.org.id, workspaceId: o.workspace.id, analysisId: row.id, close: new Date(row.lease_expires_at).getTime() <= Date.now() } });
+      if (!response.ok) toast.error(response.error);
+      else toast.success(response.data.pending ? "Saved work recovered; uncertain AI usage remains reserved for investigation." : response.data.status === "succeeded" ? "Saved analysis recovered without new AI calls." : "Saved usage reconciled. No new AI calls were made.");
+    } catch { toast.error("Recovery could not finish. No new AI request was sent."); }
+    finally { setBusy(false); for (const key of ["coordination", "billing", "convs", "command-center"]) qc.invalidateQueries({ queryKey: [key] }); }
+  }
+  function downloadPartial(row: NonNullable<typeof history.data>[number]) {
+    const entries = row.partial_results && typeof row.partial_results === "object" && !Array.isArray(row.partial_results) ? Object.entries(row.partial_results).filter((entry): entry is [string, string] => typeof entry[1] === "string") : [];
+    const url = URL.createObjectURL(new Blob([entries.map(([step, text]) => `## Preserved step ${Number(step) + 1}\n\n${text}`).join("\n\n")], { type: "text/markdown" }));
+    const a = document.createElement("a"); a.href = url; a.download = "preserved-team-work.md"; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
   function download() {
     if (!result) return;
     const url = URL.createObjectURL(new Blob([result.reply], { type: "text/markdown" }));
@@ -81,7 +97,7 @@ export function CoordinationWorkbench() {
     <div className="mt-6"><h3 className="mb-2 text-sm font-semibold">Recent coordinated history</h3>
       {history.isLoading && <p role="status" className="text-xs text-muted-foreground">Loading analyses…</p>}
       {history.isError && <p role="alert" className="text-xs text-destructive">History could not load.<Button variant="link" size="sm" onClick={() => history.refetch()}>Retry</Button></p>}
-      {history.data?.map(row => <div key={row.id} className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border py-2 text-xs"><span className="min-w-0 break-words">{new Date(row.created_at).toLocaleString()} · {row.status}{row.error ? ` · ${row.error}` : ""}</span>{row.status === "succeeded" && <Button variant="link" size="sm" disabled={busy} onClick={() => open(row)}>Open saved analysis</Button>}</div>)}
+      {history.data?.map(row => <div key={row.id} className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border py-2 text-xs"><span className="min-w-0 break-words">{new Date(row.created_at).toLocaleString()} · {row.status}{row.error ? ` · ${row.error}` : ""}</span><div className="flex flex-wrap gap-1">{row.status === "succeeded" ? <Button variant="link" size="sm" disabled={busy} onClick={() => open(row)}>Open saved analysis</Button> : <Button variant="outline" size="sm" disabled={busy} onClick={() => recoverRow(row)}><RotateCcw />Recover saved work</Button>}{row.partial_results && Object.keys(row.partial_results).length > 0 && <Button variant="ghost" size="icon" title="Download preserved steps" aria-label="Download preserved steps" onClick={() => downloadPartial(row)}><FileText /></Button>}</div></div>)}
       {!history.isLoading && !history.isError && !history.data?.length && <p className="text-xs text-muted-foreground">No coordinated analyses yet.</p>}
     </div>
     {result && <article className="mt-6 border-t border-border pt-5"><div className="mb-4 flex items-center justify-between gap-3"><p className="text-xs text-muted-foreground">Saved team analysis{result.credits !== undefined ? ` · ${result.credits} credits` : ""}</p><Button variant="ghost" size="icon" aria-label="Download coordinated analysis" title="Download analysis" onClick={download}><Download /></Button></div><div className="prose-chat min-w-0 break-words text-sm leading-relaxed"><ReactMarkdown skipHtml>{result.reply}</ReactMarkdown></div><div className="mt-4"><PlanReview sourceId={result.messageId} content={result.reply} /></div></article>}
