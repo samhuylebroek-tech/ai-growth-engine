@@ -34,8 +34,15 @@ export function CoordinationWorkbench() {
   });
   async function submit() {
     if (!o.org || !o.workspace || busy || agents.length !== 2 || !can(o.workspaceRole, "ai.use")) return;
-    const fingerprint = JSON.stringify({ request, agents, refs });
-    if (attempt.current?.fingerprint !== fingerprint) attempt.current = { fingerprint, key: crypto.randomUUID() };
+    const fingerprint = JSON.stringify({ request: request.trim(), agents, refs });
+    const storageKey = `age.coordination.attempt:${o.userId}:${o.org.id}:${o.workspace.id}`;
+    if (attempt.current?.fingerprint !== fingerprint) {
+      let retained: unknown = null;
+      try { retained = JSON.parse(sessionStorage.getItem(storageKey) ?? "null"); } catch { /* Unavailable storage does not block the action. */ }
+      if (retained && typeof retained === "object" && "fingerprint" in retained && "key" in retained && retained.fingerprint === fingerprint && typeof retained.key === "string") attempt.current = { fingerprint, key: retained.key };
+      else attempt.current = { fingerprint, key: crypto.randomUUID() };
+      try { sessionStorage.setItem(storageKey, JSON.stringify(attempt.current)); } catch { /* Database claim remains authoritative. */ }
+    }
     const requestKey = attempt.current.key;
     setBusy(true); setResult(null);
     try {

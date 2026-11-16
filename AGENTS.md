@@ -64,3 +64,4 @@ use the editor.
 - Specialist analyses are single user-started metered calls with validated domain output and private source-linked conversation results; they never recursively dispatch agents.
 - Coordinated analyses are explicit two-specialist plus one-synthesis requests; role-checked SQL claims reserve the capped budget atomically and persist private results without recursive dispatch or blind retries.
 - Workspace record search reads at most five matches per category under caller RLS and explicit organization/workspace scope; conversation matches additionally require the requesting user.
+- Settlement, refunds and coordination mutations require server-only accounting proof in addition to caller role checks; browser callers cannot forge paid execution. Completed coordination output is checkpointed before parsing.
