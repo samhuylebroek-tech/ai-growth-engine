@@ -1,0 +1,2 @@
+- Growth strategies are explicit metered single requests (kind `strategy`); saved strategies are insert-only per request key; project/task conversion is a separate user action.
+- Budget reallocation proposals are deterministic rules, never AI, within hard caps and keeping total planned budget unchanged.
