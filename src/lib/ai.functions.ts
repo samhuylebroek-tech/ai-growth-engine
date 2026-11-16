@@ -69,7 +69,7 @@ async function meteredGenerate(sb: DB, userId: string, orgId: string, runId: str
     });
     if (delivered.error) throw new AISettlementPendingError();
     const settled = await sb.rpc("reconcile_ai_receipt_verified", { _proof: accountingProof(), _run: runId });
-    if (settled.error || settled.data === null) throw new Error("Could not settle AI credit usage.");
+    if (settled.error || settled.data === null) throw new Error("The AI answer was preserved privately, but its credits could not be finalized.");
     return { ...r, credits: settled.data };
   } catch (error) {
     // Completed inference must stay accounted for even if settlement delivery failed.

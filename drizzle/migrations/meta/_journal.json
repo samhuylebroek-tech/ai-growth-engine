@@ -246,6 +246,13 @@
       "when": 1794829932413,
       "tag": "0034_single_request_dispatch_lease_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1794830441805,
+      "tag": "0035_preserve_claimed_ai_delivery_after_revocation",
+      "breakpoints": true
     }
   ]
 }

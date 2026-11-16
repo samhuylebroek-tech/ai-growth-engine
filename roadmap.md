@@ -1,8 +1,16 @@
 # AI Growth OS — Task Queue
+## Master blueprint — controlled releases, 2026-11-16
+- [x] Full architecture/dependency map and capability status register: docs/MASTER_RELEASE_MAP.md; existing modules and URLs preserved.
+- [x] Release 0 slice: Store server-attested delivery/outcome for an already claimed dispatch after revocation; keep all reads, settlement, recovery and new dispatch role-checked.
+- [x] Persistent revocation/identity/immutability tests (16), receipt security (12), tenant isolation (39), full regression suite (133); real signed-in request/reload and desktop/phone/tablet verified.
+- [B] Remaining Release 0: active multi-session concurrency, transport investigation, large-workspace server pagination and full security matrix before claiming completion.
+- [B] Releases 1–9 depend on prior release gates and the architecture map; no empty modules or unconfigured integrations.
+- [x] Release 0 progress report and exact next steps: docs/RELEASE_0_PROGRESS.md; prohibited external actions stay disabled.
+
 ## Work package 2 — 2026-11-16
 - [x] P0 slice: Shared Growth Officer/specialist request keys, atomic result/proposal persistence and explicit receipt recovery; persistent duplicate/fault/revocation/expiry tests.
 - [x] Signed-in real request/reload, two concurrent completed-request repeats and synthetic interrupted-answer recovery; 133 unit tests, 19 recovery SQL checks, 8 revocation SQL checks and 39 tenant isolation checks pass.
-- [B] P0 gate: Output arriving after access revocation cannot be persisted through caller RLS; privileged narrowly attested ingestion design remains a prerequisite. Full active-dispatch concurrency matrix and provider-log investigation are not complete. No unattended worker is deployed.
+- [~] Revoked-delivery preservation addressed in migration 0035, tested in the Master Blueprint Release 0 slice. Full active-dispatch concurrency matrix and provider-log investigation remain incomplete; no unattended worker is deployed.
 - [B] P1: Business knowledge selection, authorized writing profiles and versioned Content Studio wait on the remaining P0 safety gate; not started here.
 - [B] P2: Campaign/editorial recurrence and exact-version content approvals wait on the complete P1 slice; external publication remains disabled.
 - [x] Delivery report with actual tests, limitations and next priorities: docs/WORK_PACKAGE_2.md.

@@ -11,17 +11,19 @@ TanStack Start (React 19, SSR on Cloudflare Workers) + Lovable Cloud (Postgres, 
 | Registries | Code-first manifests in `src/lib/registry/` (agents, capabilities, connectors, extensions) |
 | Approvals | `approvals`, `policies`, SQL `decide_approval` (pending → approved/rejected only, admin+) |
 | Commercial | `plans`, `plan_entitlements`, `subscriptions`, `credit_ledger` (append-only), `ai_credit_reservations`, `billing_profiles`; SQL reservation/settlement/refund, balance, entitlement and owner-adjustment functions |
-| Owner center | `/admin`, `src/lib/admin.functions.ts`, reads via platform-staff RLS policies |
+| Owner center | `/admin`, `src/lib/admin.functions.ts`, exact Platform Owner server guard; organization roles never imply platform roles |
 
 ## Request flow for an AI call
 ```text
 UI → askGrowthOfficer (requireSupabaseAuth, RLS as user)
   → org/workspace member checks → entitlement and monthly-grant checks
   → reserve_ai_credits(run)  [org row lock, owner/workspace/balance check]
+  → claim_ai_dispatch_verified(run) [once-only caller/role/receipt claim]
   → provider.generate()       [untrusted context quoted]
-  → settle_ai_credits(run)   [actual usage + ledger + reservation, atomic]
-     or refund_ai_credits(run) after provider failure
-  → proposals → approvals(pending)  [registered, not policy-blocked capabilities]
+  → record_ai_delivery_verified [immutable private receipt before settlement]
+  → reconcile_ai_receipt_verified [usage + ledger + reservation, atomic]
+     unknown outcome retains reservation; confirmed unstarted may refund
+  → atomic single request result + proposals → approvals(pending)
 ```
 
 ## Key decisions
@@ -41,3 +43,6 @@ Restrictive RLS policies compose with existing permissive policies on workspace 
 
 ## 2026-11-15 credit, invitation, policy and identity completion
 `ai_credit_reservations` keys one reservation per run. `reserve_ai_credits`, `settle_ai_credits` and `refund_ai_credits` serialize on the organization row; settlement inserts `ai_usage_events` and ledger changes atomically, and direct authenticated usage/reservation inserts are revoked. `create_invitation` and `accept_invitation` enforce seat quotas and confirmed matching emails without assigning workspaces. `guard_approval_proposal` and `decide_approval` enforce blocked organization policies. Microsoft managed OAuth and the dedicated custom OIDC provider are client authentication paths; SAML is unconfigured and SCIM is not implemented. See docs/ENTERPRISE_AUTH.md.
+
+## 2026-11-16 controlled Release 0
+`single_ai_requests` keys original input by user/org/workspace/request identity and atomically saves final conversations/proposals. Private receipts preserve paid text independently of final conversation persistence. Already-claimed delivery/outcome can be recorded after membership revocation only with server proof, original authenticated user/key and matching immutable run/reservation identity; no new dispatch, read, settlement or recovery authorization is granted. Current-member checks still protect reconciliation and final saving. An expired token or failed delivery transport can still prevent receipt ingestion; no worker or automatic transport replay exists. Full release/dependency target: docs/MASTER_RELEASE_MAP.md.

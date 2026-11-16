@@ -66,3 +66,4 @@ use the editor.
 - Workspace record search reads at most five matches per category under caller RLS and explicit organization/workspace scope; conversation matches additionally require the requesting user.
 - Settlement, refunds and coordination mutations require server-only accounting proof in addition to caller role checks; browser callers cannot forge paid execution. Completed coordination output is checkpointed before parsing.
 - Metered AI dispatch is claimed once; private receipts precede settlement. Single requests use scoped immutable keys and atomic answer/proposal persistence. Recovery never replays inference; unknown outcomes retain reservations.
+- Claimed delivery/outcome writes require server proof, caller/key and immutable run/reservation identity; revocation still denies reads, settlement, recovery and new dispatch, preserving paid output without restoring access.
