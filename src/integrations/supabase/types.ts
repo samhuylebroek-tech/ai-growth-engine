@@ -759,6 +759,183 @@ export type Database = {
           },
         ]
       }
+      competitor_observations: {
+        Row: {
+          category: string
+          competitor_id: string
+          created_at: string
+          created_by: string
+          goal_id: string | null
+          id: string
+          kind: string
+          observed_at: string
+          org_id: string
+          review_status: string
+          snapshot_id: string | null
+          source_url: string
+          statement: string
+          workspace_id: string
+        }
+        Insert: {
+          category: string
+          competitor_id: string
+          created_at?: string
+          created_by?: string
+          goal_id?: string | null
+          id?: string
+          kind: string
+          observed_at?: string
+          org_id: string
+          review_status?: string
+          snapshot_id?: string | null
+          source_url?: string
+          statement: string
+          workspace_id: string
+        }
+        Update: {
+          category?: string
+          competitor_id?: string
+          created_at?: string
+          created_by?: string
+          goal_id?: string | null
+          id?: string
+          kind?: string
+          observed_at?: string
+          org_id?: string
+          review_status?: string
+          snapshot_id?: string | null
+          source_url?: string
+          statement?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_observations_competitor_id_org_id_workspace_id_fkey"
+            columns: ["competitor_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "competitors"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "competitor_observations_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "growth_goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competitor_observations_snapshot_id_fkey"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "competitor_snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitor_snapshots: {
+        Row: {
+          competitor_id: string
+          created_at: string
+          created_by: string
+          id: string
+          org_id: string
+          pages: Json
+          site_url: string
+          workspace_id: string
+        }
+        Insert: {
+          competitor_id: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          org_id: string
+          pages?: Json
+          site_url: string
+          workspace_id: string
+        }
+        Update: {
+          competitor_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          org_id?: string
+          pages?: Json
+          site_url?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_snapshots_competitor_id_org_id_workspace_id_fkey"
+            columns: ["competitor_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "competitors"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+        ]
+      }
+      competitors: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string
+          id: string
+          location: string
+          market: string
+          name: string
+          notes: string
+          org_id: string
+          status: string
+          updated_at: string
+          website: string
+          workspace_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          location?: string
+          market?: string
+          name: string
+          notes?: string
+          org_id: string
+          status?: string
+          updated_at?: string
+          website?: string
+          workspace_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          location?: string
+          market?: string
+          name?: string
+          notes?: string
+          org_id?: string
+          status?: string
+          updated_at?: string
+          website?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitors_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competitors_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connector_connections: {
         Row: {
           config: Json

@@ -7,7 +7,7 @@ import { parsePage, parseRobots, parseSitemap, siteFindings, type SeoPage } from
 const MAX_PAGES = 15;
 type Fetched = { status: number; url: string; body: string; type: string };
 
-async function fetchPublic(raw: string, accept: string, limit = 800_000): Promise<Fetched> {
+export async function fetchPublic(raw: string, accept: string, limit = 800_000): Promise<Fetched> {
   let current = raw;
   for (let hop = 0; hop < 4; hop++) {
     const v = validatePublicUrl(current); if (!v.ok) throw new Error(v.reason);

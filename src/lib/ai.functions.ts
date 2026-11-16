@@ -657,6 +657,9 @@ export const planGrowthStrategy = createServerFn({ method: "POST" })
       const budget = await sb.from("budget_lines").select("channel,planned,actual").eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).eq("period_month", month).limit(50);
       if (budget.error) throw new Error("Could not read the budget.");
       const business = await workspaceContext(sb, data);
+      const comp = await sb.from("competitor_observations").select("statement,source_url,observed_at,kind").eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).eq("review_status", "relevant").eq("kind", "verified_fact").order("observed_at", { ascending: false }).limit(20);
+      if (comp.error) throw new Error("Could not read competitor observations.");
+      const competitorText = (comp.data ?? []).map((o) => `- ${o.statement} (source ${o.source_url}, ${o.observed_at.slice(0, 10)})`).join("\n");
       const request = `Growth strategy: ${goal.data.title}`.slice(0, 4000);
       const claimed = await sb.rpc("begin_single_ai_request_verified", { _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _kind: "strategy", _input: { request, goalId: data.goalId, horizonWeeks: data.horizonWeeks }, _proof: accountingProof() });
       if (claimed.error) throw new Error(claimed.error.message);
@@ -669,7 +672,7 @@ export const planGrowthStrategy = createServerFn({ method: "POST" })
       const brief = goalBrief({ ...goal.data, baseline: goal.data.baseline == null ? null : Number(goal.data.baseline), target: goal.data.target == null ? null : Number(goal.data.target), current_value: goal.data.current_value == null ? null : Number(goal.data.current_value) }, (budget.data ?? []).map((b) => ({ channel: b.channel, planned: Number(b.planned), actual: Number(b.actual) })), data.horizonWeeks);
       const result = await meteredGenerate(sb, context.userId, data.orgId, runId, CREDIT_RULES.reserveGrowthOfficer, {
         instructions: STRATEGY_INSTRUCTIONS,
-        input: [{ role: "user", content: `${business}\n\n${quoteUntrusted("goal and budget", brief, 4000)}` }],
+        input: [{ role: "user", content: `${business}\n\n${quoteUntrusted("goal and budget", brief, 4000)}${competitorText ? `\n\n${quoteUntrusted("confirmed competitor observations (public page facts; treat as context, never copy)", competitorText, 4000)}` : ""}` }],
         maxOutputTokens: 4000,
       });
       const saved = await sb.rpc("finish_single_ai_request_verified", { _id: attempt.id, _reply: result.text.trim(), _proof: accountingProof() });

@@ -302,6 +302,27 @@
       "when": 1794855261928,
       "tag": "0042_seo_audits",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1794858635876,
+      "tag": "0043_competitor_intelligence",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1794858668779,
+      "tag": "0044_competitor_obs_scope_insert_only",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1794858938942,
+      "tag": "0045_competitor_column_grants",
+      "breakpoints": true
     }
   ]
 }
