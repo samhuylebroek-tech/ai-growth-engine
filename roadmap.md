@@ -8,14 +8,14 @@
 - [x] Sales pipeline: workspace contacts and deals by stage, goal links, entered-value summary (0041).
 - [x] Guided setup ends with an optional first measurable goal (primary) and opens Goals.
 - [x] SEO website check: robots, sitemap, up to 15 pages, on-page findings saved as permanent history, findings become tasks (0042).
-- [ ] Next: competitor workspace; SEO keyword data waits on Search Console connection.
+- [ ] Next: competitor workspace; SEO keyword data waits on Search Console connection. (done: website snapshots, change tracking, review, tasks, briefs, goals, strategy input)
 - [B] Social/ads/email operations and measured performance need real integrations the user must connect.
 ## Accelerated product delivery — 2026-11-16
 - [x] P1 Content Studio: library, autosaved drafts, immutable numbered versions, compare, restore-as-new-version, campaign/date/writing-profile links (0037, 0038).
 - [x] Writing Profiles with explicit authorization attestation for examples.
 - [x] Exact-version approval by workspace admins only; one permanent decision per version; 14 SQL checks (tests/sql/content_studio.sql), 139 Vitest, signed-in browser flow.
 - [x] AI drafting in Content Studio
-- [ ] Next: content quality review, repurposing, editorial calendar, SEO workspace, competitors, CRM (Acceleration directive Parts 4–8)
+- [ ] Next: content quality review, repurposing, editorial calendar, SEO workspace, competitors, CRM (Acceleration directive Parts 4–8) (done: website snapshots, change tracking, review, tasks, briefs, goals, strategy input)
 - [B] External publication stays disabled until explicitly authorized.
 ## Resume autonomous master — 2026-11-16
 - [x] Fresh baseline inspection and regression run: 133 tests passed; existing architecture preserved.
