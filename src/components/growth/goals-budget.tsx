@@ -97,7 +97,7 @@ function Planner({ orgId, wsId, canEdit, userId }: { orgId: string; wsId: string
         {goals.isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : (goals.data ?? []).length === 0 && <p className="text-sm text-muted-foreground">No goals yet. Start with your most important objective.</p>}
         <div className="grid gap-3 md:grid-cols-2">
           {(goals.data ?? []).map(x => { const p = goalProgress(x.baseline, x.target, x.current_value); return (
-            <div key={x.id} className="space-y-2 rounded-lg border bg-card p-4">
+            <div key={x.id} className="min-w-0 space-y-2 rounded-lg border bg-card p-4">
               <div className="flex flex-wrap items-center gap-2"><span className="font-medium">{x.title}</span>
                 {x.priority === "primary" && <Badge>Primary</Badge>}<Badge variant="outline">{OBJECTIVES[x.objective]}</Badge>{x.status !== "active" && <Badge variant="secondary">{x.status}</Badge>}</div>
               <p className="text-sm text-muted-foreground">{x.metric || "No metric"} · baseline {x.baseline ?? "—"} → target {x.target ?? "—"}{x.due_date ? ` by ${x.due_date}` : ""}</p>
@@ -169,7 +169,7 @@ function LinkedWork({ goalId, data, canEdit, onLink }: { goalId: string; data: {
     <div className="space-y-1 text-sm">
       <p className="text-xs font-medium text-muted-foreground">Linked work ({mine.length})</p>
       {mine.map(w => <div key={w.id} className="flex items-center justify-between gap-2"><span className="truncate">{w.t === "projects" ? "Project" : "Campaign"}: {w.title}</span>{canEdit && <Button size="sm" variant="ghost" className="h-7" onClick={() => onLink(w.t, w.id, null)}>Unlink</Button>}</div>)}
-      {canEdit && free.length > 0 && <select aria-label="Link a project or campaign" className={sel} value="" onChange={e => { const w = free.find(f => f.id === e.target.value); if (w) onLink(w.t, w.id, goalId); }}>
+      {canEdit && free.length > 0 && <select aria-label="Link a project or campaign" className={`${sel} w-full max-w-full`} value="" onChange={e => { const w = free.find(f => f.id === e.target.value); if (w) onLink(w.t, w.id, goalId); }}>
         <option value="">Link a project or campaign…</option>{free.map(w => <option key={w.id} value={w.id}>{w.t === "projects" ? "Project" : "Campaign"}: {w.title}</option>)}</select>}
     </div>);
 }
