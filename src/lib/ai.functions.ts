@@ -20,6 +20,9 @@ import { AISettlementPendingError, AINotStartedError, AIOutcomeUnknownError, may
 import { singleRequestSchema } from "@/lib/single-ai-request";
 import { parseReview, REVIEW_INSTRUCTIONS, DIMENSION_KEYS, type Review } from "@/lib/content-review";
 import { draftBriefSchema, writingProfileContext, briefText, DRAFT_INSTRUCTIONS } from "@/lib/content-draft";
+import { parseStrategy, goalBrief, STRATEGY_INSTRUCTIONS, type Strategy } from "@/lib/growth-strategy";
+import { parseRepurpose, REPURPOSE_INSTRUCTIONS } from "@/lib/content-repurpose";
+import { CHANNELS } from "@/lib/content";
 
 type DB = SupabaseClient<Database>;
 type Result<T> = { ok: true; data: T } | { ok: false; error: string };
@@ -629,6 +632,101 @@ export const reviewContent = createServerFn({ method: "POST" })
       return { ok: true, data: { review, credits: result.credits } };
     } catch (error) {
       if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId).neq("status", "succeeded");
+      return { ok: false, error: friendly(error) };
+    }
+  });
+
+/** Explicit, user-started growth strategy for one goal. Advisory only; saving and task creation are separate user actions. */
+export const planGrowthStrategy = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({
+    orgId: z.string().uuid(), workspaceId: z.string().uuid(), goalId: z.string().uuid(), requestKey: z.string().uuid(), horizonWeeks: z.number().int().min(2).max(26),
+  }).parse(input))
+  .handler(async ({ data, context }): Promise<Result<{ strategy: Strategy; credits: number }>> => {
+    const sb = context.supabase as DB;
+    let runId: string | null = null;
+    try {
+      await requireRole(sb, data.orgId, "member");
+      await requireWorkspace(sb, data);
+      const role = await sb.rpc("has_workspace_role", { _workspace: data.workspaceId, _min: "member" });
+      if (role.error || !role.data) throw new Error("You need workspace member access.");
+      await assertEntitled(sb, data.orgId, "ai_assistant");
+      const goal = await sb.from("growth_goals").select("title,objective,metric,baseline,target,current_value,due_date,rationale").eq("id", data.goalId).eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).maybeSingle();
+      if (goal.error || !goal.data) throw new Error("Goal not found.");
+      const d = new Date(); const month = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
+      const budget = await sb.from("budget_lines").select("channel,planned,actual").eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).eq("period_month", month).limit(50);
+      if (budget.error) throw new Error("Could not read the budget.");
+      const business = await workspaceContext(sb, data);
+      const request = `Growth strategy: ${goal.data.title}`.slice(0, 4000);
+      const claimed = await sb.rpc("begin_single_ai_request_verified", { _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _kind: "strategy", _input: { request, goalId: data.goalId, horizonWeeks: data.horizonWeeks }, _proof: accountingProof() });
+      if (claimed.error) throw new Error(claimed.error.message);
+      const attempt = singleRequestSchema.parse(claimed.data);
+      if (!attempt.claimed) {
+        if (attempt.status !== "succeeded" || !attempt.reply) throw new Error("This request already exists. Recover saved work; it will not be sent again.");
+        return { ok: true, data: { strategy: parseStrategy(attempt.reply), credits: attempt.credits ?? 0 } };
+      }
+      runId = attempt.run_id;
+      const brief = goalBrief({ ...goal.data, baseline: goal.data.baseline == null ? null : Number(goal.data.baseline), target: goal.data.target == null ? null : Number(goal.data.target), current_value: goal.data.current_value == null ? null : Number(goal.data.current_value) }, (budget.data ?? []).map((b) => ({ channel: b.channel, planned: Number(b.planned), actual: Number(b.actual) })), data.horizonWeeks);
+      const result = await meteredGenerate(sb, context.userId, data.orgId, runId, CREDIT_RULES.reserveGrowthOfficer, {
+        instructions: STRATEGY_INSTRUCTIONS,
+        input: [{ role: "user", content: `${business}\n\n${quoteUntrusted("goal and budget", brief, 4000)}` }],
+        maxOutputTokens: 4000,
+      });
+      const saved = await sb.rpc("finish_single_ai_request_verified", { _id: attempt.id, _reply: result.text.trim(), _proof: accountingProof() });
+      if (saved.error) throw new Error("Your paid strategy is preserved. Recover saved work before another request.");
+      let strategy: Strategy;
+      try { strategy = parseStrategy(result.text); }
+      catch { throw new Error("The strategy came back in an unexpected format. Usage is recorded; no automatic retry was made."); }
+      return { ok: true, data: { strategy, credits: result.credits } };
+    } catch (error) {
+      if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId);
+      return { ok: false, error: friendly(error) };
+    }
+  });
+
+/** Explicit repurposing of one piece into other channels. Results are suggestions; the user creates new pieces from them. */
+export const repurposeContent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({
+    orgId: z.string().uuid(), workspaceId: z.string().uuid(), assetId: z.string().uuid(), requestKey: z.string().uuid(), channels: z.array(z.enum(CHANNELS)).min(1).max(6),
+  }).parse(input))
+  .handler(async ({ data, context }): Promise<Result<{ items: { channel: string; title: string; body: string }[]; credits: number }>> => {
+    const sb = context.supabase as DB;
+    let runId: string | null = null;
+    try {
+      await requireRole(sb, data.orgId, "member");
+      await requireWorkspace(sb, data);
+      const role = await sb.rpc("has_workspace_role", { _workspace: data.workspaceId, _min: "member" });
+      if (role.error || !role.data) throw new Error("You need workspace member access.");
+      await assertEntitled(sb, data.orgId, "ai_assistant");
+      const asset = await sb.from("content_assets").select("title,channel,draft_body,writing_profile_id").eq("id", data.assetId).eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).maybeSingle();
+      if (asset.error || !asset.data) throw new Error("Content not found.");
+      if (!asset.data.draft_body.trim()) throw new Error("Write something before repurposing.");
+      const profile = asset.data.writing_profile_id ? await sb.from("writing_profiles").select("name,tone,style,audience,channels,examples,examples_authorized").eq("id", asset.data.writing_profile_id).eq("workspace_id", data.workspaceId).maybeSingle() : { data: null, error: null };
+      if (profile.error) throw new Error("Could not read the writing profile.");
+      const business = await workspaceContext(sb, data);
+      const request = `Repurpose "${asset.data.title}" for ${data.channels.join(", ")}`.slice(0, 4000);
+      const claimed = await sb.rpc("begin_single_ai_request_verified", { _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _kind: "content", _input: { request, assetId: data.assetId, channels: data.channels }, _proof: accountingProof() });
+      if (claimed.error) throw new Error(claimed.error.message);
+      const attempt = singleRequestSchema.parse(claimed.data);
+      if (!attempt.claimed) {
+        if (attempt.status !== "succeeded" || !attempt.reply) throw new Error("This request already exists. Recover saved work; it will not be sent again.");
+        return { ok: true, data: { items: parseRepurpose(attempt.reply, data.channels), credits: attempt.credits ?? 0 } };
+      }
+      runId = attempt.run_id;
+      const result = await meteredGenerate(sb, context.userId, data.orgId, runId, CREDIT_RULES.reserveGrowthOfficer, {
+        instructions: REPURPOSE_INSTRUCTIONS,
+        input: [{ role: "user", content: `${business}\n\n${writingProfileContext(profile.data)}\n\nRequested channels: ${data.channels.join(", ")}\nSource channel: ${asset.data.channel}\n\n${quoteUntrusted("source content", `Title: ${asset.data.title}\n\n${asset.data.draft_body}`, 20000)}` }],
+        maxOutputTokens: 6000,
+      });
+      const saved = await sb.rpc("finish_single_ai_request_verified", { _id: attempt.id, _reply: result.text.trim(), _proof: accountingProof() });
+      if (saved.error) throw new Error("Your paid result is preserved. Recover saved work before another request.");
+      let items;
+      try { items = parseRepurpose(result.text, data.channels); }
+      catch { throw new Error("The result came back in an unexpected format. Usage is recorded; no automatic retry was made."); }
+      return { ok: true, data: { items, credits: result.credits } };
+    } catch (error) {
+      if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId);
       return { ok: false, error: friendly(error) };
     }
   });

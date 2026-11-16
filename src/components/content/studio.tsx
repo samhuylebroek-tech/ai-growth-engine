@@ -13,18 +13,21 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DraftPanel } from "@/components/content/draft-panel";
 import { ReviewPanel } from "@/components/content/review-panel";
+import { RepurposePanel } from "@/components/content/repurpose-panel";
+import { EditorialCalendar } from "@/components/content/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const sel = "h-9 rounded-md border border-input bg-background px-2 text-sm";
 
 export function ContentStudio() {
-  const { workspace, org, workspaceRole, loading } = useOrg();
+  const { workspace, org, workspaceRole, loading, userId } = useOrg();
   if (loading) return <p className="p-6 text-muted-foreground">Loading…</p>;
   if (!workspace || !org) return <p className="p-6 text-muted-foreground">Choose a workspace to use the Content Studio.</p>;
-  return <Studio key={workspace.id} orgId={org.id} wsId={workspace.id} role={workspaceRole} />;
+  return <Studio key={workspace.id} orgId={org.id} wsId={workspace.id} role={workspaceRole} userId={userId} />;
 }
 
-function Studio({ orgId, wsId, role }: { orgId: string; wsId: string; role: ReturnType<typeof useOrg>["workspaceRole"] }) {
+function Studio({ orgId, wsId, role, userId }: { orgId: string; wsId: string; role: ReturnType<typeof useOrg>["workspaceRole"]; userId: string }) {
+  const [tab, setTab] = useState("library");
   const canEdit = hasRole(role, "member");
   const [selected, setSelected] = useState<string | null>(null);
   const qc = useQueryClient();
@@ -43,8 +46,8 @@ function Studio({ orgId, wsId, role }: { orgId: string; wsId: string; role: Retu
           <p className="text-sm text-muted-foreground">Write, version and approve each exact version before it is used anywhere. Nothing is published from here.</p></div>
         {canEdit && <Button onClick={create}><Plus className="mr-1 h-4 w-4" />New content</Button>}
       </div>
-      <Tabs defaultValue="library">
-        <TabsList><TabsTrigger value="library">Library</TabsTrigger><TabsTrigger value="profiles">Writing profiles</TabsTrigger></TabsList>
+      <Tabs value={tab} onValueChange={setTab}>
+        <TabsList><TabsTrigger value="library">Library</TabsTrigger><TabsTrigger value="calendar">Calendar</TabsTrigger><TabsTrigger value="profiles">Writing profiles</TabsTrigger></TabsList>
         <TabsContent value="library" className="grid gap-4 lg:grid-cols-[280px_1fr]">
           <aside className="space-y-1 rounded-lg border bg-card p-2">
             {assets.isError && <p className="p-2 text-sm text-destructive">Could not load content. <button className="underline" onClick={() => assets.refetch()}>Retry</button></p>}
@@ -55,15 +58,16 @@ function Studio({ orgId, wsId, role }: { orgId: string; wsId: string; role: Retu
                 <div className="text-xs text-muted-foreground">{a.channel} · {a.status}{a.planned_date ? ` · ${a.planned_date}` : ""}</div>
               </button>))}
           </aside>
-          {selected ? <Editor key={selected} id={selected} wsId={wsId} orgId={orgId} canEdit={canEdit} canDecide={hasRole(role, "admin")} />
+          {selected ? <Editor key={selected} id={selected} wsId={wsId} orgId={orgId} canEdit={canEdit} canDecide={hasRole(role, "admin")} userId={userId} />
             : <div className="grid place-items-center rounded-lg border border-dashed p-10 text-sm text-muted-foreground">Select content to edit.</div>}
         </TabsContent>
+        <TabsContent value="calendar"><EditorialCalendar assets={assets.data ?? []} onOpen={(id) => { setSelected(id); setTab("library"); }} /></TabsContent>
         <TabsContent value="profiles"><Profiles orgId={orgId} wsId={wsId} canEdit={canEdit} /></TabsContent>
       </Tabs>
     </div>);
 }
 
-function Editor({ id, wsId, orgId, canEdit, canDecide }: { id: string; wsId: string; orgId: string; canEdit: boolean; canDecide: boolean }) {
+function Editor({ id, wsId, orgId, canEdit, canDecide, userId }: { id: string; wsId: string; orgId: string; canEdit: boolean; canDecide: boolean; userId: string }) {
   const qc = useQueryClient();
   const data = useQuery({ queryKey: ["content-asset", id], queryFn: async () => {
     const [a, v, d, c, p] = await Promise.all([
@@ -121,6 +125,7 @@ function Editor({ id, wsId, orgId, canEdit, canDecide }: { id: string; wsId: str
         </div>
         {canEdit && <DraftPanel orgId={orgId} wsId={wsId} assetId={id} hasDraft={!!form.draft_body.trim()} onUse={(t, m) => set("draft_body", m === "replace" ? t : `${form.draft_body}${form.draft_body ? "\n\n" : ""}${t}`)} />}
         {canEdit && <ReviewPanel orgId={orgId} wsId={wsId} assetId={id} draft={form.draft_body} versions={versions} onApply={(t) => set("draft_body", t)} />}
+        {canEdit && form.draft_body.trim() && <RepurposePanel orgId={orgId} wsId={wsId} assetId={id} source={form.channel} campaignId={form.campaign_id} profileId={form.writing_profile_id} userId={userId} />}
         <Textarea aria-label="Content" value={form.draft_body} disabled={!canEdit} onChange={(e) => set("draft_body", e.target.value)} className="min-h-[360px] font-[inherit] leading-relaxed" placeholder="Write your content…" />
         {canEdit && <div className="flex flex-wrap gap-2"><Input aria-label="Version note" placeholder="Version note (optional)" value={note} onChange={(e) => setNote(e.target.value)} className="max-w-xs" />
           <Button onClick={() => saveVersion()} disabled={!draftChanged || !form.draft_body.trim()}><Save className="mr-1 h-4 w-4" />Save version</Button></div>}

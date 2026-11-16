@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { useOrg } from "@/lib/org-context";
 import { hasRole } from "@/lib/permissions";
 import { supabase } from "@/integrations/supabase/client";
-import { goalProgress, budgetTotals, budgetAlert } from "@/lib/growth-plan";
+import { goalProgress, budgetTotals, budgetAlert, reallocationProposals } from "@/lib/growth-plan";
+import { StrategyPanel } from "@/components/growth/strategy-panel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -17,13 +18,13 @@ const num = (v: string) => (v.trim() === "" ? null : Number(v));
 const monthStart = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`; };
 
 export function GoalsAndBudget() {
-  const { workspace, org, workspaceRole, loading } = useOrg();
+  const { workspace, org, workspaceRole, loading, userId } = useOrg();
   if (loading) return <p className="p-6 text-muted-foreground">Loading…</p>;
   if (!workspace || !org) return <p className="p-6 text-muted-foreground">Choose a workspace to plan goals and budget.</p>;
-  return <Planner key={workspace.id} orgId={org.id} wsId={workspace.id} canEdit={hasRole(workspaceRole, "member")} />;
+  return <Planner key={workspace.id} orgId={org.id} wsId={workspace.id} canEdit={hasRole(workspaceRole, "member")} userId={userId} />;
 }
 
-function Planner({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit: boolean }) {
+function Planner({ orgId, wsId, canEdit, userId }: { orgId: string; wsId: string; canEdit: boolean; userId: string }) {
   const qc = useQueryClient();
   const [month, setMonth] = useState(monthStart());
   const goals = useQuery({ queryKey: ["growth-goals", wsId], queryFn: async () => {
@@ -32,6 +33,16 @@ function Planner({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdi
   const lines = useQuery({ queryKey: ["budget-lines", wsId, month], queryFn: async () => {
     const r = await supabase.from("budget_lines").select("*").eq("workspace_id", wsId).eq("period_month", month).order("created_at").limit(200);
     if (r.error) throw r.error; return r.data; } });
+  const links = useQuery({ queryKey: ["goal-links", wsId], queryFn: async () => {
+    const [p, c] = await Promise.all([
+      supabase.from("projects").select("id,title,goal_id,status").eq("workspace_id", wsId).neq("status", "archived").order("created_at", { ascending: false }).limit(200),
+      supabase.from("campaigns").select("id,title,goal_id,status").eq("workspace_id", wsId).neq("status", "archived").order("created_at", { ascending: false }).limit(200),
+    ]);
+    if (p.error || c.error) throw p.error ?? c.error; return { projects: p.data, campaigns: c.data }; } });
+  const link = async (table: "projects" | "campaigns", id: string, goalId: string | null) => {
+    const r = await supabase.from(table).update({ goal_id: goalId }).eq("id", id).eq("workspace_id", wsId);
+    if (r.error) toast.error("Could not link this work."); await qc.invalidateQueries({ queryKey: ["goal-links", wsId] });
+  };
   const refresh = () => qc.invalidateQueries({ queryKey: ["growth-goals", wsId] }).then(() => qc.invalidateQueries({ queryKey: ["budget-lines", wsId] }));
 
   const [g, setG] = useState({ title: "", objective: "leads", metric: "", baseline: "", target: "", due: "" });
@@ -62,6 +73,18 @@ function Planner({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdi
   };
 
   const t = budgetTotals(lines.data ?? []);
+  const now = new Date(); const sel0 = new Date(`${month}T00:00:00`);
+  const days = new Date(sel0.getFullYear(), sel0.getMonth() + 1, 0).getDate();
+  const elapsed = sel0.getFullYear() === now.getFullYear() && sel0.getMonth() === now.getMonth() ? now.getDate() / days : sel0 < now ? 1 : 0;
+  const proposals = reallocationProposals(lines.data ?? [], elapsed);
+  const applyMove = async (m: (typeof proposals)[number]) => {
+    const from = lines.data?.find(l => l.id === m.fromId), to = lines.data?.find(l => l.id === m.toId); if (!from || !to) return;
+    const a = await supabase.from("budget_lines").update({ planned: Number(from.planned) - m.amount }).eq("id", from.id);
+    if (a.error) return void toast.error("Could not move the budget.");
+    const b = await supabase.from("budget_lines").update({ planned: Number(to.planned) + m.amount }).eq("id", to.id);
+    if (b.error) { await supabase.from("budget_lines").update({ planned: Number(from.planned) }).eq("id", from.id); return void toast.error("Could not move the budget; nothing was changed."); }
+    toast.success(`Moved ${fmt(m.amount)} from ${m.from} to ${m.to}`); await refresh();
+  };
   const fmt = (n: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: "EUR" }).format(n);
 
   return (
@@ -79,6 +102,8 @@ function Planner({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdi
                 {x.priority === "primary" && <Badge>Primary</Badge>}<Badge variant="outline">{OBJECTIVES[x.objective]}</Badge>{x.status !== "active" && <Badge variant="secondary">{x.status}</Badge>}</div>
               <p className="text-sm text-muted-foreground">{x.metric || "No metric"} · baseline {x.baseline ?? "—"} → target {x.target ?? "—"}{x.due_date ? ` by ${x.due_date}` : ""}</p>
               {p != null ? <div className="space-y-1"><Progress value={p} /><p className="text-xs text-muted-foreground">{p}% of the way, based on the current value you entered</p></div> : <p className="text-xs text-muted-foreground">Enter a target and current value to track progress.</p>}
+              <LinkedWork goalId={x.id} data={links.data} canEdit={canEdit} onLink={link} />
+              {canEdit && x.status === "active" && <StrategyPanel orgId={orgId} wsId={wsId} goalId={x.id} goalTitle={x.title} userId={userId} />}
               {canEdit && <div className="flex flex-wrap items-center gap-2">
                 <Input aria-label="Current value" className="h-8 w-32" type="number" min={0} placeholder="Current value" defaultValue={x.current_value ?? ""} onBlur={e => { const n = num(e.target.value); if (n !== x.current_value) void updateGoal(x.id, { current_value: n }); }} />
                 {x.priority !== "primary" && <Button size="sm" variant="ghost" onClick={() => updateGoal(x.id, { priority: "primary" })}>Make primary</Button>}
@@ -117,6 +142,12 @@ function Planner({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdi
                   <td className="p-2">{a === "over_cap" ? <Badge variant="destructive">Over hard cap</Badge> : a === "over_plan" ? <Badge variant="destructive">Over plan</Badge> : a === "near_plan" ? <Badge variant="secondary">80%+ used</Badge> : <Badge variant="outline">On track</Badge>}</td></tr>); })}
             </tbody></table>
         </div>
+        {proposals.length > 0 && <div className="space-y-2 rounded-lg border bg-card p-4">
+          <p className="text-sm font-medium">Suggested budget moves</p>
+          <p className="text-xs text-muted-foreground">Simple rules, not AI: past mid-month, half of the unused budget on slow channels can move to channels already over plan, within their hard cap. Your total stays the same.</p>
+          {proposals.map((m, i) => <div key={i} className="flex flex-wrap items-center justify-between gap-2 border-t pt-2 text-sm"><span>Move <span className="font-medium">{fmt(m.amount)}</span> from {m.from} to {m.to}<span className="block text-xs text-muted-foreground">{m.reason}</span></span>
+            {canEdit && <Button size="sm" variant="outline" onClick={() => applyMove(m)}>Apply</Button>}</div>)}
+        </div>}
         {canEdit && <div className="grid gap-2 rounded-lg border border-dashed p-4 sm:grid-cols-5">
           <Input aria-label="Channel" placeholder="e.g. Google Ads" value={b.channel} onChange={e => setB({ ...b, channel: e.target.value })} />
           <Input aria-label="Planned amount" type="number" min={0} placeholder="Planned €" value={b.planned} onChange={e => setB({ ...b, planned: e.target.value })} />
@@ -127,4 +158,18 @@ function Planner({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdi
       </section>
     </div>
   );
+}
+
+type LinkRow = { id: string; title: string; goal_id: string | null };
+function LinkedWork({ goalId, data, canEdit, onLink }: { goalId: string; data: { projects: LinkRow[]; campaigns: LinkRow[] } | undefined; canEdit: boolean; onLink: (t: "projects" | "campaigns", id: string, g: string | null) => void }) {
+  if (!data) return null;
+  const mine = [...data.projects.filter(p => p.goal_id === goalId).map(p => ({ ...p, t: "projects" as const })), ...data.campaigns.filter(c => c.goal_id === goalId).map(c => ({ ...c, t: "campaigns" as const }))];
+  const free = [...data.projects.filter(p => !p.goal_id).map(p => ({ ...p, t: "projects" as const })), ...data.campaigns.filter(c => !c.goal_id).map(c => ({ ...c, t: "campaigns" as const }))];
+  return (
+    <div className="space-y-1 text-sm">
+      <p className="text-xs font-medium text-muted-foreground">Linked work ({mine.length})</p>
+      {mine.map(w => <div key={w.id} className="flex items-center justify-between gap-2"><span className="truncate">{w.t === "projects" ? "Project" : "Campaign"}: {w.title}</span>{canEdit && <Button size="sm" variant="ghost" className="h-7" onClick={() => onLink(w.t, w.id, null)}>Unlink</Button>}</div>)}
+      {canEdit && free.length > 0 && <select aria-label="Link a project or campaign" className={sel} value="" onChange={e => { const w = free.find(f => f.id === e.target.value); if (w) onLink(w.t, w.id, goalId); }}>
+        <option value="">Link a project or campaign…</option>{free.map(w => <option key={w.id} value={w.id}>{w.t === "projects" ? "Project" : "Campaign"}: {w.title}</option>)}</select>}
+    </div>);
 }

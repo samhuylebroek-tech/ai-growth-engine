@@ -1,4 +1,12 @@
 # AI Growth OS — Task Queue
+## Growth planning & content expansion — 2026-11-16
+- [x] Link projects/campaigns to goals; linked work shown and editable on each goal (0040).
+- [x] AI growth strategy per goal (metered, saved insert-only, convert chosen actions into a goal-linked project with tasks).
+- [x] Rule-based budget reallocation suggestions within hard caps.
+- [x] Content repurposing into other channels as new draft pieces; editorial calendar tab.
+- [x] Tests: 156 Vitest, growth SQL 13/13, signed-in strategy/project/calendar/repurpose flow.
+- [ ] Next: guided onboarding into first goal, SEO/competitor workspaces, CRM/pipeline.
+- [B] Social/ads/email operations and measured performance need real integrations the user must connect.
 ## Accelerated product delivery — 2026-11-16
 - [x] P1 Content Studio: library, autosaved drafts, immutable numbered versions, compare, restore-as-new-version, campaign/date/writing-profile links (0037, 0038).
 - [x] Writing Profiles with explicit authorization attestation for examples.

@@ -281,6 +281,13 @@
       "when": 1794846025335,
       "tag": "0039_growth_goals_and_budgets",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1794846748721,
+      "tag": "0040_goal_links_and_strategies",
+      "breakpoints": true
     }
   ]
 }

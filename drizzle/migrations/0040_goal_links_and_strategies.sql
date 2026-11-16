@@ -1,0 +1,12 @@
+ALTER TABLE public.projects ADD COLUMN goal_id uuid;
+ALTER TABLE public.projects ADD CONSTRAINT projects_goal_fk FOREIGN KEY(goal_id,org_id,workspace_id) REFERENCES public.growth_goals(id,org_id,workspace_id);
+ALTER TABLE public.campaigns ADD COLUMN goal_id uuid;
+ALTER TABLE public.campaigns ADD CONSTRAINT campaigns_goal_fk FOREIGN KEY(goal_id,org_id,workspace_id) REFERENCES public.growth_goals(id,org_id,workspace_id);
+CREATE INDEX projects_goal_idx ON public.projects(goal_id) WHERE goal_id IS NOT NULL;
+CREATE INDEX campaigns_goal_idx ON public.campaigns(goal_id) WHERE goal_id IS NOT NULL;
+CREATE TABLE public.growth_strategies (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), org_id uuid NOT NULL REFERENCES public.organizations(id), workspace_id uuid NOT NULL REFERENCES public.workspaces(id), goal_id uuid NOT NULL, request_key uuid NOT NULL, summary text NOT NULL CHECK(length(summary) BETWEEN 1 AND 4000), body jsonb NOT NULL CHECK(jsonb_typeof(body)='object' AND length(body::text)<=60000), created_by uuid NOT NULL DEFAULT auth.uid(), created_at timestamptz NOT NULL DEFAULT now(), UNIQUE(workspace_id,request_key), FOREIGN KEY(goal_id,org_id,workspace_id) REFERENCES public.growth_goals(id,org_id,workspace_id));
+GRANT SELECT, INSERT ON public.growth_strategies TO authenticated; GRANT ALL ON public.growth_strategies TO service_role;
+ALTER TABLE public.growth_strategies ENABLE ROW LEVEL SECURITY;
+CREATE POLICY strategies_read ON public.growth_strategies FOR SELECT TO authenticated USING(public.has_workspace_role(workspace_id,'viewer'));
+CREATE POLICY strategies_create ON public.growth_strategies FOR INSERT TO authenticated WITH CHECK(public.has_workspace_role(workspace_id,'member') AND created_by=auth.uid());
+CREATE INDEX growth_strategies_goal_idx ON public.growth_strategies(goal_id, created_at DESC);

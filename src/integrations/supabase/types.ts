@@ -668,6 +668,7 @@ export type Database = {
           created_by: string
           description: string
           end_date: string | null
+          goal_id: string | null
           id: string
           objective: string
           org_id: string
@@ -690,6 +691,7 @@ export type Database = {
           created_by?: string
           description?: string
           end_date?: string | null
+          goal_id?: string | null
           id?: string
           objective?: string
           org_id: string
@@ -712,6 +714,7 @@ export type Database = {
           created_by?: string
           description?: string
           end_date?: string | null
+          goal_id?: string | null
           id?: string
           objective?: string
           org_id?: string
@@ -726,6 +729,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "campaigns_goal_fk"
+            columns: ["goal_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "growth_goals"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
           {
             foreignKeyName: "campaigns_org_id_fkey"
             columns: ["org_id"]
@@ -1397,6 +1407,64 @@ export type Database = {
           },
         ]
       }
+      growth_strategies: {
+        Row: {
+          body: Json
+          created_at: string
+          created_by: string
+          goal_id: string
+          id: string
+          org_id: string
+          request_key: string
+          summary: string
+          workspace_id: string
+        }
+        Insert: {
+          body: Json
+          created_at?: string
+          created_by?: string
+          goal_id: string
+          id?: string
+          org_id: string
+          request_key: string
+          summary: string
+          workspace_id: string
+        }
+        Update: {
+          body?: Json
+          created_at?: string
+          created_by?: string
+          goal_id?: string
+          id?: string
+          org_id?: string
+          request_key?: string
+          summary?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "growth_strategies_goal_id_org_id_workspace_id_fkey"
+            columns: ["goal_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "growth_goals"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "growth_strategies_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "growth_strategies_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitations: {
         Row: {
           accepted_at: string | null
@@ -1705,6 +1773,7 @@ export type Database = {
           created_by: string
           description: string
           end_date: string | null
+          goal_id: string | null
           id: string
           objective: string
           org_id: string
@@ -1723,6 +1792,7 @@ export type Database = {
           created_by?: string
           description?: string
           end_date?: string | null
+          goal_id?: string | null
           id?: string
           objective?: string
           org_id: string
@@ -1741,6 +1811,7 @@ export type Database = {
           created_by?: string
           description?: string
           end_date?: string | null
+          goal_id?: string | null
           id?: string
           objective?: string
           org_id?: string
@@ -1754,6 +1825,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "projects_goal_fk"
+            columns: ["goal_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "growth_goals"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
           {
             foreignKeyName: "projects_org_id_fkey"
             columns: ["org_id"]
