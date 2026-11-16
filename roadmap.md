@@ -3,7 +3,8 @@
 - [x] P1 Content Studio: library, autosaved drafts, immutable numbered versions, compare, restore-as-new-version, campaign/date/writing-profile links (0037, 0038).
 - [x] Writing Profiles with explicit authorization attestation for examples.
 - [x] Exact-version approval by workspace admins only; one permanent decision per version; 14 SQL checks (tests/sql/content_studio.sql), 139 Vitest, signed-in browser flow.
-- [x] Content Studio AI drafting (brief, writing profile, verified facts)
+- [x] AI drafting in Content Studio
+- [ ] Next: content quality review, repurposing, editorial calendar, SEO workspace, competitors, CRM (Acceleration directive Parts 4–8)
 - [B] External publication stays disabled until explicitly authorized.
 ## Resume autonomous master — 2026-11-16
 - [x] Fresh baseline inspection and regression run: 133 tests passed; existing architecture preserved.
