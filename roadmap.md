@@ -5,7 +5,8 @@
 - [x] Rule-based budget reallocation suggestions within hard caps.
 - [x] Content repurposing into other channels as new draft pieces; editorial calendar tab.
 - [x] Tests: 156 Vitest, growth SQL 13/13, signed-in strategy/project/calendar/repurpose flow.
-- [ ] Next: guided onboarding into first goal, SEO/competitor workspaces, CRM/pipeline.
+- [x] Sales pipeline: workspace contacts and deals by stage, goal links, entered-value summary (0041).
+- [ ] Next: guided onboarding into first goal, SEO/competitor workspaces.
 - [B] Social/ads/email operations and measured performance need real integrations the user must connect.
 ## Accelerated product delivery — 2026-11-16
 - [x] P1 Content Studio: library, autosaved drafts, immutable numbered versions, compare, restore-as-new-version, campaign/date/writing-profile links (0037, 0038).

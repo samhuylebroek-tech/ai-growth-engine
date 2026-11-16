@@ -1148,6 +1148,152 @@ export type Database = {
           },
         ]
       }
+      crm_contacts: {
+        Row: {
+          company: string
+          created_at: string
+          created_by: string
+          email: string
+          id: string
+          name: string
+          notes: string
+          org_id: string
+          phone: string
+          source: string
+          status: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          company?: string
+          created_at?: string
+          created_by?: string
+          email?: string
+          id?: string
+          name: string
+          notes?: string
+          org_id: string
+          phone?: string
+          source?: string
+          status?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          company?: string
+          created_at?: string
+          created_by?: string
+          email?: string
+          id?: string
+          name?: string
+          notes?: string
+          org_id?: string
+          phone?: string
+          source?: string
+          status?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_contacts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_contacts_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_deals: {
+        Row: {
+          closed_at: string | null
+          contact_id: string | null
+          created_at: string
+          created_by: string
+          currency: string
+          expected_close: string | null
+          goal_id: string | null
+          id: string
+          lost_reason: string
+          org_id: string
+          stage: string
+          title: string
+          updated_at: string
+          value: number
+          workspace_id: string
+        }
+        Insert: {
+          closed_at?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string
+          currency?: string
+          expected_close?: string | null
+          goal_id?: string | null
+          id?: string
+          lost_reason?: string
+          org_id: string
+          stage?: string
+          title: string
+          updated_at?: string
+          value?: number
+          workspace_id: string
+        }
+        Update: {
+          closed_at?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string
+          currency?: string
+          expected_close?: string | null
+          goal_id?: string | null
+          id?: string
+          lost_reason?: string
+          org_id?: string
+          stage?: string
+          title?: string
+          updated_at?: string
+          value?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_deals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_deals_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "growth_goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_deals_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_deals_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           created_at: string
