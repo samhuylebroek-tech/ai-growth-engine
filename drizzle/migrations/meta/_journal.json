@@ -218,6 +218,34 @@
       "when": 1794823412322,
       "tag": "0030_block_unreconciled_organization_dispatch",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1794829589499,
+      "tag": "0031_single_ai_request_idempotency_and_recovery",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1794829678381,
+      "tag": "0032_atomic_single_growth_proposals",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1794829833394,
+      "tag": "0033_single_request_explicit_write_revocation",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1794829932413,
+      "tag": "0034_single_request_dispatch_lease_guard",
+      "breakpoints": true
     }
   ]
 }

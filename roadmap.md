@@ -1,4 +1,12 @@
 # AI Growth OS — Task Queue
+## Work package 2 — 2026-11-16
+- [x] P0 slice: Shared Growth Officer/specialist request keys, atomic result/proposal persistence and explicit receipt recovery; persistent duplicate/fault/revocation/expiry tests.
+- [x] Signed-in real request/reload, two concurrent completed-request repeats and synthetic interrupted-answer recovery; 133 unit tests, 19 recovery SQL checks, 8 revocation SQL checks and 39 tenant isolation checks pass.
+- [B] P0 gate: Output arriving after access revocation cannot be persisted through caller RLS; privileged narrowly attested ingestion design remains a prerequisite. Full active-dispatch concurrency matrix and provider-log investigation are not complete. No unattended worker is deployed.
+- [B] P1: Business knowledge selection, authorized writing profiles and versioned Content Studio wait on the remaining P0 safety gate; not started here.
+- [B] P2: Campaign/editorial recurrence and exact-version content approvals wait on the complete P1 slice; external publication remains disabled.
+- [x] Delivery report with actual tests, limitations and next priorities: docs/WORK_PACKAGE_2.md.
+
 ## Master product expansion — 2026-11-16
 - [x] P0 work package: Once-only dispatch claims, immutable private delivery receipts, atomic settlement/checkpoint reconciliation, 15-minute leases and explicit interrupted-team recovery. Real team analysis/reload and injected delivery/unknown-outcome recovery exercised.
 - [~] P0 remaining: Full concurrent/revocation matrix, autonomous worker, remote-log investigation and single-call request-level deduplication/recovery UI. Do not describe reliability as complete.

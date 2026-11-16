@@ -1,3 +1,5 @@
+import { requestAttemptKey } from "@/lib/single-ai-request";
+import { SingleAIRecovery } from "@/components/app/single-ai-recovery";
 import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -63,14 +65,14 @@ function GrowthOfficer() {
     if (!o.org || !o.workspace || !message.trim() || busy || !can(o.workspaceRole, "ai.use")) return;
     setBusy(true); setPending(message); setText("");
     try {
-      const r = await ask({ data: { orgId: o.org.id, workspaceId: o.workspace.id, conversationId: conv, message, executionContext } });
+      const r = await ask({ data: { orgId: o.org.id, workspaceId: o.workspace.id, requestKey: requestAttemptKey(sessionStorage, `${o.userId}/${o.org.id}/${o.workspace.id}/officer`, JSON.stringify({ conv, message, executionContext }), () => crypto.randomUUID()), conversationId: conv, message, executionContext } });
       if (!r.ok) { toast.error(r.error); setText(message); return; }
       setConv(r.data.conversationId);
       if (r.data.proposals) toast.success(`${r.data.proposals} action${r.data.proposals > 1 ? "s" : ""} sent to Approvals`);
       qc.invalidateQueries({ queryKey: ["msgs", r.data.conversationId] }); qc.invalidateQueries({ queryKey: ["convs"] });
-      qc.invalidateQueries({ queryKey: ["overview"] }); qc.invalidateQueries({ queryKey: ["billing"] });
+      qc.invalidateQueries({ queryKey: ["single-ai-history"] }); qc.invalidateQueries({ queryKey: ["overview"] }); qc.invalidateQueries({ queryKey: ["billing"] });
     } catch { toast.error("The answer could not finish. Your question is preserved."); setText(message); }
-    finally { setBusy(false); setPending(null); }
+    finally { setBusy(false); setPending(null); qc.invalidateQueries({ queryKey: ["single-ai-history"] }); }
   }
   const allowed = can(o.workspaceRole, "ai.use"); const list = msgs.data ?? [];
   const verified = context.data?.filter(f => f.verified) ?? [];
@@ -97,6 +99,7 @@ function GrowthOfficer() {
       </div>
       <aside className={cn("min-w-0 border-t border-border pt-5 xl:block xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0", !contextOpen && "hidden")}><p className="section-label mb-4">Business context</p><p className="text-sm font-semibold">{o.workspace?.name}</p>{context.isError ? <p role="alert" className="mt-3 text-xs text-destructive">Context could not load.</p> : <><p className="mt-2 text-[11px] text-muted-foreground">{verified.length} confirmed · {(context.data?.length ?? 0) - verified.length} awaiting review</p><div className="mt-4 space-y-4">{verified.slice(0,4).map(f => <div key={f.id}><h3 className="text-[11px] font-semibold">{f.key}</h3><p className="mt-1 line-clamp-3 text-[11px] leading-relaxed text-muted-foreground">{f.value}</p></div>)}</div>{!verified.length && <p className="mt-4 text-xs leading-relaxed text-muted-foreground">Unconfirmed claims are not trusted business evidence.</p>}</>}<Button variant="link" size="sm" className="mt-3 px-0" asChild><Link to="/app/profile">Review knowledge <ArrowUpRight /></Link></Button><div className="mt-6 border-t border-border pt-5"><p className="section-label mb-3">Related work</p><Button variant="ghost" size="sm" className="w-full justify-start px-0" asChild><Link to="/app/documents"><FileText />Documents</Link></Button><Button variant="ghost" size="sm" className="w-full justify-start px-0" asChild><Link to="/app/approvals"><CheckSquare />Review & approvals</Link></Button></div><p className="mt-6 text-[10px] leading-relaxed text-muted-foreground">Results are saved in your conversation. External actions require review; automatic execution is not configured.</p></aside>
     </div>
+    <SingleAIRecovery onRecovered={setConv} />
     <div className="mt-8"><CoordinationWorkbench /></div>
   </div>;
 }

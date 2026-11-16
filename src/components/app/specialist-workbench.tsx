@@ -1,3 +1,5 @@
+import { requestAttemptKey } from "@/lib/single-ai-request";
+import { SingleAIRecovery } from "@/components/app/single-ai-recovery";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
@@ -26,12 +28,12 @@ export function SpecialistWorkbench() {
     if (!o.org || !o.workspace || busy) return;
     setBusy(true); setResult(null);
     try {
-      const response = await run({ data: { orgId: o.org.id, workspaceId: o.workspace.id, agent, request, executionContext: refs } });
+      const response = await run({ data: { orgId: o.org.id, workspaceId: o.workspace.id, requestKey: requestAttemptKey(sessionStorage, `${o.userId}/${o.org.id}/${o.workspace.id}/specialist`, JSON.stringify({ agent, request, refs }), () => crypto.randomUUID()), agent, request, executionContext: refs } });
       if (!response.ok) { toast.error(response.error); return; }
       setResult(response.data); toast.success("Analysis saved");
-      for (const key of ["convs", "command-center", "overview", "billing", "notification-center"]) qc.invalidateQueries({ queryKey: [key] });
+      for (const key of ["convs", "command-center", "overview", "billing", "notification-center", "single-ai-history"]) qc.invalidateQueries({ queryKey: [key] });
     } catch { toast.error("The analysis could not finish. Your assignment is preserved."); }
-    finally { setBusy(false); }
+    finally { setBusy(false); qc.invalidateQueries({ queryKey: ["single-ai-history"] }); }
   }
   function download() {
     if (!result) return;
@@ -42,5 +44,6 @@ export function SpecialistWorkbench() {
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_240px]"><form onSubmit={e => { e.preventDefault(); submit(); }} className="min-w-0"><label htmlFor="specialist-request" className="mb-2 block text-sm font-semibold">{SPECIALISTS[agent].name} assignment</label><Textarea id="specialist-request" value={request} onChange={e => setRequest(e.target.value)} maxLength={4000} rows={4} disabled={busy} /><div className="mt-3 flex flex-wrap justify-between gap-2"><ExecutionContextPicker value={refs} onChange={setRefs} disabled={busy} /><Button type="submit" disabled={busy || request.trim().length < 3 || !can(o.workspaceRole, "ai.use")}><Sparkles />{busy ? "Analyzing…" : "Run analysis"}</Button></div></form><aside className="border-l border-border pl-5 text-xs leading-relaxed text-muted-foreground"><p className="font-semibold text-foreground">{o.workspace?.name}</p><p className="mt-3">Confirmed business knowledge + selected work.</p><p className="mt-3">AI credits apply. Research and SEO suggestions are not live rankings or measured traffic. Content stays unpublished.</p><Button variant="link" size="sm" className="mt-3 px-0" asChild><Link to="/app/activity">Saved activity <ArrowUpRight /></Link></Button></aside></div>
     {busy && <p role="status" className="mt-5 text-sm text-muted-foreground">Preparing your analysis…</p>}
     {result && <article className="mt-8 border-t border-border pt-6"><div className="mb-5 flex items-center justify-between"><p className="text-xs text-muted-foreground">Saved analysis · {result.credits} AI credits</p><Button variant="ghost" size="icon" aria-label="Download specialist analysis" onClick={download}><Download /></Button></div><div className="prose-chat min-w-0 break-words text-sm leading-relaxed"><ReactMarkdown skipHtml>{result.reply}</ReactMarkdown></div><div className="mt-5"><PlanReview sourceId={result.messageId} content={result.reply} /></div></article>}
+    <SingleAIRecovery />
   </section>;
 }

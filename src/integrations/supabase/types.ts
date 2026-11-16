@@ -1454,6 +1454,99 @@ export type Database = {
           },
         ]
       }
+      single_ai_requests: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          credits: number | null
+          finished_at: string | null
+          id: string
+          input: Json
+          kind: string
+          message_id: string | null
+          org_id: string
+          proposals_saved: boolean
+          reply: string | null
+          request_key: string
+          run_id: string
+          status: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          credits?: number | null
+          finished_at?: string | null
+          id?: string
+          input: Json
+          kind: string
+          message_id?: string | null
+          org_id: string
+          proposals_saved?: boolean
+          reply?: string | null
+          request_key: string
+          run_id: string
+          status?: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          credits?: number | null
+          finished_at?: string | null
+          id?: string
+          input?: Json
+          kind?: string
+          message_id?: string | null
+          org_id?: string
+          proposals_saved?: boolean
+          reply?: string | null
+          request_key?: string
+          run_id?: string
+          status?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "single_ai_requests_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "single_ai_requests_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "single_ai_requests_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "single_ai_requests_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: true
+            referencedRelation: "agent_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "single_ai_requests_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           billing_cycle: string
@@ -1765,6 +1858,17 @@ export type Database = {
         }
         Returns: Json
       }
+      begin_single_ai_request_verified: {
+        Args: {
+          _input: Json
+          _kind: string
+          _org: string
+          _proof: string
+          _request: string
+          _workspace: string
+        }
+        Returns: Json
+      }
       checkpoint_coordinated_analysis: {
         Args: { _id: string; _step: number; _text: string }
         Returns: undefined
@@ -1775,6 +1879,10 @@ export type Database = {
       }
       claim_ai_dispatch_verified: {
         Args: { _proof: string; _run: string }
+        Returns: string
+      }
+      close_single_ai_request_verified: {
+        Args: { _id: string; _proof: string }
         Returns: string
       }
       confirm_business_profile: {
@@ -1845,6 +1953,14 @@ export type Database = {
         Returns: Json
       }
       finish_coordinated_analysis_verified: {
+        Args: { _id: string; _proof: string; _reply: string }
+        Returns: Json
+      }
+      finish_growth_request_verified: {
+        Args: { _id: string; _proof: string; _proposals: Json; _reply: string }
+        Returns: Json
+      }
+      finish_single_ai_request_verified: {
         Args: { _id: string; _proof: string; _reply: string }
         Returns: Json
       }
