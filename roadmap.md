@@ -1,9 +1,10 @@
 # AI Growth OS — Task Queue
 ## Master product expansion — 2026-11-16
-- [ ] P0: Durable per-call dispatch claims, immutable provider receipts, safe reconciliation and interrupted-analysis recovery; test accounting and access boundaries.
-- [ ] P1/P2: Authorized writing profiles, grounded content editor/versioning, campaign-linked occurrences and exact-version human approval.
-- [ ] P3–P7: Measured SEO, growth intelligence, CRM, controlled automation/BI and commercial/agency expansion after complete core slices.
-- [ ] Publish factual implementation/test/dependency report for this work package and identify the precise continuation point.
+- [x] P0 work package: Once-only dispatch claims, immutable private delivery receipts, atomic settlement/checkpoint reconciliation, 15-minute leases and explicit interrupted-team recovery. Real team analysis/reload and injected delivery/unknown-outcome recovery exercised.
+- [~] P0 remaining: Full concurrent/revocation matrix, autonomous worker, remote-log investigation and single-call request-level deduplication/recovery UI. Do not describe reliability as complete.
+- [B] P1/P2 content profiles/editor/versioning/recurrence/approval wait on the remaining P0 reliability gate; not implemented in this work package.
+- [B] P3–P7 SEO, growth intelligence, CRM, automation/BI and agency expansion wait on preceding complete vertical slices; no new module shipped here.
+- [x] Factual implementation/test/dependency report: docs/MASTER_EXPANSION.md. Continue at remaining P0 reliability gate, then content profiles.
 - [B] Deployment, owner initialization, live payments, social publication, outbound actions and unconfigured SSO remain explicitly prohibited.
 
 ## Next development phase — 2026-11-16
