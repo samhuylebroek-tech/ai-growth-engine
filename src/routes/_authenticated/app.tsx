@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Shield, LogOut, Zap, Menu, X, Sun, Moon, Search, ChevronRight, Sparkles, Building2 } from "lucide-react";
@@ -13,6 +13,7 @@ import { NAVIGATION, primaryNavigation } from "@/lib/navigation";
 import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 import { pageHead } from "@/lib/page-head";
 import { WorkspaceContext, WorkspaceTools } from "@/components/app/workspace-tools";
+import { searchWorkspace, type WorkspaceSearchHit } from "@/lib/workspace-search";
 
 export const Route = createFileRoute("/_authenticated/app")({
   head: () => pageHead("Workspace", "Your business growth workspace."),
@@ -25,6 +26,20 @@ function Shell() {
   const group = NAVIGATION.find(g => g.items.some(it => it.to === path)) ?? NAVIGATION.find(g => g.group === "Knowledge");
   const current = group?.items.find(it => it.to === path);
   const [open, setOpen] = useState(false); const [search, setSearch] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(""); const [debouncedTerm, setDebouncedTerm] = useState("");
+  useEffect(() => { const timer = setTimeout(() => setDebouncedTerm(searchTerm.trim()), 250); return () => clearTimeout(timer); }, [searchTerm]);
+  useEffect(() => { setSearchTerm(""); setDebouncedTerm(""); }, [o.org?.id, o.workspace?.id]);
+  const records = useQuery({ queryKey: ["workspace-search", o.org?.id, o.workspace?.id, o.userId, debouncedTerm], enabled: search && !!o.org && !!o.workspace && debouncedTerm.length >= 2, queryFn: () => {
+    if (!o.org || !o.workspace) return [];
+    return searchWorkspace(supabase, { orgId: o.org.id, workspaceId: o.workspace.id, userId: o.userId }, debouncedTerm);
+  } });
+  function openRecord(hit: WorkspaceSearchHit) {
+    setSearch(false); setOpen(false);
+    if (hit.kind === "projects") navigate({ to: "/app/projects", search: { item: hit.id } });
+    else if (hit.kind === "tasks") navigate({ to: "/app/tasks", search: { item: hit.id } });
+    else if (hit.kind === "campaigns") navigate({ to: "/app/campaigns", search: { item: hit.id } });
+    else navigate({ to: hit.kind === "documents" ? "/app/documents" : hit.kind === "business_facts" ? "/app/profile" : "/app/growth-officer" });
+  }
   useEffect(() => {
     const key = (e: KeyboardEvent) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setSearch(s => !s); } if (e.key === "Escape") setOpen(false); };
     document.addEventListener("keydown", key); return () => document.removeEventListener("keydown", key);
@@ -43,7 +58,7 @@ function Shell() {
       <div className="border-t border-border p-3"><div className="flex items-center gap-2 px-2 py-2"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-card text-xs font-semibold">{o.email.slice(0,1).toUpperCase()}</span><div className="min-w-0"><p className="truncate text-xs font-medium">{o.email}</p><p className="mt-0.5 text-[10px] capitalize text-muted-foreground">{o.role} · {o.workspaceRole ?? "no workspace access"}</p></div></div><div className="flex items-center justify-between"><Button variant="ghost" size="sm" onClick={signOut} className="text-muted-foreground"><LogOut />Sign out</Button><Button variant="ghost" size="icon" aria-label="Toggle color theme" title="Toggle color theme" onClick={() => { const dark = document.documentElement.classList.toggle("dark"); localStorage.setItem("ago.theme", dark ? "dark" : "light"); }}><Sun className="hidden dark:block" /><Moon className="dark:hidden" /></Button></div></div>
     </aside>
     {open && <div className="fixed inset-0 z-30 bg-foreground/30 lg:hidden" onClick={() => setOpen(false)} />}
-    <CommandDialog open={search} onOpenChange={setSearch}><CommandInput placeholder="Search your workspace…" /><CommandList><CommandEmpty>No matching destinations.</CommandEmpty><CommandGroup heading="Quick actions"><CommandItem onSelect={() => { setSearch(false); navigate({ to: "/app/growth-officer" }); }}><Sparkles />Ask the Growth Officer</CommandItem><CommandItem onSelect={() => { setSearch(false); navigate({ to: "/app/onboarding" }); }}><Building2 />Review business profile</CommandItem></CommandGroup>{NAVIGATION.map(g => <CommandGroup key={g.group} heading={g.group}>{g.items.map(it => <CommandItem key={it.to} value={`${g.group} ${it.label}`} onSelect={() => { setSearch(false); setOpen(false); navigate({ to: it.to }); }}><it.icon />{it.label}</CommandItem>)}</CommandGroup>)}</CommandList></CommandDialog>
+    <CommandDialog open={search} onOpenChange={setSearch}><CommandInput value={searchTerm} onValueChange={setSearchTerm} maxLength={100} placeholder="Search your workspace…" /><CommandList><CommandEmpty>{records.isFetching ? "Searching…" : "No matching destinations or records."}</CommandEmpty>{records.isError && <p role="alert" className="px-4 py-3 text-xs text-destructive">Workspace records could not load.<Button variant="link" size="sm" onClick={() => records.refetch()}>Retry</Button></p>}{!!records.data?.length && <CommandGroup heading="Workspace records · up to 5 per category">{records.data.map(hit => <CommandItem key={`${hit.kind}:${hit.id}`} value={`${searchTerm} ${hit.kind} ${hit.title}`} onSelect={() => openRecord(hit)}><Search /><span className="min-w-0 break-words"><span className="block">{hit.title}</span><span className="text-xs text-muted-foreground">{hit.kind.replaceAll("_", " ")}</span></span></CommandItem>)}</CommandGroup>}<CommandGroup heading="Quick actions"><CommandItem onSelect={() => { setSearch(false); navigate({ to: "/app/growth-officer" }); }}><Sparkles />Ask the Growth Officer</CommandItem><CommandItem onSelect={() => { setSearch(false); navigate({ to: "/app/onboarding" }); }}><Building2 />Review business profile</CommandItem></CommandGroup>{NAVIGATION.map(g => <CommandGroup key={g.group} heading={g.group}>{g.items.map(it => <CommandItem key={it.to} value={`${g.group} ${it.label}`} onSelect={() => { setSearch(false); setOpen(false); navigate({ to: it.to }); }}><it.icon />{it.label}</CommandItem>)}</CommandGroup>)}</CommandList></CommandDialog>
     <main id="main-content" className="min-w-0 flex-1">
       <header className="flex h-16 items-center gap-1 border-b border-border px-3 sm:gap-3 md:px-8"><Button variant="ghost" size="icon" className="shrink-0 lg:hidden" onClick={() => setOpen(true)} aria-label="Open menu"><Menu /></Button><div className="min-w-0"><WorkspaceContext /></div><span className="hidden text-xs text-muted-foreground xl:block">/ {current?.label ?? "Business discovery"}</span><div className="ml-auto flex shrink-0 items-center gap-1"><Button variant="ghost" size="sm" className="px-2 text-muted-foreground" onClick={() => setSearch(true)} aria-label="Search pages" title="Search & actions"><Search /><span className="hidden text-xs lg:inline">Search workspace</span></Button><div key={`${o.userId}/${o.org?.id}/${o.workspace?.id}`}><WorkspaceTools /></div></div></header>
       {group && group.items.length > 1 && <nav aria-label={`${group.group} navigation`} className="flex gap-4 overflow-x-auto border-b border-border px-4 md:px-8">{group.items.map(it => <Link key={it.to} to={it.to} className="shrink-0 border-b-2 border-transparent py-3 text-xs font-medium text-muted-foreground hover:text-foreground" activeProps={{ className: "border-primary text-foreground" }}><span>{it.label}</span></Link>)}</nav>}

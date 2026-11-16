@@ -678,6 +678,86 @@ export type Database = {
           },
         ]
       }
+      coordinated_analyses: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          input: Json
+          message_id: string | null
+          org_id: string
+          partial_results: Json
+          request_key: string
+          run_ids: string[]
+          status: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          input: Json
+          message_id?: string | null
+          org_id: string
+          partial_results?: Json
+          request_key: string
+          run_ids: string[]
+          status?: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          input?: Json
+          message_id?: string | null
+          org_id?: string
+          partial_results?: Json
+          request_key?: string
+          run_ids?: string[]
+          status?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coordinated_analyses_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coordinated_analyses_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coordinated_analyses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "coordinated_analyses_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_ledger: {
         Row: {
           created_at: string
@@ -1575,6 +1655,33 @@ export type Database = {
         Args: { _amount: number; _note: string; _org: string }
         Returns: undefined
       }
+      begin_coordinated_analysis: {
+        Args: {
+          _input: Json
+          _org: string
+          _request: string
+          _workspace: string
+        }
+        Returns: Json
+      }
+      begin_coordinated_analysis_verified: {
+        Args: {
+          _input: Json
+          _org: string
+          _proof: string
+          _request: string
+          _workspace: string
+        }
+        Returns: Json
+      }
+      checkpoint_coordinated_analysis: {
+        Args: { _id: string; _step: number; _text: string }
+        Returns: undefined
+      }
+      checkpoint_coordinated_analysis_verified: {
+        Args: { _id: string; _proof: string; _step: number; _text: string }
+        Returns: undefined
+      }
       confirm_business_profile: {
         Args: { _facts: Json; _profile: Json; _workspace: string }
         Returns: undefined
@@ -1630,6 +1737,22 @@ export type Database = {
           user_id: string
         }[]
       }
+      fail_coordinated_analysis: {
+        Args: { _error: string; _id: string }
+        Returns: undefined
+      }
+      fail_coordinated_analysis_verified: {
+        Args: { _error: string; _id: string; _proof: string }
+        Returns: undefined
+      }
+      finish_coordinated_analysis: {
+        Args: { _id: string; _reply: string }
+        Returns: Json
+      }
+      finish_coordinated_analysis_verified: {
+        Args: { _id: string; _proof: string; _reply: string }
+        Returns: Json
+      }
       has_org_role: {
         Args: { _min: Database["public"]["Enums"]["org_role"]; _org: string }
         Returns: boolean
@@ -1662,6 +1785,10 @@ export type Database = {
         Returns: number
       }
       refund_ai_credits: { Args: { _run: string }; Returns: number }
+      refund_ai_credits_verified: {
+        Args: { _proof: string; _run: string }
+        Returns: number
+      }
       repeat_execution_task: { Args: { _task: string }; Returns: string }
       reserve_ai_credits: {
         Args: { _amount: number; _run: string }
@@ -1691,7 +1818,21 @@ export type Database = {
         }
         Returns: number
       }
+      settle_ai_credits_verified: {
+        Args: {
+          _actual: number
+          _cost_estimate_eur: number
+          _input_tokens: number
+          _model: string
+          _output_tokens: number
+          _proof: string
+          _provider: string
+          _run: string
+        }
+        Returns: number
+      }
       shares_org_with: { Args: { _user: string }; Returns: boolean }
+      verify_ai_accounting: { Args: { _proof: string }; Returns: undefined }
       ws_org: { Args: { _ws: string }; Returns: string }
     }
     Enums: {

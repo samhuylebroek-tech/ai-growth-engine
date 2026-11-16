@@ -169,6 +169,34 @@
       "when": 1794781424781,
       "tag": "0023_execution_keyset_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794818245906,
+      "tag": "0024_bounded_specialist_coordination",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794818804334,
+      "tag": "0025_coordination_lock_order_and_read_only_grants",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1794818863952,
+      "tag": "0026_coordination_input_guards_and_checkpoints",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1794819030397,
+      "tag": "0027_server_attested_ai_accounting",
+      "breakpoints": true
     }
   ]
 }

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowUpRight } from "lucide-react";
 import { PageHeader, Panel, StatusChip } from "@/components/app/status";
 import { SpecialistWorkbench } from "@/components/app/specialist-workbench";
+import { CoordinationWorkbench } from "@/components/app/coordination-workbench";
 
 export const Route = createFileRoute("/_authenticated/app/agents")({ head: () => pageHead("Agents and capabilities", "Growth specialists and available capabilities."), component: Agents });
 
@@ -16,6 +17,7 @@ function Agents() {
     <>
       <PageHeader title="Growth specialists" description="Available research and planning, with clear boundaries." actions={<Button variant="outline" asChild><Link to="/app/growth-officer"><Sparkles />Work with Growth Officer</Link></Button>} />
       <SpecialistWorkbench />
+      <CoordinationWorkbench />
       <div className="grid gap-4 md:grid-cols-2">{AGENTS.map((a) => (
         <Panel key={a.key}>
           <div className="flex items-start justify-between gap-2"><div className="font-semibold">{a.name}</div><StatusChip status={a.status} /></div>

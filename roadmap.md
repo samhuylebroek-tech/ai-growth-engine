@@ -1,4 +1,10 @@
 # AI Growth OS — Task Queue
+## Next development phase — 2026-11-16
+- [ ] Revalidate code, database authorization, automated suites and actual customer flows; classify gaps against the overnight report.
+- [ ] Deliver bounded, explicitly requested specialist coordination with durable duplicate protection, accounted usage and saved source-linked synthesis.
+- [ ] Verify signed-in coordination, result reload, failure/duplicate handling and mobile layout; document evidence and remaining product gaps.
+- [B] Owner initialization, publishing, live payments, outbound marketing and unconfigured SSO remain prohibited without explicit permission.
+
 ## Overnight expansion — 2026-11-15
 - [x] P0: Baseline 96 tests, 39 tenant RLS checks and 30 execution SQL checks passed; working execution preserved.
 - [~] P1: Silent execution limits removed with scoped ID keysets, five indexes and 50-row list display; 3,507-row synthetic traversal tested. Server-filtered bounded queries and snapshot consistency remain next-stage performance work.
