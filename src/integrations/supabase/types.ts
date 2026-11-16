@@ -2001,6 +2001,63 @@ export type Database = {
           },
         ]
       }
+      seo_audits: {
+        Row: {
+          created_at: string
+          created_by: string
+          findings: Json
+          id: string
+          org_id: string
+          page_count: number
+          pages: Json
+          robots: Json
+          site_url: string
+          sitemap: Json
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          findings?: Json
+          id?: string
+          org_id: string
+          page_count?: number
+          pages?: Json
+          robots?: Json
+          site_url: string
+          sitemap?: Json
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          findings?: Json
+          id?: string
+          org_id?: string
+          page_count?: number
+          pages?: Json
+          robots?: Json
+          site_url?: string
+          sitemap?: Json
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_audits_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seo_audits_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       single_ai_requests: {
         Row: {
           conversation_id: string | null

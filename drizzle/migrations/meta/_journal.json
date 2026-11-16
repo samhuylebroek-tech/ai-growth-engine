@@ -295,6 +295,13 @@
       "when": 1794852619933,
       "tag": "0041_sales_pipeline",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1794855261928,
+      "tag": "0042_seo_audits",
+      "breakpoints": true
     }
   ]
 }

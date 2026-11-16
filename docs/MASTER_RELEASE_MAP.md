@@ -75,3 +75,5 @@ Use ASVS 5.0 L2 and NIST SSDF as review baselines, not certification claims. Req
 4. R3 campaign-linked editorial recurrence and version/channel/account/time approval; external publication disabled until separately authorized.
 
 Progress and executed evidence are tracked in `roadmap.md` and per-release reports. No background work continues after a development turn ends.
+## SEO website check — 2026-11-16
+Status: TESTED. Deterministic public-page checks (no AI, no estimates), insert-only seo_audits, finding-to-task. Keywords/Search Console: NOT STARTED (needs connection).

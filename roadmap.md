@@ -7,7 +7,8 @@
 - [x] Tests: 156 Vitest, growth SQL 13/13, signed-in strategy/project/calendar/repurpose flow.
 - [x] Sales pipeline: workspace contacts and deals by stage, goal links, entered-value summary (0041).
 - [x] Guided setup ends with an optional first measurable goal (primary) and opens Goals.
-- [ ] Next: SEO/competitor workspaces.
+- [x] SEO website check: robots, sitemap, up to 15 pages, on-page findings saved as permanent history, findings become tasks (0042).
+- [ ] Next: competitor workspace; SEO keyword data waits on Search Console connection.
 - [B] Social/ads/email operations and measured performance need real integrations the user must connect.
 ## Accelerated product delivery — 2026-11-16
 - [x] P1 Content Studio: library, autosaved drafts, immutable numbered versions, compare, restore-as-new-version, campaign/date/writing-profile links (0037, 0038).
