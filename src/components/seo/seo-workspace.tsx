@@ -30,6 +30,11 @@ function Seo({ orgId, wsId, userId, canEdit }: { orgId: string; wsId: string; us
   } });
   const [url, setUrl] = useState(""); const [busy, setBusy] = useState(false); const [picked, setPicked] = useState<string | null>(null);
   const [sev, setSev] = useState<"all" | SeoFinding["severity"]>("all"); const [made, setMade] = useState<Set<string>>(new Set());
+  const existing = useQuery({ queryKey: ["seo-tasks", wsId], queryFn: async () => {
+    const r = await supabase.from("tasks").select("title,description").eq("workspace_id", wsId).contains("labels", ["seo"]).limit(500);
+    return new Set((r.data ?? []).map(t => `${t.title}|${t.description.split("\n")[0]}`));
+  } });
+  const taskKey = (f: SeoFinding) => `${`SEO: ${f.message}`.slice(0, 200)}|Page: ${f.url}`;
   const target = url || site.data || "";
   const current = audits.data?.find(a => a.id === picked) ?? audits.data?.[0];
   const findings = ((current?.findings ?? []) as SeoFinding[]).slice().sort((a, b) => severityRank[a.severity] - severityRank[b.severity]);
@@ -46,7 +51,8 @@ function Seo({ orgId, wsId, userId, canEdit }: { orgId: string; wsId: string; us
     } catch { toast.error("The check could not finish. Try again."); } finally { setBusy(false); }
   };
   const toTask = async (f: SeoFinding) => {
-    const key = `${f.code}|${f.url}`;
+    const key = taskKey(f);
+    if (existing.data?.has(key)) return;
     const r = await supabase.from("tasks").insert({ org_id: orgId, workspace_id: wsId, title: `SEO: ${f.message}`.slice(0, 200), description: `Page: ${f.url}\nFound by the website check on ${new Date(current?.created_at ?? Date.now()).toLocaleDateString()}.`, priority: f.severity === "high" ? "high" : f.severity === "medium" ? "medium" : "low", labels: ["seo", f.code], owner_id: userId, created_by: userId });
     if (r.error) return void toast.error("Could not create the task.");
     setMade(s => new Set(s).add(key)); toast.success("Task added under Tasks"); qc.invalidateQueries({ queryKey: ["execution"] });
@@ -74,10 +80,10 @@ function Seo({ orgId, wsId, userId, canEdit }: { orgId: string; wsId: string; us
         <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-lg font-semibold">Findings · {current.site_url}</h2>
           <div className="flex gap-1">{(["all", "high", "medium", "low"] as const).map(s => <Button key={s} size="sm" variant={sev === s ? "default" : "ghost"} onClick={() => setSev(s)}>{s === "all" ? "All" : s[0]!.toUpperCase() + s.slice(1)}</Button>)}</div></div>
         {findings.length === 0 ? <p className="text-sm text-muted-foreground">No issues found on the checked pages.</p> :
-        <ul className="divide-y divide-border rounded-md border border-border">{findings.filter(f => sev === "all" || f.severity === sev).slice(0, 150).map((f, i) => { const key = `${f.code}|${f.url}`; return <li key={i} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center">
+        <ul className="divide-y divide-border rounded-md border border-border">{findings.filter(f => sev === "all" || f.severity === sev).slice(0, 150).map((f, i) => { const key = taskKey(f); const done = made.has(key) || !!existing.data?.has(key); return <li key={i} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center">
           <Badge variant={sevVariant[f.severity]} className="w-fit">{f.severity}</Badge>
           <div className="min-w-0 flex-1"><p className="text-sm">{f.message}</p><p className="truncate text-xs text-muted-foreground">{f.url}</p></div>
-          {canEdit && <Button size="sm" variant="outline" disabled={made.has(key)} onClick={() => toTask(f)}><ListPlus />{made.has(key) ? "Task added" : "Create task"}</Button>}
+          {canEdit && <Button size="sm" variant="outline" disabled={done} onClick={() => toTask(f)}><ListPlus />{done ? "Task added" : "Create task"}</Button>}
         </li>; })}</ul>}
       </section>
       <section className="space-y-3"><h2 className="text-lg font-semibold">Pages</h2>
