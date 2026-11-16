@@ -24,6 +24,7 @@ import { Route as AuthenticatedAppBillingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppCampaignsRouteImport } from './routes/_authenticated/app.campaigns'
 import { Route as AuthenticatedAppContentRouteImport } from './routes/_authenticated/app.content'
 import { Route as AuthenticatedAppDocumentsRouteImport } from './routes/_authenticated/app.documents'
+import { Route as AuthenticatedAppGoalsRouteImport } from './routes/_authenticated/app.goals'
 import { Route as AuthenticatedAppGrowthOfficerRouteImport } from './routes/_authenticated/app.growth-officer'
 import { Route as AuthenticatedAppIntegrationsRouteImport } from './routes/_authenticated/app.integrations'
 import { Route as AuthenticatedAppIntelligenceRouteImport } from './routes/_authenticated/app.intelligence'
@@ -114,6 +115,11 @@ const AuthenticatedAppDocumentsRoute =
     path: '/documents',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppGoalsRoute = AuthenticatedAppGoalsRouteImport.update({
+  id: '/goals',
+  path: '/goals',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppGrowthOfficerRoute =
   AuthenticatedAppGrowthOfficerRouteImport.update({
     id: '/growth-officer',
@@ -192,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/app/campaigns': typeof AuthenticatedAppCampaignsRoute
   '/app/content': typeof AuthenticatedAppContentRoute
   '/app/documents': typeof AuthenticatedAppDocumentsRoute
+  '/app/goals': typeof AuthenticatedAppGoalsRoute
   '/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
   '/app/integrations': typeof AuthenticatedAppIntegrationsRoute
   '/app/intelligence': typeof AuthenticatedAppIntelligenceRoute
@@ -218,6 +225,7 @@ export interface FileRoutesByTo {
   '/app/campaigns': typeof AuthenticatedAppCampaignsRoute
   '/app/content': typeof AuthenticatedAppContentRoute
   '/app/documents': typeof AuthenticatedAppDocumentsRoute
+  '/app/goals': typeof AuthenticatedAppGoalsRoute
   '/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
   '/app/integrations': typeof AuthenticatedAppIntegrationsRoute
   '/app/intelligence': typeof AuthenticatedAppIntelligenceRoute
@@ -247,6 +255,7 @@ export interface FileRoutesById {
   '/_authenticated/app/campaigns': typeof AuthenticatedAppCampaignsRoute
   '/_authenticated/app/content': typeof AuthenticatedAppContentRoute
   '/_authenticated/app/documents': typeof AuthenticatedAppDocumentsRoute
+  '/_authenticated/app/goals': typeof AuthenticatedAppGoalsRoute
   '/_authenticated/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
   '/_authenticated/app/integrations': typeof AuthenticatedAppIntegrationsRoute
   '/_authenticated/app/intelligence': typeof AuthenticatedAppIntelligenceRoute
@@ -276,6 +285,7 @@ export interface FileRouteTypes {
     | '/app/campaigns'
     | '/app/content'
     | '/app/documents'
+    | '/app/goals'
     | '/app/growth-officer'
     | '/app/integrations'
     | '/app/intelligence'
@@ -302,6 +312,7 @@ export interface FileRouteTypes {
     | '/app/campaigns'
     | '/app/content'
     | '/app/documents'
+    | '/app/goals'
     | '/app/growth-officer'
     | '/app/integrations'
     | '/app/intelligence'
@@ -330,6 +341,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/campaigns'
     | '/_authenticated/app/content'
     | '/_authenticated/app/documents'
+    | '/_authenticated/app/goals'
     | '/_authenticated/app/growth-officer'
     | '/_authenticated/app/integrations'
     | '/_authenticated/app/intelligence'
@@ -459,6 +471,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppDocumentsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/goals': {
+      id: '/_authenticated/app/goals'
+      path: '/goals'
+      fullPath: '/app/goals'
+      preLoaderRoute: typeof AuthenticatedAppGoalsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/growth-officer': {
       id: '/_authenticated/app/growth-officer'
       path: '/growth-officer'
@@ -547,6 +566,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppCampaignsRoute: typeof AuthenticatedAppCampaignsRoute
   AuthenticatedAppContentRoute: typeof AuthenticatedAppContentRoute
   AuthenticatedAppDocumentsRoute: typeof AuthenticatedAppDocumentsRoute
+  AuthenticatedAppGoalsRoute: typeof AuthenticatedAppGoalsRoute
   AuthenticatedAppGrowthOfficerRoute: typeof AuthenticatedAppGrowthOfficerRoute
   AuthenticatedAppIntegrationsRoute: typeof AuthenticatedAppIntegrationsRoute
   AuthenticatedAppIntelligenceRoute: typeof AuthenticatedAppIntelligenceRoute
@@ -568,6 +588,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppCampaignsRoute: AuthenticatedAppCampaignsRoute,
   AuthenticatedAppContentRoute: AuthenticatedAppContentRoute,
   AuthenticatedAppDocumentsRoute: AuthenticatedAppDocumentsRoute,
+  AuthenticatedAppGoalsRoute: AuthenticatedAppGoalsRoute,
   AuthenticatedAppGrowthOfficerRoute: AuthenticatedAppGrowthOfficerRoute,
   AuthenticatedAppIntegrationsRoute: AuthenticatedAppIntegrationsRoute,
   AuthenticatedAppIntelligenceRoute: AuthenticatedAppIntelligenceRoute,

@@ -149,3 +149,10 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [ ] Multi-channel repurposing (derivative content linked to source)
 - [ ] Editorial calendar and recurring plans
 - [ ] Campaign content intelligence, relationship view, measurement foundation
+
+## Growth OS directive (Nov 16)
+- [x] Business goals + monthly marketing budget (manual spend, caps, alerts)
+- [ ] Goal links on projects/campaigns
+- [ ] Guided onboarding: products, audiences, existing marketing, resources
+- [ ] AI growth strategy from a goal (explained costs, assumptions, risks)
+- [ ] Budget reallocation proposals; social/SEO/ads/email operations (need integrations)

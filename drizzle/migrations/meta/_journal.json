@@ -274,6 +274,13 @@
       "when": 1794837057352,
       "tag": "0038_lock_content_versions",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1794846025335,
+      "tag": "0039_growth_goals_and_budgets",
+      "breakpoints": true
     }
   ]
 }
