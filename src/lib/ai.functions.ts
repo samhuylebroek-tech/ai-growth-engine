@@ -18,6 +18,7 @@ import { coordinationInputSchema, coordinationClaimSchema, coordinationReceiptSc
 import { AISettlementPendingError, AINotStartedError, AIOutcomeUnknownError, mayCloseFailedCoordination, isConfirmedDispatchDenial } from "@/lib/ai-accounting";
 
 import { singleRequestSchema } from "@/lib/single-ai-request";
+import { draftBriefSchema, writingProfileContext, briefText, DRAFT_INSTRUCTIONS } from "@/lib/content-draft";
 
 type DB = SupabaseClient<Database>;
 type Result<T> = { ok: true; data: T } | { ok: false; error: string };
@@ -519,6 +520,54 @@ export const runCoordinatedAnalysis = createServerFn({ method: "POST" })
         const failed = await sb.rpc("fail_coordinated_analysis_verified", { _id: analysisId, _error: friendly(error), _proof: accountingProof() });
         if (failed.error) return { ok: false, error: "The analysis stopped, but closing its reservations failed. Check history before any new request." };
       }
+      return { ok: false, error: friendly(error) };
+    }
+  });
+
+/** One user-started metered draft for a Content Studio item. Result is returned for review; never saved as a version or approved automatically. */
+export const draftContent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({
+    orgId: z.string().uuid(), workspaceId: z.string().uuid(), assetId: z.string().uuid(), requestKey: z.string().uuid(), brief: draftBriefSchema,
+  }).parse(input))
+  .handler(async ({ data, context }): Promise<Result<{ draft: string; credits: number }>> => {
+    const sb = context.supabase as DB;
+    let runId: string | null = null;
+    try {
+      await requireRole(sb, data.orgId, "member");
+      await requireWorkspace(sb, data);
+      const role = await sb.rpc("has_workspace_role", { _workspace: data.workspaceId, _min: "member" });
+      if (role.error || !role.data) throw new Error("You need workspace member access.");
+      await assertEntitled(sb, data.orgId, "ai_assistant");
+      const asset = await sb.from("content_assets").select("id,title,channel,campaign_id,writing_profile_id").eq("id", data.assetId).eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).maybeSingle();
+      if (asset.error || !asset.data) throw new Error("Content not found.");
+      const [profile, campaign] = await Promise.all([
+        asset.data.writing_profile_id ? sb.from("writing_profiles").select("name,tone,style,audience,channels,examples,examples_authorized").eq("id", asset.data.writing_profile_id).eq("workspace_id", data.workspaceId).maybeSingle() : Promise.resolve({ data: null, error: null }),
+        asset.data.campaign_id ? sb.from("campaigns").select("title").eq("id", asset.data.campaign_id).eq("workspace_id", data.workspaceId).maybeSingle() : Promise.resolve({ data: null, error: null }),
+      ]);
+      if (profile.error || campaign.error) throw new Error("Could not read the writing profile or campaign.");
+      const business = await workspaceContext(sb, data);
+      const request = `Draft: ${data.brief.contentType} — ${data.brief.objective}`.slice(0, 4000);
+      const claimed = await sb.rpc("begin_single_ai_request_verified", { _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _kind: "content", _input: { request, assetId: data.assetId, brief: data.brief }, _proof: accountingProof() });
+      if (claimed.error) throw new Error(claimed.error.message);
+      const attempt = singleRequestSchema.parse(claimed.data);
+      if (!attempt.claimed) {
+        if (attempt.status !== "succeeded" || !attempt.reply) throw new Error("This request already exists. Recover saved work; it will not be sent again.");
+        return { ok: true, data: { draft: attempt.reply, credits: attempt.credits ?? 0 } };
+      }
+      runId = attempt.run_id;
+      const result = await meteredGenerate(sb, context.userId, data.orgId, runId, CREDIT_RULES.reserveGrowthOfficer, {
+        instructions: DRAFT_INSTRUCTIONS,
+        input: [{ role: "user", content: `${business}\n\n${writingProfileContext(profile.data)}\n\n${quoteUntrusted("content brief", briefText(data.brief, asset.data.channel, campaign.data?.title ?? null), 3000)}` }],
+        maxOutputTokens: data.brief.length === "long" ? 4000 : 2000,
+      });
+      const draft = result.text.trim();
+      if (!draft) throw new Error("The draft came back empty. Usage is recorded; no automatic retry was made.");
+      const saved = await sb.rpc("finish_single_ai_request_verified", { _id: attempt.id, _reply: draft, _proof: accountingProof() });
+      if (saved.error) throw new Error("Your paid draft is preserved. Recover saved work before another request.");
+      return { ok: true, data: { draft, credits: result.credits } };
+    } catch (error) {
+      if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId);
       return { ok: false, error: friendly(error) };
     }
   });

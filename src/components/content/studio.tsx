@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DraftPanel } from "@/components/content/draft-panel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const sel = "h-9 rounded-md border border-input bg-background px-2 text-sm";
@@ -117,6 +118,7 @@ function Editor({ id, wsId, orgId, canEdit, canDecide }: { id: string; wsId: str
           <select aria-label="Campaign" className={sel} value={form.campaign_id} disabled={!canEdit} onChange={(e) => set("campaign_id", e.target.value)}><option value="">No campaign</option>{(data.data.campaigns ?? []).map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}</select>
           <select aria-label="Writing profile" className={sel} value={form.writing_profile_id} disabled={!canEdit} onChange={(e) => set("writing_profile_id", e.target.value)}><option value="">No writing profile</option>{(data.data.profiles ?? []).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
         </div>
+        {canEdit && <DraftPanel orgId={orgId} wsId={wsId} assetId={id} hasDraft={!!form.draft_body.trim()} onUse={(t, m) => set("draft_body", m === "replace" ? t : `${form.draft_body}${form.draft_body ? "\n\n" : ""}${t}`)} />}
         <Textarea aria-label="Content" value={form.draft_body} disabled={!canEdit} onChange={(e) => set("draft_body", e.target.value)} className="min-h-[360px] font-[inherit] leading-relaxed" placeholder="Write your content…" />
         {canEdit && <div className="flex flex-wrap gap-2"><Input aria-label="Version note" placeholder="Version note (optional)" value={note} onChange={(e) => setNote(e.target.value)} className="max-w-xs" />
           <Button onClick={() => saveVersion()} disabled={!draftChanged || !form.draft_body.trim()}><Save className="mr-1 h-4 w-4" />Save version</Button></div>}
