@@ -1,0 +1,1 @@
+- Content versions/decisions are insert-only via role-checked RPCs; approval binds to one exact version and is never inherited.
