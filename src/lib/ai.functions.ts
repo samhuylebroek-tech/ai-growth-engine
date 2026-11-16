@@ -18,6 +18,7 @@ import { coordinationInputSchema, coordinationClaimSchema, coordinationReceiptSc
 import { AISettlementPendingError, AINotStartedError, AIOutcomeUnknownError, mayCloseFailedCoordination, isConfirmedDispatchDenial } from "@/lib/ai-accounting";
 
 import { singleRequestSchema } from "@/lib/single-ai-request";
+import { parseReview, REVIEW_INSTRUCTIONS, DIMENSION_KEYS, type Review } from "@/lib/content-review";
 import { draftBriefSchema, writingProfileContext, briefText, DRAFT_INSTRUCTIONS } from "@/lib/content-draft";
 
 type DB = SupabaseClient<Database>;
@@ -568,6 +569,66 @@ export const draftContent = createServerFn({ method: "POST" })
       return { ok: true, data: { draft, credits: result.credits } };
     } catch (error) {
       if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId);
+      return { ok: false, error: friendly(error) };
+    }
+  });
+
+/** Explicit, user-selected quality review of the working draft or one saved version. One metered call; result is advisory. */
+export const reviewContent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({
+    orgId: z.string().uuid(), workspaceId: z.string().uuid(), assetId: z.string().uuid(), requestKey: z.string().uuid(),
+    versionId: z.string().uuid().nullable(), dimensions: z.array(z.enum(DIMENSION_KEYS)).min(1).max(7),
+  }).parse(input))
+  .handler(async ({ data, context }): Promise<Result<{ review: Review; credits: number }>> => {
+    const sb = context.supabase as DB;
+    let runId: string | null = null;
+    try {
+      await requireRole(sb, data.orgId, "member");
+      await requireWorkspace(sb, data);
+      const role = await sb.rpc("has_workspace_role", { _workspace: data.workspaceId, _min: "member" });
+      if (role.error || !role.data) throw new Error("You need workspace member access.");
+      await assertEntitled(sb, data.orgId, "ai_assistant");
+      const asset = await sb.from("content_assets").select("id,title,channel,draft_body,campaign_id,writing_profile_id").eq("id", data.assetId).eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).maybeSingle();
+      if (asset.error || !asset.data) throw new Error("Content not found.");
+      let title = asset.data.title; let body = asset.data.draft_body;
+      if (data.versionId) {
+        const v = await sb.from("content_versions").select("title,body").eq("id", data.versionId).eq("asset_id", data.assetId).eq("workspace_id", data.workspaceId).maybeSingle();
+        if (v.error || !v.data) throw new Error("Version not found.");
+        title = v.data.title; body = v.data.body;
+      }
+      if (!body.trim()) throw new Error("Write something before requesting a review.");
+      const [profile, campaign, facts] = await Promise.all([
+        asset.data.writing_profile_id ? sb.from("writing_profiles").select("name,tone,style,audience,channels,examples,examples_authorized").eq("id", asset.data.writing_profile_id).eq("workspace_id", data.workspaceId).maybeSingle() : Promise.resolve({ data: null, error: null }),
+        asset.data.campaign_id ? sb.from("campaigns").select("title").eq("id", asset.data.campaign_id).eq("workspace_id", data.workspaceId).maybeSingle() : Promise.resolve({ data: null, error: null }),
+        sb.from("business_facts").select("key").eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).eq("verified", true).limit(60),
+      ]);
+      if (profile.error || campaign.error || facts.error) throw new Error("Could not read review context.");
+      const factKeys = (facts.data ?? []).map((f) => f.key);
+      const business = await workspaceContext(sb, data);
+      const request = `Quality review (${data.dimensions.join(", ")}) of ${title}`.slice(0, 4000);
+      const claimed = await sb.rpc("begin_single_ai_request_verified", { _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _kind: "content", _input: { request, assetId: data.assetId, versionId: data.versionId, dimensions: data.dimensions }, _proof: accountingProof() });
+      if (claimed.error) throw new Error(claimed.error.message);
+      const attempt = singleRequestSchema.parse(claimed.data);
+      if (!attempt.claimed) {
+        if (attempt.status !== "succeeded" || !attempt.reply) throw new Error("This request already exists. Recover saved work; it will not be sent again.");
+        return { ok: true, data: { review: parseReview(attempt.reply, data.dimensions, factKeys), credits: attempt.credits ?? 0 } };
+      }
+      runId = attempt.run_id;
+      const result = await meteredGenerate(sb, context.userId, data.orgId, runId, CREDIT_RULES.reserveGrowthOfficer, {
+        instructions: REVIEW_INSTRUCTIONS,
+        input: [{ role: "user", content: `${business}\n\n${writingProfileContext(profile.data)}\n\nRequested dimensions: ${data.dimensions.join(", ")}\nChannel: ${asset.data.channel}\nCampaign: ${campaign.data?.title ?? "none"}\n\n${quoteUntrusted("content to review", `Title: ${title}\n\n${body}`, 20000)}` }],
+        maxOutputTokens: 4000,
+      });
+      // Persist the raw paid output first so a parsing failure never loses it.
+      const saved = await sb.rpc("finish_single_ai_request_verified", { _id: attempt.id, _reply: result.text.trim(), _proof: accountingProof() });
+      if (saved.error) throw new Error("Your paid review is preserved. Recover saved work before another request.");
+      let review: Review;
+      try { review = parseReview(result.text, data.dimensions, factKeys); }
+      catch { throw new Error("The review came back in an unexpected format. Usage is recorded; no automatic retry was made."); }
+      return { ok: true, data: { review, credits: result.credits } };
+    } catch (error) {
+      if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId).neq("status", "succeeded");
       return { ok: false, error: friendly(error) };
     }
   });

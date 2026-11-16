@@ -144,3 +144,8 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [~] Storage-policy read/upload authorization suite passed; successful Storage API deletion lifecycle, canonical fact conflict resolution, persistent discovery drafts and full document hostile-input checks remain.
 - [~] Atomic credits/refunds, seat quotas and approval policies verified; server rate limits, account lifecycle and connector completion remain.
 - [B] Owner initialization, live payments and deployment remain explicitly deferred.
+
+- [x] Content quality review with source-checked claims and individually applied suggestions
+- [ ] Multi-channel repurposing (derivative content linked to source)
+- [ ] Editorial calendar and recurring plans
+- [ ] Campaign content intelligence, relationship view, measurement foundation

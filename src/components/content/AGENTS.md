@@ -1,2 +1,3 @@
 - Content versions/decisions are insert-only via role-checked RPCs; approval binds to one exact version and is never inherited.
 - AI drafts are explicit metered single requests (kind `content`); results are suggestions placed in the working draft only, never saved as versions or approved automatically.
+- Quality reviews are explicit metered single requests (kind `content`) over user-chosen dimensions; claims stay verified only when they cite real verified fact keys, and suggestions edit only the working draft.
