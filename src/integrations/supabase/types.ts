@@ -721,6 +721,184 @@ export type Database = {
           },
         ]
       }
+      content_assets: {
+        Row: {
+          campaign_id: string | null
+          channel: string
+          created_at: string
+          created_by: string
+          draft_body: string
+          id: string
+          org_id: string
+          planned_date: string | null
+          status: string
+          title: string
+          updated_at: string
+          workspace_id: string
+          writing_profile_id: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          channel?: string
+          created_at?: string
+          created_by?: string
+          draft_body?: string
+          id?: string
+          org_id: string
+          planned_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          workspace_id: string
+          writing_profile_id?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          channel?: string
+          created_at?: string
+          created_by?: string
+          draft_body?: string
+          id?: string
+          org_id?: string
+          planned_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          workspace_id?: string
+          writing_profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_assets_campaign_id_org_id_workspace_id_fkey"
+            columns: ["campaign_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "content_assets_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_assets_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_assets_writing_profile_id_org_id_workspace_id_fkey"
+            columns: ["writing_profile_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "writing_profiles"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+        ]
+      }
+      content_version_decisions: {
+        Row: {
+          body_hash: string
+          decided_at: string
+          decided_by: string
+          decision: string
+          id: string
+          note: string
+          org_id: string
+          version_id: string
+          workspace_id: string
+        }
+        Insert: {
+          body_hash: string
+          decided_at?: string
+          decided_by: string
+          decision: string
+          id?: string
+          note?: string
+          org_id: string
+          version_id: string
+          workspace_id: string
+        }
+        Update: {
+          body_hash?: string
+          decided_at?: string
+          decided_by?: string
+          decision?: string
+          id?: string
+          note?: string
+          org_id?: string
+          version_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_version_decisions_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: true
+            referencedRelation: "content_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_versions: {
+        Row: {
+          asset_id: string
+          body: string
+          created_at: string
+          created_by: string
+          id: string
+          note: string
+          org_id: string
+          restored_from: string | null
+          title: string
+          version_no: number
+          workspace_id: string
+        }
+        Insert: {
+          asset_id: string
+          body: string
+          created_at?: string
+          created_by: string
+          id?: string
+          note?: string
+          org_id: string
+          restored_from?: string | null
+          title: string
+          version_no: number
+          workspace_id: string
+        }
+        Update: {
+          asset_id?: string
+          body?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          note?: string
+          org_id?: string
+          restored_from?: string | null
+          title?: string
+          version_no?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_versions_asset_id_org_id_workspace_id_fkey"
+            columns: ["asset_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "content_assets"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "content_versions_restored_from_fkey"
+            columns: ["restored_from"]
+            isOneToOne: false
+            referencedRelation: "content_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           created_at: string
@@ -1829,6 +2007,69 @@ export type Database = {
           },
         ]
       }
+      writing_profiles: {
+        Row: {
+          audience: string
+          channels: string[]
+          created_at: string
+          created_by: string
+          examples: string
+          examples_authorized: boolean
+          id: string
+          name: string
+          org_id: string
+          style: string
+          tone: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          audience?: string
+          channels?: string[]
+          created_at?: string
+          created_by?: string
+          examples?: string
+          examples_authorized?: boolean
+          id?: string
+          name: string
+          org_id: string
+          style?: string
+          tone?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          audience?: string
+          channels?: string[]
+          created_at?: string
+          created_by?: string
+          examples?: string
+          examples_authorized?: boolean
+          id?: string
+          name?: string
+          org_id?: string
+          style?: string
+          tone?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "writing_profiles_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "writing_profiles_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1923,6 +2164,10 @@ export type Database = {
       decide_approval: {
         Args: { _approve: boolean; _id: string; _note: string }
         Returns: Database["public"]["Enums"]["approval_status"]
+      }
+      decide_content_version: {
+        Args: { _decision: string; _note?: string; _version: string }
+        Returns: string
       }
       document_path_access: {
         Args: { _min: Database["public"]["Enums"]["org_role"]; _path: string }
@@ -2042,6 +2287,10 @@ export type Database = {
       role_rank: {
         Args: { _r: Database["public"]["Enums"]["org_role"] }
         Returns: number
+      }
+      save_content_version: {
+        Args: { _asset: string; _note?: string; _restore_from?: string }
+        Returns: string
       }
       set_workspace_member: {
         Args: {

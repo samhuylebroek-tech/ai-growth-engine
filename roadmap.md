@@ -1,4 +1,10 @@
 # AI Growth OS — Task Queue
+## Accelerated product delivery — 2026-11-16
+- [x] P1 Content Studio: library, autosaved drafts, immutable numbered versions, compare, restore-as-new-version, campaign/date/writing-profile links (0037, 0038).
+- [x] Writing Profiles with explicit authorization attestation for examples.
+- [x] Exact-version approval by workspace admins only; one permanent decision per version; 14 SQL checks (tests/sql/content_studio.sql), 139 Vitest, signed-in browser flow.
+- [ ] Next: AI drafting in the studio via meteredGenerate using writing profile + verified facts; editorial calendar view of planned content; SEO workspace.
+- [B] External publication stays disabled until explicitly authorized.
 ## Resume autonomous master — 2026-11-16
 - [x] Fresh baseline inspection and regression run: 133 tests passed; existing architecture preserved.
 - [x] Release 0: close the cross-request active-dispatch race at the shared claim boundary, including document/website/team calls (0036).

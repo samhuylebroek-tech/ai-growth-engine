@@ -22,6 +22,7 @@ import { Route as AuthenticatedAppAgentsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAppApprovalsRouteImport } from './routes/_authenticated/app.approvals'
 import { Route as AuthenticatedAppBillingRouteImport } from './routes/_authenticated/app.billing'
 import { Route as AuthenticatedAppCampaignsRouteImport } from './routes/_authenticated/app.campaigns'
+import { Route as AuthenticatedAppContentRouteImport } from './routes/_authenticated/app.content'
 import { Route as AuthenticatedAppDocumentsRouteImport } from './routes/_authenticated/app.documents'
 import { Route as AuthenticatedAppGrowthOfficerRouteImport } from './routes/_authenticated/app.growth-officer'
 import { Route as AuthenticatedAppIntegrationsRouteImport } from './routes/_authenticated/app.integrations'
@@ -102,6 +103,11 @@ const AuthenticatedAppCampaignsRoute =
     path: '/campaigns',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppContentRoute = AuthenticatedAppContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppDocumentsRoute =
   AuthenticatedAppDocumentsRouteImport.update({
     id: '/documents',
@@ -184,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/app/approvals': typeof AuthenticatedAppApprovalsRoute
   '/app/billing': typeof AuthenticatedAppBillingRoute
   '/app/campaigns': typeof AuthenticatedAppCampaignsRoute
+  '/app/content': typeof AuthenticatedAppContentRoute
   '/app/documents': typeof AuthenticatedAppDocumentsRoute
   '/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
   '/app/integrations': typeof AuthenticatedAppIntegrationsRoute
@@ -209,6 +216,7 @@ export interface FileRoutesByTo {
   '/app/approvals': typeof AuthenticatedAppApprovalsRoute
   '/app/billing': typeof AuthenticatedAppBillingRoute
   '/app/campaigns': typeof AuthenticatedAppCampaignsRoute
+  '/app/content': typeof AuthenticatedAppContentRoute
   '/app/documents': typeof AuthenticatedAppDocumentsRoute
   '/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
   '/app/integrations': typeof AuthenticatedAppIntegrationsRoute
@@ -237,6 +245,7 @@ export interface FileRoutesById {
   '/_authenticated/app/approvals': typeof AuthenticatedAppApprovalsRoute
   '/_authenticated/app/billing': typeof AuthenticatedAppBillingRoute
   '/_authenticated/app/campaigns': typeof AuthenticatedAppCampaignsRoute
+  '/_authenticated/app/content': typeof AuthenticatedAppContentRoute
   '/_authenticated/app/documents': typeof AuthenticatedAppDocumentsRoute
   '/_authenticated/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
   '/_authenticated/app/integrations': typeof AuthenticatedAppIntegrationsRoute
@@ -265,6 +274,7 @@ export interface FileRouteTypes {
     | '/app/approvals'
     | '/app/billing'
     | '/app/campaigns'
+    | '/app/content'
     | '/app/documents'
     | '/app/growth-officer'
     | '/app/integrations'
@@ -290,6 +300,7 @@ export interface FileRouteTypes {
     | '/app/approvals'
     | '/app/billing'
     | '/app/campaigns'
+    | '/app/content'
     | '/app/documents'
     | '/app/growth-officer'
     | '/app/integrations'
@@ -317,6 +328,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/approvals'
     | '/_authenticated/app/billing'
     | '/_authenticated/app/campaigns'
+    | '/_authenticated/app/content'
     | '/_authenticated/app/documents'
     | '/_authenticated/app/growth-officer'
     | '/_authenticated/app/integrations'
@@ -433,6 +445,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppCampaignsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/content': {
+      id: '/_authenticated/app/content'
+      path: '/content'
+      fullPath: '/app/content'
+      preLoaderRoute: typeof AuthenticatedAppContentRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/documents': {
       id: '/_authenticated/app/documents'
       path: '/documents'
@@ -526,6 +545,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppApprovalsRoute: typeof AuthenticatedAppApprovalsRoute
   AuthenticatedAppBillingRoute: typeof AuthenticatedAppBillingRoute
   AuthenticatedAppCampaignsRoute: typeof AuthenticatedAppCampaignsRoute
+  AuthenticatedAppContentRoute: typeof AuthenticatedAppContentRoute
   AuthenticatedAppDocumentsRoute: typeof AuthenticatedAppDocumentsRoute
   AuthenticatedAppGrowthOfficerRoute: typeof AuthenticatedAppGrowthOfficerRoute
   AuthenticatedAppIntegrationsRoute: typeof AuthenticatedAppIntegrationsRoute
@@ -546,6 +566,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppApprovalsRoute: AuthenticatedAppApprovalsRoute,
   AuthenticatedAppBillingRoute: AuthenticatedAppBillingRoute,
   AuthenticatedAppCampaignsRoute: AuthenticatedAppCampaignsRoute,
+  AuthenticatedAppContentRoute: AuthenticatedAppContentRoute,
   AuthenticatedAppDocumentsRoute: AuthenticatedAppDocumentsRoute,
   AuthenticatedAppGrowthOfficerRoute: AuthenticatedAppGrowthOfficerRoute,
   AuthenticatedAppIntegrationsRoute: AuthenticatedAppIntegrationsRoute,

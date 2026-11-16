@@ -260,6 +260,20 @@
       "when": 1794832314495,
       "tag": "0036_serialize_active_ai_dispatch",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1794836866783,
+      "tag": "0037_content_studio_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1794837057352,
+      "tag": "0038_lock_content_versions",
+      "breakpoints": true
     }
   ]
 }
