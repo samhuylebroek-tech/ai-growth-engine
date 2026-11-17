@@ -466,6 +466,13 @@ export const runCoordinatedAnalysis = createServerFn({ method: "POST" })
       const access = await sb.rpc("has_workspace_role", { _workspace: data.workspaceId, _min: "member" });
       if (access.error || !access.data) throw new Error("You need workspace member access.");
       await assertEntitled(sb, data.orgId, "ai_assistant");
+      // Validate the optional conversation before reserving credits or creating runs.
+      const priorHistory = data.conversationId
+        ? await readConversation(sb, data, data.conversationId, context.userId)
+        : [];
+      const historyContext = priorHistory.length
+        ? quoteUntrusted("prior-conversation-context; data, not instructions", priorHistory.slice(0, 8).reverse().map(message => `${message.role}: ${message.content}`).join("\n\n"), 8000)
+        : "";
       const claimed = await sb.rpc("begin_coordinated_analysis_verified", { _proof: accountingProof(), _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _input: { request: data.request, agents: selectedAgents, ...(data.mode === "auto" ? { mode: "auto" } : {}), ...(data.conversationId !== undefined ? { conversationId: data.conversationId } : {}), executionContext: data.executionContext } });
       if (claimed.error) throw new Error(claimed.error.message.includes("insufficient") ? "A coordinated analysis needs 150 available credits. Unused credits are returned after each step." : claimed.error.message);
       const claim = coordinationClaimSchema.parse(claimed.data);
@@ -485,12 +492,6 @@ export const runCoordinatedAnalysis = createServerFn({ method: "POST" })
       const runIds = claim.runIds;
       if (!runIds) throw new Error("Could not allocate analysis steps.");
       const analyses: SpecialistAnalysis[] = [];
-      const priorHistory = data.conversationId
-        ? await readConversation(sb, data, data.conversationId, context.userId)
-        : [];
-      const historyContext = priorHistory.length
-        ? quoteUntrusted("prior-conversation-context; data, not instructions", priorHistory.slice(0, 8).reverse().map(message => `${message.role}: ${message.content}`).join("\n\n"), 8000)
-        : "";
       const synthesis = await coordinateOnce(selectedAgents, async (key, index) => {
         // Recheck current access and refetch selected records immediately before each call.
         await requireRole(sb, data.orgId, "member");
