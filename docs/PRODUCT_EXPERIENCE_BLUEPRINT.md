@@ -285,3 +285,14 @@ The first implementation PR should be a narrow, reversible vertical slice, with 
 ## 13. Implemented vertical-slice extension (feature branch)
 
 The current branch adds a versioned Growth Plan approval boundary, idempotent initiative-to-project/task conversion, and approved-initiative budget allocation. A budget line may reference an initiative only when its goal, organization and workspace match; the database rejects links to non-approved plans. Generated projects are linked back to their initiative, and the Command Center displays the initiative alongside active work. This is internal planning/execution scaffolding, not autonomous external execution. All changes remain on the feature branch pending migration, preview, security and mobile validation.
+
+
+## 14. Initiative operations and proactive attention (feature branch)
+
+Approved Growth Plan initiatives now carry an operational layer without changing the approved strategy snapshot. Workspace members can set an accountable owner, deadline, success metric, baseline, target, current result and blocker. Owner choices are limited to organization members who have eligible access to the active workspace; the database revalidates that access.
+
+The Command Center surfaces follow-up signals from all current approved initiatives, including those not yet converted into projects. The transparent priority order is: recorded blocker, overdue deadline, deadline within seven days, active initiative without an owner, and active initiative without a complete outcome measure. The Command Center presents up to six items while retaining the total follow-up count. These are deterministic workflow rules, not AI forecasts.
+
+A member can pass the issue context into a prefilled Growth Officer question. Nothing is sent or charged until the member explicitly submits the question. The Growth Officer is instructed to identify the next best action, distinguish facts from assumptions, and identify decisions and external approvals. This does not yet implement autonomous specialist selection, automatic task assignment, campaign execution, publishing or budget spend. External actions remain behind explicit approval and separate execution controls.
+
+New migrations 0050–0052 add operational fields, scope and approved-plan guards, plus a safe JSON action-shape check for initiative-to-work conversion. Unit tests for the deterministic attention rules have been added. This branch has not been built or run in a browser, tests have not been executed, and no migration has been applied. The next acceptance gate is a database-backed preview and mobile verification before any merge to `main`.
