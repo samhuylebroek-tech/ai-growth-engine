@@ -2909,6 +2909,10 @@ export type Database = {
         Args: { _initiative: string }
         Returns: Json
       }
+      update_growth_initiative_operations: {
+        Args: { _initiative: string; _patch: Json }
+        Returns: Json
+      }
       create_growth_plan_draft: {
         Args: { _strategy: string }
         Returns: Json
