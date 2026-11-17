@@ -10,9 +10,11 @@ import { Sparkles, Send, Plus, BookOpen, ArrowUpRight, Copy, Download, CheckSqua
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/lib/org-context";
 import { can } from "@/lib/permissions";
-import { askGrowthOfficer } from "@/lib/ai.functions";
+import { askGrowthOfficer, runCoordinatedAnalysis } from "@/lib/ai.functions";
+import { COORDINATION_LIMITS } from "@/lib/coordination";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import { PlanReview } from "@/components/execution/plan-review";
@@ -25,9 +27,9 @@ export const Route = createFileRoute("/_authenticated/app/growth-officer")({ hea
 const STARTERS = ["Find my biggest growth opportunities", "Create a 30-day action plan", "What information am I missing?", "Draft a marketing strategy using confirmed facts"];
 
 function GrowthOfficer() {
-  const o = useOrg(); const qc = useQueryClient(); const ask = useServerFn(askGrowthOfficer);
+  const o = useOrg(); const qc = useQueryClient(); const ask = useServerFn(askGrowthOfficer); const deepRun = useServerFn(runCoordinatedAnalysis);
   const [conv, setConv] = useState<string | null>(null); const [text, setText] = useState(""); const [busy, setBusy] = useState(false);
-  const [pending, setPending] = useState<string | null>(null);
+  const [pending, setPending] = useState<string | null>(null); const [deepAnalysis, setDeepAnalysis] = useState(false);
   const end = useRef<HTMLDivElement>(null);
   const restoredDraft = useRef<string | null>(null);
   const [executionContext, setExecutionContext] = useState<ExecutionRef[]>([]);
@@ -64,14 +66,47 @@ function GrowthOfficer() {
     if (!o.org || !o.workspace || !message.trim() || busy || !can(o.workspaceRole, "ai.use")) return;
     setBusy(true); setPending(message); setText("");
     try {
-      const r = await ask({ data: { orgId: o.org.id, workspaceId: o.workspace.id, requestKey: requestAttemptKey(sessionStorage, `${o.userId}/${o.org.id}/${o.workspace.id}/officer`, JSON.stringify({ conv, message, executionContext }), () => crypto.randomUUID()), conversationId: conv, message, executionContext } });
-      if (!r.ok) { toast.error(r.error); setText(message); return; }
-      setConv(r.data.conversationId);
-      if (r.data.proposals) toast.success(`${r.data.proposals} action${r.data.proposals > 1 ? "s" : ""} sent to Approvals`);
-      qc.invalidateQueries({ queryKey: ["msgs", r.data.conversationId] }); qc.invalidateQueries({ queryKey: ["convs"] });
-      qc.invalidateQueries({ queryKey: ["single-ai-history"] }); qc.invalidateQueries({ queryKey: ["overview"] }); qc.invalidateQueries({ queryKey: ["billing"] });
+      if (deepAnalysis) {
+        const requestKey = requestAttemptKey(
+          sessionStorage,
+          `${o.userId}/${o.org.id}/${o.workspace.id}/officer-deep`,
+          JSON.stringify({ conv, message, executionContext }),
+          () => crypto.randomUUID(),
+        );
+        const result = await deepRun({ data: {
+          orgId: o.org.id, workspaceId: o.workspace.id, requestKey,
+          mode: "auto", request: message, executionContext,
+        } });
+        if (!result.ok) { toast.error(result.error); setText(message); return; }
+        setConv(result.data.conversationId);
+        setDeepAnalysis(false);
+        toast.success(`Growth Officer analysis completed · ${result.data.credits} credits used`);
+        qc.invalidateQueries({ queryKey: ["msgs", result.data.conversationId] });
+        qc.invalidateQueries({ queryKey: ["convs"] });
+        qc.invalidateQueries({ queryKey: ["officer-deep-analysis-recovery"] });
+        qc.invalidateQueries({ queryKey: ["coordination"] });
+      } else {
+        const r = await ask({ data: {
+          orgId: o.org.id, workspaceId: o.workspace.id,
+          requestKey: requestAttemptKey(sessionStorage, `${o.userId}/${o.org.id}/${o.workspace.id}/officer`, JSON.stringify({ conv, message, executionContext }), () => crypto.randomUUID()),
+          conversationId: conv, message, executionContext,
+        } });
+        if (!r.ok) { toast.error(r.error); setText(message); return; }
+        setConv(r.data.conversationId);
+        if (r.data.proposals) toast.success(`${r.data.proposals} action${r.data.proposals > 1 ? "s" : ""} sent to Approvals`);
+        qc.invalidateQueries({ queryKey: ["msgs", r.data.conversationId] });
+        qc.invalidateQueries({ queryKey: ["convs"] });
+        qc.invalidateQueries({ queryKey: ["single-ai-history"] });
+        qc.invalidateQueries({ queryKey: ["overview"] });
+        qc.invalidateQueries({ queryKey: ["billing"] });
+      }
     } catch { toast.error("The answer could not finish. Your question is preserved."); setText(message); }
-    finally { setBusy(false); setPending(null); qc.invalidateQueries({ queryKey: ["single-ai-history"] }); }
+    finally {
+      setBusy(false); setPending(null);
+      qc.invalidateQueries({ queryKey: ["single-ai-history"] });
+      qc.invalidateQueries({ queryKey: ["officer-deep-analysis-recovery"] });
+      qc.invalidateQueries({ queryKey: ["billing"] });
+    }
   }
   const allowed = can(o.workspaceRole, "ai.use"); const list = msgs.data ?? [];
   const verified = context.data?.filter(f => f.verified) ?? [];
@@ -93,7 +128,7 @@ function GrowthOfficer() {
           {!conv && !pending ? <div className="py-10"><Sparkles className="mb-6 h-7 w-7 text-primary" /><h2 className="max-w-lg text-2xl font-semibold leading-snug">A clear next move.<br />Built around your business.</h2><p className="mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground">{verified.length ? `${verified.length} confirmed business facts are available in ${o.workspace?.name}.` : "Your business context is not confirmed yet. I’ll make missing evidence and assumptions explicit."}</p><div className="mt-7 grid gap-2 sm:grid-cols-2">{STARTERS.map(starter => <Button key={starter} variant="outline" className="h-auto min-h-16 justify-between whitespace-normal p-3 text-left text-xs" disabled={!allowed || busy} onClick={() => setText(starter)}>{starter}<ArrowUpRight className="shrink-0 text-muted-foreground" /></Button>)}</div></div> : <div className="space-y-6 pb-4">{list.map(m => <div key={m.id}><Bubble role={m.role} content={m.content} />{m.role === "assistant" && allowed && <div className="mt-3"><PlanReview sourceId={m.id} content={m.content} /></div>}</div>)}{pending && <><Bubble role="user" content={pending} /><div role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Sparkles className="h-4 w-4 text-primary" />Working on your question…</div></>}<div ref={end} /></div>}
         </div>
         {allowed && <div className="mt-3"><ExecutionContextPicker value={executionContext} onChange={setExecutionContext} disabled={busy} /></div>}
-        {allowed ? <form onSubmit={e => { e.preventDefault(); send(text); }} className="mt-5 rounded-lg border border-border bg-card p-3 focus-within:border-primary/50"><Textarea aria-label="Question for Growth Officer" value={text} onChange={e => setText(e.target.value)} rows={3} maxLength={4000} placeholder="Ask a question or describe your next goal…" className="min-h-20 resize-none border-0 bg-transparent p-1 shadow-none focus-visible:ring-0" onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(text); } }} /><div className="mt-2 flex items-center justify-between gap-2"><span className="flex items-center gap-1.5 text-[10px] text-muted-foreground"><BookOpen className="h-3 w-3" />{verified.length} confirmed facts · workspace-scoped</span><Button type="submit" size="icon" disabled={busy || !text.trim()} aria-label="Send" title="Send question"><Send /></Button></div></form> : <p className="mt-5 text-sm text-muted-foreground">Viewer access · conversations are read-only.</p>}
+        {allowed ? <div className="mt-5 space-y-2"><label htmlFor="growth-officer-deep-analysis" className="flex items-start gap-2 rounded-md border border-border px-3 py-2 text-xs"><Checkbox id="growth-officer-deep-analysis" checked={deepAnalysis} onCheckedChange={v => setDeepAnalysis(v === true)} disabled={busy} /><span><strong className="block font-medium">Deep analysis</strong><span className="text-muted-foreground">Growth Officer chooses the specialist team automatically. Up to {COORDINATION_LIMITS.maxCredits} credits are reserved across three bounded calls; unused credits are returned. No external action is performed.</span></span></label><form onSubmit={e => { e.preventDefault(); send(text); }} className="rounded-lg border border-border bg-card p-3 focus-within:border-primary/50"><Textarea aria-label="Question for Growth Officer" value={text} onChange={e => setText(e.target.value)} rows={3} maxLength={4000} placeholder="Ask a question or describe your next goal…" className="min-h-20 resize-none border-0 bg-transparent p-1 shadow-none focus-visible:ring-0" onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(text); } }} /><div className="mt-2 flex items-center justify-between gap-2"><span className="flex items-center gap-1.5 text-[10px] text-muted-foreground"><BookOpen className="h-3 w-3" />{verified.length} confirmed facts · workspace-scoped</span><Button type="submit" size="icon" disabled={busy || !text.trim()} aria-label="Send" title="Send question"><Send /></Button></div></form></div> : <p className="mt-5 text-sm text-muted-foreground">Viewer access · conversations are read-only.</p>}
         <p className="mt-3 text-[10px] text-muted-foreground">AI credits apply · <Link to="/app/billing" className="underline">View usage</Link> · Verify important decisions.</p>
       </div>
       <aside className={cn("min-w-0 border-t border-border pt-5 xl:block xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0", !contextOpen && "hidden")}><p className="section-label mb-4">Business context</p><p className="text-sm font-semibold">{o.workspace?.name}</p>{context.isError ? <p role="alert" className="mt-3 text-xs text-destructive">Context could not load.</p> : <><p className="mt-2 text-[11px] text-muted-foreground">{verified.length} confirmed · {(context.data?.length ?? 0) - verified.length} awaiting review</p><div className="mt-4 space-y-4">{verified.slice(0,4).map(f => <div key={f.id}><h3 className="text-[11px] font-semibold">{f.key}</h3><p className="mt-1 line-clamp-3 text-[11px] leading-relaxed text-muted-foreground">{f.value}</p></div>)}</div>{!verified.length && <p className="mt-4 text-xs leading-relaxed text-muted-foreground">Unconfirmed claims are not trusted business evidence.</p>}</>}<Button variant="link" size="sm" className="mt-3 px-0" asChild><Link to="/app/profile">Review knowledge <ArrowUpRight /></Link></Button><div className="mt-6 border-t border-border pt-5"><p className="section-label mb-3">Related work</p><Button variant="ghost" size="sm" className="w-full justify-start px-0" asChild><Link to="/app/documents"><FileText />Documents</Link></Button><Button variant="ghost" size="sm" className="w-full justify-start px-0" asChild><Link to="/app/approvals"><CheckSquare />Review & approvals</Link></Button></div><p className="mt-6 text-[10px] leading-relaxed text-muted-foreground">Results are saved in your conversation. External actions require review; automatic execution is not configured.</p></aside>
