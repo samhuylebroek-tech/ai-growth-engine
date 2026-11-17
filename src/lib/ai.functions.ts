@@ -232,7 +232,7 @@ export const recoverCoordinatedAnalysis = createServerFn({ method: "POST" })
         const synthesis = parseSpecialistOutput(outputs['2'] ?? "");
         const reply = input.mode === "auto"
           ? specialistMarkdown(synthesis, [])
-          : [specialistMarkdown(synthesis, []), "---\\n\\n## Independent specialist analyses", ...input.agents.map((key, i) => "### " + SPECIALISTS[key].name + "\\n\\n" + specialistMarkdown(parseSpecialistOutput(outputs[String(i)] ?? ""), []))].join("\\n\\n");
+          : [specialistMarkdown(synthesis, []), "---\n\n## Independent specialist analyses", ...input.agents.map((key, i) => "### " + SPECIALISTS[key].name + "\n\n" + specialistMarkdown(parseSpecialistOutput(outputs[String(i)] ?? ""), []))].join("\n\n");
         const saved = await sb.rpc("finish_coordinated_analysis_verified", { _id: row.data.id, _reply: reply, _proof: accountingProof() });
         if (saved.error) throw new Error("Paid outputs are retained, but the final analysis could not be saved.");
         return { ok: true, data: { status: "succeeded", pending: 0 } };
