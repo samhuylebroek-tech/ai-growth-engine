@@ -15,6 +15,22 @@ export function HomeWork({
   const o = useOrg();
   const qc = useQueryClient();
   const q = useQuery(executionOptions(o.org?.id, o.workspace?.id, o.userId));
+  const goalIds = [...new Set([
+    ...(q.data?.projects ?? []).map((p) => p.goal_id),
+    ...(q.data?.campaigns ?? []).map((campaign) => campaign.goal_id),
+  ].filter((id): id is string => !!id))];
+  const goals = useQuery({
+    queryKey: ["execution-goal-labels", o.org?.id, o.workspace?.id, goalIds],
+    enabled: !!o.org?.id && !!o.workspace?.id && goalIds.length > 0,
+    queryFn: async () => {
+      if (!o.org || !o.workspace || !goalIds.length) return [];
+      const r = await supabase.from("growth_goals").select("id,title")
+        .eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).in("id", goalIds);
+      if (r.error) throw r.error;
+      return r.data ?? [];
+    },
+  });
+  const goalTitle = (id: string | null) => goals.data?.find((g) => g.id === id)?.title;
   if (q.isLoading)
     return (
       <p role="status" className="py-3 text-xs text-muted-foreground">
@@ -66,6 +82,9 @@ export function HomeWork({
             <p className="mt-1 text-[11px] text-muted-foreground">
               {p.status} · {p.priority}
             </p>
+            {"goal_id" in p && p.goal_id && goalTitle(p.goal_id) && (
+              <p className="mt-1 text-[11px] text-muted-foreground">Growth goal · {goalTitle(p.goal_id)}</p>
+            )}
           </div>
         ))}
       {tasks.slice(0, 5).map((t) => (
