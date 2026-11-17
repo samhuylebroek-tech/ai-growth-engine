@@ -18,6 +18,7 @@ import { growthSummaryOptions } from "@/lib/growth-summary";
 import { commandCenterOptions, homePreferenceKey, prioritizeApprovals, type Activity, type ActivityKind } from "@/lib/command-center";
 import { AGENTS } from "@/lib/registry/agents";
 import { cn } from "@/lib/utils";
+import { PrimaryGrowthFocus } from "@/components/app/primary-growth-focus";
 
 export const Route = createFileRoute("/_authenticated/app/")({ head: () => pageHead("Business command center", "Your workspace activity, active AI assignments, decisions and growth opportunities in one place."), component: Overview });
 const SECTIONS = ["activity", "results", "opportunities", "upcoming", "performance"] as const;
@@ -66,6 +67,7 @@ function Overview() {
     {d && <><div className="mb-7 border-y border-border py-4"><div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-xs"><Link to="/app/activity" className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-primary" /><strong className="text-foreground">{w ? w.activeCount : "—"}</strong> AI assignments active</Link><Link to="/app/approvals" className="flex items-center gap-2"><CheckSquare className="h-3.5 w-3.5 text-warning" /><strong>{d.approvalCount}</strong> awaiting review</Link><Link to="/app/profile" className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /><strong>{confirmed.length}</strong> confirmed facts</Link><Link to="/app/billing" className="text-muted-foreground sm:ml-auto">{d.balance?.toLocaleString() ?? "Unavailable"} credits</Link></div></div>
     <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1.7fr)_minmax(260px,1fr)]">
       <div className="min-w-0 space-y-8">
+        <PrimaryGrowthFocus />
         <section><SectionHeading title="Today’s priorities" /><HomeWork section="priorities" /></section>
         <section className="border-l-2 border-primary pl-4"><SectionHeading eyebrow={attention ? `${attention} items to follow up` : "No open follow-up"} title="Needs your attention" />
         <HomeWork section="attention" />
