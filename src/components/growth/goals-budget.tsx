@@ -225,16 +225,6 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
       return r.data;
     },
   });
-  const latestStrategy = useQuery({
-    queryKey: ["latest-saved-growth-strategy", orgId, wsId, goalId],
-    enabled: canEdit,
-    queryFn: async () => {
-      const r = await supabase.from("growth_strategies").select("id")
-        .eq("org_id", orgId).eq("workspace_id", wsId).eq("goal_id", goalId).order("created_at", { ascending: false }).limit(1).maybeSingle();
-      if (r.error) throw r.error;
-      return r.data;
-    },
-  });
   // Keep a reviewable draft in view; otherwise show the currently approved version
   // rather than allowing a newer rejected/superseded snapshot to hide live work.
   const current = plans.data?.find(plan => plan.status === "draft")
@@ -251,23 +241,6 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
       return r.data;
     },
   });
-  const createDraft = async () => {
-    const strategyId = latestStrategy.data?.id;
-    if (!canEdit || !strategyId || busyAction || plans.isLoading || plans.isError || latestStrategy.isLoading || latestStrategy.isError) return;
-    setBusyAction("draft");
-    try {
-      const r = await supabase.rpc("create_growth_plan_draft", { _strategy: strategyId });
-      if (r.error) throw r.error;
-      toast.success("Growth Plan draft created");
-      await qc.invalidateQueries({ queryKey: ["growth-plan-versions", orgId, wsId, goalId] });
-      await qc.invalidateQueries({ queryKey: ["growth-initiatives", orgId, wsId] });
-      await qc.invalidateQueries({ queryKey: ["growth-initiatives", wsId] });
-    } catch {
-      toast.error("Could not create the Growth Plan draft. Check the saved plan before retrying.");
-    } finally {
-      setBusyAction(null);
-    }
-  };
   const createWork = async (initiativeId: string) => {
     if (!canEdit || busyAction) return;
     setBusyAction(initiativeId);
@@ -310,15 +283,11 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
     <div className="space-y-2 rounded-lg border p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div><p className="text-sm font-medium">Growth Plan</p><p className="text-xs text-muted-foreground">Versioned strategy and prioritized initiatives</p></div>
-        {canEdit && latestStrategy.data?.id && !plans.data?.some(p => p.strategy_id === latestStrategy.data?.id) &&
-          <Button size="sm" variant="outline" disabled={!!busyAction || plans.isLoading || plans.isError || latestStrategy.isLoading || latestStrategy.isError} onClick={createDraft}>{busyAction === "draft" ? "Creating draft…" : "Create plan draft"}</Button>}
       </div>
       {plans.isLoading ? <p role="status" className="text-xs text-muted-foreground">Loading plan…</p>
         : plans.isError ? <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-destructive"><span>Growth Plan could not be loaded.</span><Button size="sm" variant="outline" onClick={() => { void plans.refetch(); }}>Retry</Button></div>
-        : !current && latestStrategy.isError ? <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-destructive"><span>Saved strategies could not be checked, so plan availability is unknown.</span><Button size="sm" variant="outline" onClick={() => { void latestStrategy.refetch(); }}>Retry</Button></div>
-        : !current ? <p className="text-xs text-muted-foreground">No plan version yet. Generate and save a strategy, then create a draft here.</p>
+        : !current ? <p className="text-xs text-muted-foreground">No plan version yet. Generate and save a strategy below, then create its Growth Plan draft.</p>
         : <>
-          {latestStrategy.isError && canEdit && <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-destructive"><span>Saved strategies could not be checked. Existing plan details remain available; draft creation is paused.</span><Button size="sm" variant="outline" onClick={() => { void latestStrategy.refetch(); }}>Retry</Button></div>}
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-medium">V{current.version} · {current.title}</span>
             <Badge variant={current.status === "approved" ? "default" : "secondary"}>{current.status}</Badge>
