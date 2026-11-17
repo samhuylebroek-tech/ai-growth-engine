@@ -252,6 +252,7 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
       await qc.invalidateQueries({ queryKey: ["growth-initiatives", wsId] });
       await qc.invalidateQueries({ queryKey: ["goal-links", wsId] });
       await qc.invalidateQueries({ queryKey: ["execution"] });
+      await qc.invalidateQueries({ queryKey: ["execution-growth-initiatives"] });
       await qc.invalidateQueries({ queryKey: ["command-center"] });
       await qc.invalidateQueries({ queryKey: ["command-center-approved-initiatives"] });
       await qc.invalidateQueries({ queryKey: ["overview"] });
