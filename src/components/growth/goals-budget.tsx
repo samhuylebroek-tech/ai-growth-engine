@@ -215,66 +215,106 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
   canApprove: boolean;
 }) {
   const qc = useQueryClient();
+  const [busyAction, setBusyAction] = useState<string | null>(null);
   const plans = useQuery({
-    queryKey: ["growth-plan-versions", wsId, goalId],
+    queryKey: ["growth-plan-versions", orgId, wsId, goalId],
     queryFn: async () => {
       const r = await supabase.from("growth_plan_versions").select("id,strategy_id,version,status,title,summary,approved_at,created_at")
-        .eq("workspace_id", wsId).eq("goal_id", goalId).order("version", { ascending: false }).limit(10);
+        .eq("org_id", orgId).eq("workspace_id", wsId).eq("goal_id", goalId).order("version", { ascending: false }).limit(10);
       if (r.error) throw r.error;
       return r.data;
     },
   });
   const latestStrategy = useQuery({
-    queryKey: ["latest-saved-growth-strategy", wsId, goalId],
+    queryKey: ["latest-saved-growth-strategy", orgId, wsId, goalId],
     enabled: canEdit,
     queryFn: async () => {
       const r = await supabase.from("growth_strategies").select("id")
-        .eq("workspace_id", wsId).eq("goal_id", goalId).order("created_at", { ascending: false }).limit(1).maybeSingle();
+        .eq("org_id", orgId).eq("workspace_id", wsId).eq("goal_id", goalId).order("created_at", { ascending: false }).limit(1).maybeSingle();
       if (r.error) throw r.error;
       return r.data;
     },
   });
+  // Keep a reviewable draft in view; otherwise show the currently approved version
+  // rather than allowing a newer rejected/superseded snapshot to hide live work.
+  const current = plans.data?.find(plan => plan.status === "draft")
+    ?? plans.data?.find(plan => plan.status === "approved")
+    ?? plans.data?.[0];
   const initiatives = useQuery({
-    queryKey: ["growth-initiatives", wsId, plans.data?.[0]?.id],
-    enabled: Boolean(plans.data?.[0]?.id),
+    queryKey: ["growth-initiatives", orgId, wsId, current?.id],
+    enabled: Boolean(current?.id),
     queryFn: async () => {
+      if (!current?.id) return [];
       const r = await supabase.from("growth_initiatives").select("id,title,detail,channel,target_week,effort,status,sort_order,project_id")
-        .eq("workspace_id", wsId).eq("plan_version_id", plans.data![0].id).order("sort_order");
+        .eq("org_id", orgId).eq("workspace_id", wsId).eq("plan_version_id", current.id).order("sort_order");
       if (r.error) throw r.error;
       return r.data;
     },
   });
   const createDraft = async () => {
     const strategyId = latestStrategy.data?.id;
-    if (!strategyId) return;
-    const r = await supabase.rpc("create_growth_plan_draft", { _strategy: strategyId });
-    if (r.error) return void toast.error("Could not create the Growth Plan draft.");
-    toast.success("Growth Plan draft created");
-    await qc.invalidateQueries({ queryKey: ["growth-plan-versions", wsId, goalId] });
-    await qc.invalidateQueries({ queryKey: ["growth-initiatives", wsId] });
+    if (!canEdit || !strategyId || busyAction || plans.isLoading || plans.isError || latestStrategy.isLoading || latestStrategy.isError) return;
+    setBusyAction("draft");
+    try {
+      const r = await supabase.rpc("create_growth_plan_draft", { _strategy: strategyId });
+      if (r.error) throw r.error;
+      toast.success("Growth Plan draft created");
+      await qc.invalidateQueries({ queryKey: ["growth-plan-versions", orgId, wsId, goalId] });
+      await qc.invalidateQueries({ queryKey: ["growth-initiatives", orgId, wsId] });
+      await qc.invalidateQueries({ queryKey: ["growth-initiatives", wsId] });
+    } catch {
+      toast.error("Could not create the Growth Plan draft. Check the saved plan before retrying.");
+    } finally {
+      setBusyAction(null);
+    }
   };
   const createWork = async (initiativeId: string) => {
-    const r = await supabase.rpc("create_growth_initiative_work", { _initiative: initiativeId });
-    if (r.error) return void toast.error("Could not create work from this initiative.");
-    toast.success("Initiative added to Work");
-    await qc.invalidateQueries({ queryKey: ["growth-initiatives", wsId] });
-    await qc.invalidateQueries({ queryKey: ["goal-links", wsId] });
+    if (!canEdit || busyAction) return;
+    setBusyAction(initiativeId);
+    try {
+      const r = await supabase.rpc("create_growth_initiative_work", { _initiative: initiativeId });
+      if (r.error) throw r.error;
+      toast.success("Initiative added to Work");
+      await qc.invalidateQueries({ queryKey: ["growth-initiatives", orgId, wsId] });
+      await qc.invalidateQueries({ queryKey: ["growth-initiatives", wsId] });
+      await qc.invalidateQueries({ queryKey: ["goal-links", wsId] });
+      await qc.invalidateQueries({ queryKey: ["execution"] });
+      await qc.invalidateQueries({ queryKey: ["command-center"] });
+      await qc.invalidateQueries({ queryKey: ["overview"] });
+    } catch {
+      toast.error("Could not create work from this initiative. A retry is safe.");
+    } finally {
+      setBusyAction(null);
+    }
   };
   const approve = async (id: string) => {
-    const r = await supabase.rpc("approve_growth_plan", { _plan: id });
-    if (r.error) return void toast.error("Approval failed. Check your workspace permissions.");
-    toast.success("Growth Plan approved");
-    await qc.invalidateQueries({ queryKey: ["growth-plan-versions", wsId, goalId] });
+    if (!canApprove || busyAction) return;
+    setBusyAction(id);
+    try {
+      const r = await supabase.rpc("approve_growth_plan", { _plan: id });
+      if (r.error) throw r.error;
+      toast.success("Growth Plan approved");
+      await qc.invalidateQueries({ queryKey: ["growth-plan-versions", orgId, wsId, goalId] });
+      await qc.invalidateQueries({ queryKey: ["command-center-approved-plans"] });
+      await qc.invalidateQueries({ queryKey: ["command-center-approved-initiatives"] });
+      await qc.invalidateQueries({ queryKey: ["command-center-initiative-ops"] });
+      await qc.invalidateQueries({ queryKey: ["overview"] });
+    } catch {
+      toast.error("Approval failed. Check your workspace permissions.");
+    } finally {
+      setBusyAction(null);
+    }
   };
-  const current = plans.data?.[0];
   return (
     <div className="space-y-2 rounded-lg border p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div><p className="text-sm font-medium">Growth Plan</p><p className="text-xs text-muted-foreground">Versioned strategy and prioritized initiatives</p></div>
         {canEdit && latestStrategy.data?.id && !plans.data?.some(p => p.strategy_id === latestStrategy.data?.id) &&
-          <Button size="sm" variant="outline" onClick={createDraft}>Create plan draft</Button>}
+          <Button size="sm" variant="outline" disabled={!!busyAction || plans.isLoading || plans.isError || latestStrategy.isLoading || latestStrategy.isError} onClick={createDraft}>{busyAction === "draft" ? "Creating draft…" : "Create plan draft"}</Button>}
       </div>
-      {plans.isLoading ? <p className="text-xs text-muted-foreground">Loading plan…</p>
+      {plans.isLoading ? <p role="status" className="text-xs text-muted-foreground">Loading plan…</p>
+        : plans.isError ? <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-destructive"><span>Growth Plan could not be loaded.</span><Button size="sm" variant="outline" onClick={() => { void plans.refetch(); }}>Retry</Button></div>
+        : latestStrategy.isError ? <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-destructive"><span>Saved strategies could not be checked.</span><Button size="sm" variant="outline" onClick={() => { void latestStrategy.refetch(); }}>Retry</Button></div>
         : !current ? <p className="text-xs text-muted-foreground">No plan version yet. Generate and save a strategy, then create a draft here.</p>
         : <>
           <div className="flex flex-wrap items-center gap-2">
@@ -282,17 +322,20 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
             <Badge variant={current.status === "approved" ? "default" : "secondary"}>{current.status}</Badge>
             {current.approved_at && <span className="text-xs text-muted-foreground">Approved {new Date(current.approved_at).toLocaleDateString()}</span>}
           </div>
+          {current.status === "draft" && plans.data?.some(plan => plan.status === "approved") &&
+            <p className="text-xs text-muted-foreground">The currently approved version remains active until this draft is approved.</p>}
           <p className="text-sm text-muted-foreground">{current.summary}</p>
           {initiatives.isLoading ? <p className="text-xs text-muted-foreground">Loading initiatives…</p>
+            : initiatives.isError ? <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-destructive"><span>Plan initiatives could not be loaded.</span><Button size="sm" variant="outline" onClick={() => { void initiatives.refetch(); }}>Retry</Button></div>
             : <ol className="space-y-2">{(initiatives.data ?? []).map((item, index) =>
               <li key={item.id} className="rounded-md bg-muted/40 p-2 text-sm">
                 <div className="flex flex-wrap items-center gap-2"><span className="font-medium">{index + 1}. {item.title}</span><Badge variant="outline">Week {item.target_week}</Badge><Badge variant="outline">{item.effort} effort</Badge></div>
                 {item.detail && <p className="mt-1 text-xs text-muted-foreground">{item.detail}</p>}
                 {item.channel && <p className="text-xs text-muted-foreground">Channel: {item.channel}</p>}
-                {item.project_id ? <p className="text-xs text-muted-foreground">Work project created</p> : current.status === "approved" && canEdit ? <Button size="sm" variant="outline" onClick={() => createWork(item.id)}>Create work from initiative</Button> : null}
+                {item.project_id ? <p className="text-xs text-muted-foreground">Work project created</p> : current.status === "approved" && canEdit ? <Button size="sm" variant="outline" disabled={!!busyAction} onClick={() => createWork(item.id)}>{busyAction === item.id ? "Creating work…" : "Create work from initiative"}</Button> : null}
                 {current.status === "approved" && <InitiativeOperations initiativeId={item.id} orgId={orgId} workspaceId={wsId} userId={userId} canEdit={canEdit} status={item.status} />}
               </li>)}</ol>}
-          {current.status === "draft" && canApprove && <Button size="sm" onClick={() => approve(current.id)}>Approve this plan</Button>}
+          {current.status === "draft" && canApprove && <Button size="sm" disabled={!!busyAction} onClick={() => approve(current.id)}>{busyAction === current.id ? "Approving…" : "Approve this plan"}</Button>}
           {current.status === "draft" && !canApprove && <p className="text-xs text-muted-foreground">Awaiting approval from a workspace admin or owner.</p>}
         </>}
     </div>
