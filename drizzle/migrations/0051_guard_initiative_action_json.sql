@@ -36,7 +36,7 @@ BEGIN
   RETURNING id INTO project_uuid;
   INSERT INTO public.tasks(org_id, workspace_id, project_id, title, description, due_date, priority, labels, created_by)
   VALUES (initiative_row.org_id, initiative_row.workspace_id, project_uuid, left(initiative_row.title,200),
-    left(initiative_row.detail,800), current_date + (least(26,greatest(1,initiative_row.target_week))*7),
+    left(initiative_row.detail,800), current_date + (greatest(1,initiative_row.target_week)*7),
     CASE WHEN initiative_row.effort='high' THEN 'high' WHEN initiative_row.effort='low' THEN 'low' ELSE 'medium' END,
     CASE WHEN initiative_row.channel<>'' THEN ARRAY['growth-plan',left(initiative_row.channel,40)] ELSE ARRAY['growth-plan'] END,
     auth.uid()) RETURNING id INTO task_uuid;
