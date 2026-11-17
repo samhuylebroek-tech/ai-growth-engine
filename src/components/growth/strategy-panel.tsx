@@ -56,7 +56,7 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
       setResult(current => current ? { ...current, saved: true } : current);
       toast.success("Strategy saved");
       await saved.refetch();
-      await qc.invalidateQueries({ queryKey: ["latest-saved-growth-strategy", wsId, goalId] });
+      await qc.invalidateQueries({ queryKey: ["latest-saved-growth-strategy", orgId, wsId, goalId] });
     } catch {
       toast.error("Could not confirm the saved strategy. Check saved strategies before retrying.");
     } finally {
