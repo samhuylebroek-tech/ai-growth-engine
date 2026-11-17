@@ -296,3 +296,12 @@ The Command Center surfaces follow-up signals from all current approved initiati
 A member can pass the issue context into a prefilled Growth Officer question. Nothing is sent or charged until the member explicitly submits the question. The Growth Officer is instructed to identify the next best action, distinguish facts from assumptions, and identify decisions and external approvals. This does not yet implement autonomous specialist selection, automatic task assignment, campaign execution, publishing or budget spend. External actions remain behind explicit approval and separate execution controls.
 
 New migrations 0050–0052 add operational fields, scope and approved-plan guards, plus a safe JSON action-shape check for initiative-to-work conversion. Unit tests for the deterministic attention rules have been added. This branch has not been built or run in a browser, tests have not been executed, and no migration has been applied. The next acceptance gate is a database-backed preview and mobile verification before any merge to `main`.
+
+
+## 15. Growth Officer deep analysis (feature branch)
+
+The Growth Officer now keeps a standard one-call response as its default. The user may explicitly enable Deep analysis before sending a question. In that mode, the server chooses two relevant specialist capabilities from the request topic using deterministic rules; the user does not choose or manage agents. The specialists perform bounded analysis and the Growth Officer synthesizes one coherent result. Internal specialist outputs are not exposed in the ordinary conversation view.
+
+The deep workflow makes its cost boundary visible before submission: 150 credits are reserved across three calls, actual use is charged and unused credits are returned. The same metering, workspace checks, idempotency, checkpoints and recovery protocol used by the advanced coordination engine are reused. The user must still submit the request; no external action is executed by the analysis.
+
+This is an opt-in deep-analysis mode, not yet the complete autonomous orchestration vision. It does not yet choose the depth of work autonomously, prioritize across all business initiatives, dispatch work in the background or coordinate against live channel performance. Those steps require a measured-value model, verified connector state, plan-aware capability policy and additional preview/approval UX.
