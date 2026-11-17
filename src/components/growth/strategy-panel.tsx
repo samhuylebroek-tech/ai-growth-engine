@@ -70,10 +70,12 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
     try {
       const response = await supabase.rpc("create_growth_plan_draft", { _strategy: strategyId });
       if (response.error) throw response.error;
-      const receipt = response.data as { plan_id?: string; version?: number } | null;
+      const receipt = response.data as { plan_id?: string; version?: number; status?: string } | null;
       if (!receipt?.plan_id || !receipt.version) throw new Error("The Growth Plan receipt is incomplete.");
       setPlanDraftCreated(true);
-      toast.success(`Growth Plan draft V${receipt.version} created · awaiting approval`);
+      if (receipt.status === "approved") toast.success(`This strategy is already in approved Growth Plan V${receipt.version}`);
+      else if (receipt.status === "draft") toast.success(`Growth Plan draft V${receipt.version} is ready for review`);
+      else toast.success(`Growth Plan V${receipt.version} already exists (${receipt.status ?? "saved"})`);
       await qc.invalidateQueries({ queryKey: ["growth-plan-versions", orgId, wsId, goalId] });
       await qc.invalidateQueries({ queryKey: ["growth-initiatives", orgId, wsId] });
     } catch {
