@@ -5,6 +5,7 @@ DECLARE
   initiative_row public.growth_initiatives%ROWTYPE;
   plan_row public.growth_plan_versions%ROWTYPE;
   strategy_row public.growth_strategies%ROWTYPE;
+  operation_row public.growth_initiative_operations%ROWTYPE;
   project_uuid uuid;
   task_uuid uuid;
   actions jsonb;
@@ -30,14 +31,20 @@ BEGIN
   IF jsonb_array_length(actions) <= initiative_row.sort_order THEN
     RAISE EXCEPTION 'Source strategy action is unavailable';
   END IF;
-  INSERT INTO public.projects(org_id, workspace_id, title, description, objective, category, goal_id, created_by)
+  SELECT * INTO operation_row
+  FROM public.growth_initiative_operations
+  WHERE initiative_id = initiative_row.id
+    AND org_id = initiative_row.org_id
+    AND workspace_id = initiative_row.workspace_id;
+  INSERT INTO public.projects(org_id, workspace_id, title, description, objective, category, goal_id, owner_id, created_by)
   VALUES (initiative_row.org_id, initiative_row.workspace_id, left(initiative_row.title,200),
-    left(initiative_row.detail,4000), left(initiative_row.title,1000), 'growth', initiative_row.goal_id, auth.uid())
+    left(initiative_row.detail,4000), left(initiative_row.title,1000), 'growth', initiative_row.goal_id, operation_row.owner_id, auth.uid())
   RETURNING id INTO project_uuid;
-  INSERT INTO public.tasks(org_id, workspace_id, project_id, title, description, due_date, priority, labels, created_by)
+  INSERT INTO public.tasks(org_id, workspace_id, project_id, title, description, due_date, priority, owner_id, labels, created_by)
   VALUES (initiative_row.org_id, initiative_row.workspace_id, project_uuid, left(initiative_row.title,200),
-    left(initiative_row.detail,800), current_date + (greatest(1,initiative_row.target_week)*7),
+    left(initiative_row.detail,800), coalesce(operation_row.due_date, current_date + (greatest(1,initiative_row.target_week)*7)),
     CASE WHEN initiative_row.effort='high' THEN 'high' WHEN initiative_row.effort='low' THEN 'low' ELSE 'medium' END,
+    operation_row.owner_id,
     CASE WHEN initiative_row.channel<>'' THEN ARRAY['growth-plan',left(initiative_row.channel,40)] ELSE ARRAY['growth-plan'] END,
     auth.uid()) RETURNING id INTO task_uuid;
   UPDATE public.growth_initiatives SET project_id=project_uuid,status='in_progress' WHERE id=initiative_row.id;
