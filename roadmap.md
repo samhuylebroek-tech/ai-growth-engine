@@ -3,7 +3,9 @@
 - [x] M0: five failing tests fixed (coordination conversation selection, context query mock); 8 type errors and an undefined prompt variable in specialist analyses fixed.
 - [x] M0: migration journal checked read-only (54 entries, contiguous, ordered; 8 committed but unapplied); forward-only policy in docs/MIGRATION_POLICY.md.
 - [x] M1: one evidence-labelled, workspace-scoped business context (facts, goals, plans, pipeline per currency, budget, sourced competitors, SEO, Content Studio, campaigns, integrations) capped at 12,000 characters, used by every AI surface.
-- [x] Verified: 221 tests, type check, lint, production build; signed-in Growth Officer cross-area answers in English, Dutch and French.
+- [x] Verified: 221 tests, production build, no substantive lint errors; signed-in Growth Officer cross-area answers in English, Dutch and French; answer tables on desktop and phone.
+- [B] Type check: 158 errors in the Growth Plan/initiative/budget-link screens until the 8 pending database changes are applied (owner approval).
+- [ ] Formatting: ~5,700 pre-existing Prettier formatting warnings across the code base; cosmetic, not reformatted to keep the history readable.
 - [B] Growth Plans/initiatives in the AI context and screens: waits on owner approval to apply the 8 pending database changes.
 - [B] Measured performance (traffic, ads, revenue): waits on real integrations being connected.
 ## Growth planning & content expansion — 2026-11-16

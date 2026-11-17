@@ -30,6 +30,6 @@ The 8 pending migrations add versioned Growth Plans, initiatives, initiative ope
 
 - Screens that read Growth Plans/initiatives return a "not found" error from the database.
 - The AI business context marks the plan module as *unavailable* (never as empty) and continues with the other modules.
-- The automatic type regeneration of 2026-11-17 21:24 UTC removed those tables from `types.ts`, breaking the type check; the committed (hand-authored) definitions were restored so the code base type-checks against the repository schema.
+- The platform regenerates `types.ts` from the connected database, so those tables are absent from it. The Growth Plan, initiative and budget-link screens therefore fail the type check (158 errors in 5 files) until the changes are applied. The AI business context does not depend on those generated types.
 
 **Applying them requires explicit owner approval**, because the only connected database also serves the published app. Recommended order: run them in a draft/isolated database first, execute `tests/sql/*.sql`, then apply to the connected database.
