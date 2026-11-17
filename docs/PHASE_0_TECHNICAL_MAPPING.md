@@ -44,7 +44,8 @@ The current goals/budget component:
 - lets the user manually add goals and budget lines;
 - allows manual actual-spend entry;
 - links projects/campaigns directly to goals;
-- displays strategy generation within the goal workflow.
+- displays strategy generation within the goal workflow;
+- now shows a per-goal monthly plan snapshot: linked project/campaign count and budget-line count, plus planned and manually recorded spend when all linked lines use the same currency. Mixed-currency totals are deliberately not combined.
 
 This can be evolved rather than replaced. The target UX should guide the user through one goal and its budget envelope, then expose the underlying records in contextual detail.
 
@@ -106,7 +107,7 @@ The first code slice should avoid schema changes if possible:
 5. Keep the current detailed dashboard data accessible under a “More activity and history” disclosure or Work history.
 6. Add tests for the hierarchy, no-goal state, missing metric state, approval permissions, tenant scoping and mobile overflow.
 
-The first Command Center/goal slice, atomic strategy-to-work conversion, and a goal-linked chat-to-work path are now present on this branch. The next step is to test the complete journey against a real preview/database, then make strategy/initiative records visible as a coherent Growth Plan before widening autonomous execution.
+The first Command Center/goal slice, atomic strategy-to-work conversion, a goal-linked chat-to-work path, and a per-goal budget/work snapshot are now present on this branch. The snapshot is deliberately limited to existing records: saved strategies are still suggestions, not approved/versioned plans. The next step is to test the complete journey against a real preview/database, then introduce a durable, versioned plan/initiative model before widening autonomous execution.
 
 ## 6. Verification boundary
 
