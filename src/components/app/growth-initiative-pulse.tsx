@@ -1,10 +1,11 @@
 import { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, Link } from "@tanstack/react-router";
-import { ArrowUpRight, AlertTriangle, CalendarClock, CircleHelp, UserRound } from "lucide-react";
+import { ArrowUpRight, UserRound } from "lucide-react";
 import { useOrg } from "@/lib/org-context";
 import { supabase } from "@/integrations/supabase/client";
 import { growthDraftKey } from "@/lib/growth-draft";
+import { can } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -41,6 +42,7 @@ function prettyDate(value: string) {
 export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (count: number) => void }) {
   const o = useOrg();
   const navigate = useNavigate();
+  const canAskGrowthOfficer = can(o.workspaceRole, "ai.use");
   const plans = useQuery({
     queryKey: ["command-center-approved-plans", o.org?.id, o.workspace?.id],
     enabled: !!o.org?.id && !!o.workspace?.id,
@@ -97,7 +99,7 @@ export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (coun
     },
   });
 
-  const issues = useMemo(() => {
+  const rankedIssues = useMemo(() => {
     const today = localDate();
     const soon = plusDays(today, 7);
     const rows: Issue[] = [];
@@ -129,10 +131,12 @@ export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (coun
         kind, reason, rank,
       });
     }
-    return rows.sort((a,b) => a.rank-b.rank || (a.dueDate ?? "9999-12-31").localeCompare(b.dueDate ?? "9999-12-31")).slice(0, 6);
+    return rows.sort((a,b) => a.rank-b.rank || (a.dueDate ?? "9999-12-31").localeCompare(b.dueDate ?? "9999-12-31"));
   }, [initiatives.data, operations.data, plans.data, goals.data]);
 
-  useEffect(() => { onCountChange?.(issues.length); }, [issues.length, onCountChange]);
+  const issues = rankedIssues.slice(0, 6);
+
+  useEffect(() => { onCountChange?.(rankedIssues.length); }, [rankedIssues.length, onCountChange]);
 
   function askAbout(issue: Issue) {
     if (!o.org || !o.workspace) return;
@@ -155,7 +159,7 @@ export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (coun
     navigate({ to: "/app/growth-officer" });
   }
 
-  if (plans.isLoading || initiatives.isLoading) return <p role="status" className="py-2 text-xs text-muted-foreground">Checking approved growth initiatives…</p>;
+  if (plans.isLoading || initiatives.isLoading || operations.isLoading || goals.isLoading) return <p role="status" className="py-2 text-xs text-muted-foreground">Checking approved growth initiatives…</p>;
   if (plans.isError || initiatives.isError || operations.isError || goals.isError) return <div role="alert" className="py-2 text-xs text-destructive">Initiative status could not be loaded. <Button size="sm" variant="link" onClick={() => { void plans.refetch(); void initiatives.refetch(); void operations.refetch(); void goals.refetch(); }}>Retry</Button></div>;
   if (!issues.length) return <p className="py-2 text-xs text-muted-foreground">No approved initiative currently needs follow-up. Active initiatives will appear here when a deadline, blocker, owner or measurement needs attention.</p>;
 
@@ -171,7 +175,7 @@ export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (coun
       <p className="mt-1 text-xs text-muted-foreground">{issue.goalTitle} · {issue.reason}</p>
       {issue.ownerId && <p className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground"><UserRound className="h-3 w-3" />{issue.ownerId === o.userId ? "Assigned to you" : "Assigned to a workspace member"}</p>}
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <Button size="sm" variant="outline" onClick={() => askAbout(issue)}>Ask Growth Officer <ArrowUpRight /></Button>
+        <Button size="sm" variant="outline" disabled={!canAskGrowthOfficer} onClick={() => askAbout(issue)}>Ask Growth Officer <ArrowUpRight /></Button>
         <Button size="sm" variant="ghost" asChild><Link to="/app/goals">Open Growth Plan <ArrowUpRight /></Link></Button>
       </div>
     </div>)}
