@@ -19,12 +19,12 @@ export function InitiativeOperations({ initiativeId, orgId, workspaceId, userId,
   initiativeId: string; orgId: string; workspaceId: string; userId: string; canEdit: boolean; status: string;
 }) {
   const qc = useQueryClient();
-  const queryKey = ["growth-initiative-operations", workspaceId, initiativeId];
+  const queryKey = ["growth-initiative-operations", orgId, workspaceId, initiativeId];
   const query = useQuery({
     queryKey,
     queryFn: async () => {
       const r = await supabase.from("growth_initiative_operations").select("owner_id,due_date,success_metric,baseline_value,target_value,current_value,blocker_note")
-        .eq("workspace_id", workspaceId).eq("initiative_id", initiativeId).maybeSingle();
+        .eq("org_id", orgId).eq("workspace_id", workspaceId).eq("initiative_id", initiativeId).maybeSingle();
       if (r.error) throw r.error;
       return r.data as Operations | null;
     },
@@ -100,7 +100,7 @@ export function InitiativeOperations({ initiativeId, orgId, workspaceId, userId,
         <div className="space-y-1"><label className="text-xs text-muted-foreground">Success metric</label><Input className="h-8" placeholder="e.g. qualified leads / month" value={form.success_metric} disabled={!canEdit} onChange={e => set("success_metric",e.target.value)} /></div>
         {(["baseline_value","target_value","current_value"] as const).map(key => <div key={key} className="space-y-1"><label className="text-xs text-muted-foreground">{key === "baseline_value" ? "Baseline" : key === "target_value" ? "Target" : "Current result"}</label><Input type="number" min={0} className="h-8" value={value(form[key])} disabled={!canEdit} onChange={e => set(key,e.target.value)} /></div>)}
       </div>
-      {progress != null && <p className="text-xs text-muted-foreground">Measured progress: {progress}% from baseline to target</p>}
+      {progress != null && <p className="text-xs text-muted-foreground">Recorded progress: {progress}% from values entered here; no connected metric source</p>}
       <div className="space-y-1"><label className="text-xs text-muted-foreground">Blocker / decision needed</label><Input className="h-8" maxLength={1000} placeholder="What is holding this initiative back?" value={form.blocker_note} disabled={!canEdit} onChange={e => set("blocker_note",e.target.value)} /></div>
       {canEdit && <div className="flex flex-wrap items-center justify-between gap-2"><select aria-label="Initiative status" className="h-8 rounded-md border border-input bg-background px-2 text-xs" value={nextStatus} onChange={e => setNextStatus(e.target.value)}>{["planned","in_progress","completed","paused","cancelled"].map(s => <option key={s} value={s}>{s.replace("_"," ")}</option>)}</select><Button size="sm" onClick={save}><Save className="mr-1 h-3.5 w-3.5" />Save operations</Button></div>}
     </>}
