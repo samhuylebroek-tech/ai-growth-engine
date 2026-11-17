@@ -74,7 +74,7 @@ Migration `0047_versioned_growth_plans.sql` adds:
 
 The goal workspace now displays the latest plan version and its initiatives. Members can create a draft from a saved strategy; only workspace admins/owners can approve it. Approval metadata is retained on superseded versions. Plan content is immutable after draft creation; changes require a new strategy and version.
 
-This is a real persisted planning/approval layer, but not yet a complete autonomous Growth Plan: initiatives are not yet individually approved, budget envelopes are still stored separately, and initiatives are not yet the parent records for generated projects/tasks/campaigns. The migration is branch-only and has not been applied or tested against a live database.
+This is a human-approved planning layer, not an autonomous Growth Plan. Approval applies to the plan version rather than each initiative; budget lines remain separate records but can be attached to approved initiatives. Approved initiatives can create a linked project and starter task through an idempotent RPC. Operational ownership and outcome fields are stored separately so the approved strategy snapshot remains immutable. The migrations are branch-only and have not been applied or tested against a live database.
 
 ### 2.5 Measurement is not yet a business KPI platform
 
@@ -129,3 +129,14 @@ The initial mapping was produced by reading repository source files and migratio
 ### 2.8 Approved initiatives now have an operational layer
 
 Migration `0050_growth_initiative_operations.sql` adds a separate operational record for each initiative. It keeps the approved strategy snapshot intact while allowing workspace members to record an owner, deadline, success metric, baseline, target, current result and blocker. Writes pass through a workspace-scoped RPC; owner assignment is validated against workspace membership. The Growth Plan UI exposes these fields only for approved initiatives. Measured progress is calculated only when baseline, target and current result are supplied; it is not presented as connected analytics. The migration and UI are branch-only and have not been applied or runtime-tested.
+
+
+### 2.9 Initiative attention now feeds the Command Center
+
+The Command Center now reads initiatives from the currently approved Growth Plan versions, including initiatives that do not yet have a generated project. It combines initiative status with operational owner, due date, blocker and outcome fields. A deterministic, tested rule set ranks blockers first, then overdue and near-term deadlines, active work without an owner, and active work without a complete outcome measure. The view shows up to six records and reports the total number requiring follow-up. The ranking is a transparent rule-based signal, not an AI prediction.
+
+Each attention item can prefill a workspace-scoped Growth Officer conversation with its plan, goal, status, owner, deadline, metric and blocker context. The prompt is not submitted automatically: the member must review and send it, which retains the normal AI credit and permission boundary. Viewers cannot start the AI request. No specialist is selected or run automatically.
+
+Migration `0052_guard_initiative_operations.sql` also enforces at the database layer that operational metadata can only be changed while the linked Growth Plan is approved, and revalidates workspace owner access on every write. This complements the RPC checks in migration `0050_growth_initiative_operations.sql`.
+
+The pulse and priority logic are implemented on the feature branch. Unit tests for deterministic ranking have been added but were not executed here. No build, lint, database migration or browser/mobile test has been run.
