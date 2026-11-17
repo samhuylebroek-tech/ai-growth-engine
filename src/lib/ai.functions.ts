@@ -14,7 +14,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { executionSelectionSchema } from "@/lib/execution-context";
 import { selectedExecutionContext } from "@/lib/security/execution-context";
 import { SPECIALISTS, specialistKeySchema, parseSpecialistOutput, specialistMarkdown } from "@/lib/specialists";
-import { coordinationInputSchema, coordinationClaimSchema, coordinationReceiptSchema, COORDINATION_LIMITS, coordinateOnce, synthesisEvidence, type SpecialistAnalysis } from "@/lib/coordination";
+import { coordinationInputSchema, coordinationClaimSchema, coordinationReceiptSchema, COORDINATION_LIMITS, coordinateOnce, synthesisEvidence, selectSpecialistsForRequest, type SpecialistAnalysis } from "@/lib/coordination";
 import { AISettlementPendingError, AINotStartedError, AIOutcomeUnknownError, mayCloseFailedCoordination, isConfirmedDispatchDenial } from "@/lib/ai-accounting";
 
 import { singleRequestSchema } from "@/lib/single-ai-request";
@@ -457,13 +457,14 @@ export const runCoordinatedAnalysis = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<Result<{ analysisId: string; conversationId: string; messageId: string; reply: string; credits: number }>> => {
     const sb = context.supabase as DB;
     let analysisId: string | null = null;
+    const selectedAgents = data.mode === "auto" ? selectSpecialistsForRequest(data.request) : data.agents;
     try {
       await requireRole(sb, data.orgId, "member");
       await requireWorkspace(sb, data);
       const access = await sb.rpc("has_workspace_role", { _workspace: data.workspaceId, _min: "member" });
       if (access.error || !access.data) throw new Error("You need workspace member access.");
       await assertEntitled(sb, data.orgId, "ai_assistant");
-      const claimed = await sb.rpc("begin_coordinated_analysis_verified", { _proof: accountingProof(), _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _input: { request: data.request, agents: data.agents, executionContext: data.executionContext } });
+      const claimed = await sb.rpc("begin_coordinated_analysis_verified", { _proof: accountingProof(), _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _input: { request: data.request, agents: selectedAgents, mode: data.mode, executionContext: data.executionContext } });
       if (claimed.error) throw new Error(claimed.error.message.includes("insufficient") ? "A coordinated analysis needs 150 available credits. Unused credits are returned after each step." : claimed.error.message);
       const claim = coordinationClaimSchema.parse(claimed.data);
       if (!claim.claimed) {
@@ -482,7 +483,7 @@ export const runCoordinatedAnalysis = createServerFn({ method: "POST" })
       const runIds = claim.runIds;
       if (!runIds) throw new Error("Could not allocate analysis steps.");
       const analyses: SpecialistAnalysis[] = [];
-      const synthesis = await coordinateOnce(data.agents, async (key, index) => {
+      const synthesis = await coordinateOnce(selectedAgents, async (key, index) => {
         // Recheck current access and refetch selected records immediately before each call.
         await requireRole(sb, data.orgId, "member");
         const selected = await selectedExecutionContext(sb, data, data.executionContext);
@@ -514,7 +515,9 @@ export const runCoordinatedAnalysis = createServerFn({ method: "POST" })
         if (checkpoint.error) throw new Error("Could not preserve synthesis. Check history before another request.");
         return { output: parseSpecialistOutput(generated.text), sources: selected.sources };
       });
-      const reply = [specialistMarkdown(synthesis.output, synthesis.sources), "---\n\n## Independent specialist analyses", ...analyses.map(a => `### ${SPECIALISTS[a.agent].name}\n\n${specialistMarkdown(a.output, synthesis.sources)}`)].join("\n\n");
+      const reply = data.mode === "auto"
+        ? specialistMarkdown(synthesis.output, synthesis.sources)
+        : [specialistMarkdown(synthesis.output, synthesis.sources), "---\n\n## Independent specialist analyses", ...analyses.map(a => `### ${SPECIALISTS[a.agent].name}\n\n${specialistMarkdown(a.output, synthesis.sources)}`)].join("\n\n");
       const saved = await sb.rpc("finish_coordinated_analysis_verified", { _id: claim.id, _reply: reply, _proof: accountingProof() });
       if (saved.error) throw new Error("Could not save the coordinated result. Check history before starting a new request.");
       const receipt = coordinationReceiptSchema.parse(saved.data);
