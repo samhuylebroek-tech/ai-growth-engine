@@ -280,3 +280,8 @@ A release is not accepted because a screen looks polished. It must demonstrate:
 Before implementation, map the existing database entities and server functions that support goals/budgets, approvals, AI runs, projects, tasks and campaigns. Then produce a route-to-capability matrix and a screen-level interaction prototype for the Phase 1 Command Center and Phase 2 goal-to-plan journey.
 
 The first implementation PR should be a narrow, reversible vertical slice, with automated tests and a documented rollback path. It must not be merged to `main` until preview behavior, data integrity, tenant isolation and mobile acceptance criteria have been reviewed.
+
+
+## 13. Implemented vertical-slice extension (feature branch)
+
+The current branch adds a versioned Growth Plan approval boundary, idempotent initiative-to-project/task conversion, and approved-initiative budget allocation. A budget line may reference an initiative only when its goal, organization and workspace match; the database rejects links to non-approved plans. Generated projects are linked back to their initiative, and the Command Center displays the initiative alongside active work. This is internal planning/execution scaffolding, not autonomous external execution. All changes remain on the feature branch pending migration, preview, security and mobile validation.
