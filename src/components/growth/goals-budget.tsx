@@ -102,6 +102,12 @@ function Planner({ orgId, wsId, canEdit, userId }: { orgId: string; wsId: string
                 {x.priority === "primary" && <Badge>Primary</Badge>}<Badge variant="outline">{OBJECTIVES[x.objective]}</Badge>{x.status !== "active" && <Badge variant="secondary">{x.status}</Badge>}</div>
               <p className="text-sm text-muted-foreground">{x.metric || "No metric"} · baseline {x.baseline ?? "—"} → target {x.target ?? "—"}{x.due_date ? ` by ${x.due_date}` : ""}</p>
               {p != null ? <div className="space-y-1"><Progress value={p} /><p className="text-xs text-muted-foreground">{p}% of the way, based on the current value you entered</p></div> : <p className="text-xs text-muted-foreground">Enter a target and current value to track progress.</p>}
+              <GoalPlanSnapshot
+                budgetLines={(lines.data ?? []).filter(line => line.goal_id === x.id)}
+                linkedWorkCount={[...(links.data?.projects ?? []), ...(links.data?.campaigns ?? [])].filter(work => work.goal_id === x.id).length}
+                month={month}
+                formatAmount={fmt}
+              />
               <LinkedWork goalId={x.id} data={links.data} canEdit={canEdit} onLink={link} />
               {canEdit && x.status === "active" && <StrategyPanel orgId={orgId} wsId={wsId} goalId={x.id} goalTitle={x.title} userId={userId} />}
               {canEdit && <div className="flex flex-wrap items-center gap-2">
@@ -160,6 +166,30 @@ function Planner({ orgId, wsId, canEdit, userId }: { orgId: string; wsId: string
   );
 }
 
+function GoalPlanSnapshot({ budgetLines, linkedWorkCount, month, formatAmount }: {
+  budgetLines: Array<{ id: string; planned: number | string; actual: number | string; currency: string }>;
+  linkedWorkCount: number;
+  month: string;
+  formatAmount: (n: number) => string;
+}) {
+  const currencies = [...new Set(budgetLines.map(line => line.currency))];
+  const planned = budgetLines.reduce((sum, line) => sum + Number(line.planned), 0);
+  const spent = budgetLines.reduce((sum, line) => sum + Number(line.actual), 0);
+  return (
+    <div className="rounded-md bg-muted/40 px-3 py-2 text-sm">
+      <p className="text-xs font-medium text-muted-foreground">Plan snapshot · {new Date(`${month}T00:00:00`).toLocaleDateString(undefined, { month: "long", year: "numeric" })}</p>
+      <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+        <span>{linkedWorkCount} linked {linkedWorkCount === 1 ? "work item" : "work items"}</span>
+        <span>{budgetLines.length} budget {budgetLines.length === 1 ? "line" : "lines"}</span>
+        {budgetLines.length > 0 && currencies.length === 1
+          ? <span>{formatAmount(planned)} planned · {formatAmount(spent)} recorded</span>
+          : budgetLines.length > 0
+            ? <span>Multiple currencies — totals kept separate in the budget table</span>
+            : <span>No budget assigned this month</span>}
+      </div>
+    </div>
+  );
+}
 type LinkRow = { id: string; title: string; goal_id: string | null };
 function LinkedWork({ goalId, data, canEdit, onLink }: { goalId: string; data: { projects: LinkRow[]; campaigns: LinkRow[] } | undefined; canEdit: boolean; onLink: (t: "projects" | "campaigns", id: string, g: string | null) => void }) {
   if (!data) return null;
