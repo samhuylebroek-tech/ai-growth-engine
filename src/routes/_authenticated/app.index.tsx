@@ -19,6 +19,7 @@ import { commandCenterOptions, homePreferenceKey, prioritizeApprovals, type Acti
 import { AGENTS } from "@/lib/registry/agents";
 import { cn } from "@/lib/utils";
 import { PrimaryGrowthFocus } from "@/components/app/primary-growth-focus";
+import { GrowthInitiativePulse } from "@/components/app/growth-initiative-pulse";
 
 export const Route = createFileRoute("/_authenticated/app/")({ head: () => pageHead("Business command center", "Your workspace activity, active AI assignments, decisions and growth opportunities in one place."), component: Overview });
 const SECTIONS = ["activity", "results", "opportunities", "upcoming", "performance"] as const;
@@ -35,7 +36,7 @@ function Overview() {
   const es = execution.data ? executionSummary(execution.data.tasks, execution.data.projects, execution.data.campaigns, o.userId) : null;
   const [order, setOrder] = useState<Section[]>([...SECTIONS]); const [hidden, setHidden] = useState<Section[]>([]); const [compact, setCompact] = useState(false);
   const [filter, setFilter] = useState<ActivityKind | "all">("all"); const [status, setStatus] = useState("all"); const [limit, setLimit] = useState(8); const [selected, setSelected] = useState<Activity | null>(null);
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(false); const [initiativeAttentionCount, setInitiativeAttentionCount] = useState(0);
   const prefKey = o.org && o.workspace ? homePreferenceKey(o.userId, o.org.id, o.workspace.id) : null;
   useEffect(() => {
     if (!prefKey) return;
@@ -49,7 +50,7 @@ function Overview() {
   const failedRuns = w?.runs.filter(r => r.status === "failed") ?? []; const brokenSources = w?.connections.filter(c => ["failed", "error", "expired"].includes(c.status)) ?? [];
   const editable = can(o.workspaceRole, "profile.edit"); const decide = can(o.workspaceRole, "approvals.decide"); const ai = can(o.workspaceRole, "ai.use");
   const foundation = editable && !!d && !d.profile?.onboarding_completed_at;
-  const attention = new Set([...(es?.overdue ?? []), ...(es?.review ?? [])].map(t=>t.id)).size + (d?.approvalCount ?? 0) + failedDocs.length + failedRuns.length + brokenSources.length + (unconfirmed ? 1 : 0) + (foundation ? 1 : 0);
+  const attention = new Set([...(es?.overdue ?? []), ...(es?.review ?? [])].map(t=>t.id)).size + (d?.approvalCount ?? 0) + failedDocs.length + failedRuns.length + brokenSources.length + (unconfirmed ? 1 : 0) + (foundation ? 1 : 0) + initiativeAttentionCount;
   const feed = w?.activity.filter(a => (filter === "all" || a.kind === filter) && (status === "all" || (status === "attention" ? ["failed", "pending"].includes(a.status) : status === "running" ? ["running", "processing"].includes(a.status) : ["succeeded", "ready", "approved"].includes(a.status)))) ?? [];
   function move(section: Section, direction: number) { const next = [...order]; const from = next.indexOf(section); const to = from + direction; const current = next[from]; const target = next[to]; if (!current || !target) return; next[from] = target; next[to] = current; setOrder(next); }
   function refresh() { qc.invalidateQueries({ queryKey: ["execution"] }); qc.invalidateQueries({ queryKey: ["overview"] }); qc.invalidateQueries({ queryKey: ["command-center"] }); }
@@ -70,7 +71,7 @@ function Overview() {
         <PrimaryGrowthFocus />
         <section><SectionHeading title="Today’s priorities" /><HomeWork section="priorities" /></section>
         <section className="border-l-2 border-primary pl-4"><SectionHeading eyebrow={attention ? `${attention} items to follow up` : "No open follow-up"} title="Needs your attention" />
-        <HomeWork section="attention" />
+        <HomeWork section="attention" /><GrowthInitiativePulse onCountChange={setInitiativeAttentionCount} />
         {!!failedRuns.length && <Attention title={`${failedRuns.length} recent AI assignments failed`} detail="Review the recorded error before starting again." to="/app/activity" important />}
         {!!failedDocs.length && <Attention title={`${failedDocs.length} documents need attention`} detail="Review processing and retry extraction." to="/app/documents" important />}
         {!!brokenSources.length && <Attention title={`${brokenSources.length} data sources need review`} detail="Review their recorded connection status." to="/app/integrations" important />}
