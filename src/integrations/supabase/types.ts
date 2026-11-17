@@ -475,6 +475,7 @@ export type Database = {
           goal_id: string | null
           hard_cap: number | null
           id: string
+          initiative_id: string | null
           note: string
           org_id: string
           period_month: string
@@ -491,6 +492,7 @@ export type Database = {
           goal_id?: string | null
           hard_cap?: number | null
           id?: string
+          initiative_id?: string | null
           note?: string
           org_id: string
           period_month: string
@@ -520,6 +522,13 @@ export type Database = {
             columns: ["goal_id", "org_id", "workspace_id"]
             isOneToOne: false
             referencedRelation: "growth_goals"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "budget_lines_initiative_scope_fk"
+            columns: ["initiative_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "growth_initiatives"
             referencedColumns: ["id", "org_id", "workspace_id"]
           },
           {
@@ -2893,7 +2902,8 @@ export type Database = {
       create_growth_initiative_work: {
         Args: { _initiative: string }
         Returns: Json
-      }\n      create_growth_plan_draft: {
+      }
+      create_growth_plan_draft: {
         Args: { _strategy: string }
         Returns: Json
       }
