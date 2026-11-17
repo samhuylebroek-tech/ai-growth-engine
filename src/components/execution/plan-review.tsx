@@ -26,7 +26,25 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
   const [plan, setPlan] = useState(() => draftExecutionPlan(content));
   const [busy, setBusy] = useState(false);
   const [request, setRequest] = useState("");
+  const [goalId, setGoalId] = useState("");
   const q = useQuery(executionOptions(o.org?.id, o.workspace?.id, o.userId));
+  const goals = useQuery({
+    queryKey: ["growth-goals-for-execution", o.org?.id, o.workspace?.id],
+    enabled: open && !!o.org?.id && !!o.workspace?.id,
+    queryFn: async () => {
+      if (!o.org || !o.workspace) return [];
+      const r = await supabase.from("growth_goals")
+        .select("id,title,status")
+        .eq("org_id", o.org.id)
+        .eq("workspace_id", o.workspace.id)
+        .in("status", ["active", "draft"])
+        .order("priority", { ascending: true })
+        .order("updated_at", { ascending: false });
+      if (r.error) throw r.error;
+      return r.data ?? [];
+    },
+  });
+  const selectedGoalId = goalId || goals.data?.[0]?.id || "";
   async function create() {
     if (!o.workspace || busy) return;
     const valid = planSchema.safeParse(plan);
@@ -42,6 +60,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
         _kind: kind,
         _request: request,
         _plan: valid.data,
+        _goal: kind === "tasks" || !selectedGoalId ? null : selectedGoalId,
       });
       if (r.error) throw r.error;
       await qc.invalidateQueries({ queryKey: ["execution"] });
@@ -66,6 +85,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
         size="sm"
         onClick={() => {
           setRequest(crypto.randomUUID());
+          setGoalId("");
           setOpen(true);
         }}
       >
@@ -85,6 +105,24 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
               Nothing is created until you confirm. No external publishing.
             </DialogDescription>
           </DialogHeader>
+          {kind !== "tasks" && (
+            <label className="block space-y-1 text-xs">
+              Link to growth goal
+              <select
+                aria-label="Link to growth goal"
+                className="w-full rounded-md border border-border bg-background p-2"
+                value={selectedGoalId}
+                onChange={(e) => setGoalId(e.target.value)}
+                disabled={goals.isLoading || goals.isError}
+              >
+                <option value="">No growth goal</option>
+                {goals.data?.map((goal) => (
+                  <option key={goal.id} value={goal.id}>{goal.title}</option>
+                ))}
+              </select>
+              {goals.isError && <span role="alert" className="block text-destructive">Growth goals could not load. Retry by closing and reopening this review.</span>}
+            </label>
+          )}
           <div className="flex flex-wrap gap-1">
             {(
               [
