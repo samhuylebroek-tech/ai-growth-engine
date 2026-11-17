@@ -18,6 +18,9 @@ BEGIN
   IF initiative_row.project_id IS NOT NULL THEN
     RETURN jsonb_build_object('initiative_id', initiative_row.id, 'project_id', initiative_row.project_id, 'status', initiative_row.status);
   END IF;
+  IF initiative_row.status IN ('completed','cancelled') THEN
+    RAISE EXCEPTION 'Completed or cancelled initiatives cannot create new work';
+  END IF;
   SELECT * INTO plan_row FROM public.growth_plan_versions WHERE id = initiative_row.plan_version_id FOR UPDATE;
   IF NOT FOUND OR plan_row.status <> 'approved' THEN
     RAISE EXCEPTION 'Only initiatives in an approved Growth Plan can become work';
