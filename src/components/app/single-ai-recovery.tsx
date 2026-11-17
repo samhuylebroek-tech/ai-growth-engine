@@ -8,6 +8,7 @@ import { useOrg } from "@/lib/org-context";
 import { recoverSingleAIRequest } from "@/lib/ai.functions";
 import { Button } from "@/components/ui/button";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export function SingleAIRecovery({ onRecovered }: { onRecovered?: (id: string) => void }) {
   const o = useOrg(); const qc = useQueryClient(); const recover = useServerFn(recoverSingleAIRequest);
@@ -46,5 +47,5 @@ export function SingleAIRecovery({ onRecovered }: { onRecovered?: (id: string) =
     if (row.status === "succeeded" && row.conversation_id) {
       if (onRecovered) onRecovered(row.conversation_id); else setOpened(row.reply);
     } else restore(row.id);
-  }}><RotateCcw />{busy === row.id ? "Recovering…" : row.status === "succeeded" ? "Open saved answer" : "Recover saved work"}</Button></div></div>)}</div>}{opened && <article className="prose-chat mt-5 min-w-0 break-words border-t border-border pt-5 text-sm"><ReactMarkdown skipHtml>{opened}</ReactMarkdown></article>}</section>;
+  }}><RotateCcw />{busy === row.id ? "Recovering…" : row.status === "succeeded" ? "Open saved answer" : "Recover saved work"}</Button></div></div>)}</div>}{opened && <article className="prose-chat mt-5 min-w-0 break-words border-t border-border pt-5 text-sm"><ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml>{opened}</ReactMarkdown></article>}</section>;
 }

@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 import { Network, Download, RotateCcw, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -100,6 +101,6 @@ export function CoordinationWorkbench() {
       {history.data?.map(row => <div key={row.id} className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border py-2 text-xs"><span className="min-w-0 break-words">{new Date(row.created_at).toLocaleString()} · {row.status}{row.error ? ` · ${row.error}` : ""}</span><div className="flex flex-wrap gap-1">{row.status === "succeeded" ? <Button variant="link" size="sm" disabled={busy} onClick={() => open(row)}>Open saved analysis</Button> : <Button variant="outline" size="sm" disabled={busy} onClick={() => recoverRow(row)}><RotateCcw />Recover saved work</Button>}{row.partial_results && Object.keys(row.partial_results).length > 0 && <Button variant="ghost" size="icon" title="Download preserved steps" aria-label="Download preserved steps" onClick={() => downloadPartial(row)}><FileText /></Button>}</div></div>)}
       {!history.isLoading && !history.isError && !history.data?.length && <p className="text-xs text-muted-foreground">No coordinated analyses yet.</p>}
     </div>
-    {result && <article className="mt-6 border-t border-border pt-5"><div className="mb-4 flex items-center justify-between gap-3"><p className="text-xs text-muted-foreground">Saved team analysis{result.credits !== undefined ? ` · ${result.credits} credits` : ""}</p><Button variant="ghost" size="icon" aria-label="Download coordinated analysis" title="Download analysis" onClick={download}><Download /></Button></div><div className="prose-chat min-w-0 break-words text-sm leading-relaxed"><ReactMarkdown skipHtml>{result.reply}</ReactMarkdown></div><div className="mt-4"><PlanReview sourceId={result.messageId} content={result.reply} /></div></article>}
+    {result && <article className="mt-6 border-t border-border pt-5"><div className="mb-4 flex items-center justify-between gap-3"><p className="text-xs text-muted-foreground">Saved team analysis{result.credits !== undefined ? ` · ${result.credits} credits` : ""}</p><Button variant="ghost" size="icon" aria-label="Download coordinated analysis" title="Download analysis" onClick={download}><Download /></Button></div><div className="prose-chat min-w-0 break-words text-sm leading-relaxed"><ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml>{result.reply}</ReactMarkdown></div><div className="mt-4"><PlanReview sourceId={result.messageId} content={result.reply} /></div></article>}
   </section>;
 }

@@ -96,10 +96,11 @@ export type BusinessDomains = {
   connections: DomainRead<Connection>;
 };
 
-type ScopedTable = Extract<keyof Database["public"]["Tables"],
+// Plain union (not tied to generated types) because growth plan/initiative tables may not be installed yet; missing ones read as "unavailable".
+type ScopedTable =
   "business_profiles" | "business_facts" | "approvals" | "growth_goals" | "growth_plan_versions" | "growth_initiatives" | "growth_initiative_operations"
   | "projects" | "tasks" | "budget_lines" | "crm_deals" | "competitors" | "competitor_observations" | "seo_audits"
-  | "content_assets" | "content_versions" | "content_version_decisions" | "campaigns" | "connector_connections">;
+  | "content_assets" | "content_versions" | "content_version_decisions" | "campaigns" | "connector_connections";
 type ScopedQuery = PromiseLike<Res> & {
   eq(column: string, value: unknown): ScopedQuery; neq(column: string, value: unknown): ScopedQuery;
   in(column: string, values: readonly unknown[]): ScopedQuery; order(column: string, options?: { ascending?: boolean }): ScopedQuery;
@@ -113,7 +114,7 @@ export async function readBusinessDomains(sb: DB, scope: BusinessScope, workspac
   const { orgId, workspaceId } = scope;
   // Every context query starts from this helper, so org_id AND workspace_id predicates can never be forgotten.
   const t = (name: ScopedTable, columns: string) =>
-    (sb.from(name) as unknown as { select(columns: string): ScopedQuery }).select(columns).eq("org_id", orgId).eq("workspace_id", workspaceId);
+    (sb as unknown as { from(table: ScopedTable): { select(columns: string): ScopedQuery } }).from(name).select(columns).eq("org_id", orgId).eq("workspace_id", workspaceId);
 
   const [profile, facts, recs, goals, plans, budgetFirst, deals, competitors, seo, content, campaigns, connections] = await Promise.all([
     strict<{ objectives: unknown; monthly_budget_eur: number | null; onboarding_completed_at: string | null }>("business profile", t("business_profiles", "objectives,monthly_budget_eur,onboarding_completed_at").maybeSingle(), 1),
@@ -309,7 +310,7 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
   else if (d.seo.rows[0]) {
     const audit = d.seo.rows[0]; const findings = seoFindings(audit.findings); const age = ageDays(audit.created_at, now);
     const count = (s: string) => findings.filter(f => f.severity === s).length;
-    seoLines.push(`latest check of ${clip(audit.site_url, 80)} on ${day(audit.created_at)}: ${audit.page_count} pages; ${count("high")} high, ${count("medium")} medium, ${count("low")} low priority issues${age !== null && age > 30 ? `; check is ${age} days old — rerun before relying on it` : ""}`);
+    seoLines.push(`latest check of ${clip(audit.site_url, 80)} on ${day(audit.created_at)}: ${audit.page_count} page(s); ${count("high")} high, ${count("medium")} medium, ${count("low")} low priority issues${age !== null && age > 30 ? `; check is ${age} days old — rerun before relying on it` : ""}`);
     for (const f of [...findings.filter(f => f.severity === "high").slice(0, 6), ...findings.filter(f => f.severity === "medium").slice(0, 3)]) seoLines.push(`- ${f.severity}: ${clip(f.message, 120)} (${clip(f.url, 80)})`);
   }
   sections.push({ key: "website-check", title: "WEBSITE (SEO) CHECK", evidence: ["automated_site_check"], budget: 700, priority: 7, lines: seoLines });

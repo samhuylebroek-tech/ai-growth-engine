@@ -177,7 +177,7 @@ describe("unified business context — domain sources", () => {
   });
   it("includes high-priority SEO findings with check date and ignores malformed findings", async () => {
     const context = await build();
-    expect(context).toContain("latest check of https://ours.example on 2026-11-16: 12 pages; 1 high, 0 medium, 1 low");
+    expect(context).toContain("latest check of https://ours.example on 2026-11-16: 12 page(s); 1 high, 0 medium, 1 low");
     expect(context).toContain("- high: Page has no title. (https://ours.example/menu)");
     expect(context).not.toContain("Images without alt");
   });

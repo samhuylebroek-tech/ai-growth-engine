@@ -1,4 +1,11 @@
 # AI Growth OS — Task Queue
+## Goal directive: stability + unified business context — 2026-11-17
+- [x] M0: five failing tests fixed (coordination conversation selection, context query mock); 8 type errors and an undefined prompt variable in specialist analyses fixed.
+- [x] M0: migration journal checked read-only (54 entries, contiguous, ordered; 8 committed but unapplied); forward-only policy in docs/MIGRATION_POLICY.md.
+- [x] M1: one evidence-labelled, workspace-scoped business context (facts, goals, plans, pipeline per currency, budget, sourced competitors, SEO, Content Studio, campaigns, integrations) capped at 12,000 characters, used by every AI surface.
+- [x] Verified: 221 tests, type check, lint, production build; signed-in Growth Officer cross-area answers in English, Dutch and French.
+- [B] Growth Plans/initiatives in the AI context and screens: waits on owner approval to apply the 8 pending database changes.
+- [B] Measured performance (traffic, ads, revenue): waits on real integrations being connected.
 ## Growth planning & content expansion — 2026-11-16
 - [x] Link projects/campaigns to goals; linked work shown and editable on each goal (0040).
 - [x] AI growth strategy per goal (metered, saved insert-only, convert chosen actions into a goal-linked project with tasks).
