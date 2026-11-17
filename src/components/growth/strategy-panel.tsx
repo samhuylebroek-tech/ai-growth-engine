@@ -18,7 +18,6 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
   const [weeks, setWeeks] = useState(12); const [requestKey, setRequestKey] = useState(() => crypto.randomUUID());
   const [result, setResult] = useState<{ strategy: Strategy; key: string; saved: boolean } | null>(null);
   const [strategyId, setStrategyId] = useState<string | null>(null);
-  const [creating, setCreating] = useState(false);
   const saved = useQuery({ enabled: open, queryKey: ["growth-strategies", wsId, goalId], queryFn: async () => {
     const r = await supabase.from("growth_strategies").select("id,summary,body,created_at,request_key").eq("workspace_id", wsId).eq("goal_id", goalId).order("created_at", { ascending: false }).limit(10);
     if (r.error) throw r.error; return r.data; } });
@@ -64,25 +63,6 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
     }
   };
 
-  const createPlanDraft = async () => {
-    if (!result?.saved || !strategyId || creating) return;
-    setCreating(true);
-    try {
-      const response = await supabase.rpc("create_growth_plan_draft", { _strategy: strategyId });
-      if (response.error) throw response.error;
-      const receipt = response.data as { plan_id?: string; version?: number; status?: string } | null;
-      if (!receipt?.plan_id || !receipt.version) throw new Error("The Growth Plan receipt is incomplete.");
-      toast.success(`Growth Plan draft V${receipt.version} created · awaiting approval`);
-      await qc.invalidateQueries({ queryKey: ["growth-plan-versions", wsId, goalId] });
-      await qc.invalidateQueries({ queryKey: ["growth-initiatives", wsId] });
-      await qc.invalidateQueries({ queryKey: ["latest-saved-growth-strategy", wsId, goalId] });
-    } catch {
-      toast.error("The Growth Plan draft could not be confirmed. Check the saved plan before retrying.");
-    } finally {
-      setCreating(false);
-    }
-  };
-
   if (!open) return <Button size="sm" variant="outline" onClick={() => setOpen(true)}><Compass className="mr-1 h-4 w-4" />Plan strategy</Button>;
   const view = result?.strategy;
   return (
@@ -105,10 +85,10 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
         {view.risks.length > 0 && <div><p className="font-medium">Risks</p><ul className="list-disc pl-5">{view.risks.map((r) => <li key={r}>{r}</li>)}</ul></div>}
         {view.assumptions.length > 0 && <div><p className="font-medium">Assumptions to check</p><ul className="list-disc pl-5">{view.assumptions.map((r) => <li key={r}>{r}</li>)}</ul></div>}
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant="outline" disabled={result.saved || busy || creating} onClick={save}>{result.saved ? "Saved" : busy ? "Saving…" : "Save strategy"}</Button>
-          <Button size="sm" disabled={!result.saved || !strategyId || creating} onClick={createPlanDraft}>{creating ? "Creating draft…" : !result.saved ? "Save strategy to create draft" : "Create Growth Plan draft"}</Button>
-          <Button size="sm" variant="ghost" disabled={busy || creating} onClick={() => { setResult(null); setStrategyId(null); }}>Discard</Button>
+          <Button size="sm" variant="outline" disabled={result.saved || busy} onClick={save}>{result.saved ? "Saved" : busy ? "Saving…" : "Save strategy"}</Button>
+          <Button size="sm" variant="ghost" disabled={busy} onClick={() => { setResult(null); setStrategyId(null); }}>Discard</Button>
         </div>
+        {result.saved && <p className="text-xs text-muted-foreground">Strategy saved. Create its reviewable draft from the Growth Plan panel for this goal.</p>}
       </div>}
       {(saved.data ?? []).length > 0 && <div className="space-y-1 border-t pt-2"><p className="text-xs font-medium text-muted-foreground">Saved strategies</p>
         {saved.data!.map((s) => <button key={s.id} type="button" className="block w-full truncate rounded px-1 text-left text-sm hover:bg-accent" onClick={() => { const p = strategySchema.safeParse(s.body); if (p.success) { setResult({ strategy: p.data, key: s.request_key, saved: true }); setStrategyId(s.id); setPicked(new Set(p.data.actions.map((_, i) => i))); } }}>
