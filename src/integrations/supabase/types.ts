@@ -1800,7 +1800,8 @@ export type Database = {
         ]
       }
       growth_initiatives: {
-        Row: {\n          project_id: string | null
+        Row: {
+          project_id: string | null
           channel: string
           created_at: string
           detail: string
@@ -1815,7 +1816,8 @@ export type Database = {
           title: string
           workspace_id: string
         }
-        Insert: {\n          project_id?: string | null
+        Insert: {
+          project_id?: string | null
           channel?: string
           created_at?: string
           detail?: string
@@ -1830,7 +1832,8 @@ export type Database = {
           title: string
           workspace_id: string
         }
-        Update: {\n          project_id?: string | null
+        Update: {
+          project_id?: string | null
           channel?: string
           created_at?: string
           detail?: string
@@ -1851,6 +1854,13 @@ export type Database = {
             columns: ["goal_id", "org_id", "workspace_id"]
             isOneToOne: false
             referencedRelation: "growth_goals"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "growth_initiatives_project_scope_fk"
+            columns: ["project_id", "org_id", "workspace_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
             referencedColumns: ["id", "org_id", "workspace_id"]
           },
           {
