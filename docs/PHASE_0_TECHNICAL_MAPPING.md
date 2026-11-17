@@ -64,6 +64,18 @@ The Command Center's active-work summary now resolves and displays the linked go
 
 This remains branch-only. No migration was applied and no app build, database integration test or browser/mobile test was run.
 
+### 2.7 Saved strategies now become versioned Growth Plans
+
+Migration `0047_versioned_growth_plans.sql` adds:
+- `growth_plan_versions`: one immutable snapshot per saved strategy, with a per-goal version number and explicit draft/approved/superseded/rejected state;
+- `growth_initiatives`: ordered initiative records derived from the saved strategy actions;
+- `create_growth_plan_draft`: an idempotent RPC that snapshots a saved strategy into a draft and creates its initiatives in one transaction;
+- `approve_growth_plan`: an admin/owner-only decision that approves the draft and supersedes the previous approved version for that goal.
+
+The goal workspace now displays the latest plan version and its initiatives. Members can create a draft from a saved strategy; only workspace admins/owners can approve it. Approval metadata is retained on superseded versions. Plan content is immutable after draft creation; changes require a new strategy and version.
+
+This is a real persisted planning/approval layer, but not yet a complete autonomous Growth Plan: initiatives are not yet individually approved, budget envelopes are still stored separately, and initiatives are not yet the parent records for generated projects/tasks/campaigns. The migration is branch-only and has not been applied or tested against a live database.
+
 ### 2.5 Measurement is not yet a business KPI platform
 
 The Command Center's performance section explicitly reports traffic, leads/conversions and revenue as not configured. The connector registry marks Analytics, Search Console, ad platforms, LinkedIn, HubSpot, Mailchimp, Stripe and Shopify as planned. This means the initial vertical slice must use goal definitions and manually supplied/verified measurements where appropriate, and must not manufacture live ROI.
@@ -107,7 +119,7 @@ The first code slice should avoid schema changes if possible:
 5. Keep the current detailed dashboard data accessible under a “More activity and history” disclosure or Work history.
 6. Add tests for the hierarchy, no-goal state, missing metric state, approval permissions, tenant scoping and mobile overflow.
 
-The first Command Center/goal slice, atomic strategy-to-work conversion, a goal-linked chat-to-work path, and a per-goal budget/work snapshot are now present on this branch. The snapshot is deliberately limited to existing records: saved strategies are still suggestions, not approved/versioned plans. The next step is to test the complete journey against a real preview/database, then introduce a durable, versioned plan/initiative model before widening autonomous execution.
+The first Command Center/goal slice, atomic strategy-to-work conversion, a goal-linked chat-to-work path, a per-goal budget/work snapshot, and a first versioned Growth Plan with initiatives and admin approval are now present on this branch. The Growth Plan layer snapshots saved strategies into immutable versions and creates ordered initiative records; approval is a separate admin/owner action. Budget envelopes and execution work are not yet fully owned by initiatives. The next step is to test the complete journey against a real preview/database, then introduce a durable, versioned plan/initiative model before widening autonomous execution.
 
 ## 6. Verification boundary
 
