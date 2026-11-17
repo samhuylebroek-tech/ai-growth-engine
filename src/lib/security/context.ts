@@ -53,6 +53,19 @@ export async function workspaceContext(sb: DB, scope: WorkspaceScope) {
         .eq("org_id", scope.orgId).eq("workspace_id", scope.workspaceId).in("initiative_id", initiativeIds)
     : { data: [], error: null };
   if (operationsResult.error) throw new Error("Could not read growth initiative operations.");
+  const projectIds = [...new Set((initiativesResult.data ?? []).map(item => item.project_id).filter((id): id is string => !!id))];
+  const projectsResult = projectIds.length
+    ? await sb.from("projects").select("id,title,status,priority,start_date,end_date,owner_id")
+        .eq("org_id", scope.orgId).eq("workspace_id", scope.workspaceId).in("id", projectIds)
+    : { data: [], error: null };
+  if (projectsResult.error) throw new Error("Could not read initiative work projects.");
+  const linkedProjectIds = (projectsResult.data ?? []).map(project => project.id);
+  const tasksResult = linkedProjectIds.length
+    ? await sb.from("tasks").select("id,project_id,title,status,priority,due_date,owner_id")
+        .eq("org_id", scope.orgId).eq("workspace_id", scope.workspaceId).in("project_id", linkedProjectIds)
+        .order("due_date", { ascending: true }).limit(80)
+    : { data: [], error: null };
+  if (tasksResult.error) throw new Error("Could not read initiative work tasks.");
 
   // Descriptive profile fields can be stale after a fact is edited/rejected; never use them as a second trust path.
   const objectives = profile.data?.onboarding_completed_at ? { objectives: profile.data.objectives, monthly_budget_eur: profile.data.monthly_budget_eur } : {};
@@ -68,6 +81,13 @@ export async function workspaceContext(sb: DB, scope: WorkspaceScope) {
         success_metric: operations?.success_metric || null,
         baseline: operations?.baseline_value ?? null, target: operations?.target_value ?? null,
         current: operations?.current_value ?? null, blocker: operations?.blocker_note || null,
+        work_project: projectsResult.data?.filter(project => project.id === item.project_id).map(project => ({
+          title: project.title, status: project.status, priority: project.priority,
+          start_date: project.start_date, end_date: project.end_date, owner_assigned: !!project.owner_id,
+        }))[0] ?? null,
+        tasks: (tasksResult.data ?? []).filter(task => task.project_id === item.project_id).map(task => ({
+          title: task.title, status: task.status, priority: task.priority, due_date: task.due_date, owner_assigned: !!task.owner_id,
+        })).slice(0, 12),
       };
     }),
   }));
