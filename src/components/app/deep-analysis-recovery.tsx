@@ -55,7 +55,7 @@ export function DeepAnalysisRecovery() {
   return <section className="mt-5 rounded-lg border border-border p-3">
     <h2 className="text-sm font-semibold">Saved deep analysis</h2>
     {history.isError
-      ? <p role="alert" className="mt-2 text-xs text-destructive">Recovery status could not be checked. Avoid repeating a request until its saved status is clear.</p>
+      ? <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-destructive"><p role="alert">Recovery status could not be checked. Avoid repeating a request until its saved status is clear.</p><Button size="sm" variant="outline" onClick={() => history.refetch()}>Retry status check</Button></div>
       : <div className="mt-2 space-y-2">{pending.map(row => <div key={row.id} className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-2">
           <div className="min-w-0"><p className="text-xs font-medium">{row.status === "running" ? "Analysis still in progress or interrupted" : "Analysis needs reconciliation"}</p><p className="mt-1 text-[10px] text-muted-foreground">{new Date(row.created_at).toLocaleString()}{row.error ? ` · ${row.error}` : ""}</p></div>
           <Button size="sm" variant="outline" disabled={!!busyId} onClick={() => recoverRow(row)}><RotateCcw className="mr-1 h-3.5 w-3.5" />{busyId === row.id ? "Checking…" : "Recover saved work"}</Button>
