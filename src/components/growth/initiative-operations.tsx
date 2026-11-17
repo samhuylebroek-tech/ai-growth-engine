@@ -15,8 +15,8 @@ type Operations = {
 const empty: Operations = { owner_id: null, due_date: null, success_metric: "", baseline_value: null, target_value: null, current_value: null, blocker_note: "" };
 const value = (v: number | string | null) => v == null ? "" : String(v);
 
-export function InitiativeOperations({ initiativeId, workspaceId, userId, canEdit, status }: {
-  initiativeId: string; workspaceId: string; userId: string; canEdit: boolean; status: string;
+export function InitiativeOperations({ initiativeId, orgId, workspaceId, userId, canEdit, status }: {
+  initiativeId: string; orgId: string; workspaceId: string; userId: string; canEdit: boolean; status: string;
 }) {
   const qc = useQueryClient();
   const queryKey = ["growth-initiative-operations", workspaceId, initiativeId];
@@ -27,6 +27,30 @@ export function InitiativeOperations({ initiativeId, workspaceId, userId, canEdi
         .eq("workspace_id", workspaceId).eq("initiative_id", initiativeId).maybeSingle();
       if (r.error) throw r.error;
       return r.data as Operations | null;
+    },
+  });
+  const members = useQuery({
+    queryKey: ["initiative-assignable-members", orgId, workspaceId],
+    enabled: canEdit,
+    queryFn: async () => {
+      const [orgResult, workspaceResult] = await Promise.all([
+        supabase.from("organization_members").select("user_id,role").eq("org_id", orgId),
+        supabase.from("workspace_members").select("user_id,role").eq("workspace_id", workspaceId),
+      ]);
+      if (orgResult.error || workspaceResult.error) throw orgResult.error ?? workspaceResult.error;
+      const rank: Record<string, number> = { viewer: 1, member: 2, admin: 3, owner: 4 };
+      const workspaceRoles = new Map((workspaceResult.data ?? []).map(member => [member.user_id, member.role]));
+      const eligible = (orgResult.data ?? []).filter(member =>
+        rank[member.role] >= 2 && (member.role === "owner" || rank[workspaceRoles.get(member.user_id) ?? "viewer"] >= 2)
+      );
+      const ids = eligible.map(member => member.user_id);
+      const profileResult = ids.length
+        ? await supabase.from("profiles").select("user_id,display_name").in("user_id", ids)
+        : { data: [], error: null };
+      if (profileResult.error) throw profileResult.error;
+      const names = new Map((profileResult.data ?? []).map(profile => [profile.user_id, profile.display_name]));
+      return eligible.map(member => ({ id: member.user_id, name: names.get(member.user_id) || "Workspace member" }))
+        .sort((a,b) => a.name.localeCompare(b.name));
     },
   });
   const [form, setForm] = useState<Operations>(empty);
@@ -69,7 +93,7 @@ export function InitiativeOperations({ initiativeId, workspaceId, userId, canEdi
     </div>
     {query.isLoading ? <p className="text-xs text-muted-foreground">Loading initiative operations…</p> : <>
       <div className="grid gap-2 sm:grid-cols-2">
-        <div className="space-y-1"><label className="text-xs text-muted-foreground">Owner</label><div className="flex items-center gap-2"><span className="min-w-0 flex-1 truncate text-xs">{form.owner_id === userId ? "Assigned to you" : form.owner_id ? "Assigned workspace member" : "Unassigned"}</span>{canEdit && <Button type="button" size="sm" variant="outline" onClick={() => setForm(f => ({ ...f, owner_id: f.owner_id === userId ? null : userId }))}><UserRound className="mr-1 h-3.5 w-3.5" />{form.owner_id === userId ? "Unassign me" : "Assign to me"}</Button>}</div></div>
+        <div className="space-y-1"><label className="text-xs text-muted-foreground" htmlFor={initiativeId+"-owner"}>Owner</label>{canEdit ? <select id={initiativeId+"-owner"} className="h-8 w-full min-w-0 rounded-md border border-input bg-background px-2 text-xs" value={form.owner_id ?? ""} onChange={e => set("owner_id",e.target.value)}><option value="">Unassigned</option>{(members.data ?? []).map(member => <option key={member.id} value={member.id}>{member.name}{member.id === userId ? " (you)" : ""}</option>)}</select> : <p className="text-xs">{form.owner_id === userId ? "Assigned to you" : form.owner_id ? "Assigned to a workspace member" : "Unassigned"}</p>}{members.isError && canEdit && <p role="alert" className="text-[10px] text-destructive">Workspace members could not be loaded.</p>}</div>
         <div className="space-y-1"><label className="text-xs text-muted-foreground" htmlFor={initiativeId+"-due"}>Deadline</label><Input id={initiativeId+"-due"} type="date" className="h-8" value={form.due_date ?? ""} disabled={!canEdit} onChange={e => set("due_date",e.target.value)} /></div>
       </div>
       <div className="grid gap-2 sm:grid-cols-2">
