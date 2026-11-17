@@ -44,3 +44,21 @@ describe("coordinationInputSchema", () => {
     expect(() => coordinationInputSchema.parse(base)).toThrow();
   });
 });
+
+describe("deep analysis conversation context", () => {
+  const conversationId = "44444444-4444-4444-8444-444444444444";
+  const base = {
+    orgId: "11111111-1111-4111-8111-111111111111",
+    workspaceId: "22222222-2222-4222-8222-222222222222",
+    requestKey: "33333333-3333-4333-8333-333333333333",
+    request: "Review my current growth plan",
+    executionContext: [],
+    mode: "auto" as const,
+  };
+  it("accepts an explicitly selected existing conversation", () => {
+    expect(coordinationInputSchema.parse({ ...base, conversationId }).conversationId).toBe(conversationId);
+  });
+  it("supports a fresh analysis without prior conversation history", () => {
+    expect(coordinationInputSchema.parse({ ...base, conversationId: null }).conversationId).toBeNull();
+  });
+});
