@@ -98,7 +98,8 @@ BEGIN
       trim(action_row->>'title'),
       left(coalesce(action_row->>'detail', ''), 800),
       current_date + (least(26, greatest(1, coalesce((action_row->>'week')::integer, 1))) * 7),
-      CASE WHEN action_row->>'effort' = 'high' THEN 'high' ELSE 'medium' END,
+      CASE WHEN action_row->>'effort' = 'high' THEN 'high'
+           WHEN action_row->>'effort' = 'low' THEN 'low' ELSE 'medium' END,
       CASE WHEN length(trim(coalesce(action_row->>'channel', ''))) > 0
         THEN ARRAY['strategy', left(trim(action_row->>'channel'), 40)]
         ELSE ARRAY['strategy'] END,
