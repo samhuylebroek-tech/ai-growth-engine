@@ -47,7 +47,7 @@ BEGIN
   END IF;
   IF _patch ? 'owner_id' THEN
     owner_value := nullif(_patch->>'owner_id','')::uuid;
-    IF NOT public.execution_user_allowed(i.workspace_id, owner_value) THEN
+    IF owner_value IS NOT NULL AND NOT public.execution_user_allowed(i.workspace_id, owner_value) THEN
       RAISE EXCEPTION 'Owner needs workspace member access';
     END IF;
   END IF;
