@@ -225,11 +225,10 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
       return r.data;
     },
   });
-  // Keep a reviewable draft in view; otherwise show the currently approved version
-  // rather than allowing a newer rejected/superseded snapshot to hide live work.
-  const current = plans.data?.find(plan => plan.status === "draft")
-    ?? plans.data?.find(plan => plan.status === "approved")
-    ?? plans.data?.[0];
+  // Keep the currently approved version operational while a replacement draft is reviewed.
+  const approvedPlan = plans.data?.find(plan => plan.status === "approved");
+  const draftPlan = plans.data?.find(plan => plan.status === "draft");
+  const current = approvedPlan ?? draftPlan ?? plans.data?.[0];
   const initiatives = useQuery({
     queryKey: ["growth-initiatives", orgId, wsId, current?.id],
     enabled: Boolean(current?.id),
@@ -237,6 +236,17 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
       if (!current?.id) return [];
       const r = await supabase.from("growth_initiatives").select("id,title,detail,channel,target_week,effort,status,sort_order,project_id")
         .eq("org_id", orgId).eq("workspace_id", wsId).eq("plan_version_id", current.id).order("sort_order");
+      if (r.error) throw r.error;
+      return r.data;
+    },
+  });
+  const draftInitiatives = useQuery({
+    queryKey: ["growth-plan-draft-initiatives", orgId, wsId, draftPlan?.id],
+    enabled: Boolean(draftPlan?.id && draftPlan.id !== current?.id),
+    queryFn: async () => {
+      if (!draftPlan?.id || draftPlan.id === current?.id) return [];
+      const r = await supabase.from("growth_initiatives").select("id,title,detail,channel,target_week,effort")
+        .eq("org_id", orgId).eq("workspace_id", wsId).eq("plan_version_id", draftPlan.id).order("sort_order");
       if (r.error) throw r.error;
       return r.data;
     },
@@ -289,6 +299,16 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
         : plans.isError ? <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-destructive"><span>Growth Plan could not be loaded.</span><Button size="sm" variant="outline" onClick={() => { void plans.refetch(); }}>Retry</Button></div>
         : !current ? <p className="text-xs text-muted-foreground">No plan version yet. Generate and save a strategy below, then create its Growth Plan draft.</p>
         : <>
+          {draftPlan && draftPlan.id !== current.id && <div className="space-y-2 rounded-md border border-dashed p-3">
+            <div className="flex flex-wrap items-center gap-2"><span className="text-sm font-medium">Draft for review · V{draftPlan.version}</span><Badge variant="secondary">draft</Badge></div>
+            <p className="text-sm text-muted-foreground">{draftPlan.title} · {draftPlan.summary}</p>
+            {draftInitiatives.isLoading ? <p role="status" className="text-xs text-muted-foreground">Loading proposed initiatives…</p>
+              : draftInitiatives.isError ? <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-destructive"><span>Draft initiatives could not be loaded.</span><Button size="sm" variant="outline" onClick={() => { void draftInitiatives.refetch(); }}>Retry</Button></div>
+              : <ol className="space-y-1">{(draftInitiatives.data ?? []).map((item, index) => <li key={item.id} className="text-xs"><span className="font-medium">{index + 1}. {item.title}</span> · Week {item.target_week} · {item.effort} effort{item.channel ? ` · ${item.channel}` : ""}{item.detail ? <span className="block text-muted-foreground">{item.detail}</span> : null}</li>)}</ol>}
+            <p className="text-xs text-muted-foreground">The current approved plan remains active until this draft is approved.</p>
+            {canApprove && <Button size="sm" disabled={!!busyAction} onClick={() => approve(draftPlan.id)}>{busyAction === draftPlan.id ? "Approving…" : "Approve replacement plan"}</Button>}
+            {!canApprove && <p className="text-xs text-muted-foreground">Awaiting approval from a workspace admin or owner.</p>}
+          </div>}
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-medium">V{current.version} · {current.title}</span>
             <Badge variant={current.status === "approved" ? "default" : "secondary"}>{current.status}</Badge>
