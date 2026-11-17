@@ -7,6 +7,7 @@ import { hasRole } from "@/lib/permissions";
 import { supabase } from "@/integrations/supabase/client";
 import { goalProgress, budgetTotals, budgetAlert, reallocationProposals } from "@/lib/growth-plan";
 import { StrategyPanel } from "@/components/growth/strategy-panel";
+import { InitiativeOperations } from "@/components/growth/initiative-operations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -116,7 +117,7 @@ function Planner({ orgId, wsId, canEdit, canApprove, userId }: { orgId: string; 
                 {x.priority === "primary" && <Badge>Primary</Badge>}<Badge variant="outline">{OBJECTIVES[x.objective]}</Badge>{x.status !== "active" && <Badge variant="secondary">{x.status}</Badge>}</div>
               <p className="text-sm text-muted-foreground">{x.metric || "No metric"} · baseline {x.baseline ?? "—"} → target {x.target ?? "—"}{x.due_date ? ` by ${x.due_date}` : ""}</p>
               {p != null ? <div className="space-y-1"><Progress value={p} /><p className="text-xs text-muted-foreground">{p}% of the way, based on the current value you entered</p></div> : <p className="text-xs text-muted-foreground">Enter a target and current value to track progress.</p>}
-              <GrowthPlanPanel goalId={x.id} wsId={wsId} canEdit={canEdit} canApprove={canApprove} />
+              <GrowthPlanPanel goalId={x.id} wsId={wsId} userId={userId} canEdit={canEdit} canApprove={canApprove} />
               <GoalPlanSnapshot
                 budgetLines={(lines.data ?? []).filter(line => line.goal_id === x.id)}
                 linkedWorkCount={[...(links.data?.projects ?? []), ...(links.data?.campaigns ?? [])].filter(work => work.goal_id === x.id).length}
@@ -205,9 +206,10 @@ function GoalPlanSnapshot({ budgetLines, linkedWorkCount, month, formatAmount }:
     </div>
   );
 }
-function GrowthPlanPanel({ goalId, wsId, canEdit, canApprove }: {
+function GrowthPlanPanel({ goalId, wsId, userId, canEdit, canApprove }: {
   goalId: string;
   wsId: string;
+  userId: string;
   canEdit: boolean;
   canApprove: boolean;
 }) {
@@ -287,6 +289,7 @@ function GrowthPlanPanel({ goalId, wsId, canEdit, canApprove }: {
                 {item.detail && <p className="mt-1 text-xs text-muted-foreground">{item.detail}</p>}
                 {item.channel && <p className="text-xs text-muted-foreground">Channel: {item.channel}</p>}
                 {item.project_id ? <p className="text-xs text-muted-foreground">Work project created</p> : current.status === "approved" && canEdit ? <Button size="sm" variant="outline" onClick={() => createWork(item.id)}>Create work from initiative</Button> : null}
+                {current.status === "approved" && <InitiativeOperations initiativeId={item.id} workspaceId={wsId} userId={userId} canEdit={canEdit} status={item.status} />}
               </li>)}</ol>}
           {current.status === "draft" && canApprove && <Button size="sm" onClick={() => approve(current.id)}>Approve this plan</Button>}
           {current.status === "draft" && !canApprove && <p className="text-xs text-muted-foreground">Awaiting approval from a workspace admin or owner.</p>}
