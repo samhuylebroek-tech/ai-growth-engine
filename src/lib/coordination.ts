@@ -1,14 +1,35 @@
 import { z } from "zod";
 import { executionSelectionSchema } from "@/lib/execution-context";
-import { specialistKeySchema, SPECIALISTS, specialistOutputSchema } from "@/lib/specialists";
+import { specialistKeySchema, SPECIALISTS, specialistOutputSchema, type SpecialistKey } from "@/lib/specialists";
 import { quoteUntrusted } from "@/lib/security/upload";
 
 export const coordinationInputSchema = z.object({
   orgId: z.string().uuid(), workspaceId: z.string().uuid(), requestKey: z.string().uuid(),
   request: z.string().trim().min(3).max(4000),
-  agents: z.array(specialistKeySchema).length(2).refine(a => new Set(a).size === 2, "Choose two different specialists"),
+  mode: z.enum(["manual", "auto"]).default("manual"),
+  agents: z.array(specialistKeySchema).length(2).refine(a => new Set(a).size === 2, "Choose two different specialists").optional(),
   executionContext: executionSelectionSchema,
-});
+}).superRefine((value, context) => {
+  if (value.mode === "manual" && !value.agents) {
+    context.addIssue({ code: "custom", path: ["agents"], message: "Manual coordination requires two specialists." });
+  }
+  if (value.mode === "auto" && value.agents) {
+    context.addIssue({ code: "custom", path: ["agents"], message: "Specialists are selected internally in automatic mode." });
+  }
+}).transform(value => ({ ...value, agents: value.agents ?? [] }));
+
+/** Bounded routing from the request topic; no AI call is spent on selecting specialists. */
+export function selectSpecialistsForRequest(request: string): [SpecialistKey, SpecialistKey] {
+  const text = request.toLocaleLowerCase();
+  const seo = /\\bseo\\b|search engine|organic search|keyword|keywords|ranking|search visibility|technical seo/.test(text);
+  const content = /content|article|blog|newsletter|social media|social post|copywriting|copy|creative|video script/.test(text);
+  const research = /market|competitor|competition|audience|customer segment|persona|pricing|positioning|demand|industry|research/.test(text);
+  if (seo && content) return ["seo", "content"];
+  if (seo) return ["research", "seo"];
+  if (content) return ["strategy", "content"];
+  if (research) return ["research", "strategy"];
+  return ["strategy", "research"];
+}
 export const COORDINATION_LIMITS = { specialists: 2, calls: 3, reservePerCall: 50, maxCredits: 150 } as const;
 export const coordinationClaimSchema = z.object({
   claimed: z.boolean(), id: z.string().uuid(), status: z.enum(["running", "succeeded", "failed"]),
