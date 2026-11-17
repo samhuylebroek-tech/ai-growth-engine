@@ -315,9 +315,10 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
       </div>
       {plans.isLoading ? <p role="status" className="text-xs text-muted-foreground">Loading plan…</p>
         : plans.isError ? <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-destructive"><span>Growth Plan could not be loaded.</span><Button size="sm" variant="outline" onClick={() => { void plans.refetch(); }}>Retry</Button></div>
-        : latestStrategy.isError ? <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-destructive"><span>Saved strategies could not be checked.</span><Button size="sm" variant="outline" onClick={() => { void latestStrategy.refetch(); }}>Retry</Button></div>
+        : !current && latestStrategy.isError ? <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-destructive"><span>Saved strategies could not be checked, so plan availability is unknown.</span><Button size="sm" variant="outline" onClick={() => { void latestStrategy.refetch(); }}>Retry</Button></div>
         : !current ? <p className="text-xs text-muted-foreground">No plan version yet. Generate and save a strategy, then create a draft here.</p>
         : <>
+          {latestStrategy.isError && canEdit && <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-destructive"><span>Saved strategies could not be checked. Existing plan details remain available; draft creation is paused.</span><Button size="sm" variant="outline" onClick={() => { void latestStrategy.refetch(); }}>Retry</Button></div>}
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-medium">V{current.version} · {current.title}</span>
             <Badge variant={current.status === "approved" ? "default" : "secondary"}>{current.status}</Badge>
