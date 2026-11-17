@@ -227,10 +227,12 @@ export const recoverCoordinatedAnalysis = createServerFn({ method: "POST" })
       if (state.status === "ready") {
         const restored = await sb.from("coordinated_analyses").select("input,partial_results").eq("id", row.data.id).single();
         if (restored.error || !restored.data) throw new Error("Could not read preserved outputs.");
-        const input = z.object({ agents: z.array(specialistKeySchema).length(2) }).parse(restored.data.input);
+        const input = z.object({ agents: z.array(specialistKeySchema).length(2), mode: z.enum(["manual", "auto"]).optional() }).parse(restored.data.input);
         const outputs = z.record(z.string(), z.string()).parse(restored.data.partial_results);
         const synthesis = parseSpecialistOutput(outputs['2'] ?? "");
-        const reply = [specialistMarkdown(synthesis, []), "---\n\n## Independent specialist analyses", ...input.agents.map((key, i) => `### ${SPECIALISTS[key].name}\n\n${specialistMarkdown(parseSpecialistOutput(outputs[String(i)] ?? ""), [])}`)].join("\n\n");
+        const reply = input.mode === "auto"
+          ? specialistMarkdown(synthesis, [])
+          : [specialistMarkdown(synthesis, []), "---\\n\\n## Independent specialist analyses", ...input.agents.map((key, i) => "### " + SPECIALISTS[key].name + "\\n\\n" + specialistMarkdown(parseSpecialistOutput(outputs[String(i)] ?? ""), []))].join("\\n\\n");
         const saved = await sb.rpc("finish_coordinated_analysis_verified", { _id: row.data.id, _reply: reply, _proof: accountingProof() });
         if (saved.error) throw new Error("Paid outputs are retained, but the final analysis could not be saved.");
         return { ok: true, data: { status: "succeeded", pending: 0 } };
@@ -464,7 +466,7 @@ export const runCoordinatedAnalysis = createServerFn({ method: "POST" })
       const access = await sb.rpc("has_workspace_role", { _workspace: data.workspaceId, _min: "member" });
       if (access.error || !access.data) throw new Error("You need workspace member access.");
       await assertEntitled(sb, data.orgId, "ai_assistant");
-      const claimed = await sb.rpc("begin_coordinated_analysis_verified", { _proof: accountingProof(), _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _input: { request: data.request, agents: selectedAgents, mode: data.mode, executionContext: data.executionContext } });
+      const claimed = await sb.rpc("begin_coordinated_analysis_verified", { _proof: accountingProof(), _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _input: { request: data.request, agents: selectedAgents, ...(data.mode === "auto" ? { mode: "auto" } : {}), executionContext: data.executionContext } });
       if (claimed.error) throw new Error(claimed.error.message.includes("insufficient") ? "A coordinated analysis needs 150 available credits. Unused credits are returned after each step." : claimed.error.message);
       const claim = coordinationClaimSchema.parse(claimed.data);
       if (!claim.claimed) {
