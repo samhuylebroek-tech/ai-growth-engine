@@ -1,4 +1,7 @@
 -- Add an operational layer without mutating the approved strategy snapshot.
+ALTER TABLE public.growth_initiatives
+  ADD CONSTRAINT growth_initiatives_scope_unique UNIQUE (id, org_id, workspace_id);
+
 CREATE TABLE public.growth_initiative_operations (
   initiative_id uuid PRIMARY KEY,
   org_id uuid NOT NULL REFERENCES public.organizations(id),
