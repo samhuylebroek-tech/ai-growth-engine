@@ -74,6 +74,7 @@ export function InitiativeOperations({ initiativeId, orgId, workspaceId, userId,
       await qc.invalidateQueries({ queryKey: ["execution-growth-initiatives"] });
       await qc.invalidateQueries({ queryKey: ["command-center-approved-initiatives"] });
       await qc.invalidateQueries({ queryKey: ["command-center-initiative-ops"] });
+      await qc.invalidateQueries({ queryKey: ["command-center-initiative-operations"] });
     } finally {
       setSaving(false);
     }
