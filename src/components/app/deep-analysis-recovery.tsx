@@ -19,11 +19,14 @@ export function DeepAnalysisRecovery() {
     queryFn: async () => {
       if (!o.org || !o.workspace) return [];
       const r = await supabase.from("coordinated_analyses")
-        .select("id,status,error,created_at,lease_expires_at")
+        .select("id,input,status,error,created_at,lease_expires_at")
         .eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).eq("user_id", o.userId)
-        .eq("input->>mode", "auto").neq("status", "succeeded").order("created_at", { ascending: false }).limit(5);
+        .neq("status", "succeeded").order("created_at", { ascending: false }).limit(20);
       if (r.error) throw r.error;
-      return r.data ?? [];
+      return (r.data ?? []).filter(row => {
+        const savedInput = row.input;
+        return typeof savedInput === "object" && savedInput !== null && !Array.isArray(savedInput) && savedInput.mode === "auto";
+      }).slice(0, 5);
     },
     refetchInterval: 30_000,
   });
