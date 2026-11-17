@@ -50,7 +50,7 @@ export function HomeWork({
     queryFn: async () => {
       if (!o.workspace || !initiativeIds.length) return [];
       const r = await supabase.from("growth_initiative_operations").select("initiative_id,due_date,owner_id,blocker_note,success_metric,current_value,target_value")
-        .eq("workspace_id", o.workspace.id).in("initiative_id", initiativeIds);
+        .eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).in("initiative_id", initiativeIds);
       if (r.error) throw r.error;
       return r.data ?? [];
     },
