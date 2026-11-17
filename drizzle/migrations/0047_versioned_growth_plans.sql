@@ -19,8 +19,8 @@ CREATE TABLE public.growth_plan_versions (
   UNIQUE(goal_id, version),
   UNIQUE(id, org_id, workspace_id),
   FOREIGN KEY(goal_id, org_id, workspace_id) REFERENCES public.growth_goals(id, org_id, workspace_id),
-  CHECK ((status = 'approved' AND approved_by IS NOT NULL AND approved_at IS NOT NULL)
-      OR (status <> 'approved' AND approved_by IS NULL AND approved_at IS NULL))
+  CHECK ((status IN ('approved','superseded') AND approved_by IS NOT NULL AND approved_at IS NOT NULL)
+      OR (status IN ('draft','rejected') AND approved_by IS NULL AND approved_at IS NULL))
 );
 CREATE INDEX growth_plan_versions_goal_idx
   ON public.growth_plan_versions(goal_id, version DESC);
