@@ -48,6 +48,9 @@ export function DeepAnalysisRecovery() {
       await qc.invalidateQueries({ queryKey: ["msgs"] });
       await qc.invalidateQueries({ queryKey: ["billing"] });
       await qc.invalidateQueries({ queryKey: ["coordination"] });
+      await qc.invalidateQueries({ queryKey: ["overview"] });
+      await qc.invalidateQueries({ queryKey: ["command-center"] });
+      await qc.invalidateQueries({ queryKey: ["notification-center"] });
     }
   }
   const pending = (history.data ?? []).slice(0, 3);
@@ -57,8 +60,8 @@ export function DeepAnalysisRecovery() {
     {history.isError
       ? <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-destructive"><p role="alert">Recovery status could not be checked. Avoid repeating a request until its saved status is clear.</p><Button size="sm" variant="outline" onClick={() => history.refetch()}>Retry status check</Button></div>
       : <div className="mt-2 space-y-2">{pending.map(row => <div key={row.id} className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-2">
-          <div className="min-w-0"><p className="text-xs font-medium">{row.status === "running" ? "Analysis still in progress or interrupted" : "Analysis needs reconciliation"}</p><p className="mt-1 text-[10px] text-muted-foreground">{new Date(row.created_at).toLocaleString()}{row.error ? ` · ${row.error}` : ""}</p></div>
-          <Button size="sm" variant="outline" disabled={!!busyId} onClick={() => recoverRow(row)}><RotateCcw className="mr-1 h-3.5 w-3.5" />{busyId === row.id ? "Checking…" : "Recover saved work"}</Button>
+          <div className="min-w-0"><p className="text-xs font-medium">{row.status === "running" && new Date(row.lease_expires_at).getTime() > Date.now() ? "Deep analysis is still running" : "Analysis needs reconciliation"}</p><p className="mt-1 text-[10px] text-muted-foreground">{new Date(row.created_at).toLocaleString()}{row.error ? ` · ${row.error}` : ""}</p></div>
+          <Button size="sm" variant="outline" disabled={!!busyId || (row.status === "running" && new Date(row.lease_expires_at).getTime() > Date.now())} onClick={() => recoverRow(row)}><RotateCcw className="mr-1 h-3.5 w-3.5" />{busyId === row.id ? "Checking…" : row.status === "running" && new Date(row.lease_expires_at).getTime() > Date.now() ? "Waiting for safe recovery" : "Recover saved work"}</Button>
         </div>)}</div>}
   </section>;
 }
