@@ -21,19 +21,21 @@ Date: 2026-11-17
 
 ## 2. Important UX and implementation findings
 
-### 2.1 Strategy generation currently has a manual multi-step conversion
+### 2.1 Strategy generation remains a guided, user-started workflow
 
 In `src/components/growth/strategy-panel.tsx`:
 - The user opens the strategy panel from a goal.
-- The user chooses a 4/8/12/26-week horizon and manually starts generation.
+- The user chooses a 4/8/12/26-week horizon and starts generation.
 - The user chooses which generated actions to include.
-- The user separately saves the strategy and/or creates a project with tasks.
+- The strategy must be saved before it can be converted into Work.
 
-This is a useful foundation, but it is not yet the target “tell the Growth Officer the outcome and let it organize the work” experience.
+This is intentionally still a guided workflow; it is not yet the target “tell the Growth Officer the outcome and let it organize the work” experience.
 
-### 2.2 Strategy-to-work creation is not atomic in the inspected client flow
+### 2.2 Strategy-to-work conversion now has an atomic, idempotent database path on this branch
 
-The current `toPlan` flow inserts a project and then inserts tasks in a separate request. If task creation fails, the project remains and the UI reports that tasks could not be added. This must be redesigned or wrapped in a server-side transactional operation before it becomes a core autonomous workflow. A retry must not create duplicate projects or tasks.
+Migration `0043_atomic_growth_strategy_conversion.sql` adds a conversion register and the `create_growth_strategy_project` RPC. It locks the saved strategy, checks workspace membership and selected action indices, then creates the project, selected tasks and conversion receipt in one database transaction. The unique strategy conversion record makes retries return the original project/task receipt rather than create duplicates, including after a page reload.
+
+The Strategy Panel now saves/recovers the strategy ID and calls this RPC instead of issuing separate client-side project and task inserts. This is branch code only: the migration has not been applied to a database and no runtime or integration test has been run.
 
 ### 2.3 Goal and budget are separate manual planning surfaces
 
@@ -48,9 +50,9 @@ This can be evolved rather than replaced. The target UX should guide the user th
 
 ### 2.4 Existing AI orchestration is bounded, but its UX is too technical
 
-The specialist coordination component asks the user to select exactly two specialists and describe a team assignment. The server implementation includes metered calls and bounded coordination, but the user-facing workflow leaks internal orchestration decisions. The next design should have the Growth Officer decide whether one or more specialist capabilities are needed.
+The specialist coordination component previously asked the user to select exactly two specialists. On this branch, the coordination panel is removed from the standard Growth Officer page and the Specialists entry is removed from primary navigation. The underlying server capability and advanced route remain in the code for diagnostics; no autonomous specialist selection has been implemented yet.
 
-Do not remove the current specialist route immediately: retain it as an advanced diagnostics/operations view until the new orchestrator is proven.
+The next orchestration step is to have the Growth Officer choose specialist capabilities internally, under the existing metering, bounded-call and evidence constraints.
 
 ### 2.5 Measurement is not yet a business KPI platform
 
@@ -95,8 +97,8 @@ The first code slice should avoid schema changes if possible:
 5. Keep the current detailed dashboard data accessible under a “More activity and history” disclosure or Work history.
 6. Add tests for the hierarchy, no-goal state, missing metric state, approval permissions, tenant scoping and mobile overflow.
 
-Only after the Command Center and goal journey are accepted should the team design a durable strategy-plan aggregate and server-side idempotent conversion workflow.
+The first Command Center/goal slice and the atomic strategy-to-work conversion foundation are now present on this branch. The next step is to connect the Growth Officer's recommendations to the same durable plan/work records, then test the journey end to end before widening autonomous execution.
 
 ## 6. Verification boundary
 
-This document was produced by reading repository source files and migrations on the default branch. No code was changed in the application, no database was queried, no app preview was launched, and no test/build command was run by this audit. Historical test counts in existing reports are not fresh verification.
+The initial mapping was produced by reading repository source files and migrations on the default branch. Subsequent implementation commits were made on `product/operating-system-experience-blueprint`; they have not been merged to `main`. No database migration has been applied, no app preview was launched, and no test/build command has been run in this work session. Historical test counts in existing reports are not fresh verification.
