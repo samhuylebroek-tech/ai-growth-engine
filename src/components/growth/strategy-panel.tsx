@@ -110,9 +110,9 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
         {view.risks.length > 0 && <div><p className="font-medium">Risks</p><ul className="list-disc pl-5">{view.risks.map((r) => <li key={r}>{r}</li>)}</ul></div>}
         {view.assumptions.length > 0 && <div><p className="font-medium">Assumptions to check</p><ul className="list-disc pl-5">{view.assumptions.map((r) => <li key={r}>{r}</li>)}</ul></div>}
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant="outline" disabled={result.saved} onClick={save}>{result.saved ? "Saved" : "Save strategy"}</Button>
+          <Button size="sm" variant="outline" disabled={result.saved || busy || creating} onClick={save}>{result.saved ? "Saved" : busy ? "Saving…" : "Save strategy"}</Button>
           <Button size="sm" disabled={!result.saved || !strategyId || picked.size === 0 || creating} onClick={toPlan}>{creating ? "Preparing project…" : !result.saved ? "Save strategy to create project" : `Create project with ${picked.size} tasks`}</Button>
-          <Button size="sm" variant="ghost" onClick={() => setResult(null)}>Discard</Button>
+          <Button size="sm" variant="ghost" disabled={busy || creating} onClick={() => { setResult(null); setStrategyId(null); }}>Discard</Button>
         </div>
       </div>}
       {(saved.data ?? []).length > 0 && <div className="space-y-1 border-t pt-2"><p className="text-xs font-medium text-muted-foreground">Saved strategies</p>
