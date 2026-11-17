@@ -21,7 +21,7 @@ export function DeepAnalysisRecovery() {
       const r = await supabase.from("coordinated_analyses")
         .select("id,status,error,created_at,lease_expires_at")
         .eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).eq("user_id", o.userId)
-        .neq("status", "succeeded").order("created_at", { ascending: false }).limit(5);
+        .eq("input->>mode", "auto").neq("status", "succeeded").order("created_at", { ascending: false }).limit(5);
       if (r.error) throw r.error;
       return r.data ?? [];
     },
