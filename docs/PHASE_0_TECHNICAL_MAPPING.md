@@ -124,3 +124,8 @@ The first Command Center/goal slice, atomic strategy-to-work conversion, a goal-
 ## 6. Verification boundary
 
 The initial mapping was produced by reading repository source files and migrations on the default branch. Subsequent implementation commits were made on `product/operating-system-experience-blueprint`; they have not been merged to `main`. No database migration has been applied, no app preview was launched, and no test/build command has been run in this work session. Historical test counts in existing reports are not fresh verification.
+
+
+### 2.8 Approved initiatives now have an operational layer
+
+Migration `0050_growth_initiative_operations.sql` adds a separate operational record for each initiative. It keeps the approved strategy snapshot intact while allowing workspace members to record an owner, deadline, success metric, baseline, target, current result and blocker. Writes pass through a workspace-scoped RPC; owner assignment is validated against workspace membership. The Growth Plan UI exposes these fields only for approved initiatives. Measured progress is calculated only when baseline, target and current result are supplied; it is not presented as connected analytics. The migration and UI are branch-only and have not been applied or runtime-tested.
