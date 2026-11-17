@@ -4,7 +4,7 @@ import { Plus, Target, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { useOrg } from "@/lib/org-context";
 import { hasRole } from "@/lib/permissions";
-import { growthDb as supabase } from "@/lib/pending-schema";
+import { growthDb as supabase, GROWTH_PLANS_NOT_INSTALLED, isNotInstalled, retryUnlessNotInstalled } from "@/lib/pending-schema";
 import { goalProgress, budgetTotals, budgetAlert, reallocationProposals } from "@/lib/growth-plan";
 import { StrategyPanel } from "@/components/growth/strategy-panel";
 import { InitiativeOperations } from "@/components/growth/initiative-operations";
@@ -218,6 +218,7 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const plans = useQuery({
     queryKey: ["growth-plan-versions", orgId, wsId, goalId],
+    retry: retryUnlessNotInstalled,
     queryFn: async () => {
       const r = await supabase.from("growth_plan_versions").select("id,strategy_id,version,status,title,summary,approved_at,created_at")
         .eq("org_id", orgId).eq("workspace_id", wsId).eq("goal_id", goalId).order("version", { ascending: false }).limit(10);
@@ -296,6 +297,7 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
         <div><p className="text-sm font-medium">Growth Plan</p><p className="text-xs text-muted-foreground">Versioned strategy and prioritized initiatives</p></div>
       </div>
       {plans.isLoading ? <p role="status" className="text-xs text-muted-foreground">Loading plan…</p>
+        : plans.isError && isNotInstalled(plans.error) ? <p className="text-xs text-muted-foreground">{GROWTH_PLANS_NOT_INSTALLED}</p>
         : plans.isError ? <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-destructive"><span>Growth Plan could not be loaded.</span><Button size="sm" variant="outline" onClick={() => { void plans.refetch(); }}>Retry</Button></div>
         : !current ? <p className="text-xs text-muted-foreground">No plan version yet. Generate and save a strategy below, then create its Growth Plan draft.</p>
         : <>

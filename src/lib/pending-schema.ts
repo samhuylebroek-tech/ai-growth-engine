@@ -72,3 +72,13 @@ export type PendingDatabase = Omit<Database, "public"> & {
 
 // Compile-time only: the same browser client (RLS as the signed-in user), typed with the repository schema.
 export const growthDb = supabase as unknown as SupabaseClient<PendingDatabase>;
+
+/** PostgREST/Postgres codes for "this table, column or function is not installed in the connected database". */
+const NOT_INSTALLED_CODES = new Set(["PGRST205", "PGRST204", "PGRST202", "42P01", "42703", "42883"]);
+export function isNotInstalled(error: unknown): boolean {
+  const code = typeof error === "object" && error !== null ? (error as { code?: unknown }).code : undefined;
+  return typeof code === "string" && NOT_INSTALLED_CODES.has(code);
+}
+/** Query retry policy: a missing table will not appear by retrying, so stop immediately; other failures retry up to 3 times. */
+export const retryUnlessNotInstalled = (failureCount: number, error: unknown) => !isNotInstalled(error) && failureCount < 3;
+export const GROWTH_PLANS_NOT_INSTALLED = "Growth Plans are not switched on for this workspace yet. Goals, budget, strategies and work keep working as usual.";

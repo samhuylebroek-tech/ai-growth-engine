@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { ArrowUpRight, UserRound } from "lucide-react";
 import { useOrg } from "@/lib/org-context";
-import { growthDb as supabase } from "@/lib/pending-schema";
+import { growthDb as supabase, GROWTH_PLANS_NOT_INSTALLED, isNotInstalled, retryUnlessNotInstalled } from "@/lib/pending-schema";
 import { growthDraftKey } from "@/lib/growth-draft";
 import { can } from "@/lib/permissions";
 import { classifyInitiativeAttention, localISODate, sortInitiativeAttention } from "@/lib/initiative-pulse";
@@ -43,7 +43,9 @@ export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (coun
       if (r.error) throw r.error;
       return r.data ?? [];
     },
-    refetchInterval: 60_000,
+    retry: retryUnlessNotInstalled,
+    // Polling cannot make a not-installed table appear; stop until the page is reloaded.
+    refetchInterval: query => (isNotInstalled(query.state.error) ? false : 60_000),
   });
   const planIds = (plans.data ?? []).map(p => p.id);
   const initiatives = useQuery({
@@ -141,6 +143,7 @@ export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (coun
   }
 
   if (plans.isLoading || initiatives.isLoading || operations.isLoading || goals.isLoading) return <p role="status" className="py-2 text-xs text-muted-foreground">Checking approved growth initiatives…</p>;
+  if (plans.isError && isNotInstalled(plans.error)) return <p className="py-2 text-xs text-muted-foreground">{GROWTH_PLANS_NOT_INSTALLED}</p>;
   if (plans.isError || initiatives.isError || operations.isError || goals.isError) return <div role="alert" className="py-2 text-xs text-destructive">Initiative status could not be loaded. <Button size="sm" variant="link" onClick={() => { void plans.refetch(); void initiatives.refetch(); void operations.refetch(); void goals.refetch(); }}>Retry</Button></div>;
   if (!issues.length) return <p className="py-2 text-xs text-muted-foreground">No approved initiative currently needs follow-up. Active initiatives will appear here when a deadline, blocker, owner or measurement needs attention.</p>;
 

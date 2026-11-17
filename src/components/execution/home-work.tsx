@@ -6,7 +6,7 @@ import { useOrg } from "@/lib/org-context";
 import { can } from "@/lib/permissions";
 import { executionOptions, executionSummary, type Task } from "@/lib/execution";
 import { Button } from "@/components/ui/button";
-import { growthDb as supabase } from "@/lib/pending-schema";
+import { growthDb as supabase, retryUnlessNotInstalled } from "@/lib/pending-schema";
 export function HomeWork({
   section,
 }: {
@@ -34,6 +34,7 @@ export function HomeWork({
   const projectIds = (q.data?.projects ?? []).map((project) => project.id);
   const initiatives = useQuery({
     queryKey: ["execution-growth-initiatives", o.org?.id, o.workspace?.id, projectIds],
+    retry: retryUnlessNotInstalled,
     enabled: !!o.org?.id && !!o.workspace?.id && projectIds.length > 0,
     queryFn: async () => {
       if (!o.org || !o.workspace || !projectIds.length) return [];

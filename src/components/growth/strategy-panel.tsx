@@ -5,7 +5,7 @@ import { Compass } from "lucide-react";
 import { toast } from "sonner";
 import { planGrowthStrategy } from "@/lib/ai.functions";
 import { strategySchema, type Strategy } from "@/lib/growth-strategy";
-import { growthDb as supabase } from "@/lib/pending-schema";
+import { growthDb as supabase, GROWTH_PLANS_NOT_INSTALLED, isNotInstalled } from "@/lib/pending-schema";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -78,8 +78,8 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
       else toast.success(`Growth Plan V${receipt.version} already exists (${receipt.status ?? "saved"})`);
       await qc.invalidateQueries({ queryKey: ["growth-plan-versions", orgId, wsId, goalId] });
       await qc.invalidateQueries({ queryKey: ["growth-initiatives", orgId, wsId] });
-    } catch {
-      toast.error("The Growth Plan draft could not be confirmed. Check the plan panel before retrying.");
+    } catch (error) {
+      toast.error(isNotInstalled(error) ? GROWTH_PLANS_NOT_INSTALLED : "The Growth Plan draft could not be confirmed. Check the plan panel before retrying.");
     } finally {
       setCreating(false);
     }
