@@ -24,6 +24,9 @@ CREATE TABLE public.growth_plan_versions (
 );
 CREATE INDEX growth_plan_versions_goal_idx
   ON public.growth_plan_versions(goal_id, version DESC);
+-- Database-level invariant: one current approved plan per goal.
+CREATE UNIQUE INDEX growth_plan_one_approved_per_goal
+  ON public.growth_plan_versions(goal_id) WHERE status = 'approved';
 GRANT SELECT ON public.growth_plan_versions TO authenticated;
 GRANT ALL ON public.growth_plan_versions TO service_role;
 ALTER TABLE public.growth_plan_versions ENABLE ROW LEVEL SECURITY;
@@ -143,6 +146,13 @@ BEGIN
   IF NOT FOUND OR NOT public.has_workspace_role(p.workspace_id, 'admin') THEN
     RAISE EXCEPTION 'Plan approval requires workspace admin permission';
   END IF;
+  -- Serialize approvals for every version of this goal. Without the goal-row
+  -- lock, two different draft rows could be approved concurrently and both
+  -- transactions could observe no competing approved plan.
+  PERFORM 1 FROM public.growth_goals
+    WHERE id = p.goal_id AND org_id = p.org_id AND workspace_id = p.workspace_id
+    FOR UPDATE;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Growth goal unavailable'; END IF;
   IF p.status = 'approved' THEN
     RETURN jsonb_build_object('plan_id', p.id, 'status', p.status, 'approved_at', p.approved_at);
   END IF;
