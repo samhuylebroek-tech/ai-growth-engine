@@ -221,7 +221,7 @@ function GrowthPlanPanel({ goalId, wsId, canEdit, canApprove }: {
     queryKey: ["growth-initiatives", wsId, plans.data?.[0]?.id],
     enabled: Boolean(plans.data?.[0]?.id),
     queryFn: async () => {
-      const r = await supabase.from("growth_initiatives").select("id,title,detail,channel,target_week,effort,status,sort_order")
+      const r = await supabase.from("growth_initiatives").select("id,title,detail,channel,target_week,effort,status,sort_order,project_id")
         .eq("workspace_id", wsId).eq("plan_version_id", plans.data![0].id).order("sort_order");
       if (r.error) throw r.error;
       return r.data;
@@ -236,7 +236,7 @@ function GrowthPlanPanel({ goalId, wsId, canEdit, canApprove }: {
     await qc.invalidateQueries({ queryKey: ["growth-plan-versions", wsId, goalId] });
     await qc.invalidateQueries({ queryKey: ["growth-initiatives", wsId] });
   };
-  const approve = async (id: string) => {
+  const createWork = async (initiativeId: string) => {\n    const r = await supabase.rpc("create_growth_initiative_work", { _initiative: initiativeId });\n    if (r.error) return void toast.error("Could not create work from this initiative.");\n    toast.success("Initiative added to Work");\n    await qc.invalidateQueries({ queryKey: ["growth-initiatives", wsId] });\n    await qc.invalidateQueries({ queryKey: ["goal-links", wsId] });\n  };\n  const approve = async (id: string) => {
     const r = await supabase.rpc("approve_growth_plan", { _plan: id });
     if (r.error) return void toast.error("Approval failed. Check your workspace permissions.");
     toast.success("Growth Plan approved");
@@ -264,7 +264,7 @@ function GrowthPlanPanel({ goalId, wsId, canEdit, canApprove }: {
               <li key={item.id} className="rounded-md bg-muted/40 p-2 text-sm">
                 <div className="flex flex-wrap items-center gap-2"><span className="font-medium">{index + 1}. {item.title}</span><Badge variant="outline">Week {item.target_week}</Badge><Badge variant="outline">{item.effort} effort</Badge></div>
                 {item.detail && <p className="mt-1 text-xs text-muted-foreground">{item.detail}</p>}
-                {item.channel && <p className="text-xs text-muted-foreground">Channel: {item.channel}</p>}
+                {item.channel && <p className="text-xs text-muted-foreground">Channel: {item.channel}</p>}\n                {item.project_id ? <p className="text-xs text-muted-foreground">Work project created</p> : current.status === "approved" && canEdit ? <Button size="sm" variant="outline" onClick={() => createWork(item.id)}>Create work from initiative</Button> : null}
               </li>)}</ol>}
           {current.status === "draft" && canApprove && <Button size="sm" onClick={() => approve(current.id)}>Approve this plan</Button>}
           {current.status === "draft" && !canApprove && <p className="text-xs text-muted-foreground">Awaiting approval from a workspace admin or owner.</p>}
