@@ -86,6 +86,9 @@ function GrowthOfficer() {
         qc.invalidateQueries({ queryKey: ["convs"] });
         qc.invalidateQueries({ queryKey: ["officer-deep-analysis-recovery"] });
         qc.invalidateQueries({ queryKey: ["coordination"] });
+        qc.invalidateQueries({ queryKey: ["overview"] });
+        qc.invalidateQueries({ queryKey: ["command-center"] });
+        qc.invalidateQueries({ queryKey: ["notification-center"] });
       } else {
         const r = await ask({ data: {
           orgId: o.org.id, workspaceId: o.workspace.id,
