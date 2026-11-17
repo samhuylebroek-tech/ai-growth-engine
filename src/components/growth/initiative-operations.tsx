@@ -41,11 +41,13 @@ export function InitiativeOperations({ initiativeId, orgId, workspaceId, userId,
   });
   const [form, setForm] = useState<Operations>(empty);
   const [nextStatus, setNextStatus] = useState(status);
+  const [saving, setSaving] = useState(false);
   useEffect(() => {
     if (query.data) setForm({ ...empty, ...query.data });
     setNextStatus(status);
   }, [query.data, status]);
   const save = async () => {
+    if (saving || query.isLoading || query.isError) return;
     const numeric = ["baseline_value", "target_value", "current_value"] as const;
     for (const key of numeric) {
       const raw = value(form[key]).trim();
@@ -61,12 +63,17 @@ export function InitiativeOperations({ initiativeId, orgId, workspaceId, userId,
       blocker_note: form.blocker_note,
       status: nextStatus,
     };
-    const r = await supabase.rpc("update_growth_initiative_operations", { _initiative: initiativeId, _patch: patch });
-    if (r.error) return void toast.error("Initiative update could not be saved.");
-    toast.success("Initiative updated");
-    await qc.invalidateQueries({ queryKey });
-    await qc.invalidateQueries({ queryKey: ["growth-initiatives", workspaceId] });
-    await qc.invalidateQueries({ queryKey: ["execution-growth-initiatives"] });
+    setSaving(true);
+    try {
+      const r = await supabase.rpc("update_growth_initiative_operations", { _initiative: initiativeId, _patch: patch });
+      if (r.error) { toast.error("Initiative update could not be saved."); return; }
+      toast.success("Initiative updated");
+      await qc.invalidateQueries({ queryKey });
+      await qc.invalidateQueries({ queryKey: ["growth-initiatives", workspaceId] });
+      await qc.invalidateQueries({ queryKey: ["execution-growth-initiatives"] });
+    } finally {
+      setSaving(false);
+    }
   };
   const set = (key: keyof Operations, v: string) => setForm(current => ({ ...current, [key]: v }));
   const progress = form.baseline_value != null && form.target_value != null && form.current_value != null
@@ -77,7 +84,12 @@ export function InitiativeOperations({ initiativeId, orgId, workspaceId, userId,
     <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-semibold">Ownership & outcome</p>
       {form.blocker_note && <Badge variant="destructive">Blocked</Badge>}
     </div>
-    {query.isLoading ? <p className="text-xs text-muted-foreground">Loading initiative operations…</p> : <>
+    {query.isLoading ? <p role="status" className="text-xs text-muted-foreground">Loading initiative operations…</p> : query.isError ? (
+      <div role="alert" className="flex flex-wrap items-center justify-between gap-2 text-xs text-destructive">
+        <span>Initiative details could not be loaded. Your saved values have not been changed.</span>
+        <Button size="sm" variant="outline" onClick={() => { void query.refetch(); }}>Retry</Button>
+      </div>
+    ) : <>
       <div className="grid gap-2 sm:grid-cols-2">
         <div className="space-y-1"><label className="text-xs text-muted-foreground" htmlFor={initiativeId+"-owner"}>Owner</label>{canEdit ? <select id={initiativeId+"-owner"} className="h-8 w-full min-w-0 rounded-md border border-input bg-background px-2 text-xs" value={form.owner_id ?? ""} disabled={members.isLoading || members.isError} onChange={e => set("owner_id",e.target.value)}><option value="">Unassigned</option>{(members.data ?? []).map(member => <option key={member.id} value={member.id}>{member.name}{member.id === userId ? " (you)" : ""}</option>)}</select> : <p className="text-xs">{form.owner_id === userId ? "Assigned to you" : form.owner_id ? "Assigned to a workspace member" : "Unassigned"}</p>}{members.isError && canEdit && <p role="alert" className="text-[10px] text-destructive">Workspace members could not be loaded.</p>}</div>
         <div className="space-y-1"><label className="text-xs text-muted-foreground" htmlFor={initiativeId+"-due"}>Deadline</label><Input id={initiativeId+"-due"} type="date" className="h-8" value={form.due_date ?? ""} disabled={!canEdit} onChange={e => set("due_date",e.target.value)} /></div>
@@ -88,7 +100,7 @@ export function InitiativeOperations({ initiativeId, orgId, workspaceId, userId,
       </div>
       {progress != null && <p className="text-xs text-muted-foreground">Recorded progress: {progress}% from values entered here; no connected metric source</p>}
       <div className="space-y-1"><label className="text-xs text-muted-foreground">Blocker / decision needed</label><Input className="h-8" maxLength={1000} placeholder="What is holding this initiative back?" value={form.blocker_note} disabled={!canEdit} onChange={e => set("blocker_note",e.target.value)} /></div>
-      {canEdit && <div className="flex flex-wrap items-center justify-between gap-2"><select aria-label="Initiative status" className="h-8 rounded-md border border-input bg-background px-2 text-xs" value={nextStatus} onChange={e => setNextStatus(e.target.value)}>{["planned","in_progress","completed","paused","cancelled"].map(s => <option key={s} value={s}>{s.replace("_"," ")}</option>)}</select><Button size="sm" onClick={save}><Save className="mr-1 h-3.5 w-3.5" />Save operations</Button></div>}
+      {canEdit && <div className="flex flex-wrap items-center justify-between gap-2"><select aria-label="Initiative status" className="h-8 rounded-md border border-input bg-background px-2 text-xs" value={nextStatus} onChange={e => setNextStatus(e.target.value)}>{["planned","in_progress","completed","paused","cancelled"].map(s => <option key={s} value={s}>{s.replace("_"," ")}</option>)}</select><Button size="sm" onClick={save} disabled={saving || query.isLoading || query.isError}><Save className="mr-1 h-3.5 w-3.5" />{saving ? "Saving…" : "Save operations"}</Button></div>}
     </>}
   </div>;
 }
