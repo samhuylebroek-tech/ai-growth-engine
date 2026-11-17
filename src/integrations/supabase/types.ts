@@ -1808,6 +1808,12 @@ export type Database = {
           }
         ]
       }
+      growth_initiative_operations: {
+        Row: { initiative_id: string; org_id: string; workspace_id: string; owner_id: string | null; due_date: string | null; success_metric: string; baseline_value: number | null; target_value: number | null; current_value: number | null; blocker_note: string; updated_by: string; updated_at: string }
+        Insert: { initiative_id: string; org_id: string; workspace_id: string; owner_id?: string | null; due_date?: string | null; success_metric?: string; baseline_value?: number | null; target_value?: number | null; current_value?: number | null; blocker_note?: string; updated_by?: string; updated_at?: string }
+        Update: { initiative_id?: string; org_id?: string; workspace_id?: string; owner_id?: string | null; due_date?: string | null; success_metric?: string; baseline_value?: number | null; target_value?: number | null; current_value?: number | null; blocker_note?: string; updated_by?: string; updated_at?: string }
+        Relationships: [{ foreignKeyName: "growth_initiative_operations_initiative_id_org_id_workspace_id_fkey"; columns: ["initiative_id", "org_id", "workspace_id"]; isOneToOne: true; referencedRelation: "growth_initiatives"; referencedColumns: ["id", "org_id", "workspace_id"] }]
+      }
       growth_initiatives: {
         Row: {
           project_id: string | null
