@@ -6,6 +6,7 @@ import { useOrg } from "@/lib/org-context";
 import { supabase } from "@/integrations/supabase/client";
 import { growthDraftKey } from "@/lib/growth-draft";
 import { can } from "@/lib/permissions";
+import { classifyInitiativeAttention, localISODate, sortInitiativeAttention } from "@/lib/initiative-pulse";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -25,19 +26,6 @@ type Issue = {
   reason: string;
   rank: number;
 };
-
-function localDate() {
-  const d = new Date();
-  return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, "0"), String(d.getDate()).padStart(2, "0")].join("-");
-}
-function plusDays(iso: string, days: number) {
-  const [y, m, d] = iso.split("-").map(Number);
-  const date = new Date(y, m - 1, d + days);
-  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
-}
-function prettyDate(value: string) {
-  return new Date(value + "T12:00:00").toLocaleDateString();
-}
 
 export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (count: number) => void }) {
   const o = useOrg();
@@ -79,8 +67,8 @@ export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (coun
     queryFn: async () => {
       if (!o.workspace || !initiativeIds.length) return [];
       const r = await supabase.from("growth_initiative_operations")
-        .select("initiative_id,owner_id,due_date,success_metric,current_value,target_value,blocker_note")
-        .eq("workspace_id", o.workspace.id).in("initiative_id", initiativeIds);
+        .select("initiative_id,owner_id,due_date,success_metric,baseline_value,current_value,target_value,blocker_note")
+        .eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).in("initiative_id", initiativeIds);
       if (r.error) throw r.error;
       return r.data ?? [];
     },
@@ -100,38 +88,30 @@ export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (coun
   });
 
   const rankedIssues = useMemo(() => {
-    const today = localDate();
-    const soon = plusDays(today, 7);
+    const today = localISODate();
     const rows: Issue[] = [];
     for (const item of initiatives.data ?? []) {
       const op = operations.data?.find(x => x.initiative_id === item.id);
       const plan = plans.data?.find(x => x.id === item.plan_version_id);
       const goal = goals.data?.find(x => x.id === item.goal_id);
       const dueDate = op?.due_date ?? null;
-      let kind: Issue["kind"] | null = null;
-      let reason = "";
-      let rank = 99;
-      if (op?.blocker_note?.trim()) {
-        kind = "blocked"; reason = op.blocker_note; rank = 0;
-      } else if (dueDate && dueDate < today) {
-        kind = "overdue"; reason = `Deadline was ${prettyDate(dueDate)}`; rank = 1;
-      } else if (dueDate && dueDate <= soon) {
-        kind = "due_soon"; reason = `Deadline ${prettyDate(dueDate)}`; rank = 2;
-      } else if (item.status === "in_progress" && !op?.owner_id) {
-        kind = "unassigned"; reason = "This initiative is underway but has no owner"; rank = 3;
-      } else if (item.status === "in_progress" && (!op?.success_metric || op.target_value == null || op.current_value == null)) {
-        kind = "measurement"; reason = "Add a success metric, target and current result"; rank = 4;
-      }
-      if (!kind) continue;
+      const classification = classifyInitiativeAttention({
+        status: item.status, dueDate, ownerId: op?.owner_id ?? null,
+        blockerNote: op?.blocker_note ?? "", successMetric: op?.success_metric ?? "",
+        baselineValue: op?.baseline_value ?? null, targetValue: op?.target_value ?? null,
+        currentValue: op?.current_value ?? null,
+      }, today);
+      if (!classification) continue;
       rows.push({
         id: item.id, title: item.title, planTitle: plan?.title ?? "Approved Growth Plan",
         goalTitle: goal?.title ?? "Growth goal", status: item.status,
         dueDate, ownerId: op?.owner_id ?? null, blocker: op?.blocker_note ?? "",
-        metric: op?.success_metric ?? "", current: op?.current_value ?? null, target: op?.target_value ?? null,
-        kind, reason, rank,
+        metric: op?.success_metric ?? "", baseline: op?.baseline_value ?? null,
+        current: op?.current_value ?? null, target: op?.target_value ?? null,
+        kind: classification.kind, reason: classification.reason, rank: classification.rank,
       });
     }
-    return rows.sort((a,b) => a.rank-b.rank || (a.dueDate ?? "9999-12-31").localeCompare(b.dueDate ?? "9999-12-31"));
+    return sortInitiativeAttention(rows);
   }, [initiatives.data, operations.data, plans.data, goals.data]);
 
   const issues = rankedIssues.slice(0, 6);
@@ -150,7 +130,7 @@ export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (coun
       `Deadline: ${issue.dueDate ?? "not set"}`,
       `Owner: ${issue.ownerId === o.userId ? "me" : issue.ownerId ? "another workspace member" : "unassigned"}`,
       `Success metric: ${issue.metric || "not set"}`,
-      `Current / target: ${issue.current ?? "not measured"} / ${issue.target ?? "not set"}`,
+      `Baseline / current / target: ${issue.baseline ?? "not set"} / ${issue.current ?? "not measured"} / ${issue.target ?? "not set"}`,
       `Blocker: ${issue.blocker || "none recorded"}`,
       `Attention reason: ${issue.reason}`,
       "Explain what can be done inside this workspace, what requires my decision, and what external action would require approval. Do not claim that any action was executed.",
