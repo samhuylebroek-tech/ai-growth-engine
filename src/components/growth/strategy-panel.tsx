@@ -8,7 +8,6 @@ import { strategySchema, type Strategy } from "@/lib/growth-strategy";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 
 const sel = "h-9 rounded-md border border-input bg-background px-2 text-sm";
 
@@ -18,7 +17,6 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
   const [open, setOpen] = useState(false); const [busy, setBusy] = useState(false);
   const [weeks, setWeeks] = useState(12); const [requestKey, setRequestKey] = useState(() => crypto.randomUUID());
   const [result, setResult] = useState<{ strategy: Strategy; key: string; saved: boolean } | null>(null);
-  const [picked, setPicked] = useState<Set<number>>(new Set());
   const [strategyId, setStrategyId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const saved = useQuery({ enabled: open, queryKey: ["growth-strategies", wsId, goalId], queryFn: async () => {
@@ -30,7 +28,7 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
     try {
       const r = await run({ data: { orgId, workspaceId: wsId, goalId, requestKey, horizonWeeks: weeks } });
       if (!r.ok) return void toast.error(r.error);
-      setResult({ strategy: r.data.strategy, key: requestKey, saved: false }); setStrategyId(null); setPicked(new Set(r.data.strategy.actions.map((_, i) => i)));
+      setResult({ strategy: r.data.strategy, key: requestKey, saved: false }); setStrategyId(null);
       setRequestKey(crypto.randomUUID()); toast.success(`Strategy ready · ${r.data.credits} AI credits`); qc.invalidateQueries({ queryKey: ["credits"] });
     } catch { toast.error("The request could not be confirmed. Check saved requests before trying again."); }
     finally { setBusy(false); }
@@ -66,25 +64,20 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
     }
   };
 
-  const toPlan = async () => {
-    if (!result || !result.saved || !strategyId || picked.size === 0 || creating) return;
+  const createPlanDraft = async () => {
+    if (!result?.saved || !strategyId || creating) return;
     setCreating(true);
     try {
-      const response = await supabase.rpc("create_growth_strategy_project", {
-        _strategy: strategyId,
-        _selected: [...picked].sort((a, b) => a - b),
-      });
+      const response = await supabase.rpc("create_growth_plan_draft", { _strategy: strategyId });
       if (response.error) throw response.error;
-      const receipt = response.data as { project_id?: string; task_ids?: string[] } | null;
-      if (!receipt?.project_id || !Array.isArray(receipt.task_ids)) {
-        throw new Error("The saved project receipt is incomplete.");
-      }
-      toast.success(`Project ready with ${receipt.task_ids.length} selected tasks under Work`);
-      qc.invalidateQueries({ queryKey: ["execution"] });
-      qc.invalidateQueries({ queryKey: ["goal-links", wsId] });
-      qc.invalidateQueries({ queryKey: ["growth-strategies", wsId, goalId] });
+      const receipt = response.data as { plan_id?: string; version?: number; status?: string } | null;
+      if (!receipt?.plan_id || !receipt.version) throw new Error("The Growth Plan receipt is incomplete.");
+      toast.success(`Growth Plan draft V${receipt.version} created · awaiting approval`);
+      await qc.invalidateQueries({ queryKey: ["growth-plan-versions", wsId, goalId] });
+      await qc.invalidateQueries({ queryKey: ["growth-initiatives", wsId] });
+      await qc.invalidateQueries({ queryKey: ["latest-saved-growth-strategy", wsId, goalId] });
     } catch {
-      toast.error("The project conversion could not be confirmed. Retry is safe; the saved strategy prevents duplicate projects.");
+      toast.error("The Growth Plan draft could not be confirmed. Check the saved plan before retrying.");
     } finally {
       setCreating(false);
     }
@@ -104,15 +97,16 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
         <div className="flex items-center gap-2"><Badge variant="secondary">AI suggestion</Badge>{result.saved && <Badge variant="outline">Saved</Badge>}</div>
         <p>{view.summary}</p>
         {view.channels.length > 0 && <div><p className="font-medium">Channel focus</p><ul className="space-y-1">{view.channels.map((c) => <li key={c.name}><span className="font-medium">{c.name}</span> · {c.share}% of effort — <span className="text-muted-foreground">{c.why}</span></li>)}</ul></div>}
-        <div><p className="font-medium">Actions</p><ul className="space-y-1">{view.actions.map((a, i) => (
-          <li key={i} className="flex items-start gap-2"><Checkbox aria-label={`Include ${a.title}`} checked={picked.has(i)} onCheckedChange={(v) => setPicked((s) => { const n = new Set(s); if (v) n.add(i); else n.delete(i); return n; })} />
-            <span><span className="font-medium">Week {a.week}: {a.title}</span>{a.channel && <span className="text-muted-foreground"> · {a.channel}</span>} <Badge variant="outline">{a.effort} effort</Badge>{a.detail && <span className="block text-muted-foreground">{a.detail}</span>}</span></li>))}</ul></div>
+        <div><p className="font-medium">Proposed initiatives</p><ul className="space-y-1">{view.actions.map((a, i) => (
+          <li key={i} className="rounded-md bg-background/70 px-2 py-1.5">
+            <span className="font-medium">Week {a.week}: {a.title}</span>{a.channel && <span className="text-muted-foreground"> · {a.channel}</span>} <Badge variant="outline">{a.effort} effort</Badge>{a.detail && <span className="block text-muted-foreground">{a.detail}</span>}
+          </li>))}</ul><p className="mt-1 text-xs text-muted-foreground">These actions become initiatives in a draft Growth Plan. A workspace admin or owner must approve the plan before work is created.</p></div>
         {view.kpis.length > 0 && <div><p className="font-medium">Measure</p><ul className="list-disc pl-5">{view.kpis.map((k) => <li key={k.metric}>{k.metric}: {k.target}</li>)}</ul></div>}
         {view.risks.length > 0 && <div><p className="font-medium">Risks</p><ul className="list-disc pl-5">{view.risks.map((r) => <li key={r}>{r}</li>)}</ul></div>}
         {view.assumptions.length > 0 && <div><p className="font-medium">Assumptions to check</p><ul className="list-disc pl-5">{view.assumptions.map((r) => <li key={r}>{r}</li>)}</ul></div>}
         <div className="flex flex-wrap gap-2">
           <Button size="sm" variant="outline" disabled={result.saved || busy || creating} onClick={save}>{result.saved ? "Saved" : busy ? "Saving…" : "Save strategy"}</Button>
-          <Button size="sm" disabled={!result.saved || !strategyId || picked.size === 0 || creating} onClick={toPlan}>{creating ? "Preparing project…" : !result.saved ? "Save strategy to create project" : `Create project with ${picked.size} tasks`}</Button>
+          <Button size="sm" disabled={!result.saved || !strategyId || creating} onClick={createPlanDraft}>{creating ? "Creating draft…" : !result.saved ? "Save strategy to create draft" : "Create Growth Plan draft"}</Button>
           <Button size="sm" variant="ghost" disabled={busy || creating} onClick={() => { setResult(null); setStrategyId(null); }}>Discard</Button>
         </div>
       </div>}
