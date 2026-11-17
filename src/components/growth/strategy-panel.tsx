@@ -19,6 +19,7 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
   const [result, setResult] = useState<{ strategy: Strategy; key: string; saved: boolean } | null>(null);
   const [strategyId, setStrategyId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  const [planDraftCreated, setPlanDraftCreated] = useState(false);
   const saved = useQuery({ enabled: open, queryKey: ["growth-strategies", wsId, goalId], queryFn: async () => {
     const r = await supabase.from("growth_strategies").select("id,summary,body,created_at,request_key").eq("org_id", orgId).eq("workspace_id", wsId).eq("goal_id", goalId).order("created_at", { ascending: false }).limit(10);
     if (r.error) throw r.error; return r.data; } });
@@ -28,7 +29,7 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
     try {
       const r = await run({ data: { orgId, workspaceId: wsId, goalId, requestKey, horizonWeeks: weeks } });
       if (!r.ok) return void toast.error(r.error);
-      setResult({ strategy: r.data.strategy, key: requestKey, saved: false }); setStrategyId(null);
+      setResult({ strategy: r.data.strategy, key: requestKey, saved: false }); setStrategyId(null); setPlanDraftCreated(false);
       setRequestKey(crypto.randomUUID()); toast.success(`Strategy ready · ${r.data.credits} AI credits`); qc.invalidateQueries({ queryKey: ["credits"] });
     } catch { toast.error("The request could not be confirmed. Check saved requests before trying again."); }
     finally { setBusy(false); }
@@ -71,6 +72,7 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
       if (response.error) throw response.error;
       const receipt = response.data as { plan_id?: string; version?: number } | null;
       if (!receipt?.plan_id || !receipt.version) throw new Error("The Growth Plan receipt is incomplete.");
+      setPlanDraftCreated(true);
       toast.success(`Growth Plan draft V${receipt.version} created · awaiting approval`);
       await qc.invalidateQueries({ queryKey: ["growth-plan-versions", orgId, wsId, goalId] });
       await qc.invalidateQueries({ queryKey: ["growth-initiatives", orgId, wsId] });
@@ -104,13 +106,13 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
         {view.assumptions.length > 0 && <div><p className="font-medium">Assumptions to check</p><ul className="list-disc pl-5">{view.assumptions.map((r) => <li key={r}>{r}</li>)}</ul></div>}
         <div className="flex flex-wrap gap-2">
           <Button size="sm" variant="outline" disabled={result.saved || busy || creating} onClick={save}>{result.saved ? "Saved" : busy ? "Saving…" : "Save strategy"}</Button>
-          <Button size="sm" disabled={!result.saved || !strategyId || busy || creating} onClick={createPlanDraft}>{creating ? "Creating draft…" : "Create Growth Plan draft"}</Button>
-          <Button size="sm" variant="ghost" disabled={busy || creating} onClick={() => { setResult(null); setStrategyId(null); }}>Discard</Button>
+          <Button size="sm" disabled={!result.saved || !strategyId || busy || creating || planDraftCreated} onClick={createPlanDraft}>{creating ? "Creating draft…" : planDraftCreated ? "Draft created" : "Create Growth Plan draft"}</Button>
+          <Button size="sm" variant="ghost" disabled={busy || creating} onClick={() => { setResult(null); setStrategyId(null); setPlanDraftCreated(false); }}>Discard</Button>
         </div>
         {result.saved && <p className="text-xs text-muted-foreground">The draft requires approval by a workspace admin or owner before it can create Work.</p>}
       </div>}
       {(saved.data ?? []).length > 0 && <div className="space-y-1 border-t pt-2"><p className="text-xs font-medium text-muted-foreground">Saved strategies</p>
-        {saved.data!.map((s) => <button key={s.id} type="button" className="block w-full truncate rounded px-1 text-left text-sm hover:bg-accent" onClick={() => { const p = strategySchema.safeParse(s.body); if (p.success) { setResult({ strategy: p.data, key: s.request_key, saved: true }); setStrategyId(s.id); setPicked(new Set(p.data.actions.map((_, i) => i))); } }}>
+        {saved.data!.map((s) => <button key={s.id} type="button" className="block w-full truncate rounded px-1 text-left text-sm hover:bg-accent" onClick={() => { const p = strategySchema.safeParse(s.body); if (p.success) { setResult({ strategy: p.data, key: s.request_key, saved: true }); setStrategyId(s.id); setPlanDraftCreated(false); setPicked(new Set(p.data.actions.map((_, i) => i))); } }}>
           {new Date(s.created_at).toLocaleDateString()} — {s.summary}</button>)}</div>}
     </div>
   );
