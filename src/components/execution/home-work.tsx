@@ -43,7 +43,20 @@ export function HomeWork({
       return r.data ?? [];
     },
   });
+  const initiativeIds = (initiatives.data ?? []).map(item => item.id);
+  const initiativeOperations = useQuery({
+    queryKey: ["command-center-initiative-operations", o.workspace?.id, initiativeIds],
+    enabled: !!o.workspace?.id && initiativeIds.length > 0,
+    queryFn: async () => {
+      if (!o.workspace || !initiativeIds.length) return [];
+      const r = await supabase.from("growth_initiative_operations").select("initiative_id,due_date,owner_id,blocker_note,success_metric,current_value,target_value")
+        .eq("workspace_id", o.workspace.id).in("initiative_id", initiativeIds);
+      if (r.error) throw r.error;
+      return r.data ?? [];
+    },
+  });
   const initiativeForProject = (id: string) => initiatives.data?.find((item) => item.project_id === id);
+  const operationsForInitiative = (id: string) => initiativeOperations.data?.find(item => item.initiative_id === id);
 
   if (q.isLoading)
     return (
@@ -96,7 +109,7 @@ export function HomeWork({
             <p className="mt-1 text-[11px] text-muted-foreground">
               {p.status} · {p.priority}
             </p>
-            {(() => { const initiative = initiativeForProject(p.id); return initiative ? <p className="mt-1 text-[11px] text-muted-foreground">Growth initiative · {initiative.title} · {initiative.status.replace(/_/g, " ")}</p> : null; })()}
+            {(() => { const initiative = initiativeForProject(p.id); if (!initiative) return null; const ops = operationsForInitiative(initiative.id); return <div className="mt-1 space-y-1 text-[11px] text-muted-foreground"><p>Growth initiative · {initiative.title} · {initiative.status.replace(/_/g, " ")}</p>{ops?.due_date && <p>Due {new Date(`${ops.due_date}T00:00:00`).toLocaleDateString()}</p>}{ops?.owner_id && <p>{ops.owner_id === o.userId ? "Assigned to you" : "Assigned to a workspace member"}</p>}{ops?.blocker_note && <p className="font-medium text-destructive">Blocked · {ops.blocker_note}</p>}{ops?.success_metric && ops.target_value != null && <p>Outcome · {ops.success_metric}: {ops.current_value ?? "not measured"} / {ops.target_value}</p>}</div>; })()}
             {"goal_id" in p && p.goal_id && goalTitle(p.goal_id) && (
               <p className="mt-1 text-[11px] text-muted-foreground">Growth goal · {goalTitle(p.goal_id)}</p>
             )}
