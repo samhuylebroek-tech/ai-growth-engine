@@ -30,6 +30,20 @@ function Planner({ orgId, wsId, canEdit, canApprove, userId }: { orgId: string; 
   const goals = useQuery({ queryKey: ["growth-goals", wsId], queryFn: async () => {
     const r = await supabase.from("growth_goals").select("*").eq("workspace_id", wsId).neq("status", "archived").order("priority").order("created_at").limit(100);
     if (r.error) throw r.error; return r.data; } });
+  const budgetInitiatives = useQuery({
+    queryKey: ["approved-budget-initiatives", wsId],
+    enabled: canEdit,
+    queryFn: async () => {
+      const plans = await supabase.from("growth_plan_versions").select("id").eq("workspace_id", wsId).eq("status", "approved");
+      if (plans.error) throw plans.error;
+      const ids = (plans.data ?? []).map(plan => plan.id);
+      if (!ids.length) return [];
+      const r = await supabase.from("growth_initiatives").select("id,title,goal_id,plan_version_id")
+        .eq("workspace_id", wsId).in("plan_version_id", ids).neq("status", "cancelled").order("sort_order");
+      if (r.error) throw r.error;
+      return r.data ?? [];
+    },
+  });
   const lines = useQuery({ queryKey: ["budget-lines", wsId, month], queryFn: async () => {
     const r = await supabase.from("budget_lines").select("*").eq("workspace_id", wsId).eq("period_month", month).order("created_at").limit(200);
     if (r.error) throw r.error; return r.data; } });
@@ -57,14 +71,14 @@ function Planner({ orgId, wsId, canEdit, canApprove, userId }: { orgId: string; 
     if (r.error) toast.error("Could not update the goal."); await refresh();
   };
 
-  const [b, setB] = useState({ channel: "", planned: "", cap: "", goal: "" });
+  const [b, setB] = useState({ channel: "", planned: "", cap: "", goal: "", initiative: "" });
   const addLine = async () => {
     const planned = num(b.planned) ?? 0, cap = num(b.cap);
     if (!b.channel.trim()) return void toast.error("Name the channel or activity.");
     if (cap != null && planned > cap) return void toast.error("Planned amount can't exceed the hard cap.");
-    const r = await supabase.from("budget_lines").insert({ org_id: orgId, workspace_id: wsId, channel: b.channel.trim(), period_month: month, planned, hard_cap: cap, goal_id: b.goal || null });
+    const r = await supabase.from("budget_lines").insert({ org_id: orgId, workspace_id: wsId, channel: b.channel.trim(), period_month: month, planned, hard_cap: cap, goal_id: b.goal || null, initiative_id: b.initiative || null });
     if (r.error) return void toast.error("Could not save the budget line.");
-    setB({ channel: "", planned: "", cap: "", goal: "" }); await refresh();
+    setB({ channel: "", planned: "", cap: "", goal: "", initiative: "" }); await refresh();
   };
   const setActual = async (id: string, v: string) => {
     const n = num(v); if (n == null || n < 0) return;
@@ -140,10 +154,10 @@ function Planner({ orgId, wsId, canEdit, canApprove, userId }: { orgId: string; 
             <div key={k as string} className="rounded-lg border bg-card p-3"><p className="text-xs text-muted-foreground">{k}</p><p className="text-lg font-semibold">{fmt(v as number)}</p></div>))}
         </div>
         <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm"><thead className="bg-muted/50 text-left"><tr><th className="p-2">Channel</th><th className="p-2">Goal</th><th className="p-2">Planned</th><th className="p-2">Cap</th><th className="p-2">Spent</th><th className="p-2">Status</th></tr></thead>
+          <table className="w-full text-sm"><thead className="bg-muted/50 text-left"><tr><th className="p-2">Channel</th><th className="p-2">Goal / initiative</th><th className="p-2">Planned</th><th className="p-2">Cap</th><th className="p-2">Spent</th><th className="p-2">Status</th></tr></thead>
             <tbody>{(lines.data ?? []).length === 0 && <tr><td colSpan={6} className="p-3 text-muted-foreground">No budget planned for this month.</td></tr>}
               {(lines.data ?? []).map(l => { const a = budgetAlert(l); return (
-                <tr key={l.id} className="border-t"><td className="p-2">{l.channel}</td><td className="p-2 text-muted-foreground">{goals.data?.find(x => x.id === l.goal_id)?.title ?? "—"}</td>
+                <tr key={l.id} className="border-t"><td className="p-2">{l.channel}</td><td className="p-2 text-muted-foreground">{goals.data?.find(x => x.id === l.goal_id)?.title ?? "—"}{l.initiative_id && <span className="block text-xs">{budgetInitiatives.data?.find(i => i.id === l.initiative_id)?.title ?? "Initiative linked"}</span>}</td>
                   <td className="p-2">{fmt(Number(l.planned))}</td><td className="p-2">{l.hard_cap != null ? fmt(Number(l.hard_cap)) : "—"}</td>
                   <td className="p-2">{canEdit ? <Input aria-label={`Spent on ${l.channel}`} className="h-8 w-28" type="number" min={0} defaultValue={Number(l.actual)} onBlur={e => { if (Number(e.target.value) !== Number(l.actual)) void setActual(l.id, e.target.value); }} /> : fmt(Number(l.actual))}</td>
                   <td className="p-2">{a === "over_cap" ? <Badge variant="destructive">Over hard cap</Badge> : a === "over_plan" ? <Badge variant="destructive">Over plan</Badge> : a === "near_plan" ? <Badge variant="secondary">80%+ used</Badge> : <Badge variant="outline">On track</Badge>}</td></tr>); })}
@@ -159,7 +173,7 @@ function Planner({ orgId, wsId, canEdit, canApprove, userId }: { orgId: string; 
           <Input aria-label="Channel" placeholder="e.g. Google Ads" value={b.channel} onChange={e => setB({ ...b, channel: e.target.value })} />
           <Input aria-label="Planned amount" type="number" min={0} placeholder="Planned €" value={b.planned} onChange={e => setB({ ...b, planned: e.target.value })} />
           <Input aria-label="Hard cap" type="number" min={0} placeholder="Hard cap € (optional)" value={b.cap} onChange={e => setB({ ...b, cap: e.target.value })} />
-          <select aria-label="Linked goal" className={sel} value={b.goal} onChange={e => setB({ ...b, goal: e.target.value })}><option value="">No linked goal</option>{(goals.data ?? []).map(x => <option key={x.id} value={x.id}>{x.title}</option>)}</select>
+          <div className="space-y-1"><select aria-label="Linked goal" className={`${sel} w-full`} value={b.goal} onChange={e => setB({ ...b, goal: e.target.value, initiative: "" })}><option value="">No linked goal</option>{(goals.data ?? []).map(x => <option key={x.id} value={x.id}>{x.title}</option>)}</select><select aria-label="Linked approved initiative" className={`${sel} w-full`} value={b.initiative} onChange={e => { const initiative = budgetInitiatives.data?.find(i => i.id === e.target.value); setB({ ...b, initiative: e.target.value, goal: initiative?.goal_id ?? b.goal }); }}><option value="">No initiative link</option>{(budgetInitiatives.data ?? []).filter(i => !b.goal || i.goal_id === b.goal).map(i => <option key={i.id} value={i.id}>{i.title}</option>)}</select></div>
           <Button onClick={addLine}><Plus className="mr-1 h-4 w-4" />Add budget line</Button>
         </div>}
       </section>
@@ -236,7 +250,14 @@ function GrowthPlanPanel({ goalId, wsId, canEdit, canApprove }: {
     await qc.invalidateQueries({ queryKey: ["growth-plan-versions", wsId, goalId] });
     await qc.invalidateQueries({ queryKey: ["growth-initiatives", wsId] });
   };
-  const createWork = async (initiativeId: string) => {\n    const r = await supabase.rpc("create_growth_initiative_work", { _initiative: initiativeId });\n    if (r.error) return void toast.error("Could not create work from this initiative.");\n    toast.success("Initiative added to Work");\n    await qc.invalidateQueries({ queryKey: ["growth-initiatives", wsId] });\n    await qc.invalidateQueries({ queryKey: ["goal-links", wsId] });\n  };\n  const approve = async (id: string) => {
+  const createWork = async (initiativeId: string) => {
+    const r = await supabase.rpc("create_growth_initiative_work", { _initiative: initiativeId });
+    if (r.error) return void toast.error("Could not create work from this initiative.");
+    toast.success("Initiative added to Work");
+    await qc.invalidateQueries({ queryKey: ["growth-initiatives", wsId] });
+    await qc.invalidateQueries({ queryKey: ["goal-links", wsId] });
+  };
+  const approve = async (id: string) => {
     const r = await supabase.rpc("approve_growth_plan", { _plan: id });
     if (r.error) return void toast.error("Approval failed. Check your workspace permissions.");
     toast.success("Growth Plan approved");
@@ -264,7 +285,8 @@ function GrowthPlanPanel({ goalId, wsId, canEdit, canApprove }: {
               <li key={item.id} className="rounded-md bg-muted/40 p-2 text-sm">
                 <div className="flex flex-wrap items-center gap-2"><span className="font-medium">{index + 1}. {item.title}</span><Badge variant="outline">Week {item.target_week}</Badge><Badge variant="outline">{item.effort} effort</Badge></div>
                 {item.detail && <p className="mt-1 text-xs text-muted-foreground">{item.detail}</p>}
-                {item.channel && <p className="text-xs text-muted-foreground">Channel: {item.channel}</p>}\n                {item.project_id ? <p className="text-xs text-muted-foreground">Work project created</p> : current.status === "approved" && canEdit ? <Button size="sm" variant="outline" onClick={() => createWork(item.id)}>Create work from initiative</Button> : null}
+                {item.channel && <p className="text-xs text-muted-foreground">Channel: {item.channel}</p>}
+                {item.project_id ? <p className="text-xs text-muted-foreground">Work project created</p> : current.status === "approved" && canEdit ? <Button size="sm" variant="outline" onClick={() => createWork(item.id)}>Create work from initiative</Button> : null}
               </li>)}</ol>}
           {current.status === "draft" && canApprove && <Button size="sm" onClick={() => approve(current.id)}>Approve this plan</Button>}
           {current.status === "draft" && !canApprove && <p className="text-xs text-muted-foreground">Awaiting approval from a workspace admin or owner.</p>}
