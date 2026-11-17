@@ -373,5 +373,12 @@
       "tag": "0051_guard_initiative_action_json",
       "breakpoints": true
     }
+    ,{
+      "idx": 53,
+      "version": "7",
+      "when": 1794907029370,
+      "tag": "0052_guard_initiative_operations",
+      "breakpoints": true
+    }
   ]
 }
