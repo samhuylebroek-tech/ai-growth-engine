@@ -2739,6 +2739,7 @@ export type Database = {
       }
       convert_execution_plan: {
         Args: {
+          _goal: string | null
           _kind: string
           _plan: Json
           _request: string
