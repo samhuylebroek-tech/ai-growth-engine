@@ -30,26 +30,12 @@ export function InitiativeOperations({ initiativeId, orgId, workspaceId, userId,
     },
   });
   const members = useQuery({
-    queryKey: ["initiative-assignable-members", orgId, workspaceId],
+    queryKey: ["initiative-assignable-members", workspaceId],
     enabled: canEdit,
     queryFn: async () => {
-      const [orgResult, workspaceResult] = await Promise.all([
-        supabase.from("organization_members").select("user_id,role").eq("org_id", orgId),
-        supabase.from("workspace_members").select("user_id,role").eq("workspace_id", workspaceId),
-      ]);
-      if (orgResult.error || workspaceResult.error) throw orgResult.error ?? workspaceResult.error;
-      const rank: Record<string, number> = { viewer: 1, member: 2, admin: 3, owner: 4 };
-      const workspaceRoles = new Map((workspaceResult.data ?? []).map(member => [member.user_id, member.role]));
-      const eligible = (orgResult.data ?? []).filter(member =>
-        rank[member.role] >= 2 && (member.role === "owner" || rank[workspaceRoles.get(member.user_id) ?? "viewer"] >= 2)
-      );
-      const ids = eligible.map(member => member.user_id);
-      const profileResult = ids.length
-        ? await supabase.from("profiles").select("user_id,display_name").in("user_id", ids)
-        : { data: [], error: null };
-      if (profileResult.error) throw profileResult.error;
-      const names = new Map((profileResult.data ?? []).map(profile => [profile.user_id, profile.display_name]));
-      return eligible.map(member => ({ id: member.user_id, name: names.get(member.user_id) || "Workspace member" }))
+      const result = await supabase.rpc("execution_workspace_members", { _workspace: workspaceId });
+      if (result.error) throw result.error;
+      return (result.data ?? []).map(member => ({ id: member.user_id, name: member.display_name }))
         .sort((a,b) => a.name.localeCompare(b.name));
     },
   });
