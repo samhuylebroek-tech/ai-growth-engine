@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/lib/org-context";
 import { GrowthQuestion } from "@/components/app/growth-question";
+import { goalProgress } from "@/lib/growth-plan";
 import { Button } from "@/components/ui/button";
 
 export function PrimaryGrowthFocus() {
@@ -27,10 +28,7 @@ export function PrimaryGrowthFocus() {
     },
   });
   const goal = goals.data;
-  const hasProgress = goal?.current_value != null && goal.target != null && goal.target > 0;
-  const progress = hasProgress
-    ? Math.max(0, Math.min(100, Math.round((goal.current_value! / goal.target!) * 100)))
-    : null;
+  const progress = goal ? goalProgress(goal.baseline, goal.target, goal.current_value) : null;
 
   return (
     <section aria-labelledby="growth-focus-title" className="rounded-xl border border-border bg-card p-4 sm:p-5">
@@ -65,7 +63,7 @@ export function PrimaryGrowthFocus() {
           {progress !== null && (
             <div className="mt-4">
               <div className="mb-2 flex items-center justify-between gap-3 text-xs">
-                <span className="text-muted-foreground">Recorded progress</span>
+                <span className="text-muted-foreground">Progress from baseline</span>
                 <strong className="tabular-nums">{goal.current_value} / {goal.target} {goal.metric}</strong>
               </div>
               <div
