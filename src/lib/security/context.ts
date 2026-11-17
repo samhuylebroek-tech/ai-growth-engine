@@ -56,22 +56,20 @@ export async function workspaceContext(sb: DB, scope: WorkspaceScope) {
 
   // Descriptive profile fields can be stale after a fact is edited/rejected; never use them as a second trust path.
   const objectives = profile.data?.onboarding_completed_at ? { objectives: profile.data.objectives, monthly_budget_eur: profile.data.monthly_budget_eur } : {};
-  const initiativeDetails = (initiativesResult.data ?? []).map(item => {
-    const operations = operationsResult.data?.find(op => op.initiative_id === item.id);
-    return {
-      title: item.title, detail: item.detail, channel: item.channel, status: item.status,
-      target_week: item.target_week, effort: item.effort, linked_work_created: !!item.project_id,
-      due_date: operations?.due_date ?? null, owner_assigned: !!operations?.owner_id,
-      success_metric: operations?.success_metric || null,
-      baseline: operations?.baseline_value ?? null, target: operations?.target_value ?? null,
-      current: operations?.current_value ?? null, blocker: operations?.blocker_note || null,
-    };
-  });
   const plansAndInitiatives = (plans.data ?? []).map(plan => ({
     goal: (goals.data ?? []).find(goal => goal.id === plan.goal_id)?.title ?? "Growth goal",
-    version: plan.version, title: plan.title, summary: plan.summary,
-    initiatives: initiativeDetails.filter(item => (initiativesResult.data ?? []).some(source =>
-      source.title === item.title && source.plan_version_id === plan.id)),
+    version: plan.version, title: plan.title, summary: plan.summary.slice(0, 700),
+    initiatives: (initiativesResult.data ?? []).filter(item => item.plan_version_id === plan.id).map(item => {
+      const operations = operationsResult.data?.find(op => op.initiative_id === item.id);
+      return {
+        title: item.title, detail: item.detail.slice(0, 500), channel: item.channel, status: item.status,
+        target_week: item.target_week, effort: item.effort, linked_work_created: !!item.project_id,
+        due_date: operations?.due_date ?? null, owner_assigned: !!operations?.owner_id,
+        success_metric: operations?.success_metric || null,
+        baseline: operations?.baseline_value ?? null, target: operations?.target_value ?? null,
+        current: operations?.current_value ?? null, blocker: operations?.blocker_note || null,
+      };
+    }),
   }));
   const budgets = (budgetLines.data ?? []).map(line => ({
     channel: line.channel, month: line.period_month, planned: line.planned, manually_recorded_actual: line.actual,
@@ -84,9 +82,9 @@ export async function workspaceContext(sb: DB, scope: WorkspaceScope) {
     `CUSTOMER OBJECTIVES (not evidence):\n${quoteUntrusted("objectives", JSON.stringify(objectives))}`,
     `VERIFIED FACTS:\n${quoteUntrusted("verified-facts", approvedContextFacts(facts.data ?? []).map(f => `- ${f.key}: ${f.value}`).join("\n") || "(none)")}`,
     `WORKSPACE:\n${quoteUntrusted("workspace", JSON.stringify(workspace))}`,
-    `ACTIVE GROWTH GOALS (user-maintained planning records, not connected measurements):\n${quoteUntrusted("growth-goals", JSON.stringify(goals.data ?? []), 9000)}`,
+    `CURRENT GROWTH GOALS (user-maintained planning records, not connected measurements):\n${quoteUntrusted("growth-goals", JSON.stringify(goals.data ?? []), 9000)}`,
     `APPROVED GROWTH PLANS AND INITIATIVES (approved planning direction, not verified outcomes):\n${quoteUntrusted("approved-growth-plans", JSON.stringify(plansAndInitiatives), 12000)}`,
-    `BUDGET ENTRIES (manual planning and actual-spend inputs, currencies must remain separate):\n${quoteUntrusted("budget-lines", JSON.stringify(budgets), 6000)}`,
+    `RECENT BUDGET ENTRIES (manual planning and actual-spend inputs, currencies must remain separate):\n${quoteUntrusted("budget-lines", JSON.stringify(budgets), 6000)}`,
     `PREVIOUS RECOMMENDATIONS (hypotheses, never facts):\n${quoteUntrusted("recommendations", JSON.stringify(recommendations.data ?? []))}`,
     "Unconfirmed claims and descriptive profile mirrors are excluded. Initiative owners are represented only as assigned/unassigned, not personal identifiers. Budget actuals are manually entered and are not verified ad-platform or payment data. Conversation history is not verified evidence; ask for confirmation when evidence is missing.",
   ].join("\n\n");
