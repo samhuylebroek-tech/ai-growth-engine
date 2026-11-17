@@ -18,7 +18,7 @@ export function localISODate(date = new Date()): string {
   return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
 }
 export function addCalendarDays(isoDate: string, days: number): string {
-  const [year, month, day] = isoDate.split("-").map(Number);
+  const [year = Number.NaN, month = Number.NaN, day = Number.NaN] = isoDate.split("-").map(Number);
   const date = new Date(year, month - 1, day + days);
   return localISODate(date);
 }

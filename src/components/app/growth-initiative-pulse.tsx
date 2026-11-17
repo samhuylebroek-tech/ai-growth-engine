@@ -66,7 +66,7 @@ export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (coun
     queryKey: ["command-center-initiative-ops", o.workspace?.id, initiativeIds],
     enabled: !!o.workspace?.id && initiativeIds.length > 0,
     queryFn: async () => {
-      if (!o.workspace || !initiativeIds.length) return [];
+      if (!o.org || !o.workspace || !initiativeIds.length) return [];
       const r = await supabase.from("growth_initiative_operations")
         .select("initiative_id,owner_id,due_date,success_metric,baseline_value,current_value,target_value,blocker_note")
         .eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).in("initiative_id", initiativeIds);

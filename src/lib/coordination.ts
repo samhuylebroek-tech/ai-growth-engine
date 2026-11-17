@@ -9,6 +9,8 @@ export const coordinationInputSchema = z.object({
   mode: z.enum(["manual", "auto"]).default("manual"),
   agents: z.array(specialistKeySchema).length(2).refine(a => new Set(a).size === 2, "Choose two different specialists").optional(),
   executionContext: executionSelectionSchema,
+  // Optional: absent keeps the legacy fresh-analysis behaviour; null explicitly starts fresh; a UUID is ownership-checked server-side.
+  conversationId: z.string().uuid().nullable().optional(),
 }).superRefine((value, context) => {
   if (value.mode === "manual" && !value.agents) {
     context.addIssue({ code: "custom", path: ["agents"], message: "Manual coordination requires two specialists." });

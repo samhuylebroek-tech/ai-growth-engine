@@ -48,7 +48,7 @@ export function HomeWork({
     queryKey: ["command-center-initiative-operations", o.workspace?.id, initiativeIds],
     enabled: !!o.workspace?.id && initiativeIds.length > 0,
     queryFn: async () => {
-      if (!o.workspace || !initiativeIds.length) return [];
+      if (!o.org || !o.workspace || !initiativeIds.length) return [];
       const r = await supabase.from("growth_initiative_operations").select("initiative_id,due_date,owner_id,blocker_note,success_metric,current_value,target_value")
         .eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).in("initiative_id", initiativeIds);
       if (r.error) throw r.error;

@@ -197,7 +197,7 @@ function GoalPlanSnapshot({ budgetLines, linkedWorkCount, month, formatAmount }:
       <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
         <span>{linkedWorkCount} linked {linkedWorkCount === 1 ? "work item" : "work items"}</span>
         <span>{budgetLines.length} budget {budgetLines.length === 1 ? "line" : "lines"}</span>
-        {budgetLines.length > 0 && currencies.length === 1
+        {budgetLines.length > 0 && currencies.length === 1 && currencies[0]
           ? <span>{formatAmount(planned, currencies[0])} planned · {formatAmount(spent, currencies[0])} recorded</span>
           : budgetLines.length > 0
             ? <span>Multiple currencies — totals kept separate in the budget table</span>

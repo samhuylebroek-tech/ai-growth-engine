@@ -25,7 +25,7 @@ export function DeepAnalysisRecovery() {
       if (r.error) throw r.error;
       return (r.data ?? []).filter(row => {
         const savedInput = row.input;
-        return typeof savedInput === "object" && savedInput !== null && !Array.isArray(savedInput) && savedInput.mode === "auto";
+        return typeof savedInput === "object" && savedInput !== null && !Array.isArray(savedInput) && savedInput["mode"] === "auto";
       }).slice(0, 5);
     },
     refetchInterval: 30_000,
