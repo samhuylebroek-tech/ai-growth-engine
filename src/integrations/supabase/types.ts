@@ -1730,6 +1730,138 @@ export type Database = {
           },
         ]
       }
+      growth_plan_versions: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string
+          goal_id: string
+          id: string
+          org_id: string
+          plan_snapshot: Json
+          strategic_thesis: string
+          status: string
+          strategy_id: string
+          summary: string
+          title: string
+          version: number
+          workspace_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string
+          goal_id: string
+          id?: string
+          org_id: string
+          plan_snapshot: Json
+          strategic_thesis?: string
+          status?: string
+          strategy_id: string
+          summary: string
+          title: string
+          version: number
+          workspace_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string
+          goal_id?: string
+          id?: string
+          org_id?: string
+          plan_snapshot?: Json
+          strategic_thesis?: string
+          status?: string
+          strategy_id?: string
+          summary?: string
+          title?: string
+          version?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "growth_plan_versions_goal_id_org_id_workspace_id_fkey"
+            columns: ["goal_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "growth_goals"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "growth_plan_versions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      growth_initiatives: {
+        Row: {
+          channel: string
+          created_at: string
+          detail: string
+          effort: string
+          goal_id: string
+          id: string
+          org_id: string
+          plan_version_id: string
+          sort_order: number
+          status: string
+          target_week: number
+          title: string
+          workspace_id: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          detail?: string
+          effort?: string
+          goal_id: string
+          id?: string
+          org_id: string
+          plan_version_id: string
+          sort_order: number
+          status?: string
+          target_week?: number
+          title: string
+          workspace_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          detail?: string
+          effort?: string
+          goal_id?: string
+          id?: string
+          org_id?: string
+          plan_version_id?: string
+          sort_order?: number
+          status?: string
+          target_week?: number
+          title?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "growth_initiatives_goal_id_org_id_workspace_id_fkey"
+            columns: ["goal_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "growth_goals"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "growth_initiatives_plan_version_id_org_id_workspace_id_fkey"
+            columns: ["plan_version_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "growth_plan_versions"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          }
+        ]
+      }
       growth_strategies: {
         Row: {
           body: Json
@@ -2746,6 +2878,14 @@ export type Database = {
           _source: string
           _workspace: string
         }
+        Returns: Json
+      }
+      create_growth_plan_draft: {
+        Args: { _strategy: string }
+        Returns: Json
+      }
+      approve_growth_plan: {
+        Args: { _plan: string }
         Returns: Json
       }
       create_growth_strategy_project: {
