@@ -21,9 +21,9 @@ export const coordinationInputSchema = z.object({
 /** Bounded routing from the request topic; no AI call is spent on selecting specialists. */
 export function selectSpecialistsForRequest(request: string): [SpecialistKey, SpecialistKey] {
   const text = request.toLowerCase();
-  const seo = /(^|[^a-z])seo([^a-z]|$)|search engine|organic search|keyword|ranking|search visibility|technical seo|zoekmachineoptimalisatie|zoekmachine|organische zoekresultaten|zoekwoorden|zoekzichtbaarheid/.test(text);
-  const content = /content|inhoud|article|artikels?|blog|newsletter|nieuwsbrief|social media|sociale media|social post|sociale posts?|copywriting|copy|tekst|creative|video script|videoscript/.test(text);
-  const research = /market|markt|competitor|concurrent|competition|audience|doelgroep|customer segment|klantsegment|persona|pricing|prijszetting|prijzen|positioning|positionering|demand|vraag|industry|industrie|branche|research|onderzoek/.test(text);
+  const seo = /(^|[^a-z])seo([^a-z]|$)|search engine|organic search|keyword|ranking|search visibility|technical seo|zoekmachineoptimalisatie|zoekmachine|organische zoekresultaten|zoekwoorden|zoekzichtbaarheid|référencement|mots-clés|visibilité organique|optimisation des moteurs/.test(text);
+  const content = /content|inhoud|contenu|article|artikels?|blog|newsletter|nieuwsbrief|lettre d'information|social media|sociale media|réseaux sociaux|social post|sociale posts?|copywriting|copy|rédaction|tekst|texte|creative|video script|videoscript|script vidéo/.test(text);
+  const research = /market|markt|marché|competitor|concurrent|competition|concurrence|audience|doelgroep|public cible|customer segment|klantsegment|segment client|persona|pricing|prijszetting|prijzen|tarification|positioning|positionering|positionnement|demand|vraag|demande|industry|industrie|branche|secteur|research|onderzoek|étude/.test(text);
   if (seo && content) return ["seo", "content"];
   if (seo) return ["research", "seo"];
   if (content) return ["strategy", "content"];
