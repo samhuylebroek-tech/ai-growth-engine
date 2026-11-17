@@ -112,7 +112,7 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
         {result.saved && <p className="text-xs text-muted-foreground">The draft requires approval by a workspace admin or owner before it can create Work.</p>}
       </div>}
       {(saved.data ?? []).length > 0 && <div className="space-y-1 border-t pt-2"><p className="text-xs font-medium text-muted-foreground">Saved strategies</p>
-        {saved.data!.map((s) => <button key={s.id} type="button" className="block w-full truncate rounded px-1 text-left text-sm hover:bg-accent" onClick={() => { const p = strategySchema.safeParse(s.body); if (p.success) { setResult({ strategy: p.data, key: s.request_key, saved: true }); setStrategyId(s.id); setPlanDraftCreated(false); setPicked(new Set(p.data.actions.map((_, i) => i))); } }}>
+        {saved.data!.map((s) => <button key={s.id} type="button" className="block w-full truncate rounded px-1 text-left text-sm hover:bg-accent" onClick={() => { const p = strategySchema.safeParse(s.body); if (p.success) { setResult({ strategy: p.data, key: s.request_key, saved: true }); setStrategyId(s.id); setPlanDraftCreated(false); } }}>
           {new Date(s.created_at).toLocaleDateString()} — {s.summary}</button>)}</div>}
     </div>
   );
