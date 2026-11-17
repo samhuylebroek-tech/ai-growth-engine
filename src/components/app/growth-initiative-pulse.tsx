@@ -20,6 +20,7 @@ type Issue = {
   ownerId: string | null;
   blocker: string;
   metric: string;
+  baseline: number | string | null;
   current: number | string | null;
   target: number | string | null;
   kind: "blocked" | "overdue" | "due_soon" | "unassigned" | "measurement";
