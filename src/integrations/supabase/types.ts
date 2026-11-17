@@ -1800,7 +1800,7 @@ export type Database = {
         ]
       }
       growth_initiatives: {
-        Row: {
+        Row: {\n          project_id: string | null
           channel: string
           created_at: string
           detail: string
@@ -1815,7 +1815,7 @@ export type Database = {
           title: string
           workspace_id: string
         }
-        Insert: {
+        Insert: {\n          project_id?: string | null
           channel?: string
           created_at?: string
           detail?: string
@@ -1830,7 +1830,7 @@ export type Database = {
           title: string
           workspace_id: string
         }
-        Update: {
+        Update: {\n          project_id?: string | null
           channel?: string
           created_at?: string
           detail?: string
@@ -2880,7 +2880,7 @@ export type Database = {
         }
         Returns: Json
       }
-      create_growth_plan_draft: {
+      create_growth_initiative_work: {\n        Args: { _initiative: string }\n        Returns: Json\n      }\n      create_growth_plan_draft: {
         Args: { _strategy: string }
         Returns: Json
       }
