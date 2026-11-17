@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { selectSpecialistsForRequest } from "@/lib/coordination";
+import { coordinationInputSchema, selectSpecialistsForRequest } from "@/lib/coordination";
 
 describe("selectSpecialistsForRequest", () => {
   it("routes SEO and content work to both relevant capabilities", () => {
@@ -16,5 +16,31 @@ describe("selectSpecialistsForRequest", () => {
   });
   it("uses a bounded strategy and research default", () => {
     expect(selectSpecialistsForRequest("What is my best next growth move?")).toEqual(["strategy", "research"]);
+  });
+});
+
+describe("coordinationInputSchema", () => {
+  const base = {
+    orgId: "11111111-1111-4111-8111-111111111111",
+    workspaceId: "22222222-2222-4222-8222-222222222222",
+    requestKey: "33333333-3333-4333-8333-333333333333",
+    request: "Prepare a growth strategy",
+    executionContext: [],
+  };
+  it("accepts automatic routing without exposing agent selection", () => {
+    const parsed = coordinationInputSchema.parse({ ...base, mode: "auto" });
+    expect(parsed.mode).toBe("auto");
+    expect(parsed.agents).toEqual([]);
+  });
+  it("rejects client-supplied specialist choices in automatic mode", () => {
+    expect(() => coordinationInputSchema.parse({ ...base, mode: "auto", agents: ["strategy", "research"] })).toThrow();
+  });
+  it("preserves explicit specialist selection in advanced manual mode", () => {
+    const parsed = coordinationInputSchema.parse({ ...base, agents: ["strategy", "research"] });
+    expect(parsed.mode).toBe("manual");
+    expect(parsed.agents).toEqual(["strategy", "research"]);
+  });
+  it("requires two specialists in advanced manual mode", () => {
+    expect(() => coordinationInputSchema.parse(base)).toThrow();
   });
 });
