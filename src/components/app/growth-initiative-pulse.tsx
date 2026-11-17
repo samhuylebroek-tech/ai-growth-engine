@@ -145,6 +145,7 @@ export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (coun
   if (!issues.length) return <p className="py-2 text-xs text-muted-foreground">No approved initiative currently needs follow-up. Active initiatives will appear here when a deadline, blocker, owner or measurement needs attention.</p>;
 
   return <div className="space-y-2">
+    <p className="text-[10px] text-muted-foreground">Prioritized from approved plans using recorded blockers, dates, ownership and outcome data. Nothing is sent or executed automatically.</p>
     {issues.map(issue => <div key={issue.id} className="rounded-md border border-border p-3">
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant={issue.kind === "blocked" || issue.kind === "overdue" ? "destructive" : "secondary"}>
@@ -156,9 +157,10 @@ export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (coun
       <p className="mt-1 text-xs text-muted-foreground">{issue.goalTitle} · {issue.reason}</p>
       {issue.ownerId && <p className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground"><UserRound className="h-3 w-3" />{issue.ownerId === o.userId ? "Assigned to you" : "Assigned to a workspace member"}</p>}
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <Button size="sm" variant="outline" disabled={!canAskGrowthOfficer} onClick={() => askAbout(issue)}>Ask Growth Officer <ArrowUpRight /></Button>
+        <Button size="sm" variant="outline" disabled={!canAskGrowthOfficer} title={canAskGrowthOfficer ? "Prepare a contextual Growth Officer question" : "Workspace member access is required"} onClick={() => askAbout(issue)}>Discuss with Growth Officer <ArrowUpRight /></Button>
         <Button size="sm" variant="ghost" asChild><Link to="/app/goals">Open Growth Plan <ArrowUpRight /></Link></Button>
       </div>
     </div>)}
+    {rankedIssues.length > issues.length && <p className="text-[10px] text-muted-foreground">Showing the {issues.length} highest-priority items of {rankedIssues.length} needing follow-up.</p>}
   </div>;
 }
