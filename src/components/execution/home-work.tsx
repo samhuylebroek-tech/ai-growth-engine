@@ -31,6 +31,20 @@ export function HomeWork({
     },
   });
   const goalTitle = (id: string | null) => goals.data?.find((g) => g.id === id)?.title;
+  const projectIds = (q.data?.projects ?? []).map((project) => project.id);
+  const initiatives = useQuery({
+    queryKey: ["execution-growth-initiatives", o.org?.id, o.workspace?.id, projectIds],
+    enabled: !!o.org?.id && !!o.workspace?.id && projectIds.length > 0,
+    queryFn: async () => {
+      if (!o.org || !o.workspace || !projectIds.length) return [];
+      const r = await supabase.from("growth_initiatives").select("id,title,status,project_id")
+        .eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).in("project_id", projectIds);
+      if (r.error) throw r.error;
+      return r.data ?? [];
+    },
+  });
+  const initiativeForProject = (id: string) => initiatives.data?.find((item) => item.project_id === id);
+
   if (q.isLoading)
     return (
       <p role="status" className="py-3 text-xs text-muted-foreground">
@@ -82,6 +96,7 @@ export function HomeWork({
             <p className="mt-1 text-[11px] text-muted-foreground">
               {p.status} · {p.priority}
             </p>
+            {(() => { const initiative = initiativeForProject(p.id); return initiative ? <p className="mt-1 text-[11px] text-muted-foreground">Growth initiative · {initiative.title} · {initiative.status.replace(/_/g, " ")}</p> : null; })()}
             {"goal_id" in p && p.goal_id && goalTitle(p.goal_id) && (
               <p className="mt-1 text-[11px] text-muted-foreground">Growth goal · {goalTitle(p.goal_id)}</p>
             )}
