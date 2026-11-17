@@ -14,6 +14,12 @@ describe("selectSpecialistsForRequest", () => {
   it("pairs market questions with research and strategy", () => {
     expect(selectSpecialistsForRequest("Research competitors, customer segments and market pricing")).toEqual(["research", "strategy"]);
   });
+  it("routes Dutch SEO and content requests to both relevant capabilities", () => {
+    expect(selectSpecialistsForRequest("Verbeter onze zoekmachineoptimalisatie en schrijf drie artikelen voor sociale media")).toEqual(["seo", "content"]);
+  });
+  it("routes Dutch market and competitor research to research and strategy", () => {
+    expect(selectSpecialistsForRequest("Onderzoek de concurrentie en doelgroep in de Belgische markt")).toEqual(["research", "strategy"]);
+  });
   it("uses a bounded strategy and research default", () => {
     expect(selectSpecialistsForRequest("What is my best next growth move?")).toEqual(["strategy", "research"]);
   });
