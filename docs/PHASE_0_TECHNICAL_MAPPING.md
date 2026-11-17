@@ -53,7 +53,7 @@ This can be evolved rather than replaced. The target UX should guide the user th
 
 The specialist coordination component previously asked the user to select exactly two specialists. On this branch, the coordination panel is removed from the standard Growth Officer page and the Specialists entry is removed from primary navigation. The underlying server capability and advanced route remain in the code for diagnostics; no autonomous specialist selection has been implemented yet.
 
-The next orchestration step is to have the Growth Officer choose specialist capabilities internally, under the existing metering, bounded-call and evidence constraints.
+A user-opt-in Deep analysis mode has now been added to the Growth Officer. In that mode, the server selects two specialist capabilities from the request topic using deterministic routing rules, then runs the existing two-specialist-plus-synthesis workflow under its 150-credit reservation ceiling. The normal Growth Officer path remains a single metered call. Full autonomous selection based on business state, goal priority or expected value is not implemented; the user explicitly chooses Deep analysis, sees its credit ceiling, and submits the request.
 
 
 ### 2.6 Growth Officer recommendations can now become goal-linked work
@@ -140,3 +140,12 @@ Each attention item can prefill a workspace-scoped Growth Officer conversation w
 Migration `0052_guard_initiative_operations.sql` also enforces at the database layer that operational metadata can only be changed while the linked Growth Plan is approved, and revalidates workspace owner access on every write. This complements the RPC checks in migration `0050_growth_initiative_operations.sql`.
 
 The pulse and priority logic are implemented on the feature branch. Unit tests for deterministic ranking have been added but were not executed here. No build, lint, database migration or browser/mobile test has been run.
+
+
+### 2.10 Growth Officer deep analysis uses bounded internal routing
+
+The Growth Officer composer now offers an optional Deep analysis mode. Standard questions continue through the existing single-call, metered Growth Officer path. When the user explicitly enables Deep analysis, the request is routed to exactly two specialists selected server-side from the request topic, followed by one Growth Officer synthesis call. The routing rules are deterministic and tested; they do not spend a separate AI call, and specialist names are not exposed in the ordinary conversation UI.
+
+The workflow reuses the existing three-call coordinated-analysis protocol: 150 credits are reserved across the three calls, actual use is settled and unused reservation is returned. The user sees the maximum before submission. There is no recursive dispatch, no external tool use by the specialists, and no publishing, spending or CRM write. The Growth Officer synthesis retains the existing Plan Review path. A compact recovery surface in the Growth Officer checks incomplete coordinated analyses and reuses the existing receipt/recovery protocol without starting a duplicate request.
+
+The advanced manual coordination workbench remains available in the hidden/advanced Agents route for diagnostics. Automatic routing is currently request-topic based; it does not yet plan across multiple initiatives, choose specialists based on live performance or goal state, create work autonomously, or schedule recurring orchestration. Those remain later-phase capabilities. Tests for the routing rules and input boundaries have been added but not run. No build, live AI request, database migration or browser/mobile test has been performed.
