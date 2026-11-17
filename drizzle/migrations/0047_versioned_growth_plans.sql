@@ -89,6 +89,10 @@ BEGIN
      OR jsonb_array_length(actions) NOT BETWEEN 1 AND 20 THEN
     RAISE EXCEPTION 'Strategy actions are invalid';
   END IF;
+  -- Serialize version allocation per goal, even when two strategies are converted concurrently.
+  PERFORM 1 FROM public.growth_goals
+    WHERE id = s.goal_id AND org_id = s.org_id AND workspace_id = s.workspace_id
+    FOR UPDATE;
   SELECT coalesce(max(version), 0) + 1 INTO next_version
     FROM public.growth_plan_versions WHERE goal_id = s.goal_id;
   INSERT INTO public.growth_plan_versions(
@@ -163,6 +167,12 @@ LANGUAGE plpgsql
 SET search_path = public
 AS $$
 BEGIN
+  -- The sole permitted update to a previously approved version is superseding it
+  -- when a newer version is approved. All plan content remains byte-for-byte stable.
+  IF OLD.status = 'approved' AND NEW.status = 'superseded'
+     AND (to_jsonb(NEW) - 'status') = (to_jsonb(OLD) - 'status') THEN
+    RETURN NEW;
+  END IF;
   IF OLD.status <> 'draft' THEN
     RAISE EXCEPTION 'Non-draft growth plans are immutable';
   END IF;
