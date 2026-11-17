@@ -2747,6 +2747,10 @@ export type Database = {
         }
         Returns: Json
       }
+      create_growth_strategy_project: {
+        Args: { _selected: Json; _strategy: string }
+        Returns: Json
+      }
       create_invitation: {
         Args: {
           _email: string
