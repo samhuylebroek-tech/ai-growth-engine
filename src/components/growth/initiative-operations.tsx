@@ -69,6 +69,7 @@ export function InitiativeOperations({ initiativeId, orgId, workspaceId, userId,
       if (r.error) { toast.error("Initiative update could not be saved."); return; }
       toast.success("Initiative updated");
       await qc.invalidateQueries({ queryKey });
+      await qc.invalidateQueries({ queryKey: ["growth-initiatives", orgId, workspaceId] });
       await qc.invalidateQueries({ queryKey: ["growth-initiatives", workspaceId] });
       await qc.invalidateQueries({ queryKey: ["execution-growth-initiatives"] });
     } finally {
