@@ -52,8 +52,10 @@ BEGIN
   IF existing IS NOT NULL THEN RETURN existing; END IF;
 
   IF jsonb_typeof(_selected) IS DISTINCT FROM 'array'
-     OR jsonb_array_length(_selected) NOT BETWEEN 1 AND 20
      OR jsonb_typeof(strategy_row.body->'actions') IS DISTINCT FROM 'array' THEN
+    RAISE EXCEPTION 'Select between 1 and 20 strategy actions';
+  END IF;
+  IF jsonb_array_length(_selected) NOT BETWEEN 1 AND 20 THEN
     RAISE EXCEPTION 'Select between 1 and 20 strategy actions';
   END IF;
 
