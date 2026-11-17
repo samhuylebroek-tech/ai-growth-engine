@@ -21,10 +21,10 @@ export function GoalsAndBudget() {
   const { workspace, org, workspaceRole, loading, userId } = useOrg();
   if (loading) return <p className="p-6 text-muted-foreground">Loading…</p>;
   if (!workspace || !org) return <p className="p-6 text-muted-foreground">Choose a workspace to plan goals and budget.</p>;
-  return <Planner key={workspace.id} orgId={org.id} wsId={workspace.id} canEdit={hasRole(workspaceRole, "member")} userId={userId} />;
+  return <Planner key={workspace.id} orgId={org.id} wsId={workspace.id} canEdit={hasRole(workspaceRole, "member")} userId={userId} canApprove={hasRole(workspaceRole, "admin")} />;
 }
 
-function Planner({ orgId, wsId, canEdit, userId }: { orgId: string; wsId: string; canEdit: boolean; userId: string }) {
+function Planner({ orgId, wsId, canEdit, canApprove, userId }: { orgId: string; wsId: string; canEdit: boolean; canApprove: boolean; userId: string }) {
   const qc = useQueryClient();
   const [month, setMonth] = useState(monthStart());
   const goals = useQuery({ queryKey: ["growth-goals", wsId], queryFn: async () => {
@@ -102,6 +102,7 @@ function Planner({ orgId, wsId, canEdit, userId }: { orgId: string; wsId: string
                 {x.priority === "primary" && <Badge>Primary</Badge>}<Badge variant="outline">{OBJECTIVES[x.objective]}</Badge>{x.status !== "active" && <Badge variant="secondary">{x.status}</Badge>}</div>
               <p className="text-sm text-muted-foreground">{x.metric || "No metric"} · baseline {x.baseline ?? "—"} → target {x.target ?? "—"}{x.due_date ? ` by ${x.due_date}` : ""}</p>
               {p != null ? <div className="space-y-1"><Progress value={p} /><p className="text-xs text-muted-foreground">{p}% of the way, based on the current value you entered</p></div> : <p className="text-xs text-muted-foreground">Enter a target and current value to track progress.</p>}
+              <GrowthPlanPanel goalId={x.id} wsId={wsId} canEdit={canEdit} canApprove={canApprove} />
               <GoalPlanSnapshot
                 budgetLines={(lines.data ?? []).filter(line => line.goal_id === x.id)}
                 linkedWorkCount={[...(links.data?.projects ?? []), ...(links.data?.campaigns ?? [])].filter(work => work.goal_id === x.id).length}
@@ -187,6 +188,87 @@ function GoalPlanSnapshot({ budgetLines, linkedWorkCount, month, formatAmount }:
             ? <span>Multiple currencies — totals kept separate in the budget table</span>
             : <span>No budget assigned this month</span>}
       </div>
+    </div>
+  );
+}
+function GrowthPlanPanel({ goalId, wsId, canEdit, canApprove }: {
+  goalId: string;
+  wsId: string;
+  canEdit: boolean;
+  canApprove: boolean;
+}) {
+  const qc = useQueryClient();
+  const plans = useQuery({
+    queryKey: ["growth-plan-versions", wsId, goalId],
+    queryFn: async () => {
+      const r = await supabase.from("growth_plan_versions").select("id,version,status,title,summary,approved_at,created_at")
+        .eq("workspace_id", wsId).eq("goal_id", goalId).order("version", { ascending: false }).limit(10);
+      if (r.error) throw r.error;
+      return r.data;
+    },
+  });
+  const latestStrategy = useQuery({
+    queryKey: ["latest-saved-growth-strategy", wsId, goalId],
+    enabled: canEdit,
+    queryFn: async () => {
+      const r = await supabase.from("growth_strategies").select("id")
+        .eq("workspace_id", wsId).eq("goal_id", goalId).order("created_at", { ascending: false }).limit(1).maybeSingle();
+      if (r.error) throw r.error;
+      return r.data;
+    },
+  });
+  const initiatives = useQuery({
+    queryKey: ["growth-initiatives", wsId, plans.data?.[0]?.id],
+    enabled: Boolean(plans.data?.[0]?.id),
+    queryFn: async () => {
+      const r = await supabase.from("growth_initiatives").select("id,title,detail,channel,target_week,effort,status,sort_order")
+        .eq("workspace_id", wsId).eq("plan_version_id", plans.data![0].id).order("sort_order");
+      if (r.error) throw r.error;
+      return r.data;
+    },
+  });
+  const createDraft = async () => {
+    const strategyId = latestStrategy.data?.id;
+    if (!strategyId) return;
+    const r = await supabase.rpc("create_growth_plan_draft", { _strategy: strategyId });
+    if (r.error) return void toast.error("Could not create the Growth Plan draft.");
+    toast.success("Growth Plan draft created");
+    await qc.invalidateQueries({ queryKey: ["growth-plan-versions", wsId, goalId] });
+    await qc.invalidateQueries({ queryKey: ["growth-initiatives", wsId] });
+  };
+  const approve = async (id: string) => {
+    const r = await supabase.rpc("approve_growth_plan", { _plan: id });
+    if (r.error) return void toast.error("Approval failed. Check your workspace permissions.");
+    toast.success("Growth Plan approved");
+    await qc.invalidateQueries({ queryKey: ["growth-plan-versions", wsId, goalId] });
+  };
+  const current = plans.data?.[0];
+  return (
+    <div className="space-y-2 rounded-lg border p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div><p className="text-sm font-medium">Growth Plan</p><p className="text-xs text-muted-foreground">Versioned strategy and prioritized initiatives</p></div>
+        {canEdit && latestStrategy.data?.id && !plans.data?.some(p => p.status === "draft") &&
+          <Button size="sm" variant="outline" onClick={createDraft}>Create plan draft</Button>}
+      </div>
+      {plans.isLoading ? <p className="text-xs text-muted-foreground">Loading plan…</p>
+        : !current ? <p className="text-xs text-muted-foreground">No plan version yet. Generate and save a strategy, then create a draft here.</p>
+        : <>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium">V{current.version} · {current.title}</span>
+            <Badge variant={current.status === "approved" ? "default" : "secondary"}>{current.status}</Badge>
+            {current.approved_at && <span className="text-xs text-muted-foreground">Approved {new Date(current.approved_at).toLocaleDateString()}</span>}
+          </div>
+          <p className="text-sm text-muted-foreground">{current.summary}</p>
+          {initiatives.isLoading ? <p className="text-xs text-muted-foreground">Loading initiatives…</p>
+            : <ol className="space-y-2">{(initiatives.data ?? []).map((item, index) =>
+              <li key={item.id} className="rounded-md bg-muted/40 p-2 text-sm">
+                <div className="flex flex-wrap items-center gap-2"><span className="font-medium">{index + 1}. {item.title}</span><Badge variant="outline">Week {item.target_week}</Badge><Badge variant="outline">{item.effort} effort</Badge></div>
+                {item.detail && <p className="mt-1 text-xs text-muted-foreground">{item.detail}</p>}
+                {item.channel && <p className="text-xs text-muted-foreground">Channel: {item.channel}</p>}
+              </li>)}</ol>}
+          {current.status === "draft" && canApprove && <Button size="sm" onClick={() => approve(current.id)}>Approve this plan</Button>}
+          {current.status === "draft" && !canApprove && <p className="text-xs text-muted-foreground">Awaiting approval from a workspace admin or owner.</p>}
+        </>}
     </div>
   );
 }
