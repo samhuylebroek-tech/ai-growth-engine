@@ -201,7 +201,7 @@ function GrowthPlanPanel({ goalId, wsId, canEdit, canApprove }: {
   const plans = useQuery({
     queryKey: ["growth-plan-versions", wsId, goalId],
     queryFn: async () => {
-      const r = await supabase.from("growth_plan_versions").select("id,version,status,title,summary,approved_at,created_at")
+      const r = await supabase.from("growth_plan_versions").select("id,strategy_id,version,status,title,summary,approved_at,created_at")
         .eq("workspace_id", wsId).eq("goal_id", goalId).order("version", { ascending: false }).limit(10);
       if (r.error) throw r.error;
       return r.data;
@@ -247,7 +247,7 @@ function GrowthPlanPanel({ goalId, wsId, canEdit, canApprove }: {
     <div className="space-y-2 rounded-lg border p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div><p className="text-sm font-medium">Growth Plan</p><p className="text-xs text-muted-foreground">Versioned strategy and prioritized initiatives</p></div>
-        {canEdit && latestStrategy.data?.id && !plans.data?.some(p => p.status === "draft") &&
+        {canEdit && latestStrategy.data?.id && !plans.data?.some(p => p.strategy_id === latestStrategy.data?.id) &&
           <Button size="sm" variant="outline" onClick={createDraft}>Create plan draft</Button>}
       </div>
       {plans.isLoading ? <p className="text-xs text-muted-foreground">Loading plan…</p>
