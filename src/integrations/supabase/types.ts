@@ -2890,7 +2890,10 @@ export type Database = {
         }
         Returns: Json
       }
-      create_growth_initiative_work: {\n        Args: { _initiative: string }\n        Returns: Json\n      }\n      create_growth_plan_draft: {
+      create_growth_initiative_work: {
+        Args: { _initiative: string }
+        Returns: Json
+      }\n      create_growth_plan_draft: {
         Args: { _strategy: string }
         Returns: Json
       }
