@@ -10,7 +10,7 @@ Date: 2026-11-17
 | Business context | `business_profiles`, `business_facts`, profile/onboarding and intelligence routes | Business profile, extracted facts, user confirmation and evidence display | Not yet a complete adaptive business model or continuous intelligence graph |
 | Goals | `growth_goals` (migration 0039) | Objective, metric, baseline, target, current value, due date, priority and status | No visible measurement source/freshness model in this table |
 | Budgets | `budget_lines` (migration 0039) | Monthly planned/actual amount, hard cap, currency and optional goal link | Actuals are manually entered; no ad-account spend sync in the connector registry |
-| Strategies | `growth_strategies` (migration 0040) | Goal-linked saved AI strategy JSON and summary | Saved result is not a versioned, approved plan aggregate |
+| Strategies | `growth_strategies` (migration 0040), `growth_plan_versions` and `growth_initiatives` (migration 0047) | Goal-linked saved AI strategy, immutable plan versions, ordered initiatives and an admin/owner approval state | Strategy generation and draft creation are still user-started; the Growth Officer does not autonomously approve or orchestrate plans |
 | Work | `projects`, `campaigns`, `tasks`, `execution_notes` (migration 0017) | Linked operational work, statuses, owners, dates, notes, dependencies and history | The product journey does not yet consistently originate and navigate from a strategic initiative |
 | Goal-to-work links | `projects.goal_id`, `campaigns.goal_id` (migration 0040) | Projects and campaigns can link directly to a goal | No first-class initiative/strategy-version link in the inspected schema |
 | CRM | `crm_contacts`, `crm_deals` (migration 0041) | Contacts and deals with stages, value, close date and optional goal link | No verified external CRM connector; inspect actual route/workflows before presenting it as a synced CRM |
@@ -21,21 +21,24 @@ Date: 2026-11-17
 
 ## 2. Important UX and implementation findings
 
-### 2.1 Strategy generation remains a guided, user-started workflow
+### 2.1 Strategy generation remains guided, but now feeds one reviewed Growth Plan path
 
 In `src/components/growth/strategy-panel.tsx`:
 - The user opens the strategy panel from a goal.
 - The user chooses a 4/8/12/26-week horizon and starts generation.
-- The user chooses which generated actions to include.
-- The strategy must be saved before it can be converted into Work.
+- The user reviews the suggested initiatives and saves the strategy.
+- The user creates a versioned Growth Plan draft from the saved strategy.
+- A workspace admin/owner approves the draft before an initiative can be converted into internal Work.
 
-This is intentionally still a guided workflow; it is not yet the target “tell the Growth Officer the outcome and let it organize the work” experience.
+The ordinary goal workflow no longer exposes the older direct strategy-to-project conversion button. That removes a competing path that could create work without the newer plan approval step. The underlying `create_growth_strategy_project` RPC remains in the migration history for compatibility, but it is not called by the current Strategy Panel UI.
 
-### 2.2 Strategy-to-work conversion now has an atomic, idempotent database path on this branch
+### 2.2 Strategy-to-work database paths and approval boundary
 
-Migration `0043_atomic_growth_strategy_conversion.sql` adds a conversion register and the `create_growth_strategy_project` RPC. It locks the saved strategy, checks workspace membership and selected action indices, then creates the project, selected tasks and conversion receipt in one database transaction. The unique strategy conversion record makes retries return the original project/task receipt rather than create duplicates, including after a page reload.
+Migration `0043_atomic_growth_strategy_conversion.sql` introduced an idempotent legacy strategy-to-project RPC. The current user-facing path uses migration `0047_versioned_growth_plans.sql` to snapshot a saved strategy into a draft Growth Plan, then migration `0048_growth_initiative_work.sql` to convert an approved initiative into a linked project and starter task. The initiative ID is the idempotency anchor for that conversion.
 
-The Strategy Panel now saves/recovers the strategy ID and calls this RPC instead of issuing separate client-side project and task inserts. This is branch code only: the migration has not been applied to a database and no runtime or integration test has been run.
+Migration `0047` now also serializes approvals per goal and enforces a unique partial index allowing at most one approved plan version per goal. Both changes are defensive database invariants; they have not yet been applied to a database or runtime-tested.
+
+This branch-only flow has not been exercised in a live database or browser.
 
 ### 2.3 Goal and budget are separate manual planning surfaces
 
@@ -51,7 +54,7 @@ This can be evolved rather than replaced. The target UX should guide the user th
 
 ### 2.4 Existing AI orchestration is bounded, but its UX is too technical
 
-The specialist coordination component previously asked the user to select exactly two specialists. On this branch, the coordination panel is removed from the standard Growth Officer page and the Specialists entry is removed from primary navigation. The underlying server capability and advanced route remain in the code for diagnostics; no autonomous specialist selection has been implemented yet.
+The specialist coordination component previously asked the user to select exactly two specialists. On this branch, the coordination panel is removed from the standard Growth Officer page and the Specialists entry is removed from primary navigation. The underlying manual workbench remains in the advanced Agents route for diagnostics.
 
 A user-opt-in Deep analysis mode has now been added to the Growth Officer. In that mode, the server selects two specialist capabilities from the request topic using deterministic routing rules, then runs the existing two-specialist-plus-synthesis workflow under its 150-credit reservation ceiling. The normal Growth Officer path remains a single metered call. Full autonomous selection based on business state, goal priority or expected value is not implemented; the user explicitly chooses Deep analysis, sees its credit ceiling, and submits the request.
 
