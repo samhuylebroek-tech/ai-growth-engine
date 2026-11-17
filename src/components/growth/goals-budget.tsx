@@ -106,7 +106,7 @@ function Planner({ orgId, wsId, canEdit, userId }: { orgId: string; wsId: string
                 budgetLines={(lines.data ?? []).filter(line => line.goal_id === x.id)}
                 linkedWorkCount={[...(links.data?.projects ?? []), ...(links.data?.campaigns ?? [])].filter(work => work.goal_id === x.id).length}
                 month={month}
-                formatAmount={fmt}
+                formatAmount={(amount, currency) => new Intl.NumberFormat(undefined, { style: "currency", currency }).format(amount)}
               />
               <LinkedWork goalId={x.id} data={links.data} canEdit={canEdit} onLink={link} />
               {canEdit && x.status === "active" && <StrategyPanel orgId={orgId} wsId={wsId} goalId={x.id} goalTitle={x.title} userId={userId} />}
@@ -170,7 +170,7 @@ function GoalPlanSnapshot({ budgetLines, linkedWorkCount, month, formatAmount }:
   budgetLines: Array<{ id: string; planned: number | string; actual: number | string; currency: string }>;
   linkedWorkCount: number;
   month: string;
-  formatAmount: (n: number) => string;
+  formatAmount: (n: number, currency: string) => string;
 }) {
   const currencies = [...new Set(budgetLines.map(line => line.currency))];
   const planned = budgetLines.reduce((sum, line) => sum + Number(line.planned), 0);
@@ -182,7 +182,7 @@ function GoalPlanSnapshot({ budgetLines, linkedWorkCount, month, formatAmount }:
         <span>{linkedWorkCount} linked {linkedWorkCount === 1 ? "work item" : "work items"}</span>
         <span>{budgetLines.length} budget {budgetLines.length === 1 ? "line" : "lines"}</span>
         {budgetLines.length > 0 && currencies.length === 1
-          ? <span>{formatAmount(planned)} planned · {formatAmount(spent)} recorded</span>
+          ? <span>{formatAmount(planned, currencies[0])} planned · {formatAmount(spent, currencies[0])} recorded</span>
           : budgetLines.length > 0
             ? <span>Multiple currencies — totals kept separate in the budget table</span>
             : <span>No budget assigned this month</span>}
