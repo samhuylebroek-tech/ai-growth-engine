@@ -20,6 +20,8 @@ export function StrategyPanel({ orgId, wsId, goalId, goalTitle, userId }: { orgI
   const [weeks, setWeeks] = useState(12); const [requestKey, setRequestKey] = useState(() => crypto.randomUUID());
   const [result, setResult] = useState<{ strategy: Strategy; key: string; saved: boolean } | null>(null);
   const [picked, setPicked] = useState<Set<number>>(new Set());
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
   const saved = useQuery({ enabled: open, queryKey: ["growth-strategies", wsId, goalId], queryFn: async () => {
     const r = await supabase.from("growth_strategies").select("id,summary,body,created_at,request_key").eq("workspace_id", wsId).eq("goal_id", goalId).order("created_at", { ascending: false }).limit(10);
     if (r.error) throw r.error; return r.data; } });
@@ -41,13 +43,58 @@ export function StrategyPanel({ orgId, wsId, goalId, goalTitle, userId }: { orgI
     setResult({ ...result, saved: true }); toast.success("Strategy saved"); await saved.refetch();
   };
   const toPlan = async () => {
-    if (!result || picked.size === 0) return;
-    const p = await supabase.from("projects").insert({ org_id: orgId, workspace_id: wsId, title: `Strategy: ${goalTitle}`.slice(0, 200), objective: result.strategy.summary.slice(0, 1000), goal_id: goalId, category: "growth", created_by: userId }).select("id").single();
-    if (p.error) return void toast.error("Could not create the project.");
-    const rows = result.strategy.actions.filter((_, i) => picked.has(i)).map((a) => ({ org_id: orgId, workspace_id: wsId, project_id: p.data.id, title: a.title, description: a.detail, due_date: addDays(a.week * 7), priority: a.effort === "high" ? "high" : "medium", labels: ["strategy", ...(a.channel ? [a.channel.slice(0, 40)] : [])], created_by: userId }));
-    const t = await supabase.from("tasks").insert(rows);
-    if (t.error) return void toast.error("The project was created, but its tasks could not be added.");
-    toast.success(`Created a project with ${rows.length} tasks under Work`); qc.invalidateQueries({ queryKey: ["execution"] }); qc.invalidateQueries({ queryKey: ["goal-links", wsId] });
+    if (!result || picked.size === 0 || creating) return;
+    setCreating(true);
+    try {
+      let targetProjectId = projectId;
+      if (!targetProjectId) {
+        const p = await supabase.from("projects").insert({
+          org_id: orgId, workspace_id: wsId,
+          title: `Strategy: ${goalTitle}`.slice(0, 200),
+          objective: result.strategy.summary.slice(0, 1000),
+          goal_id: goalId, category: "growth", created_by: userId,
+        }).select("id").single();
+        if (p.error) {
+          toast.error("Could not create the project. No tasks were created.");
+          return;
+        }
+        targetProjectId = p.data.id;
+        setProjectId(targetProjectId);
+      }
+
+      // Reconcile first: a timed-out insert may have committed even if its response was lost.
+      const existing = await supabase.from("tasks").select("title")
+        .eq("org_id", orgId).eq("workspace_id", wsId).eq("project_id", targetProjectId);
+      if (existing.error) {
+        toast.error("The project exists, but its tasks could not be checked. Retry safely.");
+        return;
+      }
+      const selected = result.strategy.actions.filter((_, i) => picked.has(i));
+      const existingTitles = new Set((existing.data ?? []).map(t => t.title.trim().toLocaleLowerCase()));
+      const missing = selected.filter(a => !existingTitles.has(a.title.trim().toLocaleLowerCase()));
+      if (missing.length) {
+        const rows = missing.map(a => ({
+          org_id: orgId, workspace_id: wsId, project_id: targetProjectId!,
+          title: a.title, description: a.detail, due_date: addDays(a.week * 7),
+          priority: a.effort === "high" ? "high" : "medium",
+          labels: ["strategy", ...(a.channel ? [a.channel.slice(0, 40)] : [])],
+          created_by: userId,
+        }));
+        const inserted = await supabase.from("tasks").insert(rows);
+        if (inserted.error) {
+          toast.error("The project is saved. Some tasks are still missing; retry to complete the plan.");
+          return;
+        }
+      }
+      toast.success(`Project ready with ${selected.length} selected tasks under Work`);
+      qc.invalidateQueries({ queryKey: ["execution"] });
+      qc.invalidateQueries({ queryKey: ["goal-links", wsId] });
+      setProjectId(null);
+    } catch {
+      toast.error("The project may already exist. Retry to reconcile its tasks.");
+    } finally {
+      setCreating(false);
+    }
   };
 
   if (!open) return <Button size="sm" variant="outline" onClick={() => setOpen(true)}><Compass className="mr-1 h-4 w-4" />Plan strategy</Button>;
@@ -72,7 +119,7 @@ export function StrategyPanel({ orgId, wsId, goalId, goalTitle, userId }: { orgI
         {view.assumptions.length > 0 && <div><p className="font-medium">Assumptions to check</p><ul className="list-disc pl-5">{view.assumptions.map((r) => <li key={r}>{r}</li>)}</ul></div>}
         <div className="flex flex-wrap gap-2">
           <Button size="sm" variant="outline" disabled={result.saved} onClick={save}>{result.saved ? "Saved" : "Save strategy"}</Button>
-          <Button size="sm" disabled={picked.size === 0} onClick={toPlan}>Create project with {picked.size} tasks</Button>
+          <Button size="sm" disabled={picked.size === 0 || creating} onClick={toPlan}>{creating ? "Preparing project…" : projectId ? "Complete project tasks" : `Create project with ${picked.size} tasks`}</Button>
           <Button size="sm" variant="ghost" onClick={() => setResult(null)}>Discard</Button>
         </div>
       </div>}
