@@ -4,7 +4,7 @@ import { Plus, Target, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { useOrg } from "@/lib/org-context";
 import { hasRole } from "@/lib/permissions";
-import { supabase } from "@/integrations/supabase/client";
+import { growthDb as supabase } from "@/lib/pending-schema";
 import { goalProgress, budgetTotals, budgetAlert, reallocationProposals } from "@/lib/growth-plan";
 import { StrategyPanel } from "@/components/growth/strategy-panel";
 import { InitiativeOperations } from "@/components/growth/initiative-operations";

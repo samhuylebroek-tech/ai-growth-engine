@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { ArrowUpRight, UserRound } from "lucide-react";
 import { useOrg } from "@/lib/org-context";
-import { supabase } from "@/integrations/supabase/client";
+import { growthDb as supabase } from "@/lib/pending-schema";
 import { growthDraftKey } from "@/lib/growth-draft";
 import { can } from "@/lib/permissions";
 import { classifyInitiativeAttention, localISODate, sortInitiativeAttention } from "@/lib/initiative-pulse";

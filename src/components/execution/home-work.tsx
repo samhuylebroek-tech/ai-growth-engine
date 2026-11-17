@@ -6,7 +6,7 @@ import { useOrg } from "@/lib/org-context";
 import { can } from "@/lib/permissions";
 import { executionOptions, executionSummary, type Task } from "@/lib/execution";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { growthDb as supabase } from "@/lib/pending-schema";
 export function HomeWork({
   section,
 }: {

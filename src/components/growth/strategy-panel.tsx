@@ -5,7 +5,7 @@ import { Compass } from "lucide-react";
 import { toast } from "sonner";
 import { planGrowthStrategy } from "@/lib/ai.functions";
 import { strategySchema, type Strategy } from "@/lib/growth-strategy";
-import { supabase } from "@/integrations/supabase/client";
+import { growthDb as supabase } from "@/lib/pending-schema";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
