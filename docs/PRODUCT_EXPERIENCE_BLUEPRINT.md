@@ -305,3 +305,10 @@ The Growth Officer now keeps a standard one-call response as its default. The us
 The deep workflow makes its cost boundary visible before submission: 150 credits are reserved across three calls, actual use is charged and unused credits are returned. The same metering, workspace checks, idempotency, checkpoints and recovery protocol used by the advanced coordination engine are reused. The user must still submit the request; no external action is executed by the analysis.
 
 This is an opt-in deep-analysis mode, not yet the complete autonomous orchestration vision. It does not yet choose the depth of work autonomously, prioritize across all business initiatives, dispatch work in the background or coordinate against live channel performance. Those steps require a measured-value model, verified connector state, plan-aware capability policy and additional preview/approval UX.
+
+
+## 16. Plan-aware Growth Officer context (feature branch)
+
+The Growth Officer and its bounded specialist workflow now receive one workspace-scoped operating context: verified business facts, current growth goals, approved Growth Plan versions, initiative status and operational fields, plus recent budget entries. Initiative owners are represented only as assigned/unassigned; personal identifiers are not sent to the model. Current and target outcome values remain user-maintained records unless a connected, verified source is explicitly available. Budget actuals are marked as manual inputs and amounts in different currencies are never combined.
+
+Recommendations are instructed to align with approved plans, prioritize recorded blockers and overdue/near-term initiatives, and explain trade-offs before proposing changes to the approved plan. This improves context and consistency; it does not autonomously dispatch specialists, create work, reallocate money, or perform any external action.
