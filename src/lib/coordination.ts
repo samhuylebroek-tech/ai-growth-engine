@@ -21,9 +21,9 @@ export const coordinationInputSchema = z.object({
 /** Bounded routing from the request topic; no AI call is spent on selecting specialists. */
 export function selectSpecialistsForRequest(request: string): [SpecialistKey, SpecialistKey] {
   const text = request.toLowerCase();
-  const seo = /(^|[^a-z])seo([^a-z]|$)|search engine|organic search|keyword|keywords|ranking|search visibility|technical seo/.test(text);
-  const content = /content|article|blog|newsletter|social media|social post|copywriting|copy|creative|video script/.test(text);
-  const research = /market|competitor|competition|audience|customer segment|persona|pricing|positioning|demand|industry|research/.test(text);
+  const seo = /(^|[^a-z])seo([^a-z]|$)|search engine|organic search|keyword|ranking|search visibility|technical seo|zoekmachineoptimalisatie|zoekmachine|organische zoekresultaten|zoekwoorden|zoekzichtbaarheid/.test(text);
+  const content = /content|inhoud|article|artikels?|blog|newsletter|nieuwsbrief|social media|sociale media|social post|sociale posts?|copywriting|copy|tekst|creative|video script|videoscript/.test(text);
+  const research = /market|markt|competitor|concurrent|competition|audience|doelgroep|customer segment|klantsegment|persona|pricing|prijszetting|prijzen|positioning|positionering|demand|vraag|industry|industrie|branche|research|onderzoek/.test(text);
   if (seo && content) return ["seo", "content"];
   if (seo) return ["research", "seo"];
   if (content) return ["strategy", "content"];
