@@ -54,6 +54,15 @@ The specialist coordination component previously asked the user to select exactl
 
 The next orchestration step is to have the Growth Officer choose specialist capabilities internally, under the existing metering, bounded-call and evidence constraints.
 
+
+### 2.6 Growth Officer recommendations can now become goal-linked work
+
+On this branch, the chat recommendation review now lets a member choose an active/draft growth goal before creating a project or campaign. The conversion RPC validates that goal against the same organization and workspace, then writes the goal link, parent record, tasks and idempotency receipt in one transaction. A task-only conversion remains unlinked because the current task schema has no direct goal foreign key.
+
+The Command Center's active-work summary now resolves and displays the linked goal title for projects/campaigns. This is a first bridge between chat recommendations, the goal record and visible work; it is not yet a versioned initiative/strategy aggregate, and it does not make the Growth Officer autonomous. Migration `0046_link_chat_execution_to_growth_goal.sql` replaces the prior RPC signature. The migration journal also registers the earlier atomic strategy-conversion migration, which was present on the branch but absent from the journal.
+
+This remains branch-only. No migration was applied and no app build, database integration test or browser/mobile test was run.
+
 ### 2.5 Measurement is not yet a business KPI platform
 
 The Command Center's performance section explicitly reports traffic, leads/conversions and revenue as not configured. The connector registry marks Analytics, Search Console, ad platforms, LinkedIn, HubSpot, Mailchimp, Stripe and Shopify as planned. This means the initial vertical slice must use goal definitions and manually supplied/verified measurements where appropriate, and must not manufacture live ROI.
@@ -97,7 +106,7 @@ The first code slice should avoid schema changes if possible:
 5. Keep the current detailed dashboard data accessible under a “More activity and history” disclosure or Work history.
 6. Add tests for the hierarchy, no-goal state, missing metric state, approval permissions, tenant scoping and mobile overflow.
 
-The first Command Center/goal slice and the atomic strategy-to-work conversion foundation are now present on this branch. The next step is to connect the Growth Officer's recommendations to the same durable plan/work records, then test the journey end to end before widening autonomous execution.
+The first Command Center/goal slice, atomic strategy-to-work conversion, and a goal-linked chat-to-work path are now present on this branch. The next step is to test the complete journey against a real preview/database, then make strategy/initiative records visible as a coherent Growth Plan before widening autonomous execution.
 
 ## 6. Verification boundary
 
