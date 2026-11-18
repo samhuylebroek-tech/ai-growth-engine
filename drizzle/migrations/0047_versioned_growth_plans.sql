@@ -49,6 +49,7 @@ CREATE TABLE public.growth_initiatives (
   status text NOT NULL DEFAULT 'planned' CHECK (status IN ('planned','in_progress','completed','paused','cancelled')),
   created_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE(plan_version_id, sort_order),
+  CONSTRAINT growth_initiatives_scope_unique UNIQUE (id, org_id, workspace_id),
   FOREIGN KEY(plan_version_id, org_id, workspace_id)
     REFERENCES public.growth_plan_versions(id, org_id, workspace_id),
   FOREIGN KEY(goal_id, org_id, workspace_id)
