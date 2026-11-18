@@ -11,6 +11,10 @@ Applies to every file in `drizzle/migrations/` and its journal `drizzle/migratio
 5. **No hand-applied production changes.** Migrations are applied only through the platform's migration tool after explicit owner approval. Data fixes go through reviewed queries, never through migrations.
 6. **Types follow the schema.** `src/integrations/supabase/types.ts` is regenerated from the database. When the database lags behind committed migrations, the generated file must not silently drop tables that application code depends on (see "Current status").
 
+## Update — 2026-11-18
+
+Journal now has 56 entries (`idx` 0–55). Staging (see `docs/STAGING.md`) has all 56 applied and all SQL suites passing. The live database is still at 46; pending there: the 8 below plus `0054_privilege_hardening` and `0055_anon_catalogue_read_only`.
+
 ## Journal consistency check — 2026-11-17 (read-only)
 
 | Check | Result |

@@ -1,4 +1,10 @@
 # AI Growth OS — Task Queue
+## Master build & execution — 2026-11-18
+- [x] Phase A: staging initialized (56 migrations, buckets, separate AI accounting secret), 19/19 SQL suites incl. growth plan end-to-end, storage and privilege checks.
+- [x] Privilege hardening migrations 0054/0055 (tested on staging only).
+- [B] Staging app + staging test sign-ins/Platform Owner: needs separate hosting and the staging project URL + publishable key.
+- [B] Applying 10 pending migrations to the live database: needs owner approval.
+- [ ] Phase B–F (performance measurement, orchestration, i18n, integrations) — continue in following work packages.
 ## Goal directive: stability + unified business context — 2026-11-17
 - [x] M0: five failing tests fixed (coordination conversation selection, context query mock); 8 type errors and an undefined prompt variable in specialist analyses fixed.
 - [x] M0: migration journal checked read-only (54 entries, contiguous, ordered; 8 committed but unapplied); forward-only policy in docs/MIGRATION_POLICY.md.

@@ -1,0 +1,1 @@
+- Staging database work runs only through these scripts (target guard + in-database marker, inherited PG* stripped), never the platform migration tool or bare psql; this keeps the live database untouched.

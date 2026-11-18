@@ -358,26 +358,40 @@
       "when": 1794907029367,
       "tag": "0049_budget_initiative_links",
       "breakpoints": true
-    }
-    ,{
+    },
+    {
       "idx": 51,
       "version": "7",
       "when": 1794907029368,
       "tag": "0050_growth_initiative_operations",
       "breakpoints": true
-    }
-    ,{
+    },
+    {
       "idx": 52,
       "version": "7",
       "when": 1794907029369,
       "tag": "0051_guard_initiative_action_json",
       "breakpoints": true
-    }
-    ,{
+    },
+    {
       "idx": 53,
       "version": "7",
       "when": 1794907029370,
       "tag": "0052_guard_initiative_operations",
+      "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1795041979975,
+      "tag": "0054_privilege_hardening",
+      "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1795042021541,
+      "tag": "0055_anon_catalogue_read_only",
       "breakpoints": true
     }
   ]
