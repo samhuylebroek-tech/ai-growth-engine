@@ -37,7 +37,7 @@ All staging work goes through `scripts/staging/*.ts` (run with `bun`). Every scr
 | Schema | 51 tables, RLS on all, every SECURITY DEFINER function pins `search_path`, signup trigger present |
 | Storage | `documents` private, 20 MB, document MIME list; `execution-files` private, 10 MB (matches app limits) |
 | AI accounting | Staging secret `STAGING_AI_ACCOUNTING_SECRET` (separate from live); only its SHA-256 is in the staging verifier; correct value accepted, wrong/empty rejected, not callable by app roles |
-| SQL suites | 20/20 PASS (≈357 checks) incl. new `growth_plans` (42), `privilege_hardening` (7), `storage_isolation` (11), `performance_measurements` (39); no rows persisted |
+| SQL suites | 20/20 PASS (364 checks) incl. new `growth_plans` (42), `privilege_hardening` (7), `storage_isolation` (11), `performance_measurements` (39); no rows persisted |
 
 ### Finding fixed by 0054/0055
 
