@@ -33,10 +33,11 @@ All staging work goes through `scripts/staging/*.ts` (run with `bun`). Every scr
 | Migrations 0000–0052 (54 files, incl. both `0043_*`) | PASS — one run, ledger 54, file hashes match |
 | Re-run | PASS — no-op (ledger unchanged) |
 | New forward migrations `0054_privilege_hardening`, `0055_anon_catalogue_read_only` | PASS — ledger 56 |
+| New forward migration `0056_performance_measurements` | PASS — ledger 57 |
 | Schema | 51 tables, RLS on all, every SECURITY DEFINER function pins `search_path`, signup trigger present |
 | Storage | `documents` private, 20 MB, document MIME list; `execution-files` private, 10 MB (matches app limits) |
 | AI accounting | Staging secret `STAGING_AI_ACCOUNTING_SECRET` (separate from live); only its SHA-256 is in the staging verifier; correct value accepted, wrong/empty rejected, not callable by app roles |
-| SQL suites | 19/19 PASS (≈318 checks) incl. new `growth_plans` (42), `privilege_hardening` (7), `storage_isolation` (11); no rows persisted |
+| SQL suites | 20/20 PASS (≈357 checks) incl. new `growth_plans` (42), `privilege_hardening` (7), `storage_isolation` (11), `performance_measurements` (39); no rows persisted |
 
 ### Finding fixed by 0054/0055
 
@@ -57,7 +58,7 @@ They are committed but **not applied to the live database** (needs owner approva
 - **Staging app runtime and test sign-ins** — the preview must keep using the live backend, so a
   staging app needs separate hosting plus the staging project URL and publishable key. Staging test
   accounts and the staging Platform Owner are created through that app's sign-in, not by SQL.
-- **Live database** — 10 committed migrations remain unapplied there; applying them needs explicit approval.
+- **Live database** — 11 committed migrations remain unapplied there (0043b, 0046–0052, 0054–0056); applying them needs explicit approval. Until then the Performance page and Growth Plans show a "not switched on" note.
 
 ## Recovery
 

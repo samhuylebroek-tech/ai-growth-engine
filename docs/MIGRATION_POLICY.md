@@ -13,7 +13,7 @@ Applies to every file in `drizzle/migrations/` and its journal `drizzle/migratio
 
 ## Update — 2026-11-18
 
-Journal now has 56 entries (`idx` 0–55). Staging (see `docs/STAGING.md`) has all 56 applied and all SQL suites passing. The live database is still at 46; pending there: the 8 below plus `0054_privilege_hardening` and `0055_anon_catalogue_read_only`.
+Journal now has 57 entries (`idx` 0–56). Staging (see `docs/STAGING.md`) has all 57 applied and all SQL suites passing. The live database is still at 46; pending there: the 8 below plus `0054_privilege_hardening`, `0055_anon_catalogue_read_only` and `0056_performance_measurements` (types in `src/lib/pending-schema.ts`).
 
 ## Journal consistency check — 2026-11-17 (read-only)
 

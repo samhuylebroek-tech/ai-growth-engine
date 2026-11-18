@@ -4,7 +4,9 @@
 - [x] Privilege hardening migrations 0054/0055 (tested on staging only).
 - [B] Staging app + staging test sign-ins/Platform Owner: needs separate hosting and the staging project URL + publishable key.
 - [B] Applying 10 pending migrations to the live database: needs owner approval.
-- [ ] Phase B–F (performance measurement, orchestration, i18n, integrations) — continue in following work packages.
+- [x] Performance measurement layer (0056): metric definitions, insert-only planned/forecast/entered values, corrections, idempotency; Performance page; Growth Officer context reads it with evidence labels. Tested on staging (39 SQL checks) + unit tests.
+- [B] Performance page live use: waits on applying 0056 to the live database (owner approval); shows "not switched on" until then.
+- [ ] Next: Command Center tiles from measurements, Growth Officer orchestration/action proposals, EN/NL/FR interface, read-only integrations (GA4, Search Console, Stripe) — each needs its own work package.
 ## Goal directive: stability + unified business context — 2026-11-17
 - [x] M0: five failing tests fixed (coordination conversation selection, context query mock); 8 type errors and an undefined prompt variable in specialist analyses fixed.
 - [x] M0: migration journal checked read-only (54 entries, contiguous, ordered; 8 committed but unapplied); forward-only policy in docs/MIGRATION_POLICY.md.

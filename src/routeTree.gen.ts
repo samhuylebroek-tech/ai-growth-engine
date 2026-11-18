@@ -32,6 +32,7 @@ import { Route as AuthenticatedAppIntelligenceRouteImport } from './routes/_auth
 import { Route as AuthenticatedAppModulesRouteImport } from './routes/_authenticated/app.modules'
 import { Route as AuthenticatedAppNotificationsRouteImport } from './routes/_authenticated/app.notifications'
 import { Route as AuthenticatedAppOnboardingRouteImport } from './routes/_authenticated/app.onboarding'
+import { Route as AuthenticatedAppPerformanceRouteImport } from './routes/_authenticated/app.performance'
 import { Route as AuthenticatedAppPipelineRouteImport } from './routes/_authenticated/app.pipeline'
 import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/app.profile'
 import { Route as AuthenticatedAppProjectsRouteImport } from './routes/_authenticated/app.projects'
@@ -164,6 +165,12 @@ const AuthenticatedAppOnboardingRoute =
     path: '/onboarding',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppPerformanceRoute =
+  AuthenticatedAppPerformanceRouteImport.update({
+    id: '/performance',
+    path: '/performance',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppPipelineRoute =
   AuthenticatedAppPipelineRouteImport.update({
     id: '/pipeline',
@@ -226,6 +233,7 @@ export interface FileRoutesByFullPath {
   '/app/modules': typeof AuthenticatedAppModulesRoute
   '/app/notifications': typeof AuthenticatedAppNotificationsRoute
   '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
+  '/app/performance': typeof AuthenticatedAppPerformanceRoute
   '/app/pipeline': typeof AuthenticatedAppPipelineRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/projects': typeof AuthenticatedAppProjectsRoute
@@ -256,6 +264,7 @@ export interface FileRoutesByTo {
   '/app/modules': typeof AuthenticatedAppModulesRoute
   '/app/notifications': typeof AuthenticatedAppNotificationsRoute
   '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
+  '/app/performance': typeof AuthenticatedAppPerformanceRoute
   '/app/pipeline': typeof AuthenticatedAppPipelineRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/projects': typeof AuthenticatedAppProjectsRoute
@@ -289,6 +298,7 @@ export interface FileRoutesById {
   '/_authenticated/app/modules': typeof AuthenticatedAppModulesRoute
   '/_authenticated/app/notifications': typeof AuthenticatedAppNotificationsRoute
   '/_authenticated/app/onboarding': typeof AuthenticatedAppOnboardingRoute
+  '/_authenticated/app/performance': typeof AuthenticatedAppPerformanceRoute
   '/_authenticated/app/pipeline': typeof AuthenticatedAppPipelineRoute
   '/_authenticated/app/profile': typeof AuthenticatedAppProfileRoute
   '/_authenticated/app/projects': typeof AuthenticatedAppProjectsRoute
@@ -322,6 +332,7 @@ export interface FileRouteTypes {
     | '/app/modules'
     | '/app/notifications'
     | '/app/onboarding'
+    | '/app/performance'
     | '/app/pipeline'
     | '/app/profile'
     | '/app/projects'
@@ -352,6 +363,7 @@ export interface FileRouteTypes {
     | '/app/modules'
     | '/app/notifications'
     | '/app/onboarding'
+    | '/app/performance'
     | '/app/pipeline'
     | '/app/profile'
     | '/app/projects'
@@ -384,6 +396,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/modules'
     | '/_authenticated/app/notifications'
     | '/_authenticated/app/onboarding'
+    | '/_authenticated/app/performance'
     | '/_authenticated/app/pipeline'
     | '/_authenticated/app/profile'
     | '/_authenticated/app/projects'
@@ -565,6 +578,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppOnboardingRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/performance': {
+      id: '/_authenticated/app/performance'
+      path: '/performance'
+      fullPath: '/app/performance'
+      preLoaderRoute: typeof AuthenticatedAppPerformanceRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/pipeline': {
       id: '/_authenticated/app/pipeline'
       path: '/pipeline'
@@ -633,6 +653,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppModulesRoute: typeof AuthenticatedAppModulesRoute
   AuthenticatedAppNotificationsRoute: typeof AuthenticatedAppNotificationsRoute
   AuthenticatedAppOnboardingRoute: typeof AuthenticatedAppOnboardingRoute
+  AuthenticatedAppPerformanceRoute: typeof AuthenticatedAppPerformanceRoute
   AuthenticatedAppPipelineRoute: typeof AuthenticatedAppPipelineRoute
   AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
   AuthenticatedAppProjectsRoute: typeof AuthenticatedAppProjectsRoute
@@ -658,6 +679,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppModulesRoute: AuthenticatedAppModulesRoute,
   AuthenticatedAppNotificationsRoute: AuthenticatedAppNotificationsRoute,
   AuthenticatedAppOnboardingRoute: AuthenticatedAppOnboardingRoute,
+  AuthenticatedAppPerformanceRoute: AuthenticatedAppPerformanceRoute,
   AuthenticatedAppPipelineRoute: AuthenticatedAppPipelineRoute,
   AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,
   AuthenticatedAppProjectsRoute: AuthenticatedAppProjectsRoute,

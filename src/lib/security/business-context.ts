@@ -1,6 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { quoteUntrusted } from "./upload";
+import { summarizeMetric, type Measurement, type MeasurementKind } from "@/lib/performance";
+
+const EVIDENCE_LABEL: Record<MeasurementKind, string> = { planned: "plan", forecast: "estimate", manual_actual: "entered by the team, not verified", imported_actual: "imported from a connected source", verified_actual: "verified measurement" };
 
 /**
  * Unified Business Context Layer.
@@ -79,6 +82,7 @@ export type ContentDecision = { version_id: string; decision: string };
 export type Campaign = { title: string; status: string; category: string; budget_eur: number; results: string; start_date: string | null; end_date: string | null };
 export type Connection = { connector_key: string; status: string };
 export type Recommendation = { title: string; status: string; created_at?: string | null };
+export type MetricRow = { id: string; label: string; unit: string; currency: string | null; direction: string; goal_id: string | null };
 
 export type BusinessDomains = {
   workspace: { id: string; name: string; kind?: string | null };
@@ -94,20 +98,23 @@ export type BusinessDomains = {
   content: DomainRead<ContentAsset>; versions: ContentVersion[]; decisions: ContentDecision[];
   campaigns: DomainRead<Campaign>;
   connections: DomainRead<Connection>;
+  /** Performance metrics (0056); optional so callers that predate the measurement layer stay valid. */
+  metrics?: DomainRead<MetricRow>; measurements?: Measurement[];
 };
 
 // Plain union (not tied to generated types) because growth plan/initiative tables may not be installed yet; missing ones read as "unavailable".
 type ScopedTable =
   "business_profiles" | "business_facts" | "approvals" | "growth_goals" | "growth_plan_versions" | "growth_initiatives" | "growth_initiative_operations"
   | "projects" | "tasks" | "budget_lines" | "crm_deals" | "competitors" | "competitor_observations" | "seo_audits"
-  | "content_assets" | "content_versions" | "content_version_decisions" | "campaigns" | "connector_connections";
+  | "content_assets" | "content_versions" | "content_version_decisions" | "campaigns" | "connector_connections"
+  | "metric_definitions" | "performance_measurements";
 type ScopedQuery = PromiseLike<Res> & {
   eq(column: string, value: unknown): ScopedQuery; neq(column: string, value: unknown): ScopedQuery;
   in(column: string, values: readonly unknown[]): ScopedQuery; order(column: string, options?: { ascending?: boolean }): ScopedQuery;
   limit(count: number): ScopedQuery; maybeSingle(): PromiseLike<Res>;
 };
 
-const LIMITS = { facts: 60, goals: 12, recs: 8, plans: 6, initiatives: 40, tasks: 80, budget: 30, deals: 500, competitors: 15, observations: 40, content: 30, versions: 200, campaigns: 12, connections: 30 } as const;
+const LIMITS = { facts: 60, goals: 12, recs: 8, plans: 6, initiatives: 40, tasks: 80, budget: 30, deals: 500, competitors: 15, observations: 40, content: 30, versions: 200, campaigns: 12, connections: 30, metrics: 20, measurements: 240 } as const;
 
 /** Reads every domain as the caller, explicitly scoped; workspace ownership must be verified before calling. */
 export async function readBusinessDomains(sb: DB, scope: BusinessScope, workspace: BusinessDomains["workspace"]): Promise<BusinessDomains> {
@@ -116,7 +123,7 @@ export async function readBusinessDomains(sb: DB, scope: BusinessScope, workspac
   const t = (name: ScopedTable, columns: string) =>
     (sb as unknown as { from(table: ScopedTable): { select(columns: string): ScopedQuery } }).from(name).select(columns).eq("org_id", orgId).eq("workspace_id", workspaceId);
 
-  const [profile, facts, recs, goals, plans, budgetFirst, deals, competitors, seo, content, campaigns, connections] = await Promise.all([
+  const [profile, facts, recs, goals, plans, budgetFirst, deals, competitors, seo, content, campaigns, connections, metrics] = await Promise.all([
     strict<{ objectives: unknown; monthly_budget_eur: number | null; onboarding_completed_at: string | null }>("business profile", t("business_profiles", "objectives,monthly_budget_eur,onboarding_completed_at").maybeSingle(), 1),
     strict<Fact>("verified facts", t("business_facts", "key,value,source_type,verified,created_at").eq("verified", true).order("created_at", { ascending: false }).limit(LIMITS.facts), LIMITS.facts),
     strict<Recommendation>("recommendations", t("approvals", "title,status,created_at").order("created_at", { ascending: false }).limit(LIMITS.recs), LIMITS.recs),
@@ -129,6 +136,7 @@ export async function readBusinessDomains(sb: DB, scope: BusinessScope, workspac
     optional<ContentAsset>("content", t("content_assets", "id,title,channel,status,planned_date,updated_at").neq("status", "archived").order("updated_at", { ascending: false }).limit(LIMITS.content), LIMITS.content),
     optional<Campaign>("campaigns", t("campaigns", "title,status,category,budget_eur,results,start_date,end_date").neq("status", "archived").order("updated_at", { ascending: false }).limit(LIMITS.campaigns), LIMITS.campaigns),
     optional<Connection>("connections", t("connector_connections", "connector_key,status").limit(LIMITS.connections), LIMITS.connections),
+    optional<MetricRow>("performance metrics", t("metric_definitions", "id,label,unit,currency,direction,goal_id").eq("archived", false).order("created_at").limit(LIMITS.metrics), LIMITS.metrics),
   ]);
 
   // Budget/initiative links arrived in a later schema version; fall back to the base columns only when that column is not installed.
@@ -144,13 +152,15 @@ export async function readBusinessDomains(sb: DB, scope: BusinessScope, workspac
   const projectIds = [...new Set(rowsOf(initiatives).map(i => i.project_id).filter((id): id is string => !!id))];
   const competitorIds = rowsOf(competitors).map(c => c.id);
   const assetIds = rowsOf(content).map(a => a.id);
+  const metricIds = rowsOf(metrics).map(m => m.id);
 
-  const [operations, projects, tasks, observations, versions] = await Promise.all([
+  const [operations, projects, tasks, observations, versions, measurements] = await Promise.all([
     initiativeIds.length ? optional<Operation>("initiative operations", t("growth_initiative_operations", "initiative_id,due_date,success_metric,baseline_value,target_value,current_value,blocker_note,owner_id").in("initiative_id", initiativeIds), LIMITS.initiatives) : ok<Operation>(),
     projectIds.length ? strict<Project>("initiative projects", t("projects", "id,title,status,priority,start_date,end_date,owner_id").in("id", projectIds), LIMITS.initiatives) : ok<Project>(),
     projectIds.length ? strict<Task>("initiative tasks", t("tasks", "id,project_id,title,status,priority,due_date,owner_id").in("project_id", projectIds).order("due_date", { ascending: true }).limit(LIMITS.tasks), LIMITS.tasks) : ok<Task>(),
     competitorIds.length ? optional<Observation>("competitor observations", t("competitor_observations", "competitor_id,kind,category,statement,source_url,observed_at,review_status").in("competitor_id", competitorIds).neq("review_status", "irrelevant").order("observed_at", { ascending: false }).limit(LIMITS.observations), LIMITS.observations) : ok<Observation>(),
     assetIds.length ? optional<ContentVersion>("content versions", t("content_versions", "id,asset_id,version_no").in("asset_id", assetIds).order("version_no", { ascending: false }).limit(LIMITS.versions), LIMITS.versions) : ok<ContentVersion>(),
+    metricIds.length ? optional<Measurement>("performance measurements", t("performance_measurements", "id,metric_id,kind,period_start,period_end,value,corrects_id,created_at").in("metric_id", metricIds).order("period_start", { ascending: false }).limit(LIMITS.measurements), LIMITS.measurements) : ok<Measurement>(),
   ]);
   const latestVersionIds = latestVersions(rowsOf(versions)).map(v => v.id);
   const decisions = latestVersionIds.length
@@ -167,6 +177,7 @@ export async function readBusinessDomains(sb: DB, scope: BusinessScope, workspac
     plans, initiatives: rowsOf(initiatives), operations: rowsOf(operations), projects: rowsOf(projects), tasks: rowsOf(tasks),
     budget, deals, competitors, observations: rowsOf(observations),
     seo, content, versions: rowsOf(versions), decisions: rowsOf(decisions), campaigns, connections,
+    metrics, measurements: rowsOf(measurements),
   };
 }
 
@@ -336,7 +347,22 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
   performanceLines.push(connected.length
     ? `connected integrations: ${connected.join(", ")} — no synced performance measurements are stored in this workspace yet`
     : "measured performance data: Not configured — no analytics, ads or payment integration is connected; do not cite traffic, conversion, ROAS or revenue figures");
-  sections.push({ key: "campaigns-and-performance", title: "CAMPAIGNS AND PERFORMANCE DATA", evidence: ["planning_record", "manual_entry", "connection_status"], budget: 450, priority: 9, lines: performanceLines });
+  if (d.metrics?.status === "unavailable") performanceLines.push("team-tracked metrics: unavailable (performance tracking not installed here)");
+  else if (d.metrics?.status === "ok") {
+    if (!d.metrics.rows.length) performanceLines.push("team-tracked metrics: none defined");
+    for (const m of d.metrics.rows) {
+      const s = summarizeMetric(m, d.measurements ?? []);
+      const unit = m.unit === "currency" ? (m.currency ?? "") : m.unit;
+      if (!s.period) { performanceLines.push(`- metric ${clip(m.label, 60)} (${unit}): no values recorded`); continue; }
+      const parts = [s.actual ? `result ${s.actual.value} (${EVIDENCE_LABEL[s.actual.kind]})` : "no result entered"];
+      if (s.planned != null) parts.push(`planned ${s.planned}`);
+      if (s.forecast != null) parts.push(`forecast ${s.forecast} (estimate)`);
+      if (s.variance != null) parts.push(`${s.onTrack ? "on track" : "behind plan"} by ${Math.abs(s.variance)}`);
+      if (s.previousActual != null) parts.push(`previous result ${s.previousActual}`);
+      performanceLines.push(`- metric ${clip(m.label, 60)} (${unit}, ${m.direction === "decrease" ? "lower is better" : "higher is better"}) ${s.period.start}..${s.period.end}: ${parts.join("; ")}`);
+    }
+  }
+  sections.push({ key: "campaigns-and-performance", title: "CAMPAIGNS AND PERFORMANCE DATA", evidence: ["planning_record", "manual_entry", "connection_status"], budget: 900, priority: 9, lines: performanceLines });
 
   sections.push({ key: "recommendations", title: "PREVIOUS RECOMMENDATIONS", evidence: ["ai_hypothesis"], budget: 450, priority: 10,
     lines: d.recommendations.map(r => `- [${r.status}] ${clip(r.title, 120)}`) });

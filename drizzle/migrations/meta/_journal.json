@@ -393,6 +393,13 @@
       "when": 1795042021541,
       "tag": "0055_anon_catalogue_read_only",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1795042200094,
+      "tag": "0056_performance_measurements",
+      "breakpoints": true
     }
   ]
 }
