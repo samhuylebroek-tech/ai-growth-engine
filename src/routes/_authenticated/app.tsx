@@ -23,8 +23,10 @@ export const Route = createFileRoute("/_authenticated/app")({
 function Shell() {
   const o = useOrg(); const qc = useQueryClient(); const navigate = useNavigate();
   const path = useRouterState({ select: s => s.location.pathname });
-  const group = NAVIGATION.find(g => g.items.some(it => it.to === path)) ?? NAVIGATION.find(g => g.group === "Knowledge");
-  const current = group?.items.find(it => it.to === path);
+  // Detail pages (e.g. /app/performance/<id>) belong to their parent destination.
+  const isAt = (to: string) => to === path || (to !== "/app" && path.startsWith(`${to}/`));
+  const group = NAVIGATION.find(g => g.items.some(it => isAt(it.to))) ?? NAVIGATION.find(g => g.group === "Knowledge");
+  const current = group?.items.find(it => isAt(it.to));
   const [open, setOpen] = useState(false); const [search, setSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState(""); const [debouncedTerm, setDebouncedTerm] = useState("");
   useEffect(() => { const timer = setTimeout(() => setDebouncedTerm(searchTerm.trim()), 250); return () => clearTimeout(timer); }, [searchTerm]);

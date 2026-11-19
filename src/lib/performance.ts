@@ -118,3 +118,44 @@ export function formatMetricValue(value: number, unit: string, currency: string 
   if (unit === "days") return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(value)} d`;
   return new Intl.NumberFormat(locale, { maximumFractionDigits: unit === "ratio" ? 3 : 2 }).format(value);
 }
+
+/** Plain-language reliability label shown next to every value. */
+export const RELIABILITY: Record<MeasurementKind, { label: string; tone: "muted" | "warning" | "info" | "success" }> = {
+  planned: { label: "Plan", tone: "muted" },
+  forecast: { label: "Estimate", tone: "muted" },
+  manual_actual: { label: "Entered by team · not verified", tone: "warning" },
+  imported_actual: { label: "Imported from a connected source", tone: "info" },
+  verified_actual: { label: "Verified", tone: "success" },
+};
+
+export type MonthPoint = { month: string; planned: number | null; forecast: number | null; actual: number | null; actualKind: MeasurementKind | null };
+
+/** One point per calendar month (YYYY-MM), oldest first, using only values still in force. */
+export function monthlySeries(rows: readonly Measurement[]): MonthPoint[] {
+  const live = effectiveMeasurements(rows);
+  const byMonth = new Map<string, MonthPoint>();
+  for (const r of live) {
+    const month = r.period_start.slice(0, 7);
+    const p = byMonth.get(month) ?? { month, planned: null, forecast: null, actual: null, actualKind: null };
+    const v = Number(r.value);
+    if (r.kind === "planned") p.planned = v;
+    else if (r.kind === "forecast") p.forecast = v;
+    else if (isActual(r.kind) && (ACTUAL_RANK[r.kind] ?? 0) > (p.actualKind ? ACTUAL_RANK[p.actualKind] ?? 0 : 0)) { p.actual = v; p.actualKind = r.kind as MeasurementKind; }
+    byMonth.set(month, p);
+  }
+  return [...byMonth.values()].sort((a, b) => (a.month < b.month ? -1 : 1));
+}
+
+export type MetricStatus = "on_track" | "behind" | "no_plan" | "no_result" | "no_data";
+export function metricStatus(s: MetricSummary): MetricStatus {
+  if (!s.period) return "no_data";
+  if (!s.actual) return "no_result";
+  if (s.onTrack == null) return "no_plan";
+  return s.onTrack ? "on_track" : "behind";
+}
+export const STATUS_LABEL: Record<MetricStatus, string> = { on_track: "On track", behind: "Behind plan", no_plan: "No plan to compare", no_result: "No result yet", no_data: "No values yet" };
+
+/** Months where both a forecast and a result exist: result − forecast, oldest first. */
+export function forecastDeviations(rows: readonly Measurement[]): { month: string; forecast: number; actual: number; deviation: number }[] {
+  return monthlySeries(rows).flatMap(p => (p.forecast != null && p.actual != null ? [{ month: p.month, forecast: p.forecast, actual: p.actual, deviation: p.actual - p.forecast }] : []));
+}

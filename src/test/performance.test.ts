@@ -68,3 +68,27 @@ describe("performance in the business context", () => {
     expect(text).toContain("performance tracking not installed");
   });
 });
+
+import { monthlySeries, metricStatus, forecastDeviations } from "@/lib/performance";
+describe("monthly series and status", () => {
+  const rows = [
+    row("p1", "planned", "2026-09-01", "2026-09-30", 30), row("a1", "manual_actual", "2026-09-01", "2026-09-30", 33),
+    row("p2", "planned", "2026-10-01", "2026-10-31", 40), row("f2", "forecast", "2026-10-01", "2026-10-31", 38),
+    row("a2", "manual_actual", "2026-10-01", "2026-10-31", 31), { ...row("a2c", "manual_actual", "2026-10-01", "2026-10-31", 35), corrects_id: "a2" },
+  ];
+  it("builds one point per month from values still in force, oldest first", () => {
+    expect(monthlySeries(rows)).toEqual([
+      { month: "2026-09", planned: 30, forecast: null, actual: 33, actualKind: "manual_actual" },
+      { month: "2026-10", planned: 40, forecast: 38, actual: 35, actualKind: "manual_actual" },
+    ]);
+  });
+  it("marks a metric behind plan only when a result and a plan exist for the same month", () => {
+    expect(metricStatus(summarizeMetric({ id: "m", direction: "increase" }, rows))).toBe("behind");
+    expect(metricStatus(summarizeMetric({ id: "m", direction: "decrease" }, rows))).toBe("on_track");
+    expect(metricStatus(summarizeMetric({ id: "m", direction: "increase" }, [row("p", "planned", "2026-10-01", "2026-10-31", 5)]))).toBe("no_result");
+    expect(metricStatus(summarizeMetric({ id: "m", direction: "increase" }, []))).toBe("no_data");
+  });
+  it("compares forecasts with corrected results", () => {
+    expect(forecastDeviations(rows)).toEqual([{ month: "2026-10", forecast: 38, actual: 35, deviation: -3 }]);
+  });
+});

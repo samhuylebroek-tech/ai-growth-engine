@@ -40,6 +40,7 @@ import { Route as AuthenticatedAppSeoRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
 import { Route as AuthenticatedAppTasksRouteImport } from './routes/_authenticated/app.tasks'
 import { Route as AuthenticatedInviteTokenRouteImport } from './routes/_authenticated/invite.$token'
+import { Route as AuthenticatedAppPerformanceMetricIdRouteImport } from './routes/_authenticated/app.performance_.$metricId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -210,6 +211,12 @@ const AuthenticatedInviteTokenRoute =
     path: '/invite/$token',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppPerformanceMetricIdRoute =
+  AuthenticatedAppPerformanceMetricIdRouteImport.update({
+    id: '/performance_/$metricId',
+    path: '/performance/$metricId',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -242,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/app/tasks': typeof AuthenticatedAppTasksRoute
   '/invite/$token': typeof AuthenticatedInviteTokenRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/performance/$metricId': typeof AuthenticatedAppPerformanceMetricIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -273,6 +281,7 @@ export interface FileRoutesByTo {
   '/app/tasks': typeof AuthenticatedAppTasksRoute
   '/invite/$token': typeof AuthenticatedInviteTokenRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/performance/$metricId': typeof AuthenticatedAppPerformanceMetricIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -307,6 +316,7 @@ export interface FileRoutesById {
   '/_authenticated/app/tasks': typeof AuthenticatedAppTasksRoute
   '/_authenticated/invite/$token': typeof AuthenticatedInviteTokenRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/performance_/$metricId': typeof AuthenticatedAppPerformanceMetricIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -341,6 +351,7 @@ export interface FileRouteTypes {
     | '/app/tasks'
     | '/invite/$token'
     | '/app/'
+    | '/app/performance/$metricId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -372,6 +383,7 @@ export interface FileRouteTypes {
     | '/app/tasks'
     | '/invite/$token'
     | '/app'
+    | '/app/performance/$metricId'
   id:
     | '__root__'
     | '/'
@@ -405,6 +417,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/tasks'
     | '/_authenticated/invite/$token'
     | '/_authenticated/app/'
+    | '/_authenticated/app/performance_/$metricId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -634,6 +647,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInviteTokenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/performance_/$metricId': {
+      id: '/_authenticated/app/performance_/$metricId'
+      path: '/performance/$metricId'
+      fullPath: '/app/performance/$metricId'
+      preLoaderRoute: typeof AuthenticatedAppPerformanceMetricIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
@@ -661,6 +681,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
   AuthenticatedAppTasksRoute: typeof AuthenticatedAppTasksRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppPerformanceMetricIdRoute: typeof AuthenticatedAppPerformanceMetricIdRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
@@ -687,6 +708,8 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
   AuthenticatedAppTasksRoute: AuthenticatedAppTasksRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppPerformanceMetricIdRoute:
+    AuthenticatedAppPerformanceMetricIdRoute,
 }
 
 const AuthenticatedAppRouteWithChildren =
