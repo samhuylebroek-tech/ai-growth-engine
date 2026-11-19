@@ -63,7 +63,7 @@ function Approvals() {
         return (
           <Panel key={a.id}>
             <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0"><div className="font-semibold">{a.title}</div><div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><span>{cap?.name ?? a.capability_key}</span><StatusChip status={a.risk}>{a.risk} risk</StatusChip><StatusChip status={a.status} />{cap?.status === "planned" && <StatusChip status="planned">Execution not available yet</StatusChip>}</div></div>
+              <div className="min-w-0"><div className="font-semibold">{a.title}</div><div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><span>{cap?.name ?? a.capability_key}</span><StatusChip status={a.risk}>{a.risk.charAt(0).toUpperCase() + a.risk.slice(1)} risk</StatusChip><StatusChip status={a.status} />{cap?.status === "planned" && <StatusChip status="planned">Execution not available yet</StatusChip>}</div></div>
               {a.status === "pending" && canDecide && <div className="flex gap-2"><Button size="sm" variant="outline" disabled={!!busy} onClick={() => decide(a.id, false)}>Reject</Button><Button size="sm" disabled={!!busy || isBlocked} title={isBlocked ? "Blocked by organization policy" : undefined} onClick={() => decide(a.id, true)}>{busy === a.id ? "Saving…" : "Approve"}</Button></div>}
             </div>
             {a.reasoning && <p className="mt-3 text-sm"><span className="text-muted-foreground">Why: </span>{a.reasoning}</p>}

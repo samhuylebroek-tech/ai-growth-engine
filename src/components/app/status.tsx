@@ -24,10 +24,12 @@ const STYLES: Record<string, string> = {
 };
 const LABELS: Record<string, string> = { not_configured: "Not configured", planned: "Planned", implemented: "Available", expired: "Access expired", insufficient_scope: "Missing permission", error: "Connection error" };
 
+const sentence = (s: string) => { const t = s.replace(/_/g, " "); return t.charAt(0).toUpperCase() + t.slice(1); };
+
 export function StatusChip({ status, children }: { status: string; children?: ReactNode }) {
   return (
-    <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize", STYLES[status] ?? "border-border bg-muted text-muted-foreground")}>
-      {children ?? LABELS[status] ?? status.replace(/_/g, " ")}
+    <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium", STYLES[status] ?? "border-border bg-muted text-muted-foreground")}>
+      {children ?? LABELS[status] ?? sentence(status)}
     </span>
   );
 }
