@@ -1,8 +1,7 @@
 # Staging database — initialization record
 
 Staging is a separate database project in EU West (Ireland), reference `tvfbvzytjpizqwixkecx`
-(derived from the verified connection settings; the reference typed in earlier requests had two
-transposed letters and is rejected by the guard). The live app and preview stay on the existing
+(derived from the verified connection settings and explicitly confirmed by the owner on 2026-11-19). The live app and preview stay on the existing
 Lovable Cloud database; nothing in this document touches it.
 
 ## How staging is reached
@@ -62,9 +61,9 @@ unit tested in `src/test/staging-app-env.test.ts`. Before starting it checks tha
 is accepted by the staging sign-in service and rejected by the live one. The platform preview and the
 published app are unchanged and keep using the live backend. This is not public hosting.
 
-Staging test accounts (owner, admin, member, viewer, outsider; two organizations) and one staging
-Platform Owner were created by `seed-users.ts`; passwords are random, stored only in a restricted
-sandbox file and never printed. `seed-growth.ts` adds one QA goal, strategy, approved plan and two
+Staging test accounts (owner, admin, member, viewer, outsider; two organizations) were created by
+`seed-users.ts`; passwords are random, stored only in a restricted sandbox file and never printed.
+The staging Platform Owner is assigned only through the one-time initialization (below). `seed-growth.ts` adds one QA goal, strategy, approved plan and two
 initiatives through the app's own functions.
 
 | Check (staging app, real sign-ins) | Result |
@@ -79,22 +78,89 @@ initiatives through the app's own functions.
 ## Proposed schema changes (not migrations yet)
 
 New migration files can only be created by the platform migration tool, which also applies them to
-the live database. Schema work that still needs owner approval is therefore kept in `docs/proposals/`
-and verified on staging with `scripts/staging/try-proposal.ts`, inside one transaction that always
-rolls back (staging schema and ledger stay as the journal describes).
+the live database. Schema work that still needs owner approval is therefore kept in `docs/proposals/`,
+first verified with `scripts/staging/try-proposal.ts` (one always-rolled-back transaction), then applied
+to staging only with `scripts/staging/apply-proposal.ts`, which records name + SHA-256 in
+`ops_staging.applied_proposals`. Proposals are idempotent, so the later official migration can run on
+staging again. The Drizzle ledger stays at 57. `run-sql-tests.ts` also runs `tests/proposals/<name>.test.sql`
+for every applied proposal.
 
-| Proposal | Staging check |
+| Proposal | What it does | Staging |
+| --- | --- | --- |
+| `0057_read_only_integration_imports` | Browser sessions can no longer mark a source "connected"; imported results only through a server-attested function, only for a connected source in the same workspace; re-syncs become corrections | Applied; 17/17 |
+| `0058_platform_owner_initialization` | One-time Platform Owner initialization; audit log append-only for every role; owner role cannot be inserted, changed or removed outside the procedure | Applied; 20/20 |
+| `0059_connector_credentials_and_imports` | Credentials encrypted in Vault, readable only server-side; connection health (connected / access expired / missing permission / error); import runs with unique request keys and history; disconnect removes the credential but keeps history | Applied; 28/28 |
+
+## Platform Owner initialization (staging) — 2026-11-19
+
+**Before:** `seed-users.ts` had inserted the Platform Owner role directly (database administrator),
+with one audit row without actor (`method: scripts/staging/seed-users.ts`). Nothing referenced the
+role row; no request/confirmation step existed and the audit log could still be changed by the
+database owner. That did not match the agreed procedure.
+
+**Repair (staging only, `scripts/staging/owner-init.ts`):**
+1. `retire-direct` — checked that no table depends on `platform_roles`, wrote an audit row
+   `platform_owner.retired_for_formal_initialization` (reason + reference to the original row), then
+   removed the directly inserted role. The original audit row is kept.
+2. Applied proposal 0058.
+3. `run` — signed in as the designated staging owner account; `request_platform_owner_initialization()`
+   took the identity from the session only (user id + confirmed email) and granted nothing.
+4. The script compared that identity with the designated account, then completed the initialization
+   as controlled administration (`complete_platform_owner_initialization`, database owner only, never
+   callable from an app session) with the confirmed id and email.
+
+**Result:** one Platform Owner, one immutable initialization record, audit trail
+`initialized (original) → retired_for_formal_initialization → initialization_requested → initialized`.
+Re-initialization, self-promotion, role changes and audit edits are refused (tested, including as
+organization owner/admin and as database owner). Owner center opens for the Platform Owner only;
+organization admins, members, viewers and outsiders see "Platform Owner access required".
+
+**For live (needs approval):** apply 0058, the person signs in and calls step 1 (identity shown back
+for confirmation), then step 2 is run once by controlled administration with the confirmed id + email.
+
+## Read-only connections (staging) — 2026-11-19
+
+Server functions in `src/lib/integrations.functions.ts`; provider calls in `src/lib/integrations/`:
+- Stripe: restricted keys only (`rk_…`; full secret keys refused), checked with one read-only call.
+- HubSpot: private app token (`pat-…`), checked with one read-only deal search; without deal read
+  permission the source is stored as "missing permission" and imports are refused.
+- Google Analytics / Search Console: OAuth with read-only scopes, signed short-lived state bound to the
+  signed-in user; return page `/app/integrations/google`. Needs `GOOGLE_OAUTH_CLIENT_ID`,
+  `GOOGLE_OAUTH_CLIENT_SECRET` and `INTEGRATIONS_STATE_SECRET`; without them the page says
+  "not configured".
+- Imports: last 1–12 complete months, into the workspace's own metrics with the same key, unit and
+  currency ("Track" creates them); deterministic request keys per run/metric/month; 401 → access
+  expired, 403 → missing permission; every run is kept with counts and errors.
+
+No real account was connected. The error path was tested with a deliberately invalid, well-formed
+Stripe test key: one read-only request to Stripe was refused, the source showed "Access expired" with
+the reason, the run was saved as failed and nothing was imported. The key was then disconnected
+(Vault secret removed). A successful import with real provider data was **not** tested (no accounts).
+
+## Re-test on the latest code — 2026-11-19
+
+| Check | Result |
 | --- | --- |
-| `0057_read_only_integration_imports` — browser sessions can no longer mark integrations "connected"; imported results only via a server-attested function, only for a connected integration in the same workspace, re-syncs become corrections | PASS 17/17, nothing persisted |
+| Journey: new goal → AI strategy → Growth Plan draft → approval → work from initiative → owner/metric/status → task done → metric linked to goal + initiative → result → Growth Officer (Dutch) → two approval proposals | PASS |
+| Growth Officer after completing the initiative: compared the initiative's 62 with the metric's 46, flagged the open task, made no causal claim, proposed two actions for approval | PASS |
+| Roles (owner, admin, member, viewer, outsider) on Home, Performance, Data sources, Owner center: edit/connect/import controls by role; outsider sees only its own organization | PASS |
+| Desktop light and 390 px phone dark for every role on Home, Performance, Data sources, Goals, Growth Officer: no horizontal scroll, no console errors | PASS |
+| SQL suites incl. proposals | 23/23 PASS, nothing persisted |
+
+**Cleanup:** the QA Stripe connection was disconnected, the two test proposals rejected, the journey
+goal and its metric archived. Insert-only history (plan versions, initiatives, measurements, audit
+rows, import runs) stays by design; it is staging test data in the staging organizations only.
 
 ## Not done / blocked
 
-- **Staging project reference** — the verified connection belongs to `tvfbvzytjpizqwixkecx`. The
-  references typed in requests (`tvfbvzytjzipqzwikxecx`, `tvfbvzytjzipqzwixkecx`) differ from it and
-  from each other; the owner must confirm the verified reference is the intended staging project.
-- **Public staging hosting** — the staging app runs only inside the build sandbox.
-- **Live database** — 11 committed migrations remain unapplied there (0043b, 0046–0052, 0054–0056); applying them needs explicit approval. Until then the Performance page and Growth Plans show a "not switched on" note.
-- **Real integrations** — reading GA4, Search Console, Stripe or HubSpot needs the owner's accounts and read-only credentials, plus applying proposal 0057.
+- **Reachable staging URL** — needs a Cloudflare account API token (Workers deploy + Access) for a
+  dedicated staging Worker protected by Cloudflare Access; the app would be built with the allowlisted
+  staging environment from `app-env.ts`. Until then the staging app runs only inside the build sandbox.
+- **Live database** — 11 committed migrations (0043b, 0046–0052, 0054–0056) and proposals 0057–0059 need
+  explicit approval. Until then the live app shows "not switched on" for Performance, Growth Plans and
+  read-only connections.
+- **Real integrations** — the owner's own read-only credentials (Stripe restricted key, HubSpot private
+  app token) and, for Google, an OAuth client; connecting them needs separate permission.
 
 ## Recovery
 

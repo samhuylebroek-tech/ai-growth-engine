@@ -40,6 +40,7 @@ import { Route as AuthenticatedAppSeoRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
 import { Route as AuthenticatedAppTasksRouteImport } from './routes/_authenticated/app.tasks'
 import { Route as AuthenticatedInviteTokenRouteImport } from './routes/_authenticated/invite.$token'
+import { Route as AuthenticatedAppIntegrationsGoogleRouteImport } from './routes/_authenticated/app.integrations_.google'
 import { Route as AuthenticatedAppPerformanceMetricIdRouteImport } from './routes/_authenticated/app.performance_.$metricId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -211,6 +212,12 @@ const AuthenticatedInviteTokenRoute =
     path: '/invite/$token',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppIntegrationsGoogleRoute =
+  AuthenticatedAppIntegrationsGoogleRouteImport.update({
+    id: '/integrations_/google',
+    path: '/integrations/google',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppPerformanceMetricIdRoute =
   AuthenticatedAppPerformanceMetricIdRouteImport.update({
     id: '/performance_/$metricId',
@@ -249,6 +256,7 @@ export interface FileRoutesByFullPath {
   '/app/tasks': typeof AuthenticatedAppTasksRoute
   '/invite/$token': typeof AuthenticatedInviteTokenRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/integrations/google': typeof AuthenticatedAppIntegrationsGoogleRoute
   '/app/performance/$metricId': typeof AuthenticatedAppPerformanceMetricIdRoute
 }
 export interface FileRoutesByTo {
@@ -281,6 +289,7 @@ export interface FileRoutesByTo {
   '/app/tasks': typeof AuthenticatedAppTasksRoute
   '/invite/$token': typeof AuthenticatedInviteTokenRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/integrations/google': typeof AuthenticatedAppIntegrationsGoogleRoute
   '/app/performance/$metricId': typeof AuthenticatedAppPerformanceMetricIdRoute
 }
 export interface FileRoutesById {
@@ -316,6 +325,7 @@ export interface FileRoutesById {
   '/_authenticated/app/tasks': typeof AuthenticatedAppTasksRoute
   '/_authenticated/invite/$token': typeof AuthenticatedInviteTokenRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/integrations_/google': typeof AuthenticatedAppIntegrationsGoogleRoute
   '/_authenticated/app/performance_/$metricId': typeof AuthenticatedAppPerformanceMetricIdRoute
 }
 export interface FileRouteTypes {
@@ -351,6 +361,7 @@ export interface FileRouteTypes {
     | '/app/tasks'
     | '/invite/$token'
     | '/app/'
+    | '/app/integrations/google'
     | '/app/performance/$metricId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -383,6 +394,7 @@ export interface FileRouteTypes {
     | '/app/tasks'
     | '/invite/$token'
     | '/app'
+    | '/app/integrations/google'
     | '/app/performance/$metricId'
   id:
     | '__root__'
@@ -417,6 +429,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/tasks'
     | '/_authenticated/invite/$token'
     | '/_authenticated/app/'
+    | '/_authenticated/app/integrations_/google'
     | '/_authenticated/app/performance_/$metricId'
   fileRoutesById: FileRoutesById
 }
@@ -647,6 +660,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInviteTokenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/integrations_/google': {
+      id: '/_authenticated/app/integrations_/google'
+      path: '/integrations/google'
+      fullPath: '/app/integrations/google'
+      preLoaderRoute: typeof AuthenticatedAppIntegrationsGoogleRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/performance_/$metricId': {
       id: '/_authenticated/app/performance_/$metricId'
       path: '/performance/$metricId'
@@ -681,6 +701,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
   AuthenticatedAppTasksRoute: typeof AuthenticatedAppTasksRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppIntegrationsGoogleRoute: typeof AuthenticatedAppIntegrationsGoogleRoute
   AuthenticatedAppPerformanceMetricIdRoute: typeof AuthenticatedAppPerformanceMetricIdRoute
 }
 
@@ -708,6 +729,8 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
   AuthenticatedAppTasksRoute: AuthenticatedAppTasksRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppIntegrationsGoogleRoute:
+    AuthenticatedAppIntegrationsGoogleRoute,
   AuthenticatedAppPerformanceMetricIdRoute:
     AuthenticatedAppPerformanceMetricIdRoute,
 }

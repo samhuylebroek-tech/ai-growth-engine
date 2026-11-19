@@ -6,7 +6,8 @@ import { toast } from "sonner";
 import { useOrg } from "@/lib/org-context";
 import { hasRole } from "@/lib/permissions";
 import { growthDb as db, isNotInstalled, PERFORMANCE_NOT_INSTALLED } from "@/lib/pending-schema";
-import { correctionHistory, effectiveMeasurements, formatMetricValue, KIND_LABEL, metricStatus, monthlySeries, STATUS_LABEL, summarizeMetric, type MeasurementKind } from "@/lib/performance";
+import { correctionHistory, effectiveMeasurements, formatMetricValue, KIND_LABEL, metricStatus, monthlySeries, STATUS_LABEL, summarizeMetric, USER_KINDS, type MeasurementKind } from "@/lib/performance";
+import { SOURCE_LABEL } from "@/lib/integrations/read-only";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -113,7 +114,8 @@ function Detail({ wsId, metricId, canEdit }: { wsId: string; metricId: string; c
                     <span>{fmt(Number(r.value))}</span>
                     <Reliability kind={r.kind as MeasurementKind} />
                     {chain.length > 1 && <Badge variant="outline">Corrected {chain.length - 1}×</Badge>}
-                    {canEdit && !metric.archived && live.has(r.id) && <Button size="sm" variant="ghost" className="ml-auto" onClick={() => setRecording({ id: r.id, month: r.period_start.slice(0, 7), kind: r.kind as MeasurementKind, value: Number(r.value) })}>Correct</Button>}
+                    {r.kind === "imported_actual" && r.source && <span className="text-xs text-muted-foreground">from {SOURCE_LABEL[r.source] ?? r.source} · re-import to update</span>}
+                    {canEdit && !metric.archived && live.has(r.id) && (USER_KINDS as readonly string[]).includes(r.kind) && <Button size="sm" variant="ghost" className="ml-auto" onClick={() => setRecording({ id: r.id, month: r.period_start.slice(0, 7), kind: r.kind as MeasurementKind, value: Number(r.value) })}>Correct</Button>}
                   </div>
                   {r.note && <p className="text-xs text-muted-foreground">{r.note}</p>}
                   {chain.length > 1 && (

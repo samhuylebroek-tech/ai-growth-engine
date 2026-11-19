@@ -46,7 +46,7 @@ const periodKey = (m: Pick<Measurement, "period_start" | "period_end">) => `${m.
 
 export type MetricSummary = {
   period: { start: string; end: string } | null;
-  actual: { value: number; kind: MeasurementKind } | null;
+  actual: { value: number; kind: MeasurementKind; source?: string } | null;
   planned: number | null;
   forecast: number | null;
   /** actual − planned for the same period, only when both exist. */
@@ -77,7 +77,7 @@ export function summarizeMetric(def: Pick<MetricDef, "id" | "direction">, rows: 
   const [start = "", end = ""] = latest.split("|");
   return {
     period: { start, end },
-    actual: a && actualValue != null ? { value: actualValue, kind: a.kind as MeasurementKind } : null,
+    actual: a && actualValue != null ? { value: actualValue, kind: a.kind as MeasurementKind, ...(a.source ? { source: a.source } : {}) } : null,
     planned: plannedValue,
     forecast: forecast ? Number(forecast.value) : null,
     variance,

@@ -48,7 +48,7 @@ function Overview() {
   const d = q.data; const w = work.data;
   const confirmed = d?.facts.filter(f => f.verified) ?? []; const unconfirmed = (d?.facts.length ?? 0) - confirmed.length;
   const approvals = prioritizeApprovals(d?.approvals ?? []); const failedDocs = d?.documents.filter(doc => doc.status === "failed") ?? [];
-  const failedRuns = w?.runs.filter(r => r.status === "failed") ?? []; const brokenSources = w?.connections.filter(c => ["failed", "error", "expired"].includes(c.status)) ?? [];
+  const failedRuns = w?.runs.filter(r => r.status === "failed") ?? []; const brokenSources = w?.connections.filter(c => ["failed", "error", "expired", "insufficient_scope"].includes(c.status)) ?? [];
   const editable = can(o.workspaceRole, "profile.edit"); const decide = can(o.workspaceRole, "approvals.decide"); const ai = can(o.workspaceRole, "ai.use");
   const foundation = editable && !!d && !d.profile?.onboarding_completed_at;
   const attention = new Set([...(es?.overdue ?? []), ...(es?.review ?? [])].map(t=>t.id)).size + (d?.approvalCount ?? 0) + failedDocs.length + failedRuns.length + brokenSources.length + (unconfirmed ? 1 : 0) + (foundation ? 1 : 0) + initiativeAttentionCount + performanceAttentionCount;
@@ -76,7 +76,7 @@ function Overview() {
         <HomeWork section="attention" /><GrowthInitiativePulse onCountChange={setInitiativeAttentionCount} /><PerformanceAttention onCountChange={setPerformanceAttentionCount} />
         {!!failedRuns.length && <Attention title={`${failedRuns.length} recent AI assignments failed`} detail="Review the recorded error before starting again." to="/app/activity" important />}
         {!!failedDocs.length && <Attention title={`${failedDocs.length} documents need attention`} detail="Review processing and retry extraction." to="/app/documents" important />}
-        {!!brokenSources.length && <Attention title={`${brokenSources.length} data sources need review`} detail="Review their recorded connection status." to="/app/integrations" important />}
+        {!!brokenSources.length && <Attention title={`${brokenSources.length} data source${brokenSources.length === 1 ? " needs" : "s need"} review`} detail="Review their recorded connection status." to="/app/integrations" important />}
         {approvals.slice(0, 3).map(a => <Attention key={a.id} title={a.title} detail={`${a.risk === "high" ? "Important" : "Follow-up"} · ${decide ? "Review and decide" : "Awaiting a workspace administrator"}`} to="/app/approvals" important={a.risk === "high"} />)}
         {!!unconfirmed && <Attention title={`${unconfirmed} business claims await confirmation`} detail={editable ? "Review the evidence in business knowledge." : "A workspace member can confirm these claims."} to="/app/profile" />}
         {foundation && <Attention title="Complete your business foundation" detail="Discover your website and confirm the details." to="/app/onboarding" />}

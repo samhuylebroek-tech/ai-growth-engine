@@ -4,7 +4,7 @@ import type { Database, Json } from "@/integrations/supabase/types";
 
 /**
  * Schema added by committed-but-not-yet-applied migrations 0043_atomic_growth_strategy_conversion, 0046–0052 and
- * 0056_performance_measurements
+ * 0056_performance_measurements, plus the staging-only proposals 0057/0059 (docs/proposals: read-only connectors)
  * (see docs/MIGRATION_POLICY.md). The generated types follow the connected database, which does not have these
  * objects yet, so the growth plan/initiative screens type against this extension. At runtime the database still
  * answers "not found" for these objects until the migrations are applied; screens must keep their error states.
@@ -21,7 +21,12 @@ type OperationRow = { initiative_id: string; org_id: string; workspace_id: strin
 type MetricRow = { id: string; org_id: string; workspace_id: string; key: string; label: string; unit: string; currency: string | null; direction: string; goal_id: string | null; initiative_id: string | null; archived: boolean; created_by: string; created_at: string; updated_at: string };
 type MeasurementRow = { id: string; org_id: string; workspace_id: string; metric_id: string; period_start: string; period_end: string; kind: string; value: number; source: string; source_ref: string; note: string; request_key: string; corrects_id: string | null; created_by: string; created_at: string };
 
+type ConnectionRow = GeneratedTables["connector_connections"]["Row"] & { account_label: string | null; scopes: string[]; expires_at: string | null; last_checked_at: string | null; last_sync_at: string | null; last_error: string | null };
+type ImportRunRow = { id: string; org_id: string; workspace_id: string; connector_key: string; request_key: string; months: number; status: string; created_count: number; corrected_count: number; unchanged_count: number; skipped_count: number; error: string | null; started_by: string; started_at: string; finished_at: string | null };
+
 type PendingTables = {
+  connector_connections: { Row: ConnectionRow; Insert: Partial<ConnectionRow>; Update: Partial<ConnectionRow>; Relationships: GeneratedTables["connector_connections"]["Relationships"] };
+  connector_import_runs: { Row: ImportRunRow; Insert: Partial<ImportRunRow>; Update: Partial<ImportRunRow>; Relationships: [] };
   metric_definitions: {
     Row: MetricRow;
     Insert: Partial<MetricRow>;
@@ -83,6 +88,13 @@ type PendingFunctions = {
   create_growth_strategy_project: { Args: { _selected: Json; _strategy: string }; Returns: Json };
   define_metric: { Args: { _workspace: string; _key: string; _label: string; _unit: string; _currency: string | null; _direction: string; _goal: string | null; _initiative: string | null }; Returns: Json };
   update_metric_definition: { Args: { _metric: string; _patch: Json }; Returns: Json };
+  import_measurement_verified: { Args: { _metric: string; _connector: string; _period_start: string; _period_end: string; _value: number; _source_ref: string; _request: string; _proof: string }; Returns: Json };
+  store_connector_credential_verified: { Args: { _workspace: string; _connector: string; _secret: string; _scopes: string[]; _expires: string | null; _account_label: string | null; _config: Json; _proof: string }; Returns: Json };
+  read_connector_credential_verified: { Args: { _workspace: string; _connector: string; _proof: string }; Returns: Json };
+  report_connector_health_verified: { Args: { _workspace: string; _connector: string; _status: string; _error: string | null; _proof: string }; Returns: undefined };
+  disconnect_connector_verified: { Args: { _workspace: string; _connector: string; _proof: string }; Returns: undefined };
+  begin_connector_import_verified: { Args: { _workspace: string; _connector: string; _request: string; _months: number; _proof: string }; Returns: Json };
+  finish_connector_import_verified: { Args: { _run: string; _status: string; _created: number; _corrected: number; _unchanged: number; _skipped: number; _error: string | null; _proof: string }; Returns: undefined };
   record_measurement: { Args: { _metric: string; _kind: string; _period_start: string; _period_end: string; _value: number; _note: string; _source_ref: string; _request: string; _corrects: string | null }; Returns: Json };
 };
 
@@ -105,4 +117,5 @@ export function isNotInstalled(error: unknown): boolean {
 /** Query retry policy: a missing table will not appear by retrying, so stop immediately; other failures retry up to 3 times. */
 export const retryUnlessNotInstalled = (failureCount: number, error: unknown) => !isNotInstalled(error) && failureCount < 3;
 export const GROWTH_PLANS_NOT_INSTALLED = "Growth Plans are not switched on for this workspace yet. Goals, budget, strategies and work keep working as usual.";
+export const CONNECTORS_NOT_INSTALLED = "Read-only data connections are not switched on for this workspace yet. Nothing is imported until they are.";
 export const PERFORMANCE_NOT_INSTALLED = "Performance tracking is not switched on for this workspace yet. Goals, budget and work keep working as usual.";

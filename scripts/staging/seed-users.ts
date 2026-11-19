@@ -1,4 +1,4 @@
-// Staging-only test accounts, organizations and the one-time staging Platform Owner.
+// Staging-only test accounts and organizations (no Platform Owner; see owner-init.ts).
 // Passwords are random, written only to /tmp/staging/users.json (mode 600) and never printed.
 // Re-running rotates the passwords and leaves everything else unchanged.
 import { mkdirSync, writeFileSync, chmodSync } from "node:fs";
@@ -52,13 +52,8 @@ await sql.begin(async (tx) => {
     await tx`insert into public.organization_members(org_id, user_id, role) values (${org}, ${out[key]!.id}, ${role}) on conflict do nothing`;
     await tx`insert into public.workspace_members(workspace_id, user_id, role) values (${ws.id}, ${out[key]!.id}, ${role}) on conflict do nothing`;
   }
-  // One-time staging Platform Owner: only when no platform owner exists yet.
-  const [po] = await tx`select count(*)::int as n from public.platform_roles where role = 'platform_owner'`;
-  if (po.n === 0) {
-    await tx`insert into public.platform_roles(user_id, role) values (${out.owner!.id}, 'platform_owner')`;
-    await tx`insert into public.audit_logs(org_id, actor_id, action, target_type, target_id, metadata)
-      values (null, null, 'platform_owner.initialized', 'user', ${out.owner!.id}, ${sql.json({ environment: "staging", method: "scripts/staging/seed-users.ts" })})`;
-  }
+  // The Platform Owner is never inserted here: it is assigned only by the one-time
+  // initialization (proposal 0058) via scripts/staging/owner-init.ts.
 });
 const [s] = await sql`select (select count(*)::int from auth.users) as users, (select count(*)::int from public.organizations) as orgs,
   (select count(*)::int from public.platform_roles where role='platform_owner') as platform_owners, (select count(*)::int from public.organization_members) as memberships`;

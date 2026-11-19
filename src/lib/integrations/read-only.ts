@@ -3,6 +3,8 @@
 // stored only through the server-attested import function (docs/proposals/0057) as imported_actual.
 
 export type ReadOnlyConnector = "google_analytics" | "search_console" | "stripe" | "hubspot";
+export const SOURCE_LABEL: Record<string, string> = { google_analytics: "Google Analytics", search_console: "Search Console", stripe: "Stripe", hubspot: "HubSpot" };
+
 export type ImportedValue = { metricKey: string; month: string; value: number; unit: "count" | "currency" | "percent" | "ratio"; currency: string | null; sourceRef: string };
 
 /** What each connector would provide; shown in the interface before anything is connected. */

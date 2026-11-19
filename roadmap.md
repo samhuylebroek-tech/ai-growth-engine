@@ -1,4 +1,16 @@
 # AI Growth OS — Task Queue
+## Afronding staging en verdere ontwikkeling — 2026-11-19
+- [x] Staging reference confirmed by owner; branch and commits 045b82a/9facd9f verified on GitHub.
+- [x] Platform Owner: direct staging insert investigated, retired with audit, re-initialized via the one-time procedure (proposal 0058, append-only audit).
+- [x] Proposals 0057–0059 applied to staging only with a recorded ledger; SQL suites 23/23.
+- [x] Read-only connections: Stripe/HubSpot token check, Google OAuth flow, encrypted credentials, health states, import runs + history, Track-as-metric; error path tested on staging.
+- [x] Performance: imported values show their source and cannot be corrected by hand.
+- [x] Growth Officer: coordinator rules, outcomes of completed initiatives, imported-source labels.
+- [x] Command Center: approved plan/initiative summary; connection problems counted.
+- [x] Full re-test on latest code: journey, roles, desktop light + phone dark; staging QA data cleaned up.
+- [B] Reachable staging URL: Cloudflare API token for a protected staging Worker.
+- [B] Live migrations and proposals 0057–0059: owner approval.
+- [B] Real integration reads: owner's read-only credentials and Google OAuth client, plus permission.
 ## Continue master build (phase B/C) — 2026-11-19
 - [x] Separate sandbox-local staging app with allowlisted environment; staging test accounts, Platform Owner and growth seed.
 - [x] Performance: filters, status overview, charts, initiative links, detail page with monthly table and correction history; staging E2E incl. roles and phone.

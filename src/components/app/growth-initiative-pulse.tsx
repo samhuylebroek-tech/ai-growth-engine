@@ -145,9 +145,12 @@ export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (coun
   if (plans.isLoading || initiatives.isLoading || operations.isLoading || goals.isLoading) return <p role="status" className="py-2 text-xs text-muted-foreground">Checking approved growth initiatives…</p>;
   if (plans.isError && isNotInstalled(plans.error)) return <p className="py-2 text-xs text-muted-foreground">{GROWTH_PLANS_NOT_INSTALLED}</p>;
   if (plans.isError || initiatives.isError || operations.isError || goals.isError) return <div role="alert" className="py-2 text-xs text-destructive">Initiative status could not be loaded. <Button size="sm" variant="link" onClick={() => { void plans.refetch(); void initiatives.refetch(); void operations.refetch(); void goals.refetch(); }}>Retry</Button></div>;
-  if (!issues.length) return <p className="py-2 text-xs text-muted-foreground">No approved initiative currently needs follow-up. Active initiatives will appear here when a deadline, blocker, owner or measurement needs attention.</p>;
+  const open = initiatives.data ?? [];
+  const inProgress = open.filter(i => i.status === "in_progress").length;
+  const summary = plans.data?.length ? <p className="py-1 text-xs text-muted-foreground">{plans.data.length} approved Growth Plan{plans.data.length === 1 ? "" : "s"} · {open.length} open initiative{open.length === 1 ? "" : "s"}: {inProgress} in progress, {open.filter(i => i.status === "planned").length} planned{open.filter(i => i.status === "paused").length ? `, ${open.filter(i => i.status === "paused").length} paused` : ""}</p> : null;
+  if (!issues.length) return <>{summary}<p className="py-2 text-xs text-muted-foreground">No approved initiative currently needs follow-up. Active initiatives will appear here when a deadline, blocker, owner or measurement needs attention.</p></>;
 
-  return <div className="space-y-2">
+  return <div className="space-y-2">{summary}
     <p className="text-[10px] text-muted-foreground">Prioritized from approved plans using recorded blockers, dates, ownership and outcome data. Nothing is sent or executed automatically.</p>
     {issues.map(issue => <div key={issue.id} className="rounded-md border border-border p-3">
       <div className="flex flex-wrap items-center gap-2">

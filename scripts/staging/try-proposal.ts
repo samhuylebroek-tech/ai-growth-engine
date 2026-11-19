@@ -15,8 +15,8 @@ try {
     throw new Error("__no_result_raised");
   });
 } catch (e) { detail = String((e as Error).message ?? e).replace(/\s+/g, " ").slice(0, 300); }
-const [after] = await sql`select to_regprocedure('public.import_measurement_verified(uuid,text,date,date,numeric,text,uuid,text)') is not null as persisted`;
+const [after] = await sql`select (select count(*)::int from drizzle.__drizzle_migrations) as ledger`;
 await sql.end();
 const ok = /_RESULT pass=\d+ fail=0\b/.test(detail);
 console.log(`${ok ? "PASS" : "FAIL"} ${proposal} ${detail}`);
-console.log(JSON.stringify({ rolledBack: true, proposalFunctionPersisted: after.persisted }));
+console.log(JSON.stringify({ rolledBack: true, migrationLedger: after.ledger }));

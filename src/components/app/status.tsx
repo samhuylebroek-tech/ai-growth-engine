@@ -17,8 +17,12 @@ const STYLES: Record<string, string> = {
   failed: "border-destructive/30 bg-destructive/10 text-destructive",
   high: "border-destructive/30 bg-destructive/10 text-destructive",
   medium: "border-warning/30 bg-warning/10 text-warning",
+  partial: "border-warning/30 bg-warning/10 text-warning",
+  expired: "border-destructive/30 bg-destructive/10 text-destructive",
+  insufficient_scope: "border-destructive/30 bg-destructive/10 text-destructive",
+  error: "border-destructive/30 bg-destructive/10 text-destructive",
 };
-const LABELS: Record<string, string> = { not_configured: "Not configured", planned: "Planned", implemented: "Available" };
+const LABELS: Record<string, string> = { not_configured: "Not configured", planned: "Planned", implemented: "Available", expired: "Access expired", insufficient_scope: "Missing permission", error: "Connection error" };
 
 export function StatusChip({ status, children }: { status: string; children?: ReactNode }) {
   return (

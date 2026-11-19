@@ -18,5 +18,5 @@ describe("office document reading", () => {
   it("bounds expanded ZIP content", () => {
     const file = zipSync({ "word/document.xml": new Uint8Array(41 * 1024 * 1024) });
     expect(() => extractOfficeText(file, "docx")).toThrow("safe reading limit");
-  });
+  }, 30_000); // compresses 41 MB on purpose; slow when the whole suite runs in parallel
 });

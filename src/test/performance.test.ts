@@ -63,6 +63,22 @@ describe("performance in the business context", () => {
     expect(text).toContain("result 31 (entered by the team, not verified)");
     expect(text).toContain("behind plan by 9");
   });
+  it("names the read-only source of imported results and prefers them over entered ones", () => {
+    const text = renderBusinessContext({ ...base, connections: { status: "ok", rows: [{ connector_key: "stripe", status: "connected" }], truncated: false },
+      metrics: { status: "ok", rows: [{ id: "m", label: "Net revenue (EUR)", unit: "currency", currency: "EUR", direction: "increase", goal_id: null }], truncated: false },
+      measurements: [row("a", "manual_actual", "2026-10-01", "2026-10-31", 9000), { ...row("i", "imported_actual", "2026-10-01", "2026-10-31", 12600), source: "stripe" }] });
+    expect(text).toContain("latest result 12600 (imported read-only from Stripe, not independently verified)");
+    expect(text).toContain("imported values exist from Stripe");
+  });
+  it("summarizes completed initiatives against their own targets without claiming cause", () => {
+    const text = renderBusinessContext({ ...base, initiatives: [{ id: "i1", plan_version_id: "p", title: "Local SEO pages", detail: "", channel: "seo", target_week: 2, effort: "m", status: "completed", project_id: null }],
+      operations: [{ initiative_id: "i1", due_date: null, success_metric: "Leads", baseline_value: 20, target_value: 30, current_value: 34, blocker_note: null, owner_id: "u" }],
+      metrics: { status: "ok", rows: [{ id: "m", label: "Qualified leads", unit: "count", currency: null, direction: "increase", goal_id: null, initiative_id: "i1" }], truncated: false },
+      measurements: [row("a", "manual_actual", "2026-09-01", "2026-09-30", 22), row("b", "manual_actual", "2026-10-01", "2026-10-31", 34)] });
+    expect(text).toContain("Local SEO pages (seo): target reached on Leads 20→30, user-entered current 34");
+    expect(text).toContain("Qualified leads latest 34 (entered by the team, not verified), previous 22");
+    expect(text).toContain("not proven cause");
+  });
   it("says tracking is unavailable instead of empty when not installed", () => {
     const text = renderBusinessContext({ ...base, metrics: { status: "unavailable" } });
     expect(text).toContain("performance tracking not installed");

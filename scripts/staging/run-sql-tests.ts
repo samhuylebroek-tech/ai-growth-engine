@@ -8,9 +8,17 @@ const { sql } = await connectStaging();
 const counts = async () => (await sql`select (select count(*)::int from auth.users) u, (select count(*)::int from public.organizations) o, (select count(*)::int from public.workspaces) w`)[0];
 const before = await counts();
 const results: { suite: string; outcome: string; detail: string }[] = [];
-for (const f of readdirSync("tests/sql").filter((f) => f.endsWith(".sql")).sort()) {
+// Suites for schema proposals run only once that proposal is applied to staging (apply-proposal.ts).
+const [hasLedger] = await sql`select to_regclass('ops_staging.applied_proposals') is not null as has`;
+const applied = new Set(hasLedger.has ? (await sql`select distinct name from ops_staging.applied_proposals`).map((r) => r.name as string) : []);
+const files = [
+  ...readdirSync("tests/sql").filter((f) => f.endsWith(".sql")).sort().map((f) => `tests/sql/${f}`),
+  ...readdirSync("tests/proposals").filter((f) => f.endsWith(".test.sql") && applied.has(f.replace(".test.sql", ""))).sort().map((f) => `tests/proposals/${f}`),
+];
+for (const path of files) {
+  const f = path.replace(/^tests\//, "");
   if (only.length && !only.some((o) => f.includes(o))) continue;
-  const body = readFileSync(`tests/sql/${f}`, "utf8");
+  const body = readFileSync(path, "utf8");
   try {
     await sql.begin(async (tx) => { await tx.unsafe(body); throw new Error("__no_result_raised"); });
     results.push({ suite: f, outcome: "NO RESULT", detail: "" });

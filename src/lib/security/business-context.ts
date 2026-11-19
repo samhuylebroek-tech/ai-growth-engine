@@ -4,6 +4,9 @@ import { quoteUntrusted } from "./upload";
 import { summarizeMetric, monthlySeries, forecastDeviations, metricStatus, STATUS_LABEL, type Measurement, type MeasurementKind } from "@/lib/performance";
 
 const EVIDENCE_LABEL: Record<MeasurementKind, string> = { planned: "plan", forecast: "estimate", manual_actual: "entered by the team, not verified", imported_actual: "imported from a connected source", verified_actual: "verified measurement" };
+const SOURCE_NAME: Record<string, string> = { google_analytics: "Google Analytics", search_console: "Search Console", stripe: "Stripe", hubspot: "HubSpot" };
+/** Imported values name their read-only source; they are source data, not independently verified. */
+const evidenceOf = (kind: MeasurementKind, source?: string) => kind === "imported_actual" && source && SOURCE_NAME[source] ? `imported read-only from ${SOURCE_NAME[source]}, not independently verified` : EVIDENCE_LABEL[kind];
 
 /**
  * Unified Business Context Layer.
@@ -160,7 +163,7 @@ export async function readBusinessDomains(sb: DB, scope: BusinessScope, workspac
     projectIds.length ? strict<Task>("initiative tasks", t("tasks", "id,project_id,title,status,priority,due_date,owner_id").in("project_id", projectIds).order("due_date", { ascending: true }).limit(LIMITS.tasks), LIMITS.tasks) : ok<Task>(),
     competitorIds.length ? optional<Observation>("competitor observations", t("competitor_observations", "competitor_id,kind,category,statement,source_url,observed_at,review_status").in("competitor_id", competitorIds).neq("review_status", "irrelevant").order("observed_at", { ascending: false }).limit(LIMITS.observations), LIMITS.observations) : ok<Observation>(),
     assetIds.length ? optional<ContentVersion>("content versions", t("content_versions", "id,asset_id,version_no").in("asset_id", assetIds).order("version_no", { ascending: false }).limit(LIMITS.versions), LIMITS.versions) : ok<ContentVersion>(),
-    metricIds.length ? optional<Measurement>("performance measurements", t("performance_measurements", "id,metric_id,kind,period_start,period_end,value,corrects_id,created_at").in("metric_id", metricIds).order("period_start", { ascending: false }).limit(LIMITS.measurements), LIMITS.measurements) : ok<Measurement>(),
+    metricIds.length ? optional<Measurement>("performance measurements", t("performance_measurements", "id,metric_id,kind,period_start,period_end,value,corrects_id,created_at,source").in("metric_id", metricIds).order("period_start", { ascending: false }).limit(LIMITS.measurements), LIMITS.measurements) : ok<Measurement>(),
   ]);
   const latestVersionIds = latestVersions(rowsOf(versions)).map(v => v.id);
   const decisions = latestVersionIds.length
@@ -282,6 +285,20 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
   }
   sections.push({ key: "approved-growth-plans", title: "APPROVED GROWTH PLANS, INITIATIVES AND LINKED WORK", evidence: ["planning_record"], budget: 2000, priority: 3, lines: planLines });
 
+  // Learning: what finished initiatives achieved against their own targets. Correlation only; no causal claims.
+  const learningLines: string[] = [];
+  for (const item of d.initiatives.filter(i => i.status === "completed")) {
+    const op = d.operations.find(o => o.initiative_id === item.id);
+    const reached = op?.target_value != null && op.current_value != null ? (op.current_value >= op.target_value ? "target reached" : "target not reached") : "outcome not recorded";
+    const linked = (d.metrics?.status === "ok" ? d.metrics.rows : []).filter(m => m.initiative_id === item.id).map(m => {
+      const sm = summarizeMetric(m, (d.measurements ?? []).filter(r => r.metric_id === m.id));
+      return sm.actual ? `${clip(m.label, 40)} latest ${sm.actual.value} (${evidenceOf(sm.actual.kind, sm.actual.source)})${sm.previousActual != null ? `, previous ${sm.previousActual}` : ""}` : `${clip(m.label, 40)} no result`;
+    });
+    learningLines.push(`- ${clip(item.title, 90)} (${item.channel}): ${reached}${op?.success_metric ? ` on ${clip(op.success_metric, 50)} ${op.baseline_value ?? "?"}→${op.target_value ?? "?"}, user-entered current ${op.current_value ?? "?"}` : ""}${linked.length ? `; linked metrics: ${linked.join("; ")}` : ""}`);
+  }
+  if (learningLines.length) learningLines.push("- use these outcomes to weigh similar future actions; they show correlation with the team's records, not proven cause");
+  sections.push({ key: "completed-initiative-outcomes", title: "OUTCOMES OF COMPLETED INITIATIVES", evidence: ["planning_record", "manual_entry"], budget: 700, priority: 6, lines: learningLines });
+
   const pipelineLines: string[] = [];
   if (d.deals.status === "unavailable") pipelineLines.push(UNAVAILABLE);
   else if (d.deals.rows.length) {
@@ -344,9 +361,10 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
   if (d.campaigns.status === "unavailable") performanceLines.push(UNAVAILABLE);
   else for (const c of d.campaigns.rows) performanceLines.push(`- ${clip(c.title, 70)} [${c.status}, ${c.category}] planned budget EUR ${c.budget_eur}${c.results ? `; team-noted results: ${clip(c.results, 120)}` : ""}`);
   const connected = d.connections.status === "ok" ? d.connections.rows.filter(c => c.status === "connected").map(c => c.connector_key) : [];
+  const importedFrom = [...new Set((d.measurements ?? []).filter(r => r.kind === "imported_actual" && r.source).map(r => SOURCE_NAME[r.source!] ?? r.source!))];
   performanceLines.push(connected.length
-    ? `connected integrations: ${connected.join(", ")} — no synced performance measurements are stored in this workspace yet`
-    : "measured performance data: Not configured — no analytics, ads or payment integration is connected; do not cite traffic, conversion, ROAS or revenue figures");
+    ? `connected read-only integrations: ${connected.map(k => SOURCE_NAME[k] ?? k).join(", ")}${importedFrom.length ? ` — imported values exist from ${importedFrom.join(", ")} (see TEAM-TRACKED METRICS)` : " — no imported values are stored in this workspace yet"}`
+    : importedFrom.length ? `no integration is currently connected; earlier imported values from ${importedFrom.join(", ")} remain in TEAM-TRACKED METRICS` : "measured performance data: Not configured — no analytics, ads or payment integration is connected; do not cite traffic, conversion, ROAS or revenue figures");
   sections.push({ key: "campaigns-and-performance", title: "CAMPAIGNS AND PERFORMANCE DATA", evidence: ["planning_record", "manual_entry", "connection_status"], budget: 900, priority: 9, lines: performanceLines });
 
   // Team-tracked metrics: each value carries its reliability; plans and estimates are never results.
@@ -363,7 +381,7 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
       const links = [m.goal_id && activeGoal.get(m.goal_id) ? `goal "${clip(activeGoal.get(m.goal_id)!, 60)}"` : "", m.initiative_id && initiativeTitle.get(m.initiative_id) ? `initiative "${clip(initiativeTitle.get(m.initiative_id)!, 60)}"` : ""].filter(Boolean).join(", ");
       const head = `- metric ${clip(m.label, 60)} (${unit}, ${m.direction === "decrease" ? "lower is better" : "higher is better"}${links ? `; linked to ${links}` : ""})`;
       if (!s.period) { metricLines.push(`${head}: no values recorded`); continue; }
-      const parts = [`status ${STATUS_LABEL[metricStatus(s)].toLowerCase()}`, s.actual ? `latest result ${s.actual.value} (${EVIDENCE_LABEL[s.actual.kind]})` : "no result entered"];
+      const parts = [`status ${STATUS_LABEL[metricStatus(s)].toLowerCase()}`, s.actual ? `latest result ${s.actual.value} (${evidenceOf(s.actual.kind, s.actual.source)})` : "no result entered"];
       if (s.planned != null) parts.push(`planned ${s.planned}`);
       if (s.forecast != null) parts.push(`forecast ${s.forecast} (estimate)`);
       if (s.variance != null) parts.push(`${s.onTrack ? "on track" : "behind plan"} by ${Math.abs(s.variance)}`);
