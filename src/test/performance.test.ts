@@ -92,3 +92,19 @@ describe("monthly series and status", () => {
     expect(forecastDeviations(rows)).toEqual([{ month: "2026-10", forecast: 38, actual: 35, deviation: -3 }]);
   });
 });
+
+describe("Growth Officer metric context", () => {
+  const base2 = { workspace: { id: "w", name: "W" }, objectives: null, facts: [], recommendations: [], plans: { status: "ok" as const, rows: [], truncated: false }, operations: [], projects: [], tasks: [], budget: { status: "ok" as const, rows: [], truncated: false }, deals: { status: "ok" as const, rows: [], truncated: false }, competitors: { status: "ok" as const, rows: [], truncated: false }, observations: [], seo: { status: "ok" as const, rows: [], truncated: false }, content: { status: "ok" as const, rows: [], truncated: false }, versions: [], decisions: [], campaigns: { status: "ok" as const, rows: [], truncated: false }, connections: { status: "ok" as const, rows: [], truncated: false } };
+  it("names linked goals and initiatives, the monthly trend and forecast deviations with reliability", () => {
+    const text = renderBusinessContext({ ...base2,
+      goals: [{ id: "g", title: "Grow leads", objective: "", metric: "", baseline: null, target: null, current_value: null, due_date: null, priority: "high", status: "active" }],
+      initiatives: [{ id: "i", plan_version_id: "p", title: "Fix SEO basics", detail: "", channel: "seo", target_week: 2, effort: null, status: "planned", project_id: null }],
+      metrics: { status: "ok", rows: [{ id: "m", label: "Qualified leads", unit: "count", currency: null, direction: "increase", goal_id: "g", initiative_id: "i" }], truncated: false },
+      measurements: [row("p1", "planned", "2026-09-01", "2026-09-30", 30), row("a1", "manual_actual", "2026-09-01", "2026-09-30", 33), row("p2", "planned", "2026-10-01", "2026-10-31", 40), row("f2", "forecast", "2026-10-01", "2026-10-31", 38), row("a2", "manual_actual", "2026-10-01", "2026-10-31", 35)] });
+    expect(text).toContain('linked to goal "Grow leads", initiative "Fix SEO basics"');
+    expect(text).toContain("status behind plan");
+    expect(text).toContain("2026-09 result 33 (entered by the team, not verified) / plan 30");
+    expect(text).toContain("2026-10 forecast 38, result 35 (-3)");
+    expect(text).toContain("never state a number that is not listed");
+  });
+});

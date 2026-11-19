@@ -53,12 +53,48 @@ They are committed but **not applied to the live database** (needs owner approva
 `configure.ts` owns bucket rows and the staging verifier. If a later migration redefines
 `verify_ai_accounting`, re-run `configure.ts` on staging.
 
+## Staging app (sandbox-local) — 2026-11-19
+
+`scripts/staging/app.ts` starts a separate copy of the app on `127.0.0.1:8091` inside the build
+sandbox only. Its environment is built by `scripts/staging/app-env.ts` from an allowlist (staging
+project URL, publishable key and accounting proof only; no live database URLs, service keys or `PG*`),
+unit tested in `src/test/staging-app-env.test.ts`. Before starting it checks that the publishable key
+is accepted by the staging sign-in service and rejected by the live one. The platform preview and the
+published app are unchanged and keep using the live backend. This is not public hosting.
+
+Staging test accounts (owner, admin, member, viewer, outsider; two organizations) and one staging
+Platform Owner were created by `seed-users.ts`; passwords are random, stored only in a restricted
+sandbox file and never printed. `seed-growth.ts` adds one QA goal, strategy, approved plan and two
+initiatives through the app's own functions.
+
+| Check (staging app, real sign-ins) | Result |
+| --- | --- |
+| Performance: create metrics, plan/forecast/entered values, duplicate refused, correction keeps history, filters, detail page, desktop + 390 px phone | PASS |
+| Performance roles: viewer reads without edit controls; outsider sees nothing | PASS |
+| Growth Officer (Dutch, real AI call): cites entered results as not verified, keeps forecast separate from plan, refuses to invent conversion rate | PASS |
+| Home: performance overview, linked metrics under the primary goal, behind-plan attention item, budget per currency; light desktop + dark phone, no console errors | PASS |
+| Integrations page: read-only connectors show "Not configured", what they would import and what they need | PASS |
+| SQL suites after this work | 20/20 PASS, no rows persisted, ledger still 57 |
+
+## Proposed schema changes (not migrations yet)
+
+New migration files can only be created by the platform migration tool, which also applies them to
+the live database. Schema work that still needs owner approval is therefore kept in `docs/proposals/`
+and verified on staging with `scripts/staging/try-proposal.ts`, inside one transaction that always
+rolls back (staging schema and ledger stay as the journal describes).
+
+| Proposal | Staging check |
+| --- | --- |
+| `0057_read_only_integration_imports` — browser sessions can no longer mark integrations "connected"; imported results only via a server-attested function, only for a connected integration in the same workspace, re-syncs become corrections | PASS 17/17, nothing persisted |
+
 ## Not done / blocked
 
-- **Staging app runtime and test sign-ins** — the preview must keep using the live backend, so a
-  staging app needs separate hosting plus the staging project URL and publishable key. Staging test
-  accounts and the staging Platform Owner are created through that app's sign-in, not by SQL.
+- **Staging project reference** — the verified connection belongs to `tvfbvzytjpizqwixkecx`. The
+  references typed in requests (`tvfbvzytjzipqzwikxecx`, `tvfbvzytjzipqzwixkecx`) differ from it and
+  from each other; the owner must confirm the verified reference is the intended staging project.
+- **Public staging hosting** — the staging app runs only inside the build sandbox.
 - **Live database** — 11 committed migrations remain unapplied there (0043b, 0046–0052, 0054–0056); applying them needs explicit approval. Until then the Performance page and Growth Plans show a "not switched on" note.
+- **Real integrations** — reading GA4, Search Console, Stripe or HubSpot needs the owner's accounts and read-only credentials, plus applying proposal 0057.
 
 ## Recovery
 

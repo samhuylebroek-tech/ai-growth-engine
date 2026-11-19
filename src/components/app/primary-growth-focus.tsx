@@ -6,6 +6,7 @@ import { useOrg } from "@/lib/org-context";
 import { GrowthQuestion } from "@/components/app/growth-question";
 import { goalProgress } from "@/lib/growth-plan";
 import { Button } from "@/components/ui/button";
+import { GoalLinkedMetrics } from "@/components/app/home-insights";
 
 export function PrimaryGrowthFocus() {
   const { org, workspace } = useOrg();
@@ -79,6 +80,7 @@ export function PrimaryGrowthFocus() {
             </div>
           )}
           {progress === null && <p className="mt-2 text-xs text-muted-foreground">Progress is not measured yet. No performance value is assumed.</p>}
+          <GoalLinkedMetrics goalId={goal.id} />
         </div>
       ) : (
         <div className="mt-4 rounded-lg bg-muted/40 p-3">

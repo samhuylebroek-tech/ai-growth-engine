@@ -1,4 +1,14 @@
 # AI Growth OS — Task Queue
+## Continue master build (phase B/C) — 2026-11-19
+- [x] Separate sandbox-local staging app with allowlisted environment; staging test accounts, Platform Owner and growth seed.
+- [x] Performance: filters, status overview, charts, initiative links, detail page with monthly table and correction history; staging E2E incl. roles and phone.
+- [x] Growth Officer reads metrics with source labels, trends and forecast deviations; verified on staging in Dutch.
+- [x] Home: performance overview, linked metrics under primary goal, behind-plan attention, budget per currency.
+- [x] Read-only integration groundwork: mappers for GA4, Search Console, Stripe, HubSpot (tested); integrations page shows real status and what each would import; proposal 0057 verified on staging (rolled back).
+- [B] Staging reference mismatch: owner must confirm `tvfbvzytjpizqwixkecx` is the intended staging project.
+- [B] Public staging hosting: not available from the sandbox.
+- [B] Proposal 0057 and pending migrations on live: owner approval.
+- [B] Real integration reads: owner's accounts and read-only credentials.
 ## Master build & execution — 2026-11-18
 - [x] Phase A: staging initialized (56 migrations, buckets, separate AI accounting secret), 19/19 SQL suites incl. growth plan end-to-end, storage and privilege checks.
 - [x] Privilege hardening migrations 0054/0055 (tested on staging only).

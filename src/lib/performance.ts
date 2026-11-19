@@ -159,3 +159,26 @@ export const STATUS_LABEL: Record<MetricStatus, string> = { on_track: "On track"
 export function forecastDeviations(rows: readonly Measurement[]): { month: string; forecast: number; actual: number; deviation: number }[] {
   return monthlySeries(rows).flatMap(p => (p.forecast != null && p.actual != null ? [{ month: p.month, forecast: p.forecast, actual: p.actual, deviation: p.actual - p.forecast }] : []));
 }
+
+export type OverviewItem<M> = { metric: M; summary: MetricSummary; status: MetricStatus };
+const STATUS_ORDER: Record<MetricStatus, number> = { behind: 0, no_result: 1, no_plan: 2, no_data: 3, on_track: 4 };
+/** Home overview: behind-plan metrics first; archived metrics excluded; counts never mix units. */
+export function performanceOverview<M extends Pick<MetricDef, "id" | "direction" | "archived">>(metrics: readonly M[], rows: readonly Measurement[]) {
+  const items: OverviewItem<M>[] = metrics.filter(m => !m.archived).map(m => {
+    const summary = summarizeMetric(m, rows);
+    return { metric: m, summary, status: metricStatus(summary) };
+  }).sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
+  return { items, onTrack: items.filter(i => i.status === "on_track").length, behind: items.filter(i => i.status === "behind"), waiting: items.filter(i => i.status === "no_result" || i.status === "no_data").length };
+}
+
+/** Month (YYYY-MM) before the given date: the latest month a result can be complete for. */
+export function lastCompleteMonth(now: Date = new Date()): string {
+  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
+  return d.toISOString().slice(0, 7);
+}
+/** Metrics without any result for the last complete month: a concrete next step for the team. */
+export function missingLastMonth<M extends Pick<MetricDef, "id" | "archived">>(metrics: readonly M[], rows: readonly Measurement[], now: Date = new Date()): M[] {
+  const month = lastCompleteMonth(now);
+  const have = new Set(effectiveMeasurements(rows).filter(r => isActual(r.kind) && r.period_start.slice(0, 7) === month).map(r => r.metric_id));
+  return metrics.filter(m => !m.archived && !have.has(m.id));
+}

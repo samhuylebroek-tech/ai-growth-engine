@@ -47,3 +47,14 @@ export function reallocationProposals(lines: PlanLine[], monthElapsed: number): 
   }
   return out;
 }
+
+/** Budget totals per currency for one month; currencies are never added together. */
+export function budgetByCurrency(lines: readonly (BudgetLine & { currency: string })[]) {
+  const by = new Map<string, (BudgetLine & { currency: string })[]>();
+  for (const l of lines) by.set(l.currency, [...(by.get(l.currency) ?? []), l]);
+  return [...by.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([currency, ls]) => ({
+    currency, ...budgetTotals(ls), lines: ls.length,
+    overCap: ls.filter(l => budgetAlert(l) === "over_cap").length,
+    overPlan: ls.filter(l => budgetAlert(l) === "over_plan").length,
+  }));
+}

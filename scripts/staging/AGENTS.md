@@ -1,1 +1,3 @@
 - Staging database work runs only through these scripts (target guard + in-database marker, inherited PG* stripped), never the platform migration tool or bare psql; this keeps the live database untouched.
+- The staging app runs only via `app.ts` with the allowlisted environment from `app-env.ts`; the platform preview is never pointed at staging, so live users and secrets stay separate.
+- Schema changes awaiting live approval live in `docs/proposals/` and are verified with `try-proposal.ts` in an always-rolled-back transaction, because new migration files can only come from the platform migration tool, which also applies them live.

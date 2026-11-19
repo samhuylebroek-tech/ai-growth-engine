@@ -1,0 +1,1 @@
+- Integration data is read-only: pure mappers here turn provider responses into monthly values that are stored only as imported results through the server-attested import function; currencies stay separate and nothing is written back to providers.
