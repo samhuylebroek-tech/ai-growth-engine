@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { executeTaskRun } from "@/lib/ai.functions";
 import { SPECIALIST_KEYS, TASK_SPECIALISTS, suggestSpecialist, defaultTaskType, runActions, reviewOutput, taskOutputSchema, RUN_ESTIMATE, type TaskSpecialist, type TaskType, type RunAction } from "@/lib/task-execution";
 import { taskExecutionOptions, runsByTask, runTone } from "@/components/execution/task-runs-data";
+import { SpecialistQC } from "@/components/execution/specialist-qc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -172,6 +173,7 @@ function RunResult({ run }: { run: TaskRunRow }) {
       {o.external_actions.length > 0 && <div className="rounded-md border border-warning/40 p-2 text-xs"><p className="font-medium text-warning">{t("run.external")}</p>
         <ul className="list-disc pl-4">{o.external_actions.map((x, i) => <li key={i}>{x.action}{x.system ? ` · ${x.system}` : ""}</li>)}</ul><p className="mt-1 text-muted-foreground">{t("run.externalNote")}</p></div>}
     </> : <div className="prose prose-sm max-w-none break-words dark:prose-invert"><ReactMarkdown remarkPlugins={[remarkGfm]}>{raw?.markdown ?? ""}</ReactMarkdown></div>}
+    <SpecialistQC run={run} />
   </section>;
 }
 function Block({ title, items }: { title: string; items: string[] }) {

@@ -69,6 +69,11 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
   its evidence strength from "controlled" to "inconclusive" because the data was simulated. One Growth Officer draft
   ("Toets of een herbestelherinnering …", 5 credits) was created from a real AI request. *Keep; history is insert-only.*
 
+- **Phase 8.5 specialist quality control (2026-11-20)** — staging proposal 0081. Main workspace task "Zoekwoorden voor de
+  zakelijke cateringpagina" (SEO, high priority): one real second review by the Content Specialist (7 credits, score
+  75/100, acceptable, five findings) and an admin decision "accepted with corrections". *Keep; reviews and decisions are
+  insert-only.*
+
 ## Cleanup proposal (needs separate approval)
 
 1. Archive (status change, not delete) the five QA-named goals/campaigns/tasks through the normal app screens.

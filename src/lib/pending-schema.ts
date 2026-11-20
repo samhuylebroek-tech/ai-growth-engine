@@ -260,6 +260,39 @@ export type TouchpointRow = {
   created_by: string;
   created_at: string;
 };
+export type SpecialistReviewRow = {
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  task_run_id: string;
+  request_key: string;
+  original_specialist: string;
+  reviewer_specialist: string;
+  single_request_id: string;
+  dimensions: Json;
+  findings: Json;
+  summary: string;
+  assessed: number;
+  score: number;
+  critical: number;
+  verdict: "acceptable" | "needs_changes" | "unreliable";
+  independence_warning: boolean;
+  created_by: string;
+  created_at: string;
+};
+export type SpecialistDecisionRow = {
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  task_run_id: string;
+  review_id: string | null;
+  decision: "accepted" | "accepted_with_corrections" | "needs_rework" | "rejected";
+  corrections: string;
+  note: string;
+  review_required: boolean;
+  actor_id: string;
+  created_at: string;
+};
 export type ExperimentStatus =
   | "draft"
   | "in_review"
@@ -810,6 +843,8 @@ type PendingTables = {
   task_replan_decisions: { Row: TaskReplanDecisionRow; Insert: never; Update: never; Relationships: [] };
   campaign_spend_entries: { Row: CampaignSpendRow; Insert: never; Update: never; Relationships: [] };
   experiment_events: { Row: ExperimentEventRow; Insert: never; Update: never; Relationships: [] };
+  specialist_reviews: { Row: SpecialistReviewRow; Insert: never; Update: never; Relationships: [] };
+  specialist_result_decisions: { Row: SpecialistDecisionRow; Insert: never; Update: never; Relationships: [] };
   experiment_observations: { Row: ExperimentObservationRow; Insert: never; Update: never; Relationships: [] };
   proposal_evidence: { Row: ProposalEvidenceRow; Insert: never; Update: never; Relationships: [] };
   simulated_provider_records: {
@@ -1206,6 +1241,9 @@ type PendingFunctions = {
   retract_touchpoint: { Args: { _touchpoint: string }; Returns: Json };
   propose_experiment: { Args: { _workspace: string; _request: string; _p: Json }; Returns: Json };
   design_experiment: { Args: { _workspace: string; _request: string; _p: Json }; Returns: Json };
+  specialist_review_required: { Args: { _run: string }; Returns: boolean };
+  record_specialist_review_verified: { Args: { _run: string; _request: string; _reviewer: string; _single: string; _review: Json; _proof: string }; Returns: Json };
+  decide_specialist_result: { Args: { _run: string; _decision: string; _note: string; _corrections: string }; Returns: Json };
   revise_experiment_design: { Args: { _experiment: string; _version: number; _p: Json }; Returns: Json };
   move_experiment: { Args: { _experiment: string; _action: string; _data: Json }; Returns: Json };
   record_experiment_observation: { Args: { _experiment: string; _request: string; _p: Json }; Returns: Json };

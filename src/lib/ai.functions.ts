@@ -25,6 +25,7 @@ import { parseStrategy, goalBrief, sourceOpportunityBrief, STRATEGY_INSTRUCTIONS
 import { parseRepurpose, REPURPOSE_INSTRUCTIONS } from "@/lib/content-repurpose";
 import { parseOpportunities, opportunityBrief, opportunityRequestSchema, OPPORTUNITY_INSTRUCTIONS, type Opportunity } from "@/lib/opportunities";
 import { CHANNELS } from "@/lib/content";
+import { reviewRequestSchema, parseReview as parseSpecialistReview, reviewInstructions, type Review as SpecialistReview } from "@/lib/specialist-review";
 import { designRequestSchema, parseDesigns, designPayload, designKey, DESIGN_INSTRUCTIONS, type Design } from "@/lib/experiment-design-ai";
 
 type DB = SupabaseClient<Database>;
@@ -886,6 +887,70 @@ ${quoteUntrusted("owner focus", data.focus, 600)}` : ""}` }],
       try { items = parseDesigns(result.text); }
       catch { throw new Error("The result came back in an unexpected format. Usage is recorded; no automatic retry was made."); }
       return { ok: true, data: { count: items.length, saved: await saveDesigns(sb, data.workspaceId, data.requestKey, items), credits: result.credits } };
+    } catch (error) {
+      if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId).neq("status", "succeeded");
+      return { ok: false, error: friendly(error) };
+    }
+  });
+
+/**
+ * Independent second review of one finished specialist result by a different specialist (proposal 0081).
+ * One metered call; the database checks the reviewer, the paid request and recomputes score and verdict.
+ * The review is advice for the person who decides; it never changes the result.
+ */
+export const reviewSpecialistResult = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => reviewRequestSchema.parse(input))
+  .handler(async ({ data, context }): Promise<Result<{ score: number; verdict: string; credits: number }>> => {
+    const sb = context.supabase as DB;
+    const pending = sb as unknown as SupabaseClient<PendingDatabase>;
+    const { TASK_SPECIALISTS, taskSpecialistSchema } = await import("@/lib/task-execution");
+    let runId: string | null = null;
+    try {
+      await requireRole(sb, data.orgId, "member");
+      await requireWorkspace(sb, data);
+      const role = await sb.rpc("has_workspace_role", { _workspace: data.workspaceId, _min: "member" });
+      if (role.error || !role.data) throw new Error("You need workspace member access.");
+      const reviewer = taskSpecialistSchema.parse(data.reviewer);
+      const run = await pending.from("task_runs").select("id,task_id,specialist_key,status,output").eq("id", data.runId).eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).maybeSingle();
+      if (run.error || !run.data) throw new Error("Result not found.");
+      if (run.data.status !== "succeeded" || !run.data.output) throw new Error("Only a finished result can be reviewed.");
+      if (run.data.specialist_key === reviewer) throw new Error("Choose a different specialist for the second review.");
+      // Check that the review can be saved before spending credits.
+      const installed = await pending.from("specialist_reviews").select("id").eq("workspace_id", data.workspaceId).limit(1);
+      if (installed.error) throw new Error(isNotInstalled(installed.error) ? "Quality control is not available in this environment yet. No AI request was sent." : "Could not read reviews. No AI request was sent.");
+      const task = await sb.from("tasks").select("title,description,priority").eq("id", run.data.task_id).eq("workspace_id", data.workspaceId).maybeSingle();
+      if (task.error || !task.data) throw new Error("Task not found.");
+      await assertEntitled(sb, data.orgId, "ai_assistant");
+      const record = async (reply: string, singleId: string, credits: number) => {
+        let review: SpecialistReview;
+        try { review = parseSpecialistReview(reply); }
+        catch { throw new Error("The review came back in an unexpected format. Usage is recorded; no automatic retry was made."); }
+        const saved = await pending.rpc("record_specialist_review_verified", { _run: data.runId, _request: data.requestKey, _reviewer: reviewer, _single: singleId, _review: review as never, _proof: accountingProof() });
+        if (saved.error) throw new Error("Your paid review is preserved, but it could not be saved with the result.");
+        const row = saved.data as { score: number; verdict: string };
+        return { ok: true as const, data: { score: row.score, verdict: row.verdict, credits } };
+      };
+      const request = `Second review: ${task.data.title}`.slice(0, 4000);
+      const claimed = await sb.rpc("begin_single_ai_request_verified", { _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _kind: TASK_SPECIALISTS[reviewer].kind, _input: { request, purpose: "specialist_review", taskRunId: data.runId, reviewer }, _proof: accountingProof() });
+      if (claimed.error) throw new Error(claimed.error.message);
+      const attempt = singleRequestSchema.parse(claimed.data);
+      if (!attempt.claimed) {
+        if (attempt.status !== "succeeded" || !attempt.reply) throw new Error("This request already exists. Recover saved work; it will not be sent again.");
+        return await record(attempt.reply, attempt.id, 0);
+      }
+      runId = attempt.run_id;
+      const business = await workspaceContext(sb, data);
+      const lang = { en: "English", nl: "Dutch", fr: "French" }[data.locale];
+      const taskText = [`Task: ${task.data.title}`, `Priority: ${task.data.priority}`, task.data.description ? `Description: ${task.data.description}` : ""].filter(Boolean).join("\n");
+      const result = await meteredGenerate(sb, context.userId, data.orgId, runId, CREDIT_RULES.reserveGrowthOfficer, {
+        instructions: reviewInstructions(reviewer, run.data.specialist_key),
+        input: [{ role: "user", content: `${business}\n\nAnswer in ${lang}.\n\n${quoteUntrusted("assigned task", taskText, 3000)}\n\n${quoteUntrusted(`result by the ${run.data.specialist_key.replace(/_/g, " ")} specialist`, JSON.stringify(run.data.output), 30000)}` }],
+        maxOutputTokens: 2500,
+      });
+      const fin = await sb.rpc("finish_single_ai_request_verified", { _id: attempt.id, _reply: result.text.trim(), _proof: accountingProof() });
+      if (fin.error) throw new Error("Your paid review is preserved. Recover saved work before another request.");
+      return await record(result.text, attempt.id, result.credits);
     } catch (error) {
       if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId).neq("status", "succeeded");
       return { ok: false, error: friendly(error) };
