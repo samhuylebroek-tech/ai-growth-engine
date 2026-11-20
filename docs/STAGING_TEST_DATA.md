@@ -56,6 +56,13 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
   (deadline 2 Nov 2026, so it is overdue on purpose) with matching audit entries. *Keep as monitoring evidence;
   the task can be completed or cancelled in the app if wanted; checks stay.*
 
+- **Phase 8.4 sprint 2 (2026-11-20)** — staging proposals 0077–0078 added `task_replan_proposals`,
+  `task_replan_decisions` and `campaign_spend_entries` (all insert-only). Browser walkthroughs in Main workspace:
+  "QA achterstallige controletaak" was re-planned twice (2 Nov → 23 Nov, then → 18 Dec with priority high) and now
+  waits on "QA align calendar" (one dependency note); campaign "QA office breakfast boxes" got budget EUR 300 and four
+  simulated spend entries (EUR 200 ref SIM-QA-1, reservation EUR 50, EUR 120 ref SIM-QA-2, correction −EUR 10), so it
+  shows a budget overrun on purpose. *Keep as test evidence; entries are permanent history by design.*
+
 ## Cleanup proposal (needs separate approval)
 
 1. Archive (status change, not delete) the five QA-named goals/campaigns/tasks through the normal app screens.

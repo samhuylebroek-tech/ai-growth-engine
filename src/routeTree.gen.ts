@@ -43,6 +43,7 @@ import { Route as AuthenticatedAppPerformanceRouteImport } from './routes/_authe
 import { Route as AuthenticatedAppPipelineRouteImport } from './routes/_authenticated/app.pipeline'
 import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/app.profile'
 import { Route as AuthenticatedAppProjectsRouteImport } from './routes/_authenticated/app.projects'
+import { Route as AuthenticatedAppReportsRouteImport } from './routes/_authenticated/app.reports'
 import { Route as AuthenticatedAppRevenueRouteImport } from './routes/_authenticated/app.revenue'
 import { Route as AuthenticatedAppSeoRouteImport } from './routes/_authenticated/app.seo'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
@@ -238,6 +239,11 @@ const AuthenticatedAppProjectsRoute =
     path: '/projects',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppReportsRoute = AuthenticatedAppReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppRevenueRoute = AuthenticatedAppRevenueRouteImport.update({
   id: '/revenue',
   path: '/revenue',
@@ -311,6 +317,7 @@ export interface FileRoutesByFullPath {
   '/app/pipeline': typeof AuthenticatedAppPipelineRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/projects': typeof AuthenticatedAppProjectsRoute
+  '/app/reports': typeof AuthenticatedAppReportsRoute
   '/app/revenue': typeof AuthenticatedAppRevenueRoute
   '/app/seo': typeof AuthenticatedAppSeoRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
@@ -352,6 +359,7 @@ export interface FileRoutesByTo {
   '/app/pipeline': typeof AuthenticatedAppPipelineRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/projects': typeof AuthenticatedAppProjectsRoute
+  '/app/reports': typeof AuthenticatedAppReportsRoute
   '/app/revenue': typeof AuthenticatedAppRevenueRoute
   '/app/seo': typeof AuthenticatedAppSeoRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
@@ -396,6 +404,7 @@ export interface FileRoutesById {
   '/_authenticated/app/pipeline': typeof AuthenticatedAppPipelineRoute
   '/_authenticated/app/profile': typeof AuthenticatedAppProfileRoute
   '/_authenticated/app/projects': typeof AuthenticatedAppProjectsRoute
+  '/_authenticated/app/reports': typeof AuthenticatedAppReportsRoute
   '/_authenticated/app/revenue': typeof AuthenticatedAppRevenueRoute
   '/_authenticated/app/seo': typeof AuthenticatedAppSeoRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
@@ -440,6 +449,7 @@ export interface FileRouteTypes {
     | '/app/pipeline'
     | '/app/profile'
     | '/app/projects'
+    | '/app/reports'
     | '/app/revenue'
     | '/app/seo'
     | '/app/settings'
@@ -481,6 +491,7 @@ export interface FileRouteTypes {
     | '/app/pipeline'
     | '/app/profile'
     | '/app/projects'
+    | '/app/reports'
     | '/app/revenue'
     | '/app/seo'
     | '/app/settings'
@@ -524,6 +535,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/pipeline'
     | '/_authenticated/app/profile'
     | '/_authenticated/app/projects'
+    | '/_authenticated/app/reports'
     | '/_authenticated/app/revenue'
     | '/_authenticated/app/seo'
     | '/_authenticated/app/settings'
@@ -782,6 +794,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProjectsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/reports': {
+      id: '/_authenticated/app/reports'
+      path: '/reports'
+      fullPath: '/app/reports'
+      preLoaderRoute: typeof AuthenticatedAppReportsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/revenue': {
       id: '/_authenticated/app/revenue'
       path: '/revenue'
@@ -861,6 +880,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppPipelineRoute: typeof AuthenticatedAppPipelineRoute
   AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
   AuthenticatedAppProjectsRoute: typeof AuthenticatedAppProjectsRoute
+  AuthenticatedAppReportsRoute: typeof AuthenticatedAppReportsRoute
   AuthenticatedAppRevenueRoute: typeof AuthenticatedAppRevenueRoute
   AuthenticatedAppSeoRoute: typeof AuthenticatedAppSeoRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
@@ -897,6 +917,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppPipelineRoute: AuthenticatedAppPipelineRoute,
   AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,
   AuthenticatedAppProjectsRoute: AuthenticatedAppProjectsRoute,
+  AuthenticatedAppReportsRoute: AuthenticatedAppReportsRoute,
   AuthenticatedAppRevenueRoute: AuthenticatedAppRevenueRoute,
   AuthenticatedAppSeoRoute: AuthenticatedAppSeoRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,

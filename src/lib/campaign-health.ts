@@ -47,7 +47,8 @@ export function campaignHealth(c: CampaignLike, tasks: readonly TaskLike[], toda
     return { state: started ? "needs_attention" : live.length ? "planning" : "not_started", warnings: pw, overdue, done, total: live.length, elapsed };
   }
   const serious = w.filter((x) => x === "overdue_tasks" || x === "behind_schedule" || x === "ended_without_results" || x === "budget_over").length;
-  const state: HealthState = serious >= 2 ? "at_risk" : w.length ? "needs_attention" : "on_track";
+  // An exceeded budget is a risk on its own; otherwise two serious warnings make a campaign at risk.
+  const state: HealthState = serious >= 2 || w.includes("budget_over") ? "at_risk" : w.length ? "needs_attention" : "on_track";
   return { state, warnings: w, overdue, done, total: live.length, elapsed };
 }
 export const daysBetween = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / DAY);

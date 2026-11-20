@@ -42,5 +42,6 @@ describe("campaign spend", () => {
     expect(campaignHealth(c, tasks, "2026-11-20", spendSummary(500, [e("spend", 600)])).warnings).toEqual(["overdue_tasks", "budget_over"]);
     expect(campaignHealth(c, tasks, "2026-11-20", spendSummary(500, [e("spend", 600)])).state).toBe("at_risk");
     expect(campaignHealth(c, [{ status: "done", due_date: "2026-11-05" }, { status: "todo", due_date: "2026-12-10" }], "2026-11-20", spendSummary(500, [e("spend", 450)])).warnings).toEqual(["budget_near"]);
+    expect(campaignHealth(c, [{ status: "done", due_date: "2026-11-05" }, { status: "todo", due_date: "2026-12-10" }], "2026-11-20", spendSummary(500, [e("spend", 501)])).state).toBe("at_risk");
   });
 });

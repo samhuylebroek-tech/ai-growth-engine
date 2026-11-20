@@ -329,6 +329,13 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] Signals and checks see overdue tasks outside growth initiatives.
 - [x] Campaign progress states and warnings on list and detail (EN/NL/FR).
 - [ ] Automatic background checks: needs an unattended runner, which the autonomy rules exclude (admin-started only).
-- [ ] Per-campaign spend tracking (needed for campaign budget-overrun warnings).
-- [ ] Remaining 8.4 blocks (task re-planning proposals, experiment 2.0, specialist second review, report types, finance KPIs) — not started this sprint.
-- [ ] Production rollout of proposals 0063–0076 — needs the owner's separate approval.
+- [x] Per-campaign spend tracking with budget warnings (staging proposal 0077).
+- [x] Task re-planning: reasons, options, dependency chain, editor decisions, history (staging proposals 0077–0078).
+- [x] Business reports: weekly, monthly, financial, campaign, AI execution, experiments (with previous period and missing data).
+- [x] Home signals and Growth Officer context include campaign budget overruns and waiting re-planning proposals.
+- [ ] Experiment management 2.0 (new statuses, variants, sample size, stop criteria, AI evaluation) — not started.
+- [ ] Specialist quality control and second review — not started.
+- [ ] Report types: daily summary, initiative, specialist performance (beyond AI execution), organization growth — not started.
+- [ ] Financial KPIs needing cost of goods and customer data (gross margin, CAC, CLV, ROAS) — need cost/customer records that do not exist yet.
+- [ ] AI-written re-planning analysis (the current proposals come from planning rules, no AI call).
+- [ ] Production rollout of proposals 0063–0078 — needs the owner's separate approval.
