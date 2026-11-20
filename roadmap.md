@@ -1,7 +1,7 @@
 # AI Growth OS — Task Queue
 ## Master continuation directive (Phase 3: opportunities → execution) — 2026-11-20
 - [x] P1 NL/FR: tasks, projects, campaigns, pipeline, SEO, competitors, Content Studio (incl. AI draft/review/repurpose/calendar), data sources, app frame, home/pricing/sign-in with language choice.
-- [ ] P2 Command Center number tiles from real data (definition, source, period; "not available" when unreliable).
+- [x] P2 Command Center number tiles: 15 tiles from real records with kind/source/period/definition; revenue only from an imported source; verified against staging data.
 - [ ] P3 Opportunity → strategy → approved plan → initiatives/campaigns/tasks, with visible chain and duplicate prevention.
 - [ ] P4 Task orchestration: specialist assignment, execution states, history, cost, retry/cancel/pause.
 - [ ] P5 Autonomy levels (1–4) with external actions always needing explicit authorization.
