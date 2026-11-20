@@ -65,8 +65,10 @@ export function replanReasons(task: ReplanTask, i: ReplanInput): ReplanReason[] 
   const r: ReplanReason[] = [];
   const pre = prerequisites(task.id, i.deps, i.tasks);
   if (task.due_date !== null && task.due_date < i.today) r.push("overdue");
-  if (pre.length) r.push("blocked");
-  if (pre.some((p) => (p.due_date !== null && p.due_date < i.today) || (p.due_date !== null && task.due_date !== null && p.due_date >= task.due_date))) r.push("dependency_late");
+  // Waiting on an open task is normal planning; it is a reason only when that task is stuck (late or undated) or
+  // ends on or after this task's own deadline.
+  if (pre.some((p) => p.due_date === null || p.due_date < i.today)) r.push("blocked");
+  if (pre.some((p) => p.due_date !== null && task.due_date !== null && p.due_date >= task.due_date)) r.push("dependency_late");
   const run = i.runState?.get(task.id);
   if (run === "failed" || run === "uncertain") r.push("failed");
   if (run === "awaiting_approval") r.push("awaiting_approval");
@@ -74,31 +76,33 @@ export function replanReasons(task: ReplanTask, i: ReplanInput): ReplanReason[] 
   return r;
 }
 
-/** New deadlines for dependents when `id` moves to `due`: a dependent moves only when it would no longer come after
- * what it waits on, and then keeps its original gap. */
-export function shiftsFor(id: string, due: string, i: ReplanInput): { task_id: string; due_date: string }[] {
+/** Deadlines for the tasks that wait on `id` (directly or down the chain) when it moves to `due`, in dependency order.
+ * A dependent that would no longer come after what it waits on moves and keeps its original gap; dependents that are
+ * already later are listed unchanged (with the task they wait on), so a later adjusted deadline still pushes them in
+ * order when approved. `moves` says whether the date differs from today's plan. */
+export function shiftsFor(id: string, due: string, i: ReplanInput): { task_id: string; due_date: string; after: string; moves: boolean }[] {
   const byId = new Map(i.tasks.map((t) => [t.id, t]));
   const next = new Map<string, string>([[id, due]]);
-  const out: { task_id: string; due_date: string }[] = [];
+  const floor = addDay(i.today, 1);
+  const out: { task_id: string; due_date: string; after: string; moves: boolean }[] = [];
   for (const d of dependents(id, i.deps, i.tasks)) {
     const t = byId.get(d)!;
-    const waits = i.deps.filter((x) => x.task === d).map((x) => x.on);
     let target: string | null = null;
-    for (const w of waits) {
+    let after: string | null = null;
+    for (const w of i.deps.filter((x) => x.task === d).map((x) => x.on)) {
       const moved = next.get(w);
       if (!moved) continue;
-      // Only a dependent that would end on or before what it waits on moves; it then keeps its original gap.
-      if (t.due_date !== null && t.due_date > moved) continue;
       const orig = byId.get(w)?.due_date ?? null;
       const gap = t.due_date && orig ? Math.max(1, diff(orig, t.due_date)) : 1;
-      const need = addDay(moved, gap);
-      target = target ? max(target, need) : need;
+      const need = t.due_date !== null && t.due_date > moved ? t.due_date : max(addDay(moved, gap), floor);
+      if (!target || need > target) { target = need; after = w; }
     }
-    if (!target) continue;
-    const floor = addDay(i.today, 1);
-    target = max(target, floor);
-    if (t.due_date === null || t.due_date < target) { next.set(d, target); out.push({ task_id: d, due_date: target }); }
-    else next.set(d, t.due_date);
+    if (!target || !after) continue;
+    // Only earlier listed tasks (or the task itself) can be named as "after"; BFS order guarantees that.
+    if (after !== id && !out.some((x) => x.task_id === after)) after = id;
+    next.set(d, target);
+    const moves = t.due_date === null || target !== t.due_date;
+    if (moves || target >= floor) out.push({ task_id: d, due_date: target, after, moves });
     if (out.length >= 20) break;
   }
   return out;

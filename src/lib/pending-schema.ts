@@ -402,7 +402,7 @@ export type BusinessCheckRow = {
 export type ReplanReason = "overdue" | "blocked" | "failed" | "dependency_late" | "awaiting_approval" | "no_owner" | "less_relevant" | "over_budget";
 export type ReplanOption = {
   key: "a" | "b" | "c"; kind: "new_deadline" | "shift_chain" | "raise_priority" | "lower_priority";
-  due_date?: string | null; priority?: "low" | "medium" | "high" | "urgent" | null; shifts?: { task_id: string; due_date: string }[];
+  due_date?: string | null; priority?: "low" | "medium" | "high" | "urgent" | null; shifts?: { task_id: string; due_date: string; after?: string; moves?: boolean }[];
 };
 export type TaskReplanProposalRow = {
   id: string; org_id: string; workspace_id: string; task_id: string; request_key: string; origin: "rule" | "team";

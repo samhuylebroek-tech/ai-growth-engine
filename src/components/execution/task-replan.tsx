@@ -63,7 +63,9 @@ export function TaskReplan({ taskId }: { taskId: string }) {
     try {
       const r = await growthDb.rpc("propose_task_replan", {
         _workspace: o.workspace.id, _request: request.current, _task: taskId,
-        _p: { origin: "rule", reasons: plan.reasons, options: plan.options, risk: plan.risk, credit_impact: 0,
+        _p: { origin: "rule", reasons: plan.reasons, risk: plan.risk, credit_impact: 0,
+          // "moves" is display-only; the database receives task, date and the task it waits on.
+          options: plan.options.map((op) => ({ ...op, shifts: (op.shifts ?? []).map(({ task_id, due_date, after }) => ({ task_id, due_date, ...(after ? { after } : {}) })) })),
           impact: { affected: plan.affected, campaign_end: plan.campaignEnd, campaign_end_exceeded: plan.campaignEndExceeded, invalid_order: plan.invalidOrder } } as unknown as Json,
       });
       if (r.error) throw r.error;
@@ -91,6 +93,8 @@ export function TaskReplan({ taskId }: { taskId: string }) {
       await refresh();
     } finally { setBusy(false); }
   }
+  // Stored proposals predate "moves"; compare with today's deadline instead.
+  const moving = (op: ReplanOption) => (op.shifts ?? []).filter((x) => x.moves ?? tasks.find((t) => t.id === x.task_id)?.due_date !== x.due_date);
   const optionLine = (op: ReplanOption) => tx("rp.optLine", { d: fmt(op.due_date), p: op.priority ? tx("rp.optPri", { p: tx(lbl(op.priority)) }) : "" });
 
   return (
@@ -108,7 +112,7 @@ export function TaskReplan({ taskId }: { taskId: string }) {
                 <input type="radio" name={`replan-${openOne.id}`} value={op.key} checked={choice === op.key} disabled={!editor} onChange={() => setChoice(op.key)} className="mt-0.5" />
                 <span className="min-w-0 break-words">
                   <span className="font-medium">{tx(`rp.o.${op.kind}` as MessageKey)}</span> — {optionLine(op)}
-                  {op.shifts?.length ? <span className="block text-muted-foreground">{tx("rp.shifts", { list: op.shifts.map((s) => `${title(s.task_id)} (${fmt(s.due_date)})`).join(", ") })}</span> : null}
+                  {moving(op).length ? <span className="block text-muted-foreground">{tx("rp.shifts", { list: moving(op).map((s) => `${title(s.task_id)} (${fmt(s.due_date)})`).join(", ") })}</span> : null}
                 </span>
               </label>
             ))}
@@ -134,7 +138,7 @@ export function TaskReplan({ taskId }: { taskId: string }) {
           <ul className="space-y-1 text-xs">
             {plan.options.map((op) => (
               <li key={op.key} className="break-words"><span className="font-medium">{tx(`rp.o.${op.kind}` as MessageKey)}</span> — {optionLine(op)}
-                {op.shifts?.length ? <span className="block text-muted-foreground">{tx("rp.shifts", { list: op.shifts.map((s) => `${title(s.task_id)} (${fmt(s.due_date)})`).join(", ") })}</span> : null}
+                {moving(op).length ? <span className="block text-muted-foreground">{tx("rp.shifts", { list: moving(op).map((s) => `${title(s.task_id)} (${fmt(s.due_date)})`).join(", ") })}</span> : null}
               </li>
             ))}
           </ul>
