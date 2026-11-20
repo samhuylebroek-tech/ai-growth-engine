@@ -1,6 +1,8 @@
 import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/react-start";
 
+import { setResponseHeader } from "@tanstack/react-start/server";
 import { renderErrorPage } from "./lib/error-page";
+import { checkRuntimeEnvironment } from "./lib/environment";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
@@ -18,6 +20,28 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
   }
 });
 
+// Refuses to serve when a declared environment (APP_ENVIRONMENT) is mixed with another project's
+// settings, and keeps staging out of search engines. No-op when APP_ENVIRONMENT is not set.
+const environmentMiddleware = createMiddleware().server(async ({ next }) => {
+  const check = checkRuntimeEnvironment(process.env);
+  if (check.problems.length) {
+    console.error(`[environment] refusing to serve: ${check.problems.join("; ")}`);
+    return new Response(
+      "<!doctype html><title>Unavailable</title><p>This environment is not configured correctly and is switched off.</p>",
+      {
+        status: 503,
+        headers: {
+          "content-type": "text/html; charset=utf-8",
+          "x-robots-tag": "noindex, nofollow",
+          "cache-control": "no-store",
+        },
+      },
+    );
+  }
+  if (check.environment === "staging") setResponseHeader("X-Robots-Tag", "noindex, nofollow");
+  return next();
+});
+
 // Start installs this automatically when src/start.ts is absent; defining the
 // file opts out, so re-add it explicitly to keep server functions protected
 // from cross-site requests.
@@ -33,5 +57,5 @@ const csrfMiddleware = createCsrfMiddleware({
 // project did not intentionally replace it.
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachSupabaseAuth],
-  requestMiddleware: [errorMiddleware, csrfMiddleware],
+  requestMiddleware: [errorMiddleware, environmentMiddleware, csrfMiddleware],
 }));

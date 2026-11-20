@@ -9,6 +9,8 @@ import type { Json } from "@/integrations/supabase/types";
 import { isNotInstalled, CONNECTORS_NOT_INSTALLED, type PendingDatabase } from "@/lib/pending-schema";
 import { fetchGa4, fetchHubspot, fetchSearchConsole, fetchStripe, googleAccessToken, probeToken, ProviderError, type FetchResult } from "@/lib/integrations/providers";
 import { runSync, type SyncOutcome } from "@/lib/integrations/sync";
+import { getCookie, setCookie, deleteCookie } from "@tanstack/react-start/server";
+import { allowedRedirectOrigin, pkcePair, safeEqual, signState, verifyState } from "@/lib/integrations/oauth";
 
 type DB = SupabaseClient<PendingDatabase>;
 type Result<T> = { ok: true; data: T } | { ok: false; error: string };
@@ -17,18 +19,13 @@ const GOOGLE_SCOPES = { google_analytics: "https://www.googleapis.com/auth/analy
 
 function proof() { const p = process.env["AI_ACCOUNTING_SECRET"]; if (!p) throw new Error("Server verification is not configured."); return p; }
 function googleConfig() {
-  const id = process.env["GOOGLE_OAUTH_CLIENT_ID"], secret = process.env["GOOGLE_OAUTH_CLIENT_SECRET"], state = process.env["INTEGRATIONS_STATE_SECRET"];
-  return id && secret && state && state.length >= 32 ? { id, secret, state } : null;
+  const id = process.env["GOOGLE_OAUTH_CLIENT_ID"], secret = process.env["GOOGLE_OAUTH_CLIENT_SECRET"], state = process.env["INTEGRATIONS_STATE_SECRET"], origins = process.env["APP_PUBLIC_ORIGINS"];
+  return id && secret && state && state.length >= 32 && origins ? { id, secret, state, origins } : null;
 }
+const PKCE_COOKIE = "ago_oauth_pkce";
 const fail = (e: unknown): { ok: false; error: string } => ({ ok: false, error: isNotInstalled(e) ? CONNECTORS_NOT_INSTALLED : e instanceof ProviderError ? e.message : (e as { message?: string })?.message?.slice(0, 200) || "Something went wrong." });
 const db = (sb: unknown) => sb as DB;
 
-async function hmac(secret: string, data: string) {
-  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  return btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(data))))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-const b64 = (s: string) => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-const unb64 = (s: string) => decodeURIComponent(escape(atob(s.replace(/-/g, "+").replace(/_/g, "/"))));
 
 export const integrationsAvailability = createServerFn({ method: "GET" }).middleware([requireSupabaseAuth])
   .handler(async (): Promise<{ google: boolean }> => ({ google: !!googleConfig() }));
@@ -57,10 +54,13 @@ export const startGoogleIntegration = createServerFn({ method: "POST" }).middlew
     if (admin.error || !admin.data) return { ok: false, error: "Only workspace administrators can connect data sources." };
     if (data.connector === "google_analytics" && !/^\d{4,20}$/.test(data.property)) return { ok: false, error: "Enter the numeric Google Analytics property ID." };
     if (data.connector === "search_console" && !/^(https:\/\/|sc-domain:)/.test(data.property)) return { ok: false, error: "Enter the Search Console property, e.g. https://example.com/ or sc-domain:example.com." };
-    const redirect = `${new URL(data.origin).origin}/app/integrations/google`;
-    const payload = b64(JSON.stringify({ u: context.userId, w: data.workspaceId, c: data.connector, p: data.property, r: redirect, e: Date.now() + 10 * 60_000, n: crypto.randomUUID() }));
-    const state = `${payload}.${await hmac(g.state, payload)}`;
-    const qs = new URLSearchParams({ client_id: g.id, redirect_uri: redirect, response_type: "code", scope: GOOGLE_SCOPES[data.connector], access_type: "offline", prompt: "consent", include_granted_scopes: "false", state });
+    const origin = allowedRedirectOrigin(data.origin, g.origins);
+    if (!origin) return { ok: false, error: "Google sign-in is not allowed from this address." };
+    const redirect = `${origin}/app/integrations/google`;
+    const nonce = crypto.randomUUID(); const { verifier, challenge } = await pkcePair();
+    const state = await signState(g.state, { u: context.userId, w: data.workspaceId, c: data.connector, p: data.property, r: redirect, e: Date.now() + 10 * 60_000, n: nonce });
+    setCookie(PKCE_COOKIE, `${nonce}.${verifier}`, { httpOnly: true, secure: origin.startsWith("https://"), sameSite: "lax", path: "/", maxAge: 600 });
+    const qs = new URLSearchParams({ client_id: g.id, redirect_uri: redirect, response_type: "code", scope: GOOGLE_SCOPES[data.connector], access_type: "offline", prompt: "consent", include_granted_scopes: "false", state, code_challenge: challenge, code_challenge_method: "S256" });
     return { ok: true, data: { url: `https://accounts.google.com/o/oauth2/v2/auth?${qs}` } };
   });
 
@@ -69,12 +69,15 @@ export const completeGoogleIntegration = createServerFn({ method: "POST" }).midd
   .handler(async ({ data, context }): Promise<Result<{ status: string; connector: string }>> => {
     try {
       const g = googleConfig(); if (!g) return { ok: false, error: "Google sign-in for data sources is not configured for this environment." };
-      const [payload, sig] = data.state.split(".");
-      if (!payload || !sig || sig !== await hmac(g.state, payload)) return { ok: false, error: "This sign-in link is not valid. Start the connection again." };
-      const s = JSON.parse(unb64(payload)) as { u: string; w: string; c: "google_analytics" | "search_console"; p: string; r: string; e: number };
-      if (s.u !== context.userId) return { ok: false, error: "This sign-in was started by another account." };
-      if (Date.now() > s.e) return { ok: false, error: "This sign-in link expired. Start the connection again." };
-      const res = await fetch("https://oauth2.googleapis.com/token", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ grant_type: "authorization_code", code: data.code, client_id: g.id, client_secret: g.secret, redirect_uri: s.r }), signal: AbortSignal.timeout(15_000) });
+      const s = await verifyState(g.state, data.state);
+      if (!s) return { ok: false, error: "This sign-in link is not valid or has expired. Start the connection again." };
+      if (!safeEqual(s.u, context.userId)) return { ok: false, error: "This sign-in was started by another account." };
+      if (!allowedRedirectOrigin(s.r, g.origins)) return { ok: false, error: "Google sign-in is not allowed from this address." };
+      // PKCE: only the browser that started the sign-in holds the verifier; it is used once.
+      const [cookieNonce, verifier] = (getCookie(PKCE_COOKIE) ?? "").split(".");
+      deleteCookie(PKCE_COOKIE, { path: "/" });
+      if (!cookieNonce || !verifier || !safeEqual(cookieNonce, s.n)) return { ok: false, error: "Start the connection again from this browser." };
+      const res = await fetch("https://oauth2.googleapis.com/token", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ grant_type: "authorization_code", code: data.code, client_id: g.id, client_secret: g.secret, redirect_uri: s.r, code_verifier: verifier }), signal: AbortSignal.timeout(15_000) });
       if (!res.ok) return { ok: false, error: "Google did not accept the sign-in. Start the connection again." };
       const t = await res.json() as { refresh_token?: string; scope?: string };
       if (!t.refresh_token) return { ok: false, error: "Google did not grant lasting read access. Remove the app's access in your Google account and connect again." };

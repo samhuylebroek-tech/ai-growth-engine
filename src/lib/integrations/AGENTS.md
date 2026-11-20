@@ -1,2 +1,3 @@
 - Integration data is read-only: pure mappers here turn provider responses into monthly values that are stored only as imported results through the server-attested import function; currencies stay separate and nothing is written back to providers.
 - Credentials enter only through server functions, go straight to server-attested Vault storage and are never returned to the browser; providers accept only read-only credential types, so a leaked key cannot change customer systems.
+- Google sign-in returns only to origins in the server's `APP_PUBLIC_ORIGINS`, uses PKCE with an HttpOnly verifier cookie and constant-time state checks, because a browser-supplied origin could otherwise receive the authorization code.

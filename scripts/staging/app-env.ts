@@ -1,9 +1,9 @@
 // Builds the environment for the sandbox-only staging app. Pure, so it can be unit tested.
 // Allowlist only: production database URLs, the production service-role key, PG* variables and
 // the platform sandbox markers are never passed on.
-import { PRODUCTION_REF, STAGING_REF } from "./target";
+import { PRODUCTION_REF, STAGING_REF, STAGING_URL, checkRuntimeEnvironment } from "../../src/lib/environment";
 
-export const STAGING_URL = `https://${STAGING_REF}.supabase.co`;
+export { STAGING_URL };
 const PASS_THROUGH = ["PATH", "HOME", "USER", "TMPDIR", "LANG", "NODE_PATH", "NODE_EXTRA_CA_CERTS", "SSL_CERT_FILE", "NIX_SSL_CERT_FILE", "NIX_LD", "NIX_LD_LIBRARY_PATH", "LD_LIBRARY_PATH", "LOVABLE_API_KEY"];
 const SECRET_SHAPED = /(SERVICE_ROLE|DB_URL|DATABASE_URL|MIGRATION_URL|^PG[A-Z]+$|^SUPABASE_|^VITE_|^EXPO_PUBLIC_|^LOVABLE_SANDBOX$|^DEV_SERVER)/;
 
@@ -30,5 +30,8 @@ export function stagingAppEnv(env: Record<string, string | undefined>): Record<s
     AI_ACCOUNTING_SECRET: proof,
   });
   if (Object.values(out).some(v => v.includes(PRODUCTION_REF))) throw new StagingAppEnvError("staging app environment references the production project");
+  // Same rules the running app enforces on every request; checked here too so a bad setup never starts.
+  const check = checkRuntimeEnvironment(out);
+  if (check.problems.length) throw new StagingAppEnvError(`staging configuration refused: ${check.problems.join("; ")}`);
   return out;
 }

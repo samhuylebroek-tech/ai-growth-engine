@@ -1,7 +1,7 @@
 // Staging-only database target resolution. Pure and side-effect free so it can be unit tested.
 // The staging project reference was verified from the Supabase-generated pooler URI on 2026-11-18.
-export const STAGING_REF = "tvfbvzytjpizqwixkecx";
-export const PRODUCTION_REF = "tbngginnzutpprzvovvc";
+import { STAGING_REF, PRODUCTION_REF } from "../../src/lib/environment";
+export { STAGING_REF, PRODUCTION_REF };
 
 export type StagingTarget = { url: string; ref: string; host: string; port: number };
 

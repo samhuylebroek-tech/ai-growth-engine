@@ -25,3 +25,20 @@
 - DNS resolution/rebinding checks are limited by the runtime; public-host validation and redirect revalidation remain in place.
 - Full hostile-file coverage, background-job authorization, workspace-specific audit redaction, rate limits and formal OWASP/GDPR/ISO/SOC2 assessment remain open. No compliance certification is claimed.
 - Personal Platform Owner initialization, live payments, production publishing and external actions remain deferred; no platform privileges were granted.
+
+## Security review — 2026-11-20
+
+| Area | Finding | Status |
+| --- | --- | --- |
+| Google sign-in for data sources | The return address was taken from the browser's origin; a forged origin could have received the authorization code. | Fixed: only origins listed in `APP_PUBLIC_ORIGINS` (https, or localhost); re-checked on return. Tests in `src/test/oauth.test.ts`. |
+| Google sign-in | No PKCE; state signature compared with `!==`. | Fixed: PKCE S256 with the verifier in a one-time HttpOnly cookie bound to the state nonce; constant-time comparison; state with extra parts rejected. |
+| Environments | A staging runtime could in theory start with live settings mixed in. | Fixed: `checkRuntimeEnvironment` refuses (503) on wrong backend, production reference, service-role key, missing secrets or mismatched labels; staging sends `X-Robots-Tag: noindex` and a robots meta tag. Tests in `src/test/environment.test.ts`. |
+| Secrets in browser code / logs | Searched for `VITE_*SECRET/TOKEN/SERVICE`, secret-bearing console output and raw HTML rendering. | None found (only the standard chart style block). |
+| Platform scan | Automated backend checks. | No issues reported. |
+| Tenant isolation | 23 staging SQL suites incl. RLS isolation, privilege hardening, owner initialization, connectors. | 23/23 pass. |
+
+Open risks (documented, not yet fixed):
+- No per-user rate limit on "connect with token" attempts; only workspace admins can try, and each attempt is one read-only provider request. A database-backed limit needs a schema proposal.
+- `read_connector_credential_verified` is executable by signed-in users but requires the server-only accounting proof; moving it to a dedicated server role would remove that dependency.
+- Proposals 0057–0059 and 11 committed migrations are applied on staging only; the live database still has the older connector table permissions until the owner approves.
+- Password policy, sign-in rate limits and leaked-password protection are platform auth settings that were not changed in this review.
