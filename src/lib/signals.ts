@@ -336,9 +336,13 @@ export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signa
 
   // 6. Execution: overdue initiative tasks, initiatives past their planned week, and AI task runs that need attention.
   const today = now.toISOString().slice(0, 10);
-  const overdue = d.tasks.filter(
-    (x) => x.due_date && x.due_date < today && !["done", "cancelled"].includes(x.status),
-  );
+  const overdue = [
+    ...new Map(
+      [...d.tasks, ...(d.overdueTasks?.status === "ok" ? d.overdueTasks.rows : [])]
+        .filter((x) => x.due_date && x.due_date < today && !["done", "cancelled"].includes(x.status))
+        .map((x) => [x.id, x]),
+    ).values(),
+  ];
   if (overdue.length)
     add(
       "tasks:overdue",

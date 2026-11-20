@@ -491,6 +491,11 @@ function client(
           selected = selected.filter((row) => String(row[column]) >= String(value));
           return q;
         },
+        lt(column: string, value: unknown) {
+          filters.push({ op: "lt", column, value });
+          selected = selected.filter((row) => row[column] != null && String(row[column]) < String(value));
+          return q;
+        },
         order() {
           return q;
         },

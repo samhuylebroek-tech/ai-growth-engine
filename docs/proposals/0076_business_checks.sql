@@ -82,7 +82,7 @@ BEGIN
   PERFORM 1 FROM public.workspaces WHERE id = w.id FOR UPDATE;  -- serialise checks per business
   SELECT * INTO prev FROM public.business_checks WHERE workspace_id = w.id ORDER BY created_at DESC LIMIT 1;
   IF prev.id IS NOT NULL AND prev.created_at > now() - interval '60 seconds' THEN
-    RAISE EXCEPTION 'check_too_soon' USING ERRCODE = '55P03';
+    RAISE EXCEPTION 'check_too_soon' USING ERRCODE = 'P0001', HINT = 'wait one minute';
   END IF;
   IF prev.id IS NOT NULL THEN
     SELECT coalesce(array_agg(e->>'id'), '{}') INTO prev_ids FROM jsonb_array_elements(prev.findings) e;

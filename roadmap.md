@@ -321,4 +321,14 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] Remembered recommendation decisions (postpone/dismiss/restore), blockers and rank explanation.
 - [x] Growth Officer: fifteen growth levers, structured recommendations, conflict rule; levers panel EN/NL/FR.
 - [ ] Production rollout of proposals 0063–0075 — needs the owner's separate approval.
-- [ ] Facts read is capped at 200 per business; conflict detection beyond that cap needs paging (low risk at current sizes).
+- [x] Facts are read completely in pages (ceiling 5,000, reported when reached).
+
+## Phase 8.4 sprint (2026-11-20)
+- [x] Complete paged fact reads on profile and business overview (old 200 cap removed).
+- [x] Recorded business checks with change tracking, frequency and due state (staging proposal 0076); no AI credits.
+- [x] Signals and checks see overdue tasks outside growth initiatives.
+- [x] Campaign progress states and warnings on list and detail (EN/NL/FR).
+- [ ] Automatic background checks: needs an unattended runner, which the autonomy rules exclude (admin-started only).
+- [ ] Per-campaign spend tracking (needed for campaign budget-overrun warnings).
+- [ ] Remaining 8.4 blocks (task re-planning proposals, experiment 2.0, specialist second review, report types, finance KPIs) — not started this sprint.
+- [ ] Production rollout of proposals 0063–0076 — needs the owner's separate approval.

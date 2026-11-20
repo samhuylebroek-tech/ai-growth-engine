@@ -50,6 +50,12 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
   (review started, value chosen, reopened) and one recommendation dismissed then restored, each with audit entries.
   *Keep as decision-memory evidence; unwanted fact values can be deleted in the business profile; history stays.*
 
+- **Phase 8.4 sprint (2026-11-20)** — staging proposal 0076 added `business_checks` (insert-only) and
+  `business_check_settings`. Browser walkthroughs recorded four business checks in Main workspace (one weekly,
+  three manual), set the check frequency to weekly, and created one task "QA achterstallige controletaak"
+  (deadline 2 Nov 2026, so it is overdue on purpose) with matching audit entries. *Keep as monitoring evidence;
+  the task can be completed or cancelled in the app if wanted; checks stay.*
+
 ## Cleanup proposal (needs separate approval)
 
 1. Archive (status change, not delete) the five QA-named goals/campaigns/tasks through the normal app screens.

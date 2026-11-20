@@ -22,6 +22,12 @@ describe("execution signals from real records", () => {
     expect(s?.vars).toEqual({ n: 1, task: "Price sheet" });
     expect(s?.to).toBe("/app/tasks");
   });
+  it("also counts overdue tasks outside growth initiatives, each task once", () => {
+    const late = { id: "t1", project_id: "p", title: "Price sheet", status: "todo", priority: "high", due_date: "2026-11-18", owner_id: null };
+    const loose = { id: "t9", project_id: null, title: "Call supplier", status: "in_progress", priority: "low", due_date: "2026-11-02", owner_id: null };
+    const d = { ...base(), tasks: [late], overdueTasks: ok([late, loose]) };
+    expect(detectSignals(d, NOW).find((x) => x.code === "tasks_overdue")?.vars["n"]).toBe(2);
+  });
   it("flags an initiative whose planned week has passed since plan approval, unless it is completed", () => {
     const plans = ok([{ id: "v1", goal_id: "g", version: 1, title: "P", summary: "", approved_at: "2026-10-01T00:00:00Z" }]);
     const init = (id: string, week: number, status: string) => ({ id, plan_version_id: "v1", title: id, detail: "", channel: "", target_week: week, effort: null, status, project_id: null });

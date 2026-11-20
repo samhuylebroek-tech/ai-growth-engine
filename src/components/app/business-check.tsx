@@ -70,7 +70,7 @@ export function BusinessCheck() {
         _inspected: inspectedRecords(d) as unknown as Json, _findings: findingsFrom(detectSignals(d)) as unknown as Json,
       });
       if (r.error) {
-        toast.error(r.error.code === "55P03" ? t("mon.tooSoon") : r.error.code === "42501" ? t("mon.notAllowed") : isNotInstalled(r.error) ? t("mon.unavailable") : t("mon.failed"));
+        toast.error(r.error.message === "check_too_soon" ? t("mon.tooSoon") : r.error.code === "42501" ? t("mon.notAllowed") : isNotInstalled(r.error) ? t("mon.unavailable") : t("mon.failed"));
         return;
       }
       const j = r.data as { new: number; resolved: number; first: boolean };

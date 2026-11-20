@@ -277,6 +277,8 @@ export type BusinessDomains = {
   measurements?: Measurement[];
   /** Revenue opportunities (proposal 0060); optional for the same reason. */
   opportunities?: DomainRead<OpportunityLine>;
+  /** Overdue open tasks across all work, not only initiative tasks; optional for older callers. */
+  overdueTasks?: DomainRead<Task>;
   /** AI task runs (proposal 0063); optional for the same reason. */
   taskRuns?: DomainRead<TaskRunLine>;
   /** Revenue ledger, touchpoints, experiments and improvement proposals (proposal 0066); optional for the same reason. */
@@ -352,12 +354,14 @@ type ScopedQuery = PromiseLike<Res> & {
   neq(column: string, value: unknown): ScopedQuery;
   in(column: string, values: readonly unknown[]): ScopedQuery;
   gte(column: string, value: unknown): ScopedQuery;
+  lt(column: string, value: unknown): ScopedQuery;
   order(column: string, options?: { ascending?: boolean }): ScopedQuery;
   limit(count: number): ScopedQuery;
   maybeSingle(): PromiseLike<Res>;
 };
 
 const LIMITS = {
+  overdue: 50,
   facts: 60,
   goals: 12,
   recs: 8,
@@ -626,6 +630,16 @@ export async function readBusinessDomains(
   const assetIds = rowsOf(content).map((a) => a.id);
   const metricIds = rowsOf(metrics).map((m) => m.id);
 
+  // Overdue open tasks across all work (not only initiative tasks), so signals and checks see every late task.
+  const overdueTasks = await optional<Task>(
+    "overdue tasks",
+    t("tasks", "id,project_id,title,status,priority,due_date,owner_id")
+      .in("status", ["todo", "in_progress", "review"])
+      .lt("due_date", new Date().toISOString().slice(0, 10))
+      .order("due_date", { ascending: true })
+      .limit(LIMITS.overdue),
+    LIMITS.overdue,
+  );
   const [operations, projects, tasks, observations, versions, measurements] = await Promise.all([
     initiativeIds.length
       ? optional<Operation>(
@@ -719,6 +733,7 @@ export async function readBusinessDomains(
     operations: rowsOf(operations),
     projects: rowsOf(projects),
     tasks: rowsOf(tasks),
+    overdueTasks,
     budget,
     deals,
     competitors,

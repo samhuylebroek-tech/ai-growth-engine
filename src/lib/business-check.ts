@@ -18,14 +18,18 @@ export function inspectedRecords(d: BusinessDomains, now: Date = new Date()): In
   const metrics = d.metrics && d.metrics.status === "ok" ? d.metrics.rows : null;
   const runs = d.taskRuns && d.taskRuns.status === "ok" ? d.taskRuns.rows : null;
   const open = d.tasks.filter((t) => t.status !== "done" && t.status !== "cancelled");
+  const late = new Set([
+    ...open.filter((t) => t.due_date !== null && t.due_date < today).map((t) => t.id),
+    ...(d.overdueTasks?.status === "ok" ? d.overdueTasks.rows.map((t) => t.id) : []),
+  ]);
   return {
     financial: { revenue_entries: count(d.revenue), budget_lines: count(d.budget) },
     marketing: { campaigns: count(d.campaigns), metrics: metrics ? metrics.length : null, content: count(d.content) },
     sales: { deals: count(d.deals), opportunities: count(d.opportunities) },
     customers: { retention_metrics: metrics ? metrics.filter((m) => RETENTION.test(m.label)).length : null },
     operations: {
-      open_tasks: open.length,
-      overdue_tasks: open.filter((t) => t.due_date !== null && t.due_date < today).length,
+      initiative_tasks_open: open.length,
+      overdue_tasks: d.overdueTasks && d.overdueTasks.status !== "ok" ? null : late.size,
       blocked_tasks: open.filter((t) => t.status === "blocked").length,
       ai_runs: runs ? runs.length : null,
       experiments: count(d.experiments),

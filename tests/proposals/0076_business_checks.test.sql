@@ -34,7 +34,7 @@ begin
   if (j->>'first')::boolean and (j->>'new')::int = 2 and (j->>'resolved')::int = 0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' first:'||j::text; end if;
   -- a second check within a minute is refused
   begin perform public.record_business_check(w1, 'manual', null, '{}', f2); fail:=fail+1; failures:=failures||' too_soon_ok';
-    exception when others then if sqlstate='55P03' then pass:=pass+1; else fail:=fail+1; failures:=failures||' too_soon:'||sqlstate; end if; end;
+    exception when others then if sqlstate='P0001' and sqlerrm='check_too_soon' then pass:=pass+1; else fail:=fail+1; failures:=failures||' too_soon:'||sqlstate; end if; end;
   -- after a minute: one new, one still open, one resolved (computed here, not by the caller)
   perform pg_temp.root(); alter table public.business_checks disable trigger business_checks_immutable;
   update public.business_checks set created_at = now() - interval '2 minutes' where workspace_id=w1;

@@ -55,7 +55,7 @@ describe("inspected records", () => {
       deals: { status: "ok", rows: [{}], truncated: false },
     } as unknown as BusinessDomains;
     const i = inspectedRecords(d, new Date("2026-11-20T00:00:00Z"));
-    expect(i.operations).toMatchObject({ open_tasks: 2, overdue_tasks: 1, blocked_tasks: 1 });
+    expect(i.operations).toMatchObject({ initiative_tasks_open: 2, overdue_tasks: 1, blocked_tasks: 1 });
     expect(i.financial).toEqual({ revenue_entries: null, budget_lines: 2 });
     expect(i.customers["retention_metrics"]).toBeNull();
   });

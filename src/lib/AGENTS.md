@@ -3,3 +3,6 @@
 - Fact conflicts (proposal 0074) are detected by pure `src/lib/fact-conflicts.ts` using the same topic rule as SQL `fact_topic`, are never auto-resolved, and are decided by an editor through `resolve_fact_conflict`, which keeps every value and audits the choice.
 - Conflict lifecycle and recommendation postpone/dismiss/restore (proposal 0075) are insert-only event rows; status is derived by pure `conflictStatus` / `recommendation-memory.ts`, and a dismissal is keyed to a fingerprint so a recommendation returns only when its information changes.
 - Growth levers are checked by pure `src/lib/growth-levers.ts` from the business's own records; it reports available and missing data per lever and never implies a result.
+- Business facts used for conflicts and source checks are read completely in ID keyset pages (`src/lib/facts-read.ts`, hard ceiling); an incomplete read is reported, never treated as "no conflicts" or "missing source".
+- Business checks (proposal 0076) are insert-only snapshots of deterministic signals started by a member; the database computes the change summary, and a frequency only marks a check as due, so no background monitoring is claimed.
+- Campaign progress (`src/lib/campaign-health.ts`) uses only the campaign and its tasks; per-campaign spend is not recorded, so it never claims a budget overrun.
