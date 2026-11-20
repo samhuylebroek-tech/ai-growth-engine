@@ -1,10 +1,14 @@
 import { Link } from "@tanstack/react-router";
+import { useI18n } from "@/lib/i18n";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ArrowUpRight } from "lucide-react";
 import { toast } from "sonner";
 import { useOrg } from "@/lib/org-context";
 import { can } from "@/lib/permissions";
-import { executionOptions, executionSummary, type Task } from "@/lib/execution";
+import { executionOptions, executionSummary, PRIORITIES, STATUSES, type Task } from "@/lib/execution";
+import type { MessageKey } from "@/lib/i18n/messages";
+const STATUS_KEYS = new Set<string>([...STATUSES.projects, ...STATUSES.tasks]);
+const GOAL_STATUS = new Set(["achieved", "active", "approved", "archived", "blocked", "cancelled", "completed", "draft", "in_progress", "paused", "planned", "rejected", "superseded"]);
 import { Button } from "@/components/ui/button";
 import { growthDb as supabase, retryUnlessNotInstalled } from "@/lib/pending-schema";
 export function HomeWork({
@@ -14,6 +18,11 @@ export function HomeWork({
 }) {
   const o = useOrg();
   const qc = useQueryClient();
+  const { t: tr, tag } = useI18n();
+  const ws = (s: string) => (STATUS_KEYS.has(s) ? tr(`work.status.${s}` as MessageKey) : s.replace(/_/g, " "));
+  const pr = (p: string) => (PRIORITIES.includes(p) ? tr(`work.priority.${p}` as MessageKey) : p);
+  const gs = (s: string) => (GOAL_STATUS.has(s) ? tr(`goals.status.${s}` as MessageKey) : s.replace(/_/g, " "));
+  const day = (d: string) => new Date(`${d}T00:00:00`).toLocaleDateString(tag);
   const q = useQuery(executionOptions(o.org?.id, o.workspace?.id, o.userId));
   const goalIds = [...new Set([
     ...(q.data?.projects ?? []).map((p) => p.goal_id),
@@ -62,15 +71,15 @@ export function HomeWork({
   if (q.isLoading)
     return (
       <p role="status" className="py-3 text-xs text-muted-foreground">
-        Checking planned work…
+        {tr("work.checking")}
       </p>
     );
   if (q.isError)
     return (
       <p role="alert" className="py-3 text-xs text-destructive">
-        Planned work unavailable.
+        {tr("work.unavailable")}
         <Button variant="link" size="sm" onClick={() => q.refetch()}>
-          Retry
+          {tr("work.retry")}
         </Button>
       </p>
     );
@@ -108,11 +117,11 @@ export function HomeWork({
               {p.title} <ArrowUpRight className="inline h-3 w-3" />
             </Link>
             <p className="mt-1 text-[11px] text-muted-foreground">
-              {p.status} · {p.priority}
+              {ws(p.status)} · {pr(p.priority)}
             </p>
-            {(() => { const initiative = initiativeForProject(p.id); if (!initiative) return null; const ops = operationsForInitiative(initiative.id); return <div className="mt-1 space-y-1 text-[11px] text-muted-foreground"><p>Growth initiative · {initiative.title} · {initiative.status.replace(/_/g, " ")}</p>{ops?.due_date && <p>Due {new Date(`${ops.due_date}T00:00:00`).toLocaleDateString()}</p>}{ops?.owner_id && <p>{ops.owner_id === o.userId ? "Assigned to you" : "Assigned to a workspace member"}</p>}{ops?.blocker_note && <p className="font-medium text-destructive">Blocked · {ops.blocker_note}</p>}{ops?.success_metric && ops.target_value != null && <p>Outcome · {ops.success_metric}: {ops.current_value ?? "not measured"} / {ops.target_value}</p>}</div>; })()}
+            {(() => { const initiative = initiativeForProject(p.id); if (!initiative) return null; const ops = operationsForInitiative(initiative.id); return <div className="mt-1 space-y-1 text-[11px] text-muted-foreground"><p>{tr("work.initiative", { t: initiative.title, s: gs(initiative.status) })}</p>{ops?.due_date && <p>{tr("work.due", { d: day(ops.due_date) })}</p>}{ops?.owner_id && <p>{ops.owner_id === o.userId ? tr("work.assignedYou") : tr("work.assignedOther")}</p>}{ops?.blocker_note && <p className="font-medium text-destructive">{tr("work.blocked", { n: ops.blocker_note })}</p>}{ops?.success_metric && ops.target_value != null && <p>{tr("work.outcome", { m: ops.success_metric, c: ops.current_value == null ? tr("work.notMeasured") : String(ops.current_value), t: String(ops.target_value) })}</p>}</div>; })()}
             {"goal_id" in p && p.goal_id && goalTitle(p.goal_id) && (
-              <p className="mt-1 text-[11px] text-muted-foreground">Growth goal · {goalTitle(p.goal_id)}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">{tr("work.goal", { t: goalTitle(p.goal_id) ?? "" })}</p>
             )}
           </div>
         ))}
@@ -123,7 +132,7 @@ export function HomeWork({
               variant="ghost"
               size="icon"
               className="h-6 w-6 shrink-0"
-              aria-label={`Complete ${t.title}`}
+              aria-label={tr("work.complete", { t: t.title })}
               onClick={() => complete(t)}
             >
               <Check className="h-3.5 w-3.5" />
@@ -138,7 +147,7 @@ export function HomeWork({
               {t.title}
             </Link>
             <p className="mt-1 text-[11px] text-muted-foreground">
-              {t.due_date ?? "No deadline"} · {t.priority} · {t.status.replace(/_/g, " ")}
+              {t.due_date ? day(t.due_date) : tr("work.noDeadline")} · {pr(t.priority)} · {ws(t.status)}
             </p>
           </div>
         </div>
@@ -146,12 +155,12 @@ export function HomeWork({
       {!tasks.length && !(section === "active" && d.active.length) && (
         <p className="py-3 text-xs text-muted-foreground">
           {section === "attention"
-            ? "No overdue tasks or tasks awaiting review."
+            ? tr("work.noAttention")
             : section === "priorities"
-              ? "No tasks due today."
+              ? tr("work.noToday")
               : section === "upcoming"
-                ? "No upcoming task deadlines."
-                : "No projects, campaigns or tasks in progress."}
+                ? tr("work.noUpcoming")
+                : tr("work.noActive")}
         </p>
       )}
       {section === "upcoming" &&
@@ -163,12 +172,12 @@ export function HomeWork({
               <Link to="/app/campaigns" search={{ item: c.id }} className="text-xs font-medium">
                 {c.title}
               </Link>
-              <p className="text-[11px] text-muted-foreground">Starts {c.start_date}</p>
+              <p className="text-[11px] text-muted-foreground">{tr("work.starts", { d: day(c.start_date!) })}</p>
             </div>
           ))}
       <Button variant="link" size="sm" className="mt-2 px-0" asChild>
         <Link to="/app/tasks">
-          View tasks <ArrowUpRight />
+          {tr("work.viewTasks")} <ArrowUpRight />
         </Link>
       </Button>
     </div>

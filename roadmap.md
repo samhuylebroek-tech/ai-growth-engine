@@ -10,7 +10,7 @@
 - [x] C/D: rule-based signals shared by Growth Officer context and Command Center next best actions; verified on staging in NL/FR/EN.
 - [x] I: central NL/EN/FR language for navigation, header/menu, statuses, Command Center frame and signals.
 - [x] J: unit 290/290, staging SQL 23/23, browser phone/tablet/desktop light/dark, docs.
-- [x] NL/FR for Growth Officer, Goals & budget, Performance, Growth intelligence, Start overview cards and Organization settings.
+- [x] NL/FR for Growth Officer, Goals & budget, Performance, Growth intelligence, all of Start and Organization settings; Start/activity/notifications never show raw AI JSON.
 - [ ] Next: translate Work (tasks/projects/campaigns), Marketing (Content Studio, SEO, competitors, pipeline), Integrations and public pages; DB-backed rate limit for token connects (proposal); Command Center health/budget/plan tiles from signals.
 - [B] Backup branch on GitHub: cannot be created from here (no push); platform snapshots exist.
 - [B] Staging URL: Cloudflare token. Live migrations/proposals: owner approval. Real integrations: owner credentials + permission.

@@ -7,9 +7,32 @@ type Approval = Pick<Database["public"]["Tables"]["approvals"]["Row"], "id" | "t
 export type ActivityKind = "ai" | "documents" | "approvals";
 export type Activity = { id: string; entityId: string; kind: ActivityKind; title: string; detail: string; status: string; time: string; to: "/app/activity" | "/app/documents" | "/app/approvals" };
 
+/**
+ * Run summaries of structured AI requests can hold the raw JSON answer, often cut off.
+ * Show its plain-language "summary" field when one can be read, otherwise nothing, so raw data never reaches the screen.
+ */
+export function readableRunSummary(summary: string | null | undefined): string | null {
+  const text = summary?.trim();
+  if (!text) return null;
+  if (!text.startsWith("{") && !text.startsWith("[")) return text;
+  try {
+    const parsed: unknown = JSON.parse(text);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      const value = (parsed as Record<string, unknown>)["summary"];
+      if (typeof value === "string" && value.trim()) return value.trim();
+    }
+    return null;
+  } catch {
+    const match = /^\{\s*"summary"\s*:\s*"((?:[^"\\]|\\.)*)/.exec(text);
+    if (!match?.[1]) return null;
+    const partial = match[1].replace(/\\(["\\/])/g, "$1").replace(/\\n/g, " ").trim();
+    return partial ? (text.length > match[0].length + 1 ? partial : `${partial}…`) : null;
+  }
+}
+
 export function mergeActivity(runs: Run[], documents: Document[], approvals: Approval[]): Activity[] {
   const items: Activity[] = [
-    ...runs.map(r => ({ id: `ai:${r.id}`, entityId: r.id, kind: "ai" as const, title: r.agent_key.replace(/_/g, " "), detail: r.error ?? r.summary ?? "AI assignment", status: r.status, time: r.finished_at ?? r.created_at, to: "/app/activity" as const })),
+    ...runs.map(r => ({ id: `ai:${r.id}`, entityId: r.id, kind: "ai" as const, title: r.agent_key.replace(/_/g, " "), detail: r.error ?? readableRunSummary(r.summary) ?? "AI assignment", status: r.status, time: r.finished_at ?? r.created_at, to: "/app/activity" as const })),
     ...documents.map(d => ({ id: `document:${d.id}`, entityId: d.id, kind: "documents" as const, title: d.name, detail: "Business document", status: d.status, time: d.created_at, to: "/app/documents" as const })),
     ...approvals.map(a => ({ id: `approval:${a.id}`, entityId: a.id, kind: "approvals" as const, title: a.title, detail: a.reasoning ?? "Recommendation for review", status: a.status, time: a.decided_at ?? a.created_at, to: "/app/approvals" as const })),
   ];
