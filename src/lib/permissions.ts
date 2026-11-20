@@ -13,6 +13,7 @@ export type Action =
   | "profile.edit" | "documents.upload" | "ai.use" | "approvals.propose"
   | "profile.confirm" | "budgets.manage" | "specialists.manage" | "finance.consolidated" | "rates.manage"
   | "org.strategy" | "org.coordinate"
+  | "evidence.decide"
   | "read";
 
 const MIN_ROLE: Record<Action, OrgRole> = {
@@ -29,6 +30,8 @@ const MIN_ROLE: Record<Action, OrgRole> = {
   // editors record opportunities and prepare shared initiatives and allocation proposals. Applying anything still needs the
   // business-level right in every affected business, checked by the database.
   "org.strategy": "admin", "org.coordinate": "editor",
+  // Evidence governance (proposal 0073): editors accept or reject evidence and review proposals; admins approve.
+  "evidence.decide": "editor",
   read: "viewer",
 };
 

@@ -1,4 +1,4 @@
-import { pageHead } from "@/lib/page-head";
+import { localHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Plug, ArrowUpRight, Globe2, FileText, Search } from "lucide-react";
@@ -18,7 +18,7 @@ import { useI18n } from "@/lib/i18n";
 import { MESSAGES, type MessageKey } from "@/lib/i18n/messages";
 import { IntegrationHub } from "@/components/integrations/integration-hub";
 import { ReadOnlyConnection, type ConnectionInfo, type ImportRun } from "@/components/integrations/read-only-connection";
-export const Route = createFileRoute("/_authenticated/app/integrations")({ head: () => pageHead("Data sources", "Available research sources and integration configuration."), component: Integrations });
+export const Route = createFileRoute("/_authenticated/app/integrations")({ head: () => localHead("integrations"), component: Integrations });
 function Integrations() {
  const [filter,setFilter] = useState("all"); const [search,setSearch] = useState("");
  const o = useOrg(); const { t: tx } = useI18n();

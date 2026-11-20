@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useI18n } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { Compass, ArrowUpRight, Target, CheckSquare } from "lucide-react";
-import { pageHead } from "@/lib/page-head";
+import { localHead } from "@/lib/page-head";
 import { useOrg } from "@/lib/org-context";
 import { growthSummaryOptions } from "@/lib/growth-summary";
 import { PageHeader, StatusChip } from "@/components/app/status";
@@ -10,7 +10,7 @@ import { SectionHeading } from "@/components/app/section-heading";
 import { GrowthQuestion } from "@/components/app/growth-question";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/_authenticated/app/intelligence")({ head: () => pageHead("Growth intelligence", "Your confirmed business context, potential opportunities and strategic priorities."), component: Intelligence });
+export const Route = createFileRoute("/_authenticated/app/intelligence")({ head: () => localHead("intelligence"), component: Intelligence });
 function Intelligence() {
   const o = useOrg(); const q = useQuery(growthSummaryOptions(o.org?.id, o.workspace?.id, o.role)); const d = q.data; const { t } = useI18n();
   const opportunities = d?.facts.filter(f => /^opportunity:/i.test(f.key)) ?? [];

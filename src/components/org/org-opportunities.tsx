@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { evidenceQuality, fromClassified } from "@/lib/evidence";
+import { QualityBadge } from "@/components/bi/evidence";
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -69,14 +71,17 @@ function DraftCard({ d, canTrack }: { d: OppDraft; canTrack: boolean }) {
     <div className="flex flex-wrap items-center gap-2"><Badge kind="planned">{t(tk(`ogo.kind.${d.kind}`))}</Badge><Badge kind={d.confidence}>{t(tk(`ogo.conf.${d.confidence}`))}</Badge><span className="text-xs text-muted-foreground">{t("ogo.opp.hypothesis")}</span></div>
     <p className="mt-2 text-sm font-medium">{text.title}</p>
     <p className="mt-0.5 text-xs text-muted-foreground">{d.businesses.map(name).join(" · ")}</p>
-    <Details evidence={text.evidence} impact={text.impact} cost={text.cost} deps={text.dependencies} risks={text.risks} next={text.next} />
+    <Details origin="rule" evidence={text.evidence} impact={text.impact} cost={text.cost} deps={text.dependencies} risks={text.risks} next={text.next} />
     {canTrack && <Button size="sm" variant="outline" className="mt-3" onClick={track} disabled={busy}>{t("ogo.opp.track")}</Button>}
   </Panel></li>;
 }
 
-function Details({ evidence, impact, cost, deps, risks, next }: { evidence: Ev[]; impact: string; cost: string; deps: string; risks: string; next: string }) {
+function Details({ origin, evidence, impact, cost, deps, risks, next }: { origin: "ai" | "rule"; evidence: Ev[]; impact: string; cost: string; deps: string; risks: string; next: string }) {
   const { t } = useI18n();
+  // Rule evidence is read from records; AI "verified" claims count as unverified assumptions (proposal 0073).
+  const quality = evidenceQuality(evidence.map((e) => fromClassified(e.class, origin)));
   return <dl className="mt-3 space-y-1.5 text-xs">
+    <div><QualityBadge q={quality} showReasons /></div>
     <div><dt className="font-medium">{t("ogo.opp.evidence")}</dt><dd><ul className="mt-0.5 space-y-0.5">{evidence.map((e, i) => <li key={i} className="flex flex-wrap items-start gap-1.5"><EvidenceBadge cls={e.class} /><span>{e.text}</span></li>)}</ul></dd></div>
     {impact && <div><dt className="inline font-medium">{t("ogo.opp.impact")}: </dt><dd className="inline">{impact}</dd></div>}
     {cost && <div><dt className="inline font-medium">{t("ogo.opp.cost")}: </dt><dd className="inline">{cost}</dd></div>}
@@ -112,7 +117,7 @@ function TrackedCard({ x }: { x: OrgOpportunityRow }) {
       <StatusChip status={x.status}>{t(tk(`ogo.oppStatus.${x.status}`))}</StatusChip><span className="text-[11px] text-muted-foreground">{t(tk(`ogo.origin.${x.origin}`))}</span></div>
     <p className="mt-2 text-sm font-medium">{x.title}</p>
     <p className="mt-0.5 text-xs text-muted-foreground">{x.business_ids.map(name).join(" · ")}</p>
-    <Details evidence={evidenceOf(x.evidence)} impact={x.expected_impact} cost={x.estimated_cost} deps={x.dependencies} risks={x.risks} next={x.next_action} />
+    <Details origin={x.origin === "ai" ? "ai" : "rule"} evidence={evidenceOf(x.evidence)} impact={x.expected_impact} cost={x.estimated_cost} deps={x.dependencies} risks={x.risks} next={x.next_action} />
     {x.decision_note && <p className="mt-2 text-xs text-muted-foreground">{t("ogo.lastNote", { note: x.decision_note })}</p>}
     {edit && MOVES[x.status]!.length > 0 && <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
       <input aria-label={t("ogo.note")} className={`${sel} w-full sm:w-48`} maxLength={1000} placeholder={t("ogo.notePh")} value={note} onChange={(e) => setNote(e.target.value)} />

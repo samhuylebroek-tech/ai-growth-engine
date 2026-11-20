@@ -336,6 +336,68 @@ export type ProposalRow = {
   created_by: string;
   created_at: string;
   updated_at: string;
+  /** Proposal 0073: evidence governance. */
+  level: "observation" | "formal" | "execution";
+  objective: string;
+  risk: string;
+  measurement_method: string;
+  approval_requirement: string;
+  business_context: string;
+  evidence_gap_reason: string;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  review_note: string;
+};
+/** Proposal 0073: one piece of evidence; content immutable after classification, changes are new versions. */
+export type EvidenceItemRow = {
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  request_key: string;
+  evidence_type: import("@/lib/evidence").EvidenceType | null;
+  description: string;
+  source_kind: import("@/lib/evidence").SourceKind;
+  source_ref: string;
+  origin: import("@/lib/evidence").EvidenceOrigin;
+  goal_id: string | null;
+  strategy_id: string | null;
+  collected_at: string;
+  period_start: string | null;
+  period_end: string | null;
+  status: import("@/lib/evidence").EvidenceStatus;
+  reliability: "high" | "medium" | "low" | "none" | null;
+  version_no: number;
+  supersedes_id: string | null;
+  superseded_by: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  review_note: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+};
+export type EvidenceEventRow = {
+  id: number;
+  org_id: string;
+  workspace_id: string;
+  evidence_id: string;
+  action: string;
+  from_status: string | null;
+  to_status: string | null;
+  proposal_id: string | null;
+  actor_id: string | null;
+  note: string;
+  snapshot: Json;
+  created_at: string;
+};
+export type ProposalEvidenceRow = {
+  proposal_id: string;
+  evidence_id: string;
+  org_id: string;
+  workspace_id: string;
+  role: "supports" | "contradicts";
+  linked_by: string;
+  linked_at: string;
 };
 type MeasurementRow = {
   id: string;
@@ -630,6 +692,9 @@ type PendingTables = {
   attribution_touchpoints: { Row: TouchpointRow; Insert: never; Update: never; Relationships: [] };
   growth_experiments: { Row: ExperimentRow; Insert: never; Update: never; Relationships: [] };
   optimization_proposals: { Row: ProposalRow; Insert: never; Update: never; Relationships: [] };
+  evidence_items: { Row: EvidenceItemRow; Insert: never; Update: never; Relationships: [] };
+  evidence_events: { Row: EvidenceEventRow; Insert: never; Update: never; Relationships: [] };
+  proposal_evidence: { Row: ProposalEvidenceRow; Insert: never; Update: never; Relationships: [] };
   simulated_provider_records: {
     Row: SimRecordRow;
     Insert: never;
@@ -1021,9 +1086,22 @@ type PendingFunctions = {
   advance_optimization_proposal: {
     Args: {
       _proposal: string;
-      _action: "approve" | "reject" | "convert" | "measure" | "withdraw";
+      _action: "review" | "promote" | "approve" | "reject" | "convert" | "measure" | "withdraw";
       _data: Json;
     };
+    Returns: Json;
+  };
+  record_evidence: { Args: { _workspace: string; _request: string; _p: Json }; Returns: Json };
+  advance_evidence: {
+    Args: { _evidence: string; _action: "classify" | "review" | "accept" | "reject"; _data: Json };
+    Returns: Json;
+  };
+  revise_evidence: {
+    Args: { _evidence: string; _request: string; _p: Json; _reason: string };
+    Returns: Json;
+  };
+  link_proposal_evidence: {
+    Args: { _proposal: string; _evidence: string; _role: "supports" | "contradicts" };
     Returns: Json;
   };
   record_measurement: {

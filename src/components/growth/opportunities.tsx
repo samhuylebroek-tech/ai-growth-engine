@@ -1,4 +1,6 @@
 import { useMemo, useState, type ReactNode } from "react";
+import { evidenceQuality, fromClassified } from "@/lib/evidence";
+import { QualityBadge } from "@/components/bi/evidence";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -193,6 +195,8 @@ function OpportunityCard({ row, tag, canEdit, canAsk, busy, onDecide, onConvert,
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const evidence = evidenceSchema.parse(row.evidence);
+  // Discovered by the AI: what it calls a fact stays an unverified claim until a person confirms the record behind it.
+  const quality = evidenceQuality(evidence.map((e) => fromClassified(e.class, "ai")));
   const kpis = kpiSchema.parse(row.kpis);
   const money = (n: number) => new Intl.NumberFormat(tag, { style: "currency", currency: row.currency, maximumFractionDigits: 0 }).format(n);
   const budget = row.budget_min == null && row.budget_max == null ? t("opp.budgetUnknown")
@@ -238,6 +242,7 @@ function OpportunityCard({ row, tag, canEdit, canAsk, busy, onDecide, onConvert,
         <span>{t("opp.horizon")}: <span className="text-foreground">{t("opp.generate.days", { n: row.horizon_days })}</span></span>
         <span>{t("opp.complexity", { level: level(row.complexity) })}</span>
         <Badge variant="outline" className="font-normal">{t("opp.disclaimer")}</Badge>
+        <QualityBadge q={quality} />
       </div>
 
       {open && (
@@ -246,7 +251,7 @@ function OpportunityCard({ row, tag, canEdit, canAsk, busy, onDecide, onConvert,
           {row.audience && <Block title={t("opp.audience")}><p>{row.audience}</p></Block>}
           {row.expected_impact && <Block title={t("opp.expectedImpact")}><p>{row.expected_impact}</p></Block>}
           {evidence.length > 0 && <Block title={t("opp.evidence")}><ul className="space-y-1">{evidence.map((e, i) => (
-            <li key={i} className="flex flex-wrap items-start gap-2"><EvidenceBadge kind={e.class} /><span className="min-w-0 flex-1">{e.statement}</span></li>
+            <li key={i} className="flex flex-wrap items-start gap-2"><EvidenceBadge kind={e.class} /><span className="min-w-0 flex-1">{e.statement}{e.class === "fact" && <span className="block text-[11px] text-muted-foreground">{t("ev.claimed")}</span>}</span></li>
           ))}</ul></Block>}
           {kpis.length > 0 && <Block title={t("opp.kpis")}><ul className="list-disc pl-5">{kpis.map((k, i) => <li key={i}>{k.metric}: {k.target}</li>)}</ul></Block>}
           {row.resources.length > 0 && <Block title={t("opp.resources")}><ul className="list-disc pl-5">{row.resources.map((r, i) => <li key={i}>{r}</li>)}</ul></Block>}

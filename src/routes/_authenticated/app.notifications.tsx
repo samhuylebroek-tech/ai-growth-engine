@@ -3,13 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Bell, Check, ArrowUpRight, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { pageHead } from "@/lib/page-head";
+import { localHead } from "@/lib/page-head";
 import { useOrg } from "@/lib/org-context";
 import { executionOptions, localDay } from "@/lib/execution";
 import { commandCenterOptions } from "@/lib/command-center";
 import { buildNotifications, notificationPreferenceKey } from "@/lib/notifications";
 
-export const Route = createFileRoute("/_authenticated/app/notifications")({ head: () => pageHead("Notifications", "Workspace deadlines, decisions, recent AI results and connection failures."), component: Notifications });
+export const Route = createFileRoute("/_authenticated/app/notifications")({ head: () => localHead("notifications"), component: Notifications });
 function Notifications() {
   const o = useOrg();
   const work = useQuery(executionOptions(o.org?.id, o.workspace?.id, o.userId));

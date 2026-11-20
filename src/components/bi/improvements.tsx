@@ -12,6 +12,8 @@ import type { Json } from "@/integrations/supabase/types";
 import { effectiveMeasurements, isActual } from "@/lib/performance";
 import { buildView, NO_FILTERS, type BiData } from "@/lib/bi/view";
 import { observedOutcome, type Candidate } from "@/lib/bi/optimization";
+import { approvalGates, evidenceQuality, fromDrafts, isUnverifiedHypothesis, proposalStage, type ProposalLevel } from "@/lib/evidence";
+import { EvidenceList, QualityBadge, linkedFor, qualityOfLinked } from "./evidence";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,6 +32,8 @@ const FILTERS = {
 type Filter = keyof typeof FILTERS;
 const LEVELS = ["none", "read", "draft", "modify", "execute", "publish", "budget"] as const;
 const CATS = ["immediate", "strategic", "opportunity", "problem", "experiment"] as const;
+// Field limits mirror the database checks (0066 / 0073).
+const MAXLEN: Record<string, number> = { title: 160, objective: 500, method: 400, approvalReq: 300 };
 
 export function Improvements() {
   const q = useBi();
@@ -54,12 +58,12 @@ function Body({ d }: { d: BiData }) {
         ) : (
           <ul className="space-y-2">
             {v.candidates.map((c) => (
-              <FindingCard key={c.sourceKey} c={c} />
+              <FindingCard key={c.sourceKey} c={c} governed={d.evidence != null} />
             ))}
           </ul>
         )}
       </Section>
-      <TeamProposal />
+      <TeamProposal governed={d.evidence != null} />
       <Section title={t("bi.imp.proposals")}>
         <div role="tablist" aria-label={t("bi.imp.filter")} className="mb-3 flex flex-wrap gap-1">
           {(Object.keys(FILTERS) as Filter[]).map((x) => (
@@ -91,17 +95,36 @@ function Body({ d }: { d: BiData }) {
   );
 }
 
-function FindingCard({ c }: { c: Candidate }) {
+function FindingCard({ c, governed }: { c: Candidate; governed: boolean }) {
   const o = useOrg();
   const { t } = useI18n();
   const qc = useQueryClient();
   const member = can(o.workspaceRole, "ai.use");
   const [busy, setBusy] = useState(false);
   const [key] = useState(() => crypto.randomUUID());
+  // One stable request key per evidence item, so a retried save never records the same evidence twice.
+  const [evKeys] = useState(() => c.records.map(() => crypto.randomUUID()));
+  const quality = evidenceQuality(fromDrafts(c.records));
   const T = (part: string) => t(tk(`bi.cand.${c.code}.${part}`), c.vars);
   async function save() {
     if (!o.workspace) return;
     setBusy(true);
+    const evidenceIds: string[] = [];
+    if (governed)
+      for (const [i, r] of c.records.entries()) {
+        const e = await growthDb.rpc("record_evidence", {
+          _workspace: o.workspace.id,
+          _request: evKeys[i]!,
+          _p: { ...r, origin: "rule" } as Json,
+        });
+        if (e.error) {
+          setBusy(false);
+          toast.error(t("bi.failed", { e: e.error.message }));
+          return;
+        }
+        const id = (e.data as { evidence_id?: string } | null)?.evidence_id;
+        if (id) evidenceIds.push(id);
+      }
     const measureAfter = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
     const r = await growthDb.rpc("create_optimization_proposal", {
       _workspace: o.workspace.id,
@@ -119,6 +142,7 @@ function FindingCard({ c }: { c: Candidate }) {
         required_level: c.requiredLevel,
         measure_after: measureAfter,
         evidence: c.evidence as unknown as Json,
+        ...(governed ? { level: "formal", evidence_ids: evidenceIds } : {}),
         ...(c.metricId ? { metric_id: c.metricId } : {}),
         ...(c.goalId ? { goal_id: c.goalId } : {}),
         ...(c.campaignId ? { campaign_id: c.campaignId } : {}),
@@ -145,10 +169,21 @@ function FindingCard({ c }: { c: Candidate }) {
       <p className="mt-1 text-muted-foreground">
         {t("bi.imp.suggested")} {T("change")}
       </p>
-      <p className="mt-1 text-[11px] text-muted-foreground">
-        {t("bi.imp.confidence", { n: Math.round(c.confidence * 100) })} · {t("bi.imp.evidence")}:{" "}
-        {c.evidence.map((e) => e.label).join(", ")}
-      </p>
+      <div className="mt-1.5">
+        <QualityBadge q={quality} showReasons />
+      </div>
+      {c.records.length > 0 && (
+        <div className="mt-1.5 text-[11px] text-muted-foreground">
+          <span className="font-medium text-foreground">{t("ev.findingEvidence")}:</span>
+          <ul className="mt-0.5 list-disc pl-4">
+            {c.records.map((r, i) => (
+              <li key={i} className="break-words">
+                {t(tk(`ev.type.${r.type}`))} · {r.description}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {member && (
         <Button size="sm" variant="outline" className="mt-2" disabled={busy} onClick={save}>
           {t("bi.imp.save")}
@@ -158,7 +193,7 @@ function FindingCard({ c }: { c: Candidate }) {
   );
 }
 
-function TeamProposal() {
+function TeamProposal({ governed }: { governed: boolean }) {
   const o = useOrg();
   const { t } = useI18n();
   const qc = useQueryClient();
@@ -171,8 +206,15 @@ function TeamProposal() {
     impact: "",
     measure: "",
     cost: "",
+    objective: "",
+    risk: "",
+    method: "",
+    approvalReq: "",
+    context: "",
+    gap: "",
   };
   const [v, setV] = useState(empty);
+  const [plevel, setPlevel] = useState<ProposalLevel>("formal");
   const [category, setCategory] = useState<(typeof CATS)[number]>("strategic");
   const [level, setLevel] = useState<(typeof LEVELS)[number]>("none");
   const [currency, setCurrency] = useState("EUR");
@@ -205,6 +247,21 @@ function TeamProposal() {
         success_measure: v.measure,
         required_level: level,
         ...(v.cost ? { est_cost: v.cost, currency } : {}),
+        ...(governed
+          ? {
+              level: plevel,
+              ...(plevel !== "observation" && v.gap.trim() ? { evidence_gap_reason: v.gap } : {}),
+              ...(plevel === "execution"
+                ? {
+                    objective: v.objective,
+                    risk: v.risk,
+                    measurement_method: v.method,
+                    approval_requirement: v.approvalReq,
+                    business_context: v.context,
+                  }
+                : {}),
+            }
+          : {}),
       } as Json,
     });
     setBusy(false);
@@ -224,7 +281,7 @@ function TeamProposal() {
       {area ? (
         <Textarea rows={2} value={v[k]} onChange={set(k)} maxLength={1000} required />
       ) : (
-        <Input value={v[k]} onChange={set(k)} maxLength={k === "title" ? 160 : 600} required />
+        <Input value={v[k]} onChange={set(k)} maxLength={MAXLEN[k] ?? 600} required />
       )}
     </label>
   );
@@ -241,6 +298,32 @@ function TeamProposal() {
           aria-label={t("bi.imp.new")}
         >
           <h2 className="text-sm font-semibold">{t("bi.imp.new")}</h2>
+          {governed && (
+            <fieldset className="mt-3">
+              <legend className="mb-1 text-[11px] font-medium">{t("ev.levelLabel")}</legend>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {(["observation", "formal", "execution"] as const).map((l) => (
+                  <label
+                    key={l}
+                    className={cn(
+                      "cursor-pointer rounded-md border p-2 text-[11px]",
+                      plevel === l ? "border-primary bg-primary/5" : "border-border",
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="proposal-level"
+                      className="mr-1.5"
+                      checked={plevel === l}
+                      onChange={() => setPlevel(l)}
+                    />
+                    <span className="font-medium">{t(tk(`ev.level.${l}`))}</span>
+                    <span className="mt-0.5 block text-muted-foreground">{t(tk(`ev.levelHelp.${l}`))}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          )}
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {field("title", t("bi.imp.title"))}
             <label className="text-[11px]">
@@ -294,6 +377,21 @@ function TeamProposal() {
                 </select>
               </label>
             </div>
+            {governed && plevel === "execution" && (
+              <>
+                {field("objective", t("ev.objective"))}
+                {field("risk", t("ev.risk"))}
+                {field("method", t("ev.method"))}
+                {field("approvalReq", t("ev.approvalReq"))}
+                {field("context", t("ev.context"), true)}
+              </>
+            )}
+            {governed && plevel === "formal" && (
+              <label className="text-[11px] sm:col-span-2">
+                <span className="mb-1 block font-medium">{t("ev.gapReason")}</span>
+                <Input value={v.gap} onChange={set("gap")} maxLength={500} />
+              </label>
+            )}
           </div>
           <div className="mt-3 flex gap-2">
             <Button type="submit" size="sm" disabled={busy}>
@@ -316,9 +414,25 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
   const qc = useQueryClient();
   const member = can(o.workspaceRole, "ai.use");
   const admin = can(o.workspaceRole, "approvals.decide");
+  const editor = can(o.workspaceRole, "evidence.decide");
+  const governed = d.evidence != null;
   const [note, setNote] = useState("");
+  const [gap, setGap] = useState("");
   const [outcome, setOutcome] = useState("");
   const [busy, setBusy] = useState(false);
+  const linked = useMemo(() => linkedFor(d, p.id), [d, p.id]);
+  const quality = qualityOfLinked(linked);
+  const level = p.level ?? "formal";
+  const gateInput = {
+    level,
+    status: p.status,
+    reviewed: !!p.reviewed_at,
+    gapReason: p.evidence_gap_reason ?? "",
+    linked: linked.map((e) => ({ type: e.evidence_type, origin: e.origin, status: e.status, role: e.role, source_ref: e.source_ref })),
+  };
+  const gates = governed ? approvalGates(gateInput) : [];
+  // The approver states exactly what they inspected; the database refuses if the list changed meanwhile.
+  const seen = linked.map((e) => e.id).sort();
   const metric = p.metric_id ? d.metrics.find((m) => m.id === p.metric_id) : undefined;
   const observed = useMemo(() => {
     if (!metric || p.status !== "converted") return null;
@@ -336,8 +450,8 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
       : { o: "inconclusive" as const, before: null, after: null };
   }, [metric, d.measurements, p.status, p.created_at]);
   async function act(
-    action: "approve" | "reject" | "convert" | "measure" | "withdraw",
-    data: Record<string, string> = {},
+    action: "review" | "promote" | "approve" | "reject" | "convert" | "measure" | "withdraw",
+    data: Record<string, string | string[]> = {},
   ) {
     setBusy(true);
     const r = await growthDb.rpc("advance_optimization_proposal", {
@@ -350,7 +464,9 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
       toast.error(t("bi.failed", { e: r.error.message }));
       return;
     }
-    toast.success(t(tk(`bi.imp.done.${action}`)));
+    toast.success(
+      action === "review" ? t("ev.reviewDone") : action === "promote" ? t("ev.promoted") : t(tk(`bi.imp.done.${action}`)),
+    );
     setNote("");
     void qc.invalidateQueries({ queryKey: biKey(o.org?.id, o.workspace?.id) });
   }
@@ -378,8 +494,20 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
             {t(tk(`bi.pstatus.${p.status}`))}
           </Badge>
           <Badge kind="none">{t(tk(`bi.origin.${p.origin}`))}</Badge>
+          {governed && <Badge kind={level === "observation" ? "none" : "medium"}>{t(tk(`ev.level.${level}`))}</Badge>}
+          {governed && (
+            <Badge kind="none">{t("ev.stage", { s: t(tk(`ev.stage.${proposalStage(p)}`)) })}</Badge>
+          )}
         </span>
       </div>
+      {governed && (
+        <div className="mt-1.5 flex flex-wrap items-center gap-1">
+          <QualityBadge q={quality} showReasons />
+          {level !== "observation" && ["approved", "converted", "measured"].includes(p.status) && isUnverifiedHypothesis(gateInput) && (
+            <Badge kind="low">{t("ev.unverified")}</Badge>
+          )}
+        </div>
+      )}
       <dl className="mt-2 grid gap-x-4 gap-y-1.5 sm:grid-cols-2">
         {(
           [
@@ -416,13 +544,48 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
               : t("bi.imp.approvalAdmin")}
           </dd>
         </div>
-        {evidence && (
+        {(
+          [
+            ["objective", p.objective],
+            ["risk", p.risk],
+            ["method", p.measurement_method],
+            ["approvalReq", p.approval_requirement],
+            ["context", p.business_context],
+          ] as const
+        )
+          .filter(([, val]) => !!val)
+          .map(([k, val]) => (
+            <div key={k} className="min-w-0">
+              <dt className="text-[11px] text-muted-foreground">{t(tk(`ev.${k}`))}</dt>
+              <dd className="break-words">{val}</dd>
+            </div>
+          ))}
+        {evidence && !governed && (
           <div className="sm:col-span-2">
             <dt className="text-[11px] text-muted-foreground">{t("bi.imp.evidence")}</dt>
             <dd>{evidence}</dd>
           </div>
         )}
       </dl>
+      {governed && p.evidence_gap_reason && (
+        <p className="mt-2 text-[11px] text-muted-foreground">{t("ev.gapShown", { r: p.evidence_gap_reason })}</p>
+      )}
+      {governed && (
+        <EvidenceList items={linked} canAdd={member && p.status === "proposed"} p={p} d={d} />
+      )}
+      {gates.length > 0 && (
+        <ul className="mt-2 space-y-0.5 text-[11px] text-warning" aria-label={t("ev.qTitle")}>
+          {gates.map((g) => (
+            <li key={g}>• {t(tk(`ev.gate.${g}`))}</li>
+          ))}
+        </ul>
+      )}
+      {governed && p.reviewed_at && p.status === "proposed" && (
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          {t("ev.reviewedAt")} · {f.date(p.reviewed_at)}
+          {p.review_note ? ` · ${p.review_note}` : ""}
+        </p>
+      )}
       {p.decision_note && (
         <p className="mt-2 text-[11px] text-muted-foreground">
           {t("bi.imp.decisionNote")}: {p.decision_note}
@@ -447,8 +610,31 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
       )}
       {member && (
         <div className="mt-3 flex flex-wrap items-end gap-2">
+          {governed && p.status === "proposed" && level === "observation" && (
+            <>
+              <Input
+                value={gap}
+                onChange={(e) => setGap(e.target.value)}
+                maxLength={500}
+                placeholder={t("ev.gapReason")}
+                className="h-8 w-56"
+                aria-label={t("ev.gapReason")}
+              />
+              <Button size="sm" variant="outline" disabled={busy} onClick={() => act("promote", gap ? { evidence_gap_reason: gap } : {})}>
+                {t("ev.promote")}
+              </Button>
+            </>
+          )}
+          {governed && p.status === "proposed" && level !== "observation" && editor && !p.reviewed_at && (
+            <Button size="sm" variant="outline" disabled={busy} onClick={() => act("review", { note })}>
+              {t("ev.markReviewed")}
+            </Button>
+          )}
           {p.status === "proposed" && admin && (
             <>
+              {governed && level !== "observation" && (
+                <p className="w-full text-[11px] text-muted-foreground">{t("ev.inspect", { n: seen.length })}</p>
+              )}
               <Input
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
@@ -457,9 +643,15 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
                 className="h-8 w-56"
                 aria-label={t("bi.imp.decisionNote")}
               />
-              <Button size="sm" disabled={busy} onClick={() => act("approve", { note })}>
-                {t("bi.imp.approve")}
-              </Button>
+              {level !== "observation" && (
+                <Button
+                  size="sm"
+                  disabled={busy || gates.length > 0}
+                  onClick={() => act("approve", governed ? { note, seen_evidence: seen } : { note })}
+                >
+                  {t("bi.imp.approve")}
+                </Button>
+              )}
               <Button
                 size="sm"
                 variant="outline"

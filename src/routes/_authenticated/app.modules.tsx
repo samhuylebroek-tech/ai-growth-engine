@@ -1,4 +1,4 @@
-import { pageHead } from "@/lib/page-head";
+import { localHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Compass, Megaphone, Users, Globe2, LineChart, ArrowUpRight, Search, Sparkles } from "lucide-react";
@@ -7,7 +7,7 @@ import { PageHeader, StatusChip } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GrowthQuestion } from "@/components/app/growth-question";
-export const Route = createFileRoute("/_authenticated/app/modules")({ head: () => pageHead("Growth areas", "Strategy, marketing, sales, website and measurement availability."), component: Modules });
+export const Route = createFileRoute("/_authenticated/app/modules")({ head: () => localHead("modules"), component: Modules });
 const AREAS = [
  { title: "Strategy & growth", icon: Compass, text: "Business understanding, opportunities and an evidence-aware action plan.", keys: ["strategy"], to: "/app/intelligence" as const, action: "Open growth intelligence", note: "Website research and conversational planning are available. Dedicated strategy workflows are planned." },
  { title: "Marketing", icon: Megaphone, text: "Strategy, content, social, advertising and lifecycle communication.", keys: ["seo_content", "social_ads", "email_automation"], to: "/app/growth-officer" as const, action: "Discuss marketing strategy", note: "AI planning is available in conversations. Campaign publishing, scheduling and sending are not configured." },

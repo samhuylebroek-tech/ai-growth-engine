@@ -86,7 +86,7 @@ export function biOptions(orgId: string | undefined, wsId: string | undefined) {
         sc(
           growthDb
             .from("budget_lines")
-            .select("goal_id,initiative_id,channel,period_month,planned,actual,currency"),
+            .select("id,goal_id,initiative_id,channel,period_month,planned,actual,currency"),
         ).limit(LIMIT),
         sc(
           supabase.from("crm_deals").select("stage,value,currency,created_at,closed_at,goal_id"),
@@ -116,7 +116,7 @@ export function biOptions(orgId: string | undefined, wsId: string | undefined) {
               "business_model,description,industry,offerings,audiences,objectives,monthly_budget_eur",
             ),
         ).maybeSingle(),
-        sc(supabase.from("business_facts").select("key,value,verified")).limit(200),
+        sc(supabase.from("business_facts").select("id,key,value,verified")).limit(200),
         sc(
           growthDb.from("connector_connections").select("connector_key,status,granted_levels"),
         ).limit(200),
@@ -167,12 +167,21 @@ export function biOptions(orgId: string | undefined, wsId: string | undefined) {
       // Optional: opportunities and the credit balance never block the overview.
       const opp = await growthDb
         .from("growth_opportunities")
-        .select("id,title,status,impact,feasibility,risk,time_to_value,confidence")
+        .select("id,title,status,impact,feasibility,risk,time_to_value,confidence,evidence")
         .eq("org_id", orgId)
         .eq("workspace_id", wsId)
         .in("status", ["open", "shortlisted"])
         .limit(50);
       if (opp.error && !isNotInstalled(opp.error)) throw opp.error;
+      // Evidence (proposal 0073): optional until installed; a failed read never shows partial evidence as complete.
+      const [evi, pev] = await Promise.all([
+        sc(growthDb.from("evidence_items").select("*"))
+          .order("created_at", { ascending: false })
+          .limit(1000),
+        sc(growthDb.from("proposal_evidence").select("*")).limit(2000),
+      ]);
+      for (const r of [evi, pev]) if (r.error && !isNotInstalled(r.error)) throw r.error;
+      const evidenceInstalled = !evi.error && !pev.error;
       const bal = await supabase.rpc("credit_balance", { _org: orgId });
       return {
         metrics: rows(metrics as R),
@@ -196,6 +205,8 @@ export function biOptions(orgId: string | undefined, wsId: string | undefined) {
         facts: rows(facts as R),
         connections: rows(connections as R),
         creditBalance: bal.error ? null : (bal.data as number),
+        evidence: evidenceInstalled ? rows(evi as R) : null,
+        proposalEvidence: evidenceInstalled ? rows(pev as R) : [],
       };
     },
   };

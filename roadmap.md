@@ -1,10 +1,21 @@
 # AI Growth OS — Task Queue
+## Phase 8.2 — product completion, evidence governance & quality — 2026-11-20
+- [ ] B1 Audit: 20 systems, findings + checklist in docs/PHASE_8_2_REPORT.md.
+- [ ] B2 Evidence governance (proposal 0073): six evidence types, lifecycle with history and versions, proposal levels (observation/formal/execution), admin inspects evidence before approval, AI text never counts as independent evidence.
+- [ ] B3 Evidence quality labels on opportunities, proposals, org opportunities, strategy/Growth Officer recommendations, experiments, next best actions; transparent ranking factors; duplicate explanations; standard recommendation stages.
+- [ ] B4 Strategy integrity: versions, approval references, task origin traceability (validate; fix gaps).
+- [ ] B5 Financial integrity: credits, revenue, budgets, currencies (validate with tests).
+- [ ] B6 Localized browser tab titles/descriptions EN/NL/FR on every route.
+- [ ] B7 Security: evidence tables in the access matrix; role refusals with exact codes.
+- [ ] B8 Integration safety: simulated lifecycle validation.
+- [ ] B9 Staging end-to-end walkthroughs (business, organization, roles, finance, external actions).
+- [ ] B10 Test-data inventory refresh, final report, commit.
 ## Phase 8.1 — finalization & operational readiness — 2026-11-20
 - [x] Org Growth Officer: real business names in stored drafts (display-only, original kept), refs stored for new drafts, similar names distinguishable.
 - [x] Organization AI credit overview (proposal 0071): pool balance, reserved/consumed/released, month, per business/specialist/Org Growth Officer, drill-down.
 - [x] Financial consolidation audit + tests (rate dates, weekends/holidays, missing rates, ECB outage, credits ≠ money, ad vs AI costs, unattributed revenue).
 - [x] Integration-audit fixes: atomic budget transfer (0072), single-currency move suggestions, improvement→task origin shown, revenue label made explicit.
-- [ ] Open: require evidence on new improvement proposals (changes the 0066 proposal model; needs a decision).
+- [x] Require evidence on improvement proposals: decided by Phase 8.2 (three proposal levels).
 - [x] Staging test-data inventory + cleanup proposal (no deletion).
 - [x] Security matrix test across businesses/brands/roles.
 - [x] Localization gaps (onboarding, profile, billing).

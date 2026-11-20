@@ -3,6 +3,7 @@
 // approves it; only then does it become a task. Nothing here changes strategies, budgets or campaigns.
 import { effectiveMeasurements, isActual, type Measurement } from "@/lib/performance";
 import type { Attribution } from "./attribution";
+import type { EvidenceDraft } from "@/lib/evidence";
 
 export type CandidateCode =
   | "metric_behind"
@@ -33,6 +34,8 @@ export type Candidate = {
   initiativeId?: string;
   /** 0–1: how sure the underlying data is (actual vs entered, number of periods). */
   confidence: number;
+  /** Evidence this finding records when saved (proposal 0073): record-backed reads, estimates or named gaps. */
+  records: EvidenceDraft[];
 };
 
 type Metric = {
@@ -51,6 +54,7 @@ export type OptInput = {
   metrics: readonly Metric[];
   measurements: readonly Measurement[];
   budget: readonly {
+    id?: string;
     channel: string;
     period_month: string;
     planned: number;
@@ -68,16 +72,34 @@ export type OptInput = {
     variant_value: number | null;
     control_value: number | null;
     updated_at: string;
+    started_at?: string | null;
+    ended_at?: string | null;
   }[];
   proposals: readonly { source_key: string; status: string }[];
   now: Date;
 };
 
+const endOfMonth = (m: string) => {
+  const d = new Date(`${m.slice(0, 7)}-01T00:00:00Z`);
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).toISOString().slice(0, 10);
+};
 const pct = (a: number, b: number) => (b === 0 ? null : Math.round(((a - b) / Math.abs(b)) * 100));
 const lastMonth = (now: Date) => {
   const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
   return d.toISOString().slice(0, 7);
 };
+
+const measuredDraft = (
+  r: { id: string; period_start: string; period_end: string; value: number | string },
+  label: string,
+): EvidenceDraft => ({
+  type: "measured_observation",
+  description: `${label}: ${Number(r.value)} (${r.period_start} – ${r.period_end})`.slice(0, 1000),
+  source_kind: "measurement",
+  source_ref: r.id,
+  period_start: r.period_start.slice(0, 10),
+  period_end: r.period_end.slice(0, 10),
+});
 
 export function detectImprovements(i: OptInput): Candidate[] {
   const out: Candidate[] = [];
@@ -116,6 +138,7 @@ export function detectImprovements(i: OptInput): Candidate[] {
           ...(m.campaign_id ? { campaignId: m.campaign_id } : {}),
           ...(m.initiative_id ? { initiativeId: m.initiative_id } : {}),
           confidence: conf,
+          records: [measuredDraft(actual, m.label)],
         });
       if (good && Math.abs(dev) >= 20)
         out.push({
@@ -128,6 +151,7 @@ export function detectImprovements(i: OptInput): Candidate[] {
           metricId: m.id,
           ...(m.campaign_id ? { campaignId: m.campaign_id } : {}),
           confidence: conf * 0.8,
+          records: [measuredDraft(actual, m.label)],
         });
     }
   }
@@ -138,9 +162,13 @@ export function detectImprovements(i: OptInput): Candidate[] {
     const prev = new Date(Date.UTC(i.now.getUTCFullYear(), i.now.getUTCMonth() - 2, 1))
       .toISOString()
       .slice(0, 7);
+    const row = (id: string, mo: string) =>
+      byMetric(id, isActual)
+        .filter((x) => x.period_start.startsWith(mo))
+        .at(-1);
     const v = (id: string, mo: string) => {
-      const r = byMetric(id, isActual).filter((x) => x.period_start.startsWith(mo));
-      return r.length ? Number(r[r.length - 1]!.value) : null;
+      const r = row(id, mo);
+      return r ? Number(r.value) : null;
     };
     const s1 = v(spend.id, month),
       l1 = v(leads.id, month),
@@ -168,6 +196,12 @@ export function detectImprovements(i: OptInput): Candidate[] {
           requiredLevel: "none",
           metricId: spend.id,
           confidence: 0.6,
+          records: [
+            measuredDraft(row(spend.id, month)!, spend.label),
+            measuredDraft(row(leads.id, month)!, leads.label),
+            measuredDraft(row(spend.id, prev)!, spend.label),
+            measuredDraft(row(leads.id, prev)!, leads.label),
+          ],
         });
     }
   }
@@ -192,6 +226,18 @@ export function detectImprovements(i: OptInput): Candidate[] {
         requiredLevel: "none",
         ...(b.goal_id ? { goalId: b.goal_id } : {}),
         confidence: 0.6,
+        records: b.id
+          ? [
+              {
+                type: "measured_observation",
+                description: `${b.channel} ${month}: ${Number(b.actual)} ${b.currency} spent of ${Number(b.planned)} planned (entered)`,
+                source_kind: "budget_line",
+                source_ref: b.id,
+                period_start: b.period_month.slice(0, 10),
+                period_end: endOfMonth(b.period_month),
+              },
+            ]
+          : [],
       });
   }
   // Best channel by attributed revenue per spend — a shift is only a proposal and needs budget permission.
@@ -234,6 +280,15 @@ export function detectImprovements(i: OptInput): Candidate[] {
           ],
           requiredLevel: "budget",
           confidence: best.c.confidence === "high" ? 0.7 : 0.4,
+          // Attribution is a model of recorded sales, so its channel ratios are estimates, not measurements.
+          records: [
+            {
+              type: "estimate",
+              description: `${a.model} attribution: ${best.ch} ${Math.round(best.r * 100) / 100} vs ${second.ch} ${Math.round(second.r * 100) / 100} ${a.currency} revenue per spend`,
+              source_kind: "other",
+              source_ref: `attribution:${a.model}:${a.currency}`,
+            },
+          ],
         });
     }
     if (a.total > 0 && a.unattributed / a.total >= 0.5)
@@ -249,6 +304,14 @@ export function detectImprovements(i: OptInput): Candidate[] {
         evidence: [{ type: "revenue", id: a.currency, label: a.currency }],
         requiredLevel: "none",
         confidence: 0.9,
+        records: [
+          {
+            type: "missing_information",
+            description: `${Math.round((a.unattributed / a.total) * 100)}% of recorded ${a.currency} revenue has no recorded touchpoint`,
+            source_kind: "other",
+            source_ref: `unattributed:${a.currency}`,
+          },
+        ],
       });
   }
   for (const x of i.experiments) {
@@ -268,6 +331,16 @@ export function detectImprovements(i: OptInput): Candidate[] {
       evidence: [{ type: "experiment", id: x.id, label: x.title }],
       requiredLevel: "none",
       confidence: 0.75,
+      records: [
+        {
+          type: "measured_observation",
+          description: `${x.title}: variant ${Number(x.variant_value)} vs control ${Number(x.control_value)} (controlled)`,
+          source_kind: "experiment",
+          source_ref: x.id,
+          period_start: (x.started_at ?? x.updated_at).slice(0, 10),
+          period_end: (x.ended_at ?? x.updated_at).slice(0, 10),
+        },
+      ],
     });
   }
   const measured = new Set(i.metrics.filter((m) => !m.archived && m.goal_id).map((m) => m.goal_id));
@@ -282,6 +355,15 @@ export function detectImprovements(i: OptInput): Candidate[] {
         requiredLevel: "none",
         goalId: g.id,
         confidence: 1,
+        records: [
+          {
+            type: "missing_information",
+            description: `Goal "${g.title}" has no metric, so progress cannot be measured`.slice(0, 1000),
+            source_kind: "other",
+            source_ref: `goal:${g.id}`,
+            goal_id: g.id,
+          },
+        ],
       });
   // A finding that already has an open proposal is not suggested again.
   const open = new Set(

@@ -22,6 +22,8 @@ import { detectImprovements, type Candidate } from "./optimization";
 import { nextGrowthActions, type GrowthAction } from "./growth-actions";
 import { understand, type Knowledge } from "./understanding";
 import { progressOf, type Src } from "./comparison";
+import { fromEvidenceItem, type NormalEvidence } from "@/lib/evidence";
+import type { EvidenceItemRow, ProposalEvidenceRow } from "@/lib/pending-schema";
 import type { Measurement } from "@/lib/performance";
 
 export type Filters = {
@@ -102,6 +104,7 @@ export type BiData = {
     risk: number;
     time_to_value: number;
     confidence: string;
+    evidence?: unknown;
   }[];
   profile: {
     business_model: string | null;
@@ -112,9 +115,12 @@ export type BiData = {
     objectives: unknown;
     monthly_budget_eur: number | null;
   } | null;
-  facts: { key: string; value: string; verified: boolean }[];
+  facts: { id?: string; key: string; value: string; verified: boolean }[];
   connections: { connector_key: string; status: string; granted_levels: string[] }[];
   creditBalance: number | null;
+  /** Proposal 0073; null when evidence governance is not installed in the connected database. */
+  evidence?: EvidenceItemRow[] | null;
+  proposalEvidence?: ProposalEvidenceRow[];
 };
 
 export type ScopedMoney = { currency: string; amount: number }[];
@@ -297,6 +303,7 @@ export function buildView(d: BiData, f: Filters, model: Model, now: Date = new D
   );
   const actions = nextGrowthActions({
     candidates,
+    proposalEvidence: linkedEvidence(d),
     proposals,
     experiments,
     opportunities: d.opportunities,
@@ -351,4 +358,16 @@ export function buildView(d: BiData, f: Filters, model: Model, now: Date = new D
         .sort()
         .at(-1) ?? null,
   };
+}
+
+/** Linked evidence per improvement proposal, normalized (rejected and superseded versions drop out). */
+export function linkedEvidence(d: Pick<BiData, "evidence" | "proposalEvidence">): Map<string, NormalEvidence[]> {
+  const byId = new Map((d.evidence ?? []).map((e) => [e.id, e]));
+  const out = new Map<string, NormalEvidence[]>();
+  for (const l of d.proposalEvidence ?? []) {
+    const e = byId.get(l.evidence_id);
+    const n = e ? fromEvidenceItem(e, l.role) : null;
+    if (n) out.set(l.proposal_id, [...(out.get(l.proposal_id) ?? []), n]);
+  }
+  return out;
 }

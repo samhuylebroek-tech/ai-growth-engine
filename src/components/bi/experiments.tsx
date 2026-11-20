@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils";
 import { biKey } from "./bi-data";
 import { BiState, useBi } from "./business-overview";
 import { Badge, Section, sel, tk, useFmt } from "./parts";
+import { QualityBadge } from "./evidence";
+import { experimentQuality } from "@/lib/evidence";
 
 const METHODS = ["ab_test", "comparison_group", "before_after", "observational"] as const;
 
@@ -319,6 +321,9 @@ function Card({ x }: { x: ExperimentRow }) {
             {t(tk(`bi.estatus.${x.status}`))}
           </Badge>
         </span>
+      </div>
+      <div className="mt-1.5">
+        <QualityBadge q={experimentQuality(x.status, x.evidence_strength)} />
       </div>
       <dl className="mt-2 grid gap-x-4 gap-y-1.5 sm:grid-cols-2">
         {(

@@ -1,15 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { pageHead } from "@/lib/page-head";
+import { localHead } from "@/lib/page-head";
 import { PageHeader } from "@/components/app/status";
 import { Experiments } from "@/components/bi/experiments";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/app/experiments")({
   head: () =>
-    pageHead(
-      "Experiments",
-      "Plan, approve, run and conclude growth experiments, with evidence strength that separates correlation from cause.",
-    ),
+    localHead("experiments"),
   component: Page,
 });
 

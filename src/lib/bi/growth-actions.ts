@@ -1,6 +1,17 @@
 // Next Best Growth Actions: one transparent ranking over improvement findings, approved proposals awaiting work,
 // experiments and discovered opportunities. Pure; every score is the visible weighted sum of its components.
 import type { Candidate, Category } from "./optimization";
+import {
+  evidenceQuality,
+  experimentQuality,
+  fromClassified,
+  fromDrafts,
+  type NormalEvidence,
+  type Quality,
+} from "@/lib/evidence";
+
+/** Evidence quality caps the confidence component, so a weakly supported item never ranks as if it were proven. */
+export const QUALITY_CONFIDENCE: Record<Quality, number> = { strong: 5, some: 4, limited: 3, hypothesis: 2, missing: 1 };
 
 export type Components = {
   value: number;
@@ -52,6 +63,9 @@ export type GrowthAction = {
     | "/app/revenue"
     | "/app/performance";
   blockers: ("no_budget" | "low_credits" | "busy_team" | "needs_approval" | "needs_permission")[];
+  /** Evidence behind the item (proposal 0073 labels); "uncertain" ranks are shown as indicative only. */
+  quality: Quality;
+  uncertain: boolean;
 };
 
 export type ActionInput = {
@@ -72,6 +86,7 @@ export type ActionInput = {
     status: string;
     started_at: string | null;
     duration_days: number;
+    evidence_strength?: string | null;
   }[];
   opportunities: readonly {
     id: string;
@@ -82,7 +97,10 @@ export type ActionInput = {
     risk: number;
     time_to_value: number;
     confidence: string;
+    evidence?: unknown;
   }[];
+  /** Linked evidence per improvement proposal, normalized; missing entries mean no linked evidence. */
+  proposalEvidence?: ReadonlyMap<string, readonly NormalEvidence[]>;
   goalPriority: ReadonlyMap<string, string>;
   budgetLeft: ReadonlyMap<string, number>;
   creditBalance: number | null;
@@ -163,13 +181,15 @@ export function nextGrowthActions(i: ActionInput, limit = 8): GrowthAction[] {
     }
     return { f: clamp(f), b };
   };
+  const q = (quality: Quality) => ({ quality, uncertain: quality !== "strong" && quality !== "some" });
   for (const c of i.candidates) {
     const fe = feas(c.requiredLevel === "budget", false, true);
+    const quality = evidenceQuality(fromDrafts(c.records)).level;
     const comp: Components = {
       value: VALUE[c.code] ?? 3,
       importance: c.goalId ? (IMPORTANCE[i.goalPriority.get(c.goalId) ?? "medium"] ?? 3) : 2,
       urgency: URGENCY[c.category],
-      confidence: clamp(c.confidence * 5),
+      confidence: Math.min(clamp(c.confidence * 5), QUALITY_CONFIDENCE[quality]),
       feasibility: fe.f,
       risk: c.requiredLevel === "budget" ? 3 : 1,
     };
@@ -184,10 +204,12 @@ export function nextGrowthActions(i: ActionInput, limit = 8): GrowthAction[] {
       delay: DELAY[c.code] ?? "work_waits",
       to: "/app/improvements",
       blockers: fe.b,
+      ...q(quality),
     });
   }
   for (const p of i.proposals) {
     const imp = p.goal_id ? (IMPORTANCE[i.goalPriority.get(p.goal_id) ?? "medium"] ?? 3) : 2;
+    const pq = evidenceQuality(i.proposalEvidence?.get(p.id) ?? []).level;
     if (p.status === "proposed" || p.status === "approved") {
       const fe = feas(
         p.required_level === "budget",
@@ -198,7 +220,7 @@ export function nextGrowthActions(i: ActionInput, limit = 8): GrowthAction[] {
         value: 3.5,
         importance: imp,
         urgency: URGENCY[p.category] ?? 3,
-        confidence: 3,
+        confidence: Math.min(3, QUALITY_CONFIDENCE[pq]),
         feasibility: fe.f,
         risk: p.required_level === "budget" ? 3 : 1,
       };
@@ -213,6 +235,7 @@ export function nextGrowthActions(i: ActionInput, limit = 8): GrowthAction[] {
         delay: "work_waits",
         to: "/app/improvements",
         blockers: fe.b,
+        ...q(pq),
       });
     } else if (
       p.status === "converted" &&
@@ -238,6 +261,7 @@ export function nextGrowthActions(i: ActionInput, limit = 8): GrowthAction[] {
         delay: "result_unknown",
         to: "/app/improvements",
         blockers: [],
+        ...q(pq),
       });
     }
   }
@@ -263,6 +287,7 @@ export function nextGrowthActions(i: ActionInput, limit = 8): GrowthAction[] {
         delay: "learning_unused",
         to: "/app/experiments",
         blockers: fe.b,
+        ...q(experimentQuality(x.status, x.evidence_strength ?? null)),
       });
     } else if (
       x.status === "running" &&
@@ -288,17 +313,20 @@ export function nextGrowthActions(i: ActionInput, limit = 8): GrowthAction[] {
         delay: "result_unknown",
         to: "/app/experiments",
         blockers: [],
+        ...q(experimentQuality(x.status, x.evidence_strength ?? null)),
       });
     }
   }
   for (const o of i.opportunities) {
     if (o.status !== "open" && o.status !== "shortlisted") continue;
     const fe = feas(false, true, true);
+    // Discovered by the AI: its own confidence label never outranks the evidence it cites.
+    const oq = opportunityQuality(o.evidence);
     const comp: Components = {
       value: clamp(o.impact),
       importance: o.status === "shortlisted" ? 4 : 2,
       urgency: clamp(o.time_to_value),
-      confidence: o.confidence === "high" ? 4 : o.confidence === "medium" ? 3 : 2,
+      confidence: Math.min(o.confidence === "high" ? 4 : o.confidence === "medium" ? 3 : 2, QUALITY_CONFIDENCE[oq]),
       feasibility: clamp((o.feasibility + fe.f) / 2),
       risk: clamp(o.risk),
     };
@@ -313,7 +341,18 @@ export function nextGrowthActions(i: ActionInput, limit = 8): GrowthAction[] {
       delay: "opportunity_ages",
       to: "/app/opportunities",
       blockers: fe.b,
+      ...q(oq),
     });
   }
   return out.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id)).slice(0, limit);
+}
+
+/** AI-discovered opportunity evidence ([{class|kind|type, text}]) normalized; AI "facts" become unverified claims. */
+export function opportunityQuality(evidence: unknown, origin: "ai" | "rule" | "user" = "ai"): Quality {
+  if (!Array.isArray(evidence)) return "missing";
+  const items = evidence
+    .map((e) => (e && typeof e === "object" ? (e as Record<string, unknown>) : null))
+    .filter((e): e is Record<string, unknown> => !!e)
+    .map((e) => fromClassified(String(e["class"] ?? e["kind"] ?? e["type"] ?? ""), origin));
+  return evidenceQuality(items).level;
 }

@@ -1,4 +1,4 @@
-import { pageHead } from "@/lib/page-head";
+import { localHead } from "@/lib/page-head";
 import { useI18n } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-export const Route = createFileRoute("/_authenticated/app/settings")({ head: () => pageHead("Organization settings", "Manage workspaces, invitations and team."), component: SettingsPage });
+export const Route = createFileRoute("/_authenticated/app/settings")({ head: () => localHead("settings"), component: SettingsPage });
 
 function SettingsPage() {
   const { t } = useI18n();

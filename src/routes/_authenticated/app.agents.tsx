@@ -1,4 +1,4 @@
-import { pageHead } from "@/lib/page-head";
+import { localHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AGENTS } from "@/lib/registry/agents";
 import { CAPABILITIES, capabilityByKey } from "@/lib/registry/capabilities";
@@ -8,7 +8,7 @@ import { PageHeader, Panel, StatusChip } from "@/components/app/status";
 import { SpecialistWorkbench } from "@/components/app/specialist-workbench";
 import { CoordinationWorkbench } from "@/components/app/coordination-workbench";
 
-export const Route = createFileRoute("/_authenticated/app/agents")({ head: () => pageHead("Agents and capabilities", "Growth specialists and available capabilities."), component: Agents });
+export const Route = createFileRoute("/_authenticated/app/agents")({ head: () => localHead("agents"), component: Agents });
 
 const RISK: Record<string, string> = { read: "Reads data", write_internal: "Changes data inside the platform", write_external: "Acts outside the platform — always needs approval" };
 

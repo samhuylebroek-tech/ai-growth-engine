@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { evidenceQuality, fromClassified } from "@/lib/evidence";
+import { QualityBadge } from "@/components/bi/evidence";
 import { useI18n } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { useServerFn } from "@tanstack/react-start";
@@ -108,7 +110,7 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
         <Button size="sm" disabled={busy} onClick={generate}>{busy ? tr("goals.s.planning") : tr("goals.s.generate")}</Button>
       </div>
       {view && <div className="space-y-3 text-sm">
-        <div className="flex items-center gap-2"><Badge variant="secondary">{tr("goals.s.aiSuggestion")}</Badge>{result.saved && <Badge variant="outline">{tr("goals.s.savedBadge")}</Badge>}</div>
+        <div className="flex items-center gap-2"><Badge variant="secondary">{tr("goals.s.aiSuggestion")}</Badge><QualityBadge q={strategyQuality(view)} />{result.saved && <Badge variant="outline">{tr("goals.s.savedBadge")}</Badge>}</div>
         {editing ? <div className="space-y-2 rounded-md border bg-background p-2">
           <p className="text-xs text-muted-foreground">{tr("goals.pd.editNote")}</p>
           <label className="block text-xs font-medium">{tr("goals.pd.summaryLabel")}<Textarea value={view.summary} maxLength={1500} onChange={e => edit(st => ({ ...st, summary: e.target.value }))} className="mt-1 min-h-[60px]" /></label>
@@ -133,4 +135,14 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
           {new Date(s.created_at).toLocaleDateString(tag)} — {s.summary}</button>)}</div>}
     </div>
   );
+}
+
+/** An AI strategy cites facts, estimates, hypotheses and assumptions; as AI output none of it is independent evidence. */
+function strategyQuality(v: { evidence: { facts: string[]; estimates: string[]; hypotheses: string[] }; assumptions: string[] }) {
+  return evidenceQuality([
+    ...v.evidence.facts.map(() => fromClassified("fact", "ai")),
+    ...v.evidence.estimates.map(() => fromClassified("estimate", "ai")),
+    ...v.evidence.hypotheses.map(() => fromClassified("hypothesis", "ai")),
+    ...v.assumptions.map(() => fromClassified("assumption", "ai")),
+  ]);
 }

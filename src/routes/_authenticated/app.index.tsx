@@ -1,6 +1,6 @@
 import { executionOptions, executionSummary } from "@/lib/execution";
 import { HomeWork } from "@/components/execution/home-work";
-import { pageHead } from "@/lib/page-head";
+import { localHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
@@ -29,7 +29,7 @@ import { ExternalTiles } from "@/components/integrations/external-tiles";
 import { HomeBusinessSummary } from "@/components/bi/home-summary";
 import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_authenticated/app/")({ head: () => pageHead("Business command center", "Your workspace activity, active AI assignments, decisions and growth opportunities in one place."), component: Overview });
+export const Route = createFileRoute("/_authenticated/app/")({ head: () => localHead("command"), component: Overview });
 const SECTIONS = ["performance", "budget", "activity", "results", "opportunities", "upcoming"] as const;
 type Section = typeof SECTIONS[number];
 const name = (key: string) => AGENTS.find(a => a.key === key)?.name ?? key.replace(/_/g, " ").replace(/^./, c => c.toUpperCase());

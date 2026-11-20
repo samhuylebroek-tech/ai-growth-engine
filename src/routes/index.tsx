@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Zap, Compass, BookOpen, CheckSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { pageHead } from "@/lib/page-head";
+import { localHead } from "@/lib/page-head";
 import { useI18n } from "@/lib/i18n";
 import { LanguagePicker } from "@/components/app/language-picker";
 import cover from "@/assets/growth-engine-cover.jpg";
-export const Route = createFileRoute("/")({ head: () => pageHead("AI Growth Engine", "Your business growth workspace: confirmed knowledge, evidence-aware AI strategy and actions you control."), component: Index });
+export const Route = createFileRoute("/")({ head: () => localHead("home"), component: Index });
 function Index() {
   const { t: tx } = useI18n();
   return <div className="min-h-screen bg-background text-foreground"><nav className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-3 px-5 md:px-10"><Link to="/" className="flex items-center gap-2.5 text-base font-bold"><Zap className="h-5 w-5 text-primary" />AI Growth Engine</Link><div className="flex items-center gap-2"><LanguagePicker /><Button variant="ghost" className="hidden sm:inline-flex" asChild><Link to="/pricing">{tx("pages.pub.plans")}</Link></Button><Button variant="outline" asChild><Link to="/auth" search={{ redirect: undefined }}>{tx("pages.pub.signIn")}</Link></Button></div></nav>

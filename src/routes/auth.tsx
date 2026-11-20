@@ -1,3 +1,4 @@
+import { localHead } from "@/lib/page-head";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -17,11 +18,7 @@ function safeRedirect(r: unknown): string {
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>) => ({ redirect: typeof s["redirect"] === "string" ? s["redirect"] : undefined }),
-  head: () => ({ meta: [
-    { title: "Sign in — AI Growth Engine" }, { name: "description", content: "Sign in or create your AI Growth Engine account." },
-    { property: "og:title", content: "Sign in — AI Growth Engine" }, { property: "og:description", content: "Sign in or create your AI Growth Engine account." },
-    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({ meta: [...localHead("signin").meta] }),
   component: AuthPage,
 });
 

@@ -2,7 +2,7 @@ import { requestAttemptKey } from "@/lib/single-ai-request";
 import { useI18n } from "@/lib/i18n";
 import { SingleAIRecovery } from "@/components/app/single-ai-recovery";
 import { DeepAnalysisRecovery } from "@/components/app/deep-analysis-recovery";
-import { pageHead } from "@/lib/page-head";
+import { localHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -25,7 +25,7 @@ import { ExecutionContextPicker } from "@/components/execution/context-picker";
 import type { ExecutionRef } from "@/lib/execution-context";
 import { consumeGrowthDraft, growthDraftKey } from "@/lib/growth-draft";
 
-export const Route = createFileRoute("/_authenticated/app/growth-officer")({ head: () => pageHead("Growth Officer", "Evidence-aware conversations and recommendations."), component: GrowthOfficer });
+export const Route = createFileRoute("/_authenticated/app/growth-officer")({ head: () => localHead("officer"), component: GrowthOfficer });
 
 const STARTERS = ["officer.starter.opportunities", "officer.starter.plan30", "officer.starter.missing", "officer.starter.strategy"] as const;
 

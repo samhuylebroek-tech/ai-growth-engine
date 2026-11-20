@@ -1,15 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { pageHead } from "@/lib/page-head";
+import { localHead } from "@/lib/page-head";
 import { PageHeader } from "@/components/app/status";
 import { RevenueAttribution } from "@/components/bi/revenue";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/app/revenue")({
   head: () =>
-    pageHead(
-      "Revenue & attribution",
-      "Record sales, refunds and corrections, link them to campaigns and channels, and compare attribution models without double counting.",
-    ),
+    localHead("revenue"),
   component: Page,
 });
 

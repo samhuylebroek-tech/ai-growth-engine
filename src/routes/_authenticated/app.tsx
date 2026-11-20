@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { NAVIGATION, primaryNavigation } from "@/lib/navigation";
 import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
-import { pageHead } from "@/lib/page-head";
+import { localHead } from "@/lib/page-head";
 import { WorkspaceContext, WorkspaceTools } from "@/components/app/workspace-tools";
 import { searchWorkspace, type WorkspaceSearchHit } from "@/lib/workspace-search";
 import { useI18n } from "@/lib/i18n";
@@ -19,7 +19,7 @@ import { LOCALES, LOCALE_NAME, MESSAGES, isLocale, type MessageKey } from "@/lib
 import { browserEnvironment } from "@/lib/environment";
 
 export const Route = createFileRoute("/_authenticated/app")({
-  head: () => pageHead("Workspace", "Your business growth workspace."),
+  head: () => localHead("workspace"),
   component: () => <OrgProvider><Shell /></OrgProvider>,
 });
 

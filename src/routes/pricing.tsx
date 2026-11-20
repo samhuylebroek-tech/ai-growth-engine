@@ -1,3 +1,4 @@
+import { localHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Zap } from "lucide-react";
@@ -6,11 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { LanguagePicker } from "@/components/app/language-picker";
 
 export const Route = createFileRoute("/pricing")({
-  head: () => ({ meta: [
-    { title: "Pricing — AI Growth Engine" }, { name: "description", content: "Simple plans for businesses, agencies and enterprises. Start with a 14-day free trial." },
-    { property: "og:title", content: "Pricing — AI Growth Engine" }, { property: "og:description", content: "Simple plans for businesses, agencies and enterprises. Start with a 14-day free trial." },
-    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({ meta: [...localHead("pricing").meta] }),
   component: Pricing,
 });
 

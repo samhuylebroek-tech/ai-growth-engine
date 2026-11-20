@@ -1,4 +1,4 @@
-import { pageHead } from "@/lib/page-head";
+import { localHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -14,7 +14,7 @@ import { PageHeader, StatusChip, EmptyState } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export const Route = createFileRoute("/_authenticated/app/documents")({ head: () => pageHead("Documents", "Private documents and evidence extraction."), component: Documents });
+export const Route = createFileRoute("/_authenticated/app/documents")({ head: () => localHead("documents"), component: Documents });
 
 function Documents() {
   const o = useOrg(); const qc = useQueryClient(); const ws = o.workspace?.id; const orgId = o.org?.id;

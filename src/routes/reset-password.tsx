@@ -1,3 +1,4 @@
+import { localHead } from "@/lib/page-head";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -8,11 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/reset-password")({
-  head: () => ({ meta: [
-    { title: "Set a new password — AI Growth Engine" }, { name: "description", content: "Choose a new password for your account." },
-    { property: "og:title", content: "Set a new password — AI Growth Engine" }, { property: "og:description", content: "Choose a new password for your account." },
-    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" },
-  ] }),
+  head: () => ({ meta: [...localHead("reset").meta, { name: "robots", content: "noindex" }] }),
   component: ResetPassword,
 });
 

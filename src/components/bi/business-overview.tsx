@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { biKey, biOptions } from "./bi-data";
+import { QualityBadge } from "./evidence";
 import {
   Badge,
   ClassBadge,
@@ -392,6 +393,10 @@ export function GrowthActions({
               </Badge>
               <span className="text-xs font-semibold">{a.score}</span>
             </div>
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+            <QualityBadge q={a.quality} />
+            {a.uncertain && <span className="text-[11px] text-muted-foreground">{t("ev.indicative")}</span>}
           </div>
           {!compact && (
             <p className="mt-1 text-[11px] text-muted-foreground">

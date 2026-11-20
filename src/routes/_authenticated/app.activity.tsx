@@ -1,4 +1,4 @@
-import { pageHead } from "@/lib/page-head";
+import { localHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { mergeActivity } from "@/lib/command-center";
 import { PageHeader, StatusChip, EmptyState } from "@/components/app/status";
 
 export const Route = createFileRoute("/_authenticated/app/activity")({
-  head: () => pageHead("Activity and results", "Workspace history of AI assignments, documents, decisions and recorded results."),
+  head: () => localHead("activity"),
   validateSearch: (search: Record<string, unknown>): { run?: string } => typeof search["run"] === "string" ? { run: search["run"] } : {},
   component: ActivityPage,
 });

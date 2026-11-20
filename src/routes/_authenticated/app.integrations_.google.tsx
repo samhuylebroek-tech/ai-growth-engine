@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { pageHead } from "@/lib/page-head";
+import { localHead } from "@/lib/page-head";
 import { PageHeader } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 import { completeGoogleIntegration } from "@/lib/integrations.functions";
@@ -10,7 +10,7 @@ import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/app/integrations_/google")({
   validateSearch: z.object({ code: z.string().optional(), state: z.string().optional(), error: z.string().optional() }),
-  head: () => pageHead("Connecting Google data source", "Finishing a read-only Google Analytics or Search Console connection."),
+  head: () => localHead("google"),
   component: GoogleReturn,
 });
 
