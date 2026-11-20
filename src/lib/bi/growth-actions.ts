@@ -1,6 +1,7 @@
 // Next Best Growth Actions: one transparent ranking over improvement findings, approved proposals awaiting work,
 // experiments and discovered opportunities. Pure; every score is the visible weighted sum of its components.
 import type { Candidate, Category } from "./optimization";
+import { partitionByDecisions, type RecDecision } from "@/lib/recommendation-memory";
 import {
   evidenceQuality,
   experimentQuality,
@@ -68,12 +69,23 @@ export type GrowthAction = {
     | "/app/opportunities"
     | "/app/revenue"
     | "/app/performance";
-  blockers: ("no_budget" | "low_credits" | "busy_team" | "needs_approval" | "needs_permission")[];
+  blockers: (
+    | "no_budget"
+    | "low_credits"
+    | "busy_team"
+    | "needs_approval"
+    | "needs_permission"
+    | "fact_conflict"
+    | "stale_evidence"
+    | "running_experiment"
+  )[];
   /** Evidence behind the item (proposal 0073 labels); "uncertain" ranks are shown as indicative only. */
   quality: Quality;
   uncertain: boolean;
   /** Other suggestions about the same thing that were folded into this one (ids), so nothing is shown twice. */
   alsoSuggested?: string[];
+  /** The factor in which this action most clearly beats the next one, so the order is explainable. */
+  ranksAboveBy?: keyof Components;
 };
 
 export type ActionInput = {
@@ -109,6 +121,10 @@ export type ActionInput = {
   }[];
   /** Linked evidence per improvement proposal, normalized; missing entries mean no linked evidence. */
   proposalEvidence?: ReadonlyMap<string, readonly NormalEvidence[]>;
+  /** Proposals relying on a fact with two different confirmed values: shown, but flagged and never ranked as sure. */
+  conflictedProposals?: ReadonlySet<string>;
+  /** Remembered postpone/dismiss decisions (proposal 0075). */
+  decisions?: readonly RecDecision[];
   goalPriority: ReadonlyMap<string, string>;
   budgetLeft: ReadonlyMap<string, number>;
   creditBalance: number | null;
@@ -227,11 +243,15 @@ export function nextGrowthActions(i: ActionInput, limit = 8): GrowthAction[] {
         (p.est_credits ?? 0) > 0,
         p.status === "proposed",
       );
+      const pe = i.proposalEvidence?.get(p.id) ?? [];
+      const conflicted = i.conflictedProposals?.has(p.id) ?? false;
+      if (conflicted) fe.b.push("fact_conflict");
+      if (pe.some((e) => e.stale && e.role === "supports")) fe.b.push("stale_evidence");
       const comp: Components = {
         value: 3.5,
         importance: imp,
         urgency: URGENCY[p.category] ?? 3,
-        confidence: Math.min(3, QUALITY_CONFIDENCE[pq]),
+        confidence: conflicted ? 1 : Math.min(3, QUALITY_CONFIDENCE[pq]),
         feasibility: fe.f,
         risk: p.required_level === "budget" ? 3 : 1,
       };
@@ -247,6 +267,7 @@ export function nextGrowthActions(i: ActionInput, limit = 8): GrowthAction[] {
         to: "/app/improvements",
         blockers: fe.b,
         ...q(pq),
+        ...(conflicted ? { uncertain: true } : {}),
       });
     } else if (
       p.status === "converted" &&
@@ -358,10 +379,43 @@ export function nextGrowthActions(i: ActionInput, limit = 8): GrowthAction[] {
       ...q(oq),
     });
   }
-  return dedupeActions(out.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id))).slice(
-    0,
-    limit,
-  );
+  return rankGrowthActions(i, out, limit);
+}
+
+/** Ranked, de-duplicated, decision-aware list; flags suggestions that would disturb a running experiment. */
+function rankGrowthActions(i: ActionInput, out: GrowthAction[], limit: number): GrowthAction[] {
+  const running = i.experiments.filter((x) => x.status === "running");
+  for (const a of out)
+    if (FOLDABLE.includes(a.kind) && typeof a.vars["title"] === "string") {
+      const title = a.vars["title"] as string;
+      if (running.some((x) => sameIdea(x.title, title))) {
+        a.blockers = [...a.blockers, "running_experiment"];
+        a.uncertain = true;
+      }
+    }
+  const sorted = dedupeActions(out.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id)));
+  const actions = partitionByDecisions(sorted, i.decisions ?? [], i.now).visible.slice(0, limit);
+  actions.forEach((a, k) => {
+    const next = actions[k + 1];
+    if (!next) return;
+    let best: keyof Components | undefined;
+    let gap = 0;
+    for (const key of Object.keys(WEIGHTS) as (keyof Components)[]) {
+      const d = (a.components[key] - next.components[key]) * WEIGHTS[key];
+      if (d > gap) {
+        gap = d;
+        best = key;
+      }
+    }
+    if (best) a.ranksAboveBy = best;
+  });
+  return actions;
+}
+
+/** The visible list plus the recommendations hidden by a remembered decision (so they can be restored). */
+export function growthActionsWithHidden(i: ActionInput, limit = 8) {
+  const all = nextGrowthActions({ ...i, decisions: [] }, 1000);
+  return { actions: nextGrowthActions(i, limit), hidden: partitionByDecisions(all, i.decisions ?? [], i.now).hidden };
 }
 
 // Same recommendation from two places (an AI opportunity and a team proposal, or the same idea saved twice):

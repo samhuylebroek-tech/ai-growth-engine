@@ -376,6 +376,20 @@ export type EvidenceItemRow = {
   created_at: string;
   updated_at: string;
 };
+/** Proposal 0075: insert-only history of a fact conflict (snapshot of every value at that moment). */
+export type FactConflictEventRow = {
+  id: string; org_id: string; workspace_id: string; topic: string;
+  kind: "review_started" | "resolved" | "reopened";
+  kept_fact_id: string | null; kept_value: string | null;
+  snapshot: { id: string; value: string; source_type: string; source_ref: string | null; verified: boolean; created_at: string }[];
+  note: string; actor_id: string; created_at: string;
+};
+/** Proposal 0075: insert-only decision about a next best action. */
+export type RecommendationDecisionRow = {
+  id: string; org_id: string; workspace_id: string; item_key: string;
+  decision: "postponed" | "dismissed" | "restored"; until: string | null; fingerprint: string;
+  note: string; actor_id: string; created_at: string;
+};
 export type EvidenceEventRow = {
   id: number;
   org_id: string;
@@ -694,6 +708,8 @@ type PendingTables = {
   optimization_proposals: { Row: ProposalRow; Insert: never; Update: never; Relationships: [] };
   evidence_items: { Row: EvidenceItemRow; Insert: never; Update: never; Relationships: [] };
   evidence_events: { Row: EvidenceEventRow; Insert: never; Update: never; Relationships: [] };
+  fact_conflict_events: { Row: FactConflictEventRow; Insert: never; Update: never; Relationships: [] };
+  recommendation_decisions: { Row: RecommendationDecisionRow; Insert: never; Update: never; Relationships: [] };
   proposal_evidence: { Row: ProposalEvidenceRow; Insert: never; Update: never; Relationships: [] };
   simulated_provider_records: {
     Row: SimRecordRow;
@@ -1011,6 +1027,11 @@ type PendingFunctions = {
   org_credit_overview: { Args: { _org: string; _month: string }; Returns: Json };
   move_budget: { Args: { _from: string; _to: string; _amount: number; _seen_from: number; _seen_to: number }; Returns: Json };
   resolve_fact_conflict: { Args: { _keep: string; _others: string[]; _note: string }; Returns: Json };
+  mark_fact_conflict: { Args: { _workspace: string; _topic: string; _kind: "review_started" | "reopened"; _note: string }; Returns: string };
+  decide_recommendation: {
+    Args: { _workspace: string; _key: string; _decision: "postponed" | "dismissed" | "restored"; _until: string | null; _fingerprint: string; _note: string };
+    Returns: string;
+  };
   decide_org_strategy: { Args: { _id: string; _decision: "approve" | "reject" | "retire"; _note: string }; Returns: Json };
   begin_org_ai_request_verified: { Args: { _org: string; _workspace: string; _request: string; _input: Json; _proof: string }; Returns: Json };
   finish_org_strategy_verified: { Args: { _id: string; _reply: string; _strategy: Json; _proof: string }; Returns: Json };

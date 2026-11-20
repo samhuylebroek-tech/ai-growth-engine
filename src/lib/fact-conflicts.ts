@@ -103,3 +103,68 @@ export function detectFactConflicts(facts: readonly FactRow[]): FactConflict[] {
       Number(b.confirmedConflict) - Number(a.confirmedConflict) || a.topic.localeCompare(b.topic),
   );
 }
+
+// ---- conflict lifecycle (proposal 0075) --------------------------------------------------------------------------
+export type ConflictStatus = "open" | "in_review" | "resolved" | "redisputed";
+export type ConflictEvent = {
+  id: string;
+  topic: string;
+  kind: "review_started" | "resolved" | "reopened";
+  kept_fact_id: string | null;
+  kept_value: string | null;
+  note: string;
+  actor_id: string;
+  created_at: string;
+  snapshot?: readonly { id: string; value: string; verified: boolean; source_type: string }[];
+};
+
+/**
+ * Status from the insert-only history: no decision yet = open; review started = in review; resolved stays resolved
+ * only while the kept value is still the confirmed one and no different value was added afterwards or confirmed;
+ * otherwise (or after an explicit reopen) it is disputed again. A later decision always supersedes an earlier one.
+ */
+export function conflictStatus(c: FactConflict, events: readonly ConflictEvent[]) {
+  const history = events
+    .filter((e) => e.topic === c.topic)
+    .slice()
+    .sort((a, b) => b.created_at.localeCompare(a.created_at));
+  const latest = history[0] ?? null;
+  let status: ConflictStatus = "open";
+  if (latest?.kind === "review_started") status = "in_review";
+  else if (latest?.kind === "reopened") status = "redisputed";
+  else if (latest?.kind === "resolved") {
+    const kept = c.facts.find((f) => f.id === latest.kept_fact_id);
+    const at = Date.parse(latest.created_at);
+    const newer = (f: FactRow) => !!f.created_at && Date.parse(f.created_at) > at;
+    const disputed =
+      !kept ||
+      !kept.verified ||
+      c.facts.some((f) => f.id !== kept.id && !sameValue(f.value, kept.value) && (f.verified || newer(f)));
+    status = disputed ? "redisputed" : "resolved";
+  }
+  return { status, latest, history };
+}
+
+/** Decisions that rely on a fact in this conflict: improvement proposals whose linked evidence points at one of its facts. */
+export function conflictDependents(
+  c: FactConflict,
+  evidence: readonly { id: string; source_kind: string; source_ref: string }[],
+  links: readonly { evidence_id: string; proposal_id: string }[],
+  proposals: readonly { id: string; title: string; status: string }[],
+) {
+  const ids = new Set(c.facts.map((f) => f.id));
+  const ev = new Set(evidence.filter((e) => e.source_kind === "business_fact" && ids.has(e.source_ref)).map((e) => e.id));
+  const pids = new Set(links.filter((l) => ev.has(l.evidence_id)).map((l) => l.proposal_id));
+  return proposals.filter((p) => pids.has(p.id));
+}
+
+/** Proposals relying on a fact whose topic has two or more different confirmed values (unresolved by definition). */
+export function proposalsOnConfirmedConflicts(
+  facts: readonly FactRow[],
+  evidence: readonly { id: string; source_kind: string; source_ref: string }[],
+  links: readonly { evidence_id: string; proposal_id: string }[],
+): Set<string> {
+  const ids = new Set(detectFactConflicts(facts).filter((c) => c.confirmedConflict).flatMap((c) => c.facts.map((f) => f.id)));
+  const ev = new Set(evidence.filter((e) => e.source_kind === "business_fact" && ids.has(e.source_ref)).map((e) => e.id));
+  return new Set(links.filter((l) => ev.has(l.evidence_id)).map((l) => l.proposal_id));
+}

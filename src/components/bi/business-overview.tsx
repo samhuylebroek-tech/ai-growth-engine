@@ -20,6 +20,7 @@ import {
 } from "@/lib/bi/comparison";
 import { KPI_CATEGORY, periodRange, type Kpi } from "@/lib/bi/kpis";
 import type { GrowthAction } from "@/lib/bi/growth-actions";
+import { fingerprintOf } from "@/lib/recommendation-memory";
 import { AREAS } from "@/lib/bi/understanding";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -118,7 +119,7 @@ function OverviewBody({
         <p className="mt-2 text-[11px] text-muted-foreground">{t("bi.scopeNote")}</p>
       )}
       <ExecutiveFigures d={d} v={v} model={model} />
-      <GrowthActions actions={v.actions} />
+      <GrowthActions actions={v.actions} hidden={v.hiddenActions} />
       <Indicators v={v} />
       <Comparison d={d} model={model} />
       <Understanding v={v} />
@@ -367,12 +368,38 @@ function Indicators({ v }: { v: View }) {
 
 export function GrowthActions({
   actions,
+  hidden = [],
   compact,
 }: {
   actions: GrowthAction[];
+  hidden?: View["hiddenActions"];
   compact?: boolean;
 }) {
-  const { t } = useI18n();
+  const { t, tag } = useI18n();
+  const o = useOrg();
+  const qc = useQueryClient();
+  const editor = can(o.workspaceRole, "evidence.decide");
+  const [busy, setBusy] = useState<string | null>(null);
+  async function decide(a: GrowthAction, decision: "postponed" | "dismissed" | "restored") {
+    if (!o.workspace) return;
+    setBusy(a.id);
+    const until = decision === "postponed" ? new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10) : null;
+    const r = await growthDb.rpc("decide_recommendation", {
+      _workspace: o.workspace.id,
+      _key: a.id,
+      _decision: decision,
+      _until: until,
+      _fingerprint: fingerprintOf(a),
+      _note: "",
+    });
+    setBusy(null);
+    if (r.error) {
+      toast.error(isNotInstalled(r.error) ? t("bi.rec.notInstalled") : t("bi.failed", { e: r.error.message }));
+      return;
+    }
+    toast.success(t(tk(`bi.rec.done.${decision}`)));
+    await qc.invalidateQueries({ queryKey: biKey(o.org?.id, o.workspace.id) });
+  }
   const shown = compact ? actions.slice(0, 3) : actions;
   const body = !shown.length ? (
     <p className="text-xs text-muted-foreground">{t("bi.actions.none")}</p>
@@ -397,6 +424,11 @@ export function GrowthActions({
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
             <QualityBadge q={a.quality} />
             {a.uncertain && <span className="text-[11px] text-muted-foreground">{t("ev.indicative")}</span>}
+            {a.ranksAboveBy && !compact ? (
+              <span className="text-[11px] text-muted-foreground">
+                {t("bi.rec.ranksAbove", { f: t(tk(`bi.rec.factor.${a.ranksAboveBy}`)) })}
+              </span>
+            ) : null}
             {a.alsoSuggested?.length ? (
               <span className="text-[11px] text-muted-foreground">{t("bi.actions.alsoSuggested", { n: a.alsoSuggested.length })}</span>
             ) : null}
@@ -425,17 +457,53 @@ export function GrowthActions({
               ))}
             </p>
           )}
-          <Link to={a.to} className="mt-1 inline-block text-[11px] text-primary hover:underline">
-            {t("bi.actions.open")}
-          </Link>
+          <div className="mt-1 flex flex-wrap items-center gap-3">
+            <Link to={a.to} className="text-[11px] text-primary hover:underline">
+              {t("bi.actions.open")}
+            </Link>
+            {editor && !compact && (
+              <>
+                <button type="button" disabled={!!busy} className="text-[11px] text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50" onClick={() => decide(a, "postponed")}>
+                  {t("bi.rec.postpone")}
+                </button>
+                <button type="button" disabled={!!busy} className="text-[11px] text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50" onClick={() => decide(a, "dismissed")}>
+                  {t("bi.rec.dismiss")}
+                </button>
+              </>
+            )}
+          </div>
         </li>
       ))}
     </ol>
+  );
+  const hiddenList = !compact && hidden.length > 0 && (
+    <details className="mt-3 rounded-lg border border-dashed border-border p-3 text-[11px]">
+      <summary className="cursor-pointer text-muted-foreground">{t("bi.rec.hidden", { n: hidden.length })}</summary>
+      <p className="mt-1 text-muted-foreground">{t("bi.rec.hiddenHelp")}</p>
+      <ul className="mt-2 space-y-1.5">
+        {hidden.map(({ action: a, decision: dd }) => (
+          <li key={a.id} className="flex flex-wrap items-center justify-between gap-2">
+            <span className="min-w-0 break-words">
+              {actionTitle(a, t)} ·{" "}
+              {dd.decision === "postponed" && dd.until
+                ? t("bi.rec.until", { d: new Date(`${dd.until}T12:00:00Z`).toLocaleDateString(tag) })
+                : t("bi.rec.dismissed")}
+            </span>
+            {editor && (
+              <Button size="sm" variant="outline" className="h-7" disabled={!!busy} onClick={() => decide(a, "restored")}>
+                {t("bi.rec.restore")}
+              </Button>
+            )}
+          </li>
+        ))}
+      </ul>
+    </details>
   );
   if (compact) return body;
   return (
     <Section title={t("bi.actions.title")} intro={t("bi.actions.intro")}>
       {body}
+      {hiddenList}
     </Section>
   );
 }

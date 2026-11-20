@@ -19,7 +19,9 @@ import {
   type PeriodKey,
 } from "./kpis";
 import { detectImprovements, type Candidate } from "./optimization";
-import { nextGrowthActions, type GrowthAction } from "./growth-actions";
+import { growthActionsWithHidden, type GrowthAction } from "./growth-actions";
+import type { RecDecision } from "@/lib/recommendation-memory";
+import { proposalsOnConfirmedConflicts } from "@/lib/fact-conflicts";
 import { understand, type Knowledge } from "./understanding";
 import { progressOf, type Src } from "./comparison";
 import { fromEvidenceItem, type NormalEvidence } from "@/lib/evidence";
@@ -116,12 +118,22 @@ export type BiData = {
     objectives: unknown;
     monthly_budget_eur: number | null;
   } | null;
-  facts: { id?: string; key: string; value: string; verified: boolean }[];
+  facts: {
+    id?: string;
+    key: string;
+    value: string;
+    verified: boolean;
+    source_type?: string;
+    source_ref?: string | null;
+    created_at?: string;
+  }[];
   connections: { connector_key: string; status: string; granted_levels: string[] }[];
   creditBalance: number | null;
   /** Proposal 0073; null when evidence governance is not installed in the connected database. */
   evidence?: EvidenceItemRow[] | null;
   proposalEvidence?: ProposalEvidenceRow[];
+  /** Proposal 0075: remembered postpone/dismiss decisions; empty when not installed. */
+  recDecisions?: RecDecision[];
 };
 
 export type ScopedMoney = { currency: string; amount: number }[];
@@ -144,6 +156,8 @@ export type View = {
   credits: number;
   candidates: Candidate[];
   actions: GrowthAction[];
+  /** Recommendations hidden by a postpone/dismiss decision, with that decision (for restoring). */
+  hiddenActions: { action: GrowthAction; decision: RecDecision }[];
   understanding: Knowledge[];
   importedSources: string[];
   latestImport: string | null;
@@ -302,9 +316,15 @@ export function buildView(d: BiData, f: Filters, model: Model, now: Date = new D
       p.amount - (spend.find((s) => s.currency === p.currency)?.amount ?? 0),
     ]),
   );
-  const actions = nextGrowthActions({
+  const { actions, hidden: hiddenActions } = growthActionsWithHidden({
     candidates,
     proposalEvidence: linkedEvidence(d),
+    conflictedProposals: proposalsOnConfirmedConflicts(
+      d.facts.filter((f) => f.id).map((f) => ({ ...f, id: f.id!, source_type: f.source_type ?? "user" })),
+      d.evidence ?? [],
+      d.proposalEvidence ?? [],
+    ),
+    decisions: d.recDecisions ?? [],
     proposals,
     experiments,
     opportunities: d.opportunities,
@@ -351,6 +371,7 @@ export function buildView(d: BiData, f: Filters, model: Model, now: Date = new D
     credits,
     candidates,
     actions,
+    hiddenActions,
     understanding,
     importedSources: [...new Set(imported.map((e) => e.source))],
     latestImport:
