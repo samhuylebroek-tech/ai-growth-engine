@@ -1,5 +1,6 @@
 // Caller-RLS reads for business performance intelligence. One shared query per workspace; fails closed when a
 // required read fails, so partial data is never shown as a complete overview.
+import { newestFirst, readFactPages } from "@/lib/facts-read";
 import { supabase } from "@/integrations/supabase/client";
 import { growthDb, isNotInstalled, retryUnlessNotInstalled } from "@/lib/pending-schema";
 import type { BiData } from "@/lib/bi/view";
@@ -116,7 +117,15 @@ export function biOptions(orgId: string | undefined, wsId: string | undefined) {
               "business_model,description,industry,offerings,audiences,objectives,monthly_budget_eur",
             ),
         ).maybeSingle(),
-        sc(supabase.from("business_facts").select("id,key,value,verified,source_type,source_ref,created_at")).limit(200),
+        readFactPages((cursor, size) => {
+          const q = sc(supabase.from("business_facts").select("id,key,value,verified,source_type,source_ref,created_at"))
+            .order("id")
+            .limit(size);
+          return cursor ? q.gt("id", cursor) : q;
+        }).then(
+          (r) => ({ data: newestFirst(r.rows), error: null, complete: r.complete }),
+          (error: unknown) => ({ data: null, error, complete: false }),
+        ),
         sc(
           growthDb.from("connector_connections").select("connector_key,status,granted_levels"),
         ).limit(200),
@@ -207,6 +216,7 @@ export function biOptions(orgId: string | undefined, wsId: string | undefined) {
         opportunities: opp.error ? [] : rows(opp as R),
         profile: ((profile as R).data ?? null) as BiData["profile"],
         facts: rows(facts as R),
+        factsComplete: (facts as { complete?: boolean }).complete === true,
         connections: rows(connections as R),
         creditBalance: bal.error ? null : (bal.data as number),
         evidence: evidenceInstalled ? rows(evi as R) : null,

@@ -118,6 +118,8 @@ export type BiData = {
     objectives: unknown;
     monthly_budget_eur: number | null;
   } | null;
+  /** True only when every fact of the business was read (see facts-read.ts); conflict and source checks rely on it. */
+  factsComplete?: boolean;
   facts: {
     id?: string;
     key: string;
@@ -384,10 +386,10 @@ export function buildView(d: BiData, f: Filters, model: Model, now: Date = new D
 
 /** Records the caller could read, to tell whether the record behind a piece of evidence still exists / is confirmed. */
 // A list read up to its limit may be incomplete, so a record absent from it is "unknown", never "missing".
-export const SOURCE_READ_LIMITS = { facts: 200, measurements: 5000 } as const;
-export function knownSources(d: Partial<Pick<BiData, "facts" | "measurements" | "revenue">>) {
+export const SOURCE_READ_LIMITS = { measurements: 5000 } as const;
+export function knownSources(d: Partial<Pick<BiData, "facts" | "factsComplete" | "measurements" | "revenue">>) {
   return {
-    ...(d.facts && d.facts.length < SOURCE_READ_LIMITS.facts
+    ...(d.facts && d.factsComplete
       ? { facts: new Map(d.facts.filter((f) => f.id).map((f) => [f.id!, f.verified])) }
       : {}),
     ...(d.measurements && d.measurements.length < SOURCE_READ_LIMITS.measurements
@@ -400,7 +402,7 @@ export function knownSources(d: Partial<Pick<BiData, "facts" | "measurements" | 
 /** Linked evidence per improvement proposal, normalized (rejected and superseded versions drop out). */
 export function linkedEvidence(
   d: Pick<BiData, "evidence" | "proposalEvidence"> &
-    Partial<Pick<BiData, "facts" | "measurements" | "revenue">>,
+    Partial<Pick<BiData, "facts" | "factsComplete" | "measurements" | "revenue">>,
   now: Date = new Date(),
 ): Map<string, NormalEvidence[]> {
   const byId = new Map((d.evidence ?? []).map((e) => [e.id, e]));

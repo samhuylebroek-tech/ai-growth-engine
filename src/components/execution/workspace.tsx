@@ -1,3 +1,4 @@
+import { campaignHealth } from "@/lib/campaign-health";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -331,6 +332,7 @@ export function ExecutionWorkspace({
                       {name(x.owner_id)} · {lbl(x.priority)}
                       {due(x) && ` · ${new Date(`${due(x)}T12:00:00`).toLocaleDateString(tag)}`}
                     </p>
+                    {kind === "campaigns" && <CampaignHealthLine item={x} tasks={q.data?.tasks ?? []} today={today} />}
                     {kind === "tasks" && (execProfiles.has(x.id) || blockedIds.has(x.id)) && (
                       <p className="mt-1 flex flex-wrap gap-1 text-xs">
                         {execProfiles.has(x.id) && <span className="rounded border px-1.5 py-0.5 text-muted-foreground">{tx(`run.sp.${execProfiles.get(x.id)!.specialist_key}` as MessageKey)}</span>}
@@ -1067,6 +1069,7 @@ function WorkDetails({
       )}
       {tab === "overview" && (
         <>
+          {kind === "campaigns" && <CampaignHealthLine item={item} tasks={q.data?.tasks ?? []} today={localDay()} detailed />}
           <WorkForm item={item} kind={kind} onSaved={() => refresh()} />
           {kind === "tasks" && "agent_key" in item && item.agent_key && editable && (
             <Button variant="outline" onClick={runAgent}>
@@ -1504,5 +1507,28 @@ function WorkDetails({
             </div>
           ))}
     </>
+  );
+}
+
+/** Progress state and warnings for one campaign, from its own record and tasks (no spend per campaign is recorded). */
+function CampaignHealthLine({ item, tasks, today, detailed = false }: { item: WorkItem; tasks: { campaign_id: string | null; status: string; due_date: string | null }[]; today: string; detailed?: boolean }) {
+  const { t: tx } = useI18n();
+  if (!("results" in item)) return null;
+  const h = campaignHealth(
+    { status: item.status, start_date: item.start_date, end_date: item.end_date, goal_id: item.goal_id, results: item.results },
+    tasks.filter((t) => t.campaign_id === item.id),
+    today,
+  );
+  const tone = h.state === "at_risk" ? "border-destructive/40 text-destructive" : h.state === "needs_attention" ? "border-warning/50 text-warning" : h.state === "on_track" || h.state === "evaluated" ? "border-success/40 text-success" : "text-muted-foreground";
+  return (
+    <div className={cn("min-w-0 text-xs", detailed ? "rounded-md border border-border bg-card p-3" : "mt-1")}>
+      <p className="flex flex-wrap items-center gap-1">
+        <span className={cn("rounded border px-1.5 py-0.5", tone)}>{tx(`work.health.${h.state}` as MessageKey)}</span>
+        {h.warnings.slice(0, detailed ? 7 : 2).map((w) => (
+          <span key={w} className="rounded border px-1.5 py-0.5 text-muted-foreground">{tx(`work.health.w.${w}` as MessageKey, { n: h.overdue })}</span>
+        ))}
+      </p>
+      {detailed && <p className="mt-2 text-muted-foreground">{tx("work.health.basis", { d: h.done, n: h.total, p: h.elapsed === null ? "?" : Math.round(h.elapsed * 100) })}</p>}
+    </div>
   );
 }

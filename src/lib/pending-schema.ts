@@ -390,6 +390,17 @@ export type RecommendationDecisionRow = {
   decision: "postponed" | "dismissed" | "restored"; until: string | null; fingerprint: string;
   note: string; actor_id: string; created_at: string;
 };
+/** Proposal 0076: a recorded business check (monitoring snapshot) and the per-business check frequency. */
+export type BusinessCheckRow = {
+  id: string; org_id: string; workspace_id: string;
+  kind: "manual" | "daily" | "weekly" | "monthly" | "after_campaign" | "after_experiment";
+  subject_id: string | null; inspected: Json; findings: Json;
+  summary: { findings?: number; new?: number; still_open?: number; resolved?: number; first?: boolean } | Json;
+  previous_id: string | null; actor_id: string; created_at: string;
+};
+export type BusinessCheckSettingsRow = {
+  workspace_id: string; org_id: string; frequency: "off" | "daily" | "weekly" | "monthly"; updated_by: string; updated_at: string;
+};
 export type EvidenceEventRow = {
   id: number;
   org_id: string;
@@ -710,6 +721,8 @@ type PendingTables = {
   evidence_events: { Row: EvidenceEventRow; Insert: never; Update: never; Relationships: [] };
   fact_conflict_events: { Row: FactConflictEventRow; Insert: never; Update: never; Relationships: [] };
   recommendation_decisions: { Row: RecommendationDecisionRow; Insert: never; Update: never; Relationships: [] };
+  business_checks: { Row: BusinessCheckRow; Insert: never; Update: never; Relationships: [] };
+  business_check_settings: { Row: BusinessCheckSettingsRow; Insert: never; Update: never; Relationships: [] };
   proposal_evidence: { Row: ProposalEvidenceRow; Insert: never; Update: never; Relationships: [] };
   simulated_provider_records: {
     Row: SimRecordRow;
@@ -1032,6 +1045,11 @@ type PendingFunctions = {
     Args: { _workspace: string; _key: string; _decision: "postponed" | "dismissed" | "restored"; _until: string | null; _fingerprint: string; _note: string };
     Returns: string;
   };
+  record_business_check: {
+    Args: { _workspace: string; _kind: BusinessCheckRow["kind"]; _subject: string | null; _inspected: Json; _findings: Json };
+    Returns: Json;
+  };
+  set_business_check_frequency: { Args: { _workspace: string; _frequency: BusinessCheckSettingsRow["frequency"] }; Returns: undefined };
   decide_org_strategy: { Args: { _id: string; _decision: "approve" | "reject" | "retire"; _note: string }; Returns: Json };
   begin_org_ai_request_verified: { Args: { _org: string; _workspace: string; _request: string; _input: Json; _proof: string }; Returns: Json };
   finish_org_strategy_verified: { Args: { _id: string; _reply: string; _strategy: Json; _proof: string }; Returns: Json };

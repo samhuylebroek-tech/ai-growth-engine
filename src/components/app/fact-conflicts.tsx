@@ -54,8 +54,8 @@ function useConflictContext(enabled: boolean) {
   });
 }
 
-export function FactConflicts({ facts, canDecide, sourceLabel, onResolved }: {
-  facts: FactRow[]; canDecide: boolean; sourceLabel: (s: string) => string; onResolved: () => void;
+export function FactConflicts({ facts, complete = true, canDecide, sourceLabel, onResolved }: {
+  facts: FactRow[]; complete?: boolean; canDecide: boolean; sourceLabel: (s: string) => string; onResolved: () => void;
 }) {
   const { t, tag } = useI18n();
   const o = useOrg();
@@ -64,7 +64,9 @@ export function FactConflicts({ facts, canDecide, sourceLabel, onResolved }: {
   const ctx = useConflictContext(conflicts.length > 0);
   const [busy, setBusy] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
-  if (!conflicts.length) return null;
+  if (!conflicts.length) {
+    return complete ? null : <p role="status" className="rounded-md border border-border bg-card px-3 py-2 text-xs text-muted-foreground">{t("ev.cf.incomplete")}</p>;
+  }
   const done = async () => {
     await qc.invalidateQueries({ queryKey: ["fact-conflict-context"] });
     onResolved();
@@ -101,6 +103,7 @@ export function FactConflicts({ facts, canDecide, sourceLabel, onResolved }: {
     <section aria-labelledby="fact-conflicts" className="mb-6 rounded-lg border border-warning/40 bg-warning/5 p-4">
       <h2 id="fact-conflicts" className="flex items-center gap-2 text-sm font-semibold"><AlertTriangle className="h-4 w-4 text-warning" />{t("ev.cf.title")}</h2>
       <p className="mt-1 text-xs text-muted-foreground">{t("ev.cf.intro")}</p>
+      {!complete && <p role="status" className="mt-1 text-xs text-muted-foreground">{t("ev.cf.incomplete")}</p>}
       {ctx.isError && <p role="alert" className="mt-2 text-xs text-destructive">{t("ev.cf.contextFailed")}</p>}
       <div className="mt-3 space-y-4">
         {conflicts.map((c) => {

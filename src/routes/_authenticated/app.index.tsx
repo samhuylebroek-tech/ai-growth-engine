@@ -22,6 +22,7 @@ import { PrimaryGrowthFocus } from "@/components/app/primary-growth-focus";
 import { GrowthInitiativePulse } from "@/components/app/growth-initiative-pulse";
 import { HomePerformance, HomeBudget, PerformanceAttention } from "@/components/app/home-insights";
 import { GrowthSignals } from "@/components/app/growth-signals";
+import { BusinessCheck } from "@/components/app/business-check";
 import { HomeOpportunities } from "@/components/app/home-opportunities";
 import { BusinessTiles } from "@/components/app/business-tiles";
 import { ExecutionTiles } from "@/components/app/execution-tiles";
@@ -96,6 +97,7 @@ function Overview() {
         {!attention && <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground"><Check className="h-4 w-4 text-success" />{t("home.nothing")}</div>}
         {d.approvalCount > 3 && <Button variant="link" size="sm" className="mt-2 px-0" asChild><Link to="/app/approvals">{t("home.seeAll", { n: d.approvalCount })} <ArrowUpRight /></Link></Button>}</section>
         <GrowthSignals />
+        <BusinessCheck />
         <HomeOpportunities />
         <section><SectionHeading eyebrow={t("home.underway")} title={t("home.activeWork")} action={<Button variant="ghost" size="sm" asChild><Link to="/app/activity">{t("home.allWork")} <ArrowUpRight /></Link></Button>} /><HomeWork section="active" />{w?.active.length ? w.active.slice(0, 5).map(r => <ActivityRow key={r.id} item={{ id: r.id, entityId: r.id, kind: "ai", title: name(r.agent_key), detail: readableRunSummary(r.summary) ?? t("home.specialist", { n: name(r.agent_key) }), status: r.status, time: r.created_at, to: "/app/activity" }} compact={compact} open={() => setSelected({ id: r.id, entityId: r.id, kind: "ai", title: name(r.agent_key), detail: readableRunSummary(r.summary) ?? t("home.noNext"), status: r.status, time: r.created_at, to: "/app/activity" })} />) : <Quiet icon={<Sparkles />} title={work.isLoading ? t("home.checkingActive") : work.isError ? t("home.activeUnavailable") : t("home.noAssignments")} text={t("home.newAppear")} />}{(w?.activeCount ?? 0) > 5 && <Button variant="link" size="sm" asChild><Link to="/app/activity">{t("home.viewAll", { n: w?.activeCount ?? 0 })} <ArrowUpRight /></Link></Button>}</section>
         {work.isError && <div role="alert" className="flex flex-wrap items-center gap-3 text-sm text-destructive">{t("home.activityFailed")}<Button variant="outline" size="sm" onClick={() => work.refetch()}>{t("home.retryActivity")}</Button></div>}

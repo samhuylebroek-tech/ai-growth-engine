@@ -1,3 +1,4 @@
+import { newestFirst, readFactPages } from "@/lib/facts-read";
 import { readLocale, useI18n } from "@/lib/i18n";
 import { translate } from "@/lib/i18n/messages";
 import { pageHead } from "@/lib/page-head";
@@ -32,10 +33,14 @@ function Profile() {
     queryFn: async () => {
       const [bp, facts] = await Promise.all([
         growthDb.from("business_profiles").select("*").eq("workspace_id", ws ?? "").maybeSingle(),
-        supabase.from("business_facts").select("*").eq("workspace_id", ws ?? "").order("created_at", { ascending: false }),
+        // Every fact, in keyset pages: conflict checks need the full set, not the newest few hundred.
+        readFactPages((cursor, size) => {
+          const page = supabase.from("business_facts").select("*").eq("org_id", o.org?.id ?? "").eq("workspace_id", ws ?? "").order("id").limit(size);
+          return cursor ? page.gt("id", cursor) : page;
+        }),
       ]);
-      if (bp.error) throw bp.error; if (facts.error) throw facts.error;
-      return { bp: bp.data, facts: facts.data ?? [] };
+      if (bp.error) throw bp.error;
+      return { bp: bp.data, facts: newestFirst(facts.rows), complete: facts.complete };
     },
   });
   const refresh = () => qc.invalidateQueries({ queryKey: ["profile", ws] });
@@ -81,7 +86,7 @@ function Profile() {
         </div></div>
       )}
       <h2 className="mb-3 mt-10 font-semibold">{t("account.profile.knowledge")}</h2>
-      {q.data && <FactConflicts facts={q.data.facts} canDecide={confirmFacts} onResolved={refresh} sourceLabel={(st) => (st in SOURCE_LABEL ? t(SOURCE_LABEL[st as keyof typeof SOURCE_LABEL]) : st)} />}
+      {q.data && <FactConflicts facts={q.data.facts} complete={q.data.complete} canDecide={confirmFacts} onResolved={refresh} sourceLabel={(st) => (st in SOURCE_LABEL ? t(SOURCE_LABEL[st as keyof typeof SOURCE_LABEL]) : st)} />}
       <p className="mb-4 text-sm text-muted-foreground">{t("account.profile.trust")}</p>
       <div className="mb-5 flex flex-wrap gap-3"><Input aria-label={t("account.profile.searchLabel")} placeholder={t("account.profile.search")} value={search} onChange={e => setSearch(e.target.value)} className="max-w-sm" /><select aria-label={t("account.profile.status")} className="rounded-md border border-border bg-card px-3 text-xs" value={filter} onChange={e => setFilter(e.target.value)}><option value="all">{t("account.profile.all")}</option><option value="confirmed">{t("account.confirmed")}</option><option value="review">{t("account.reviewNeeded")}</option></select></div>
       {edit && (
