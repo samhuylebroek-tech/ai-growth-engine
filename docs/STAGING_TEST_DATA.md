@@ -45,6 +45,11 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
   by the conflict-resolution walkthrough) and one `facts.conflict_resolved` audit entry. Ledger 57, 5 auth users.
   *Keep as conflict-resolution evidence; the unconfirmed value can be deleted in the business profile if wanted.*
 
+- **Phase 8.3 sprint (2026-11-20)** — staging proposal 0075 added two insert-only tables. Browser walkthroughs created
+  four business facts "QA openingsuren …" (two topics, both currently "disputed again"), their conflict history
+  (review started, value chosen, reopened) and one recommendation dismissed then restored, each with audit entries.
+  *Keep as decision-memory evidence; unwanted fact values can be deleted in the business profile; history stays.*
+
 ## Cleanup proposal (needs separate approval)
 
 1. Archive (status change, not delete) the five QA-named goals/campaigns/tasks through the normal app screens.

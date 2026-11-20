@@ -314,3 +314,11 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] Staging browser checks EN/NL/FR, desktop/phone
 - [ ] Organization-level AI Growth Officer strategy (metered AI over several businesses)
 - [B] Proposals 0067–0069 on the live database: needs separate approval
+
+## Phase 8.3 sprint (2026-11-20)
+- [x] Evidence freshness by source kind; outdated evidence downgraded and shown.
+- [x] Fact conflicts: status, insert-only history, affected proposals, review/reopen/resolve (staging proposal 0075).
+- [x] Remembered recommendation decisions (postpone/dismiss/restore), blockers and rank explanation.
+- [x] Growth Officer: fifteen growth levers, structured recommendations, conflict rule; levers panel EN/NL/FR.
+- [ ] Production rollout of proposals 0063–0075 — needs the owner's separate approval.
+- [ ] Facts read is capped at 200 per business; conflict detection beyond that cap needs paging (low risk at current sizes).

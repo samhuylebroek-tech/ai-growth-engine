@@ -1,3 +1,5 @@
 # Shared logic
 - Evidence freshness is pure `src/lib/evidence-freshness.ts` by source kind: historical records never expire, expired/deleted/unconfirmed sources count only as estimates, and absence is "missing" only when the read was complete, so nothing stale is presented as proof.
 - Fact conflicts (proposal 0074) are detected by pure `src/lib/fact-conflicts.ts` using the same topic rule as SQL `fact_topic`, are never auto-resolved, and are decided by an editor through `resolve_fact_conflict`, which keeps every value and audits the choice.
+- Conflict lifecycle and recommendation postpone/dismiss/restore (proposal 0075) are insert-only event rows; status is derived by pure `conflictStatus` / `recommendation-memory.ts`, and a dismissal is keyed to a fingerprint so a recommendation returns only when its information changes.
+- Growth levers are checked by pure `src/lib/growth-levers.ts` from the business's own records; it reports available and missing data per lever and never implies a result.

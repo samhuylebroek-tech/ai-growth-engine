@@ -79,6 +79,7 @@ export function FactConflicts({ facts, canDecide, sourceLabel, onResolved }: {
       fail(r.error);
       return;
     }
+    setNotes((n) => ({ ...n, [topic]: "" }));
     toast.success(t("ev.cf.done"));
     await done();
   }
@@ -91,6 +92,7 @@ export function FactConflicts({ facts, canDecide, sourceLabel, onResolved }: {
       fail(r.error);
       return;
     }
+    setNotes((n) => ({ ...n, [topic]: "" }));
     toast.success(t(kind === "review_started" ? "ev.cf.reviewDone" : "ev.cf.reopenDone"));
     await done();
   }
