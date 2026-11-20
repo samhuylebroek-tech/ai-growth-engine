@@ -21,9 +21,11 @@ const settle = async <T,>(p: PromiseLike<Res<T>>, map: (r: Res<T>) => Loaded<unk
     return { ok: true, data: r.data as T };
   } catch { return { ok: false, reason: "load_failed" }; }
 };
+// Awaiting a query builder twice sends the request twice, so the count is captured during the single settle.
 const counted = async (p: PromiseLike<Res<unknown>>): Promise<Loaded<number>> => {
-  const r = await settle(p);
-  return r.ok ? { ok: true, data: (await p).count ?? 0 } : r;
+  let n = 0;
+  const r = await settle(p, (res) => { n = res.count ?? 0; return null; });
+  return r.ok ? { ok: true, data: n } : r;
 };
 
 /** Reads every tile's source under the caller's RLS, scoped to the active organization and workspace. */
@@ -54,13 +56,15 @@ export function businessTilesOptions(orgId: string | undefined, wsId: string | u
         const ids = runs.data.map(r => r.id); let total = 0;
         for (let k = 0; k < ids.length && aiCreditsThisMonth.ok; k += 100) {
           const u = await settle(supabase.from("ai_usage_events").select("credits_charged").eq("org_id", orgId).in("run_id", ids.slice(k, k + 100)).limit(1000));
-          if (u.ok) total += u.data.reduce((s, e) => s + Number(e.credits_charged), 0); else aiCreditsThisMonth = u;
+          if (!u.ok) aiCreditsThisMonth = u;
+          else if (u.data.length >= 1000) aiCreditsThisMonth = { ok: false, reason: "too_many" };
+          else total += u.data.reduce((s, e) => s + Number(e.credits_charged), 0);
         }
         if (aiCreditsThisMonth.ok) aiCreditsThisMonth = { ok: true, data: total };
       }
       let revenue: Loaded<{ currency: string | null; summary: ReturnType<typeof summarizeMetric> }[]> = revenueDefs.ok ? { ok: true, data: [] } : revenueDefs;
       if (revenueDefs.ok && revenueDefs.data.length) {
-        const m = await settle(scope(growthDb.from("performance_measurements").select("id,metric_id,kind,period_start,period_end,value,corrects_id,created_at,source")).in("metric_id", revenueDefs.data.map(d => d.id)).order("period_start", { ascending: false }).limit(500));
+        const m = await settle(scope(growthDb.from("performance_measurements").select("id,metric_id,kind,period_start,period_end,value,corrects_id,created_at,source")).in("metric_id", revenueDefs.data.map(d => d.id)).in("kind", ["imported_actual", "planned"]).order("period_start", { ascending: false }).limit(500));
         revenue = m.ok ? { ok: true, data: revenueDefs.data.map(d => ({ currency: d.currency, summary: summarizeMetric({ id: d.id, direction: "increase" }, m.data as Measurement[]) })) } : m;
       }
       return buildBusinessTiles({

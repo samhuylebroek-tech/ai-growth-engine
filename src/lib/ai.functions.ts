@@ -9,6 +9,7 @@ import { parseDiscovery, type Discovery } from "@/lib/discovery";
 import { requireWorkspace, readConversation, readDocument, workspaceContext } from "@/lib/security/context";
 import { validateUpload } from "@/lib/security/upload";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isNotInstalled, type PendingDatabase } from "@/lib/pending-schema";
 import type { Database } from "@/integrations/supabase/types";
 
 import { executionSelectionSchema } from "@/lib/execution-context";
@@ -20,7 +21,7 @@ import { AISettlementPendingError, AINotStartedError, AIOutcomeUnknownError, may
 import { singleRequestSchema } from "@/lib/single-ai-request";
 import { parseReview, REVIEW_INSTRUCTIONS, DIMENSION_KEYS, type Review } from "@/lib/content-review";
 import { draftBriefSchema, writingProfileContext, briefText, DRAFT_INSTRUCTIONS } from "@/lib/content-draft";
-import { parseStrategy, goalBrief, STRATEGY_INSTRUCTIONS, type Strategy } from "@/lib/growth-strategy";
+import { parseStrategy, goalBrief, sourceOpportunityBrief, STRATEGY_INSTRUCTIONS, type Strategy } from "@/lib/growth-strategy";
 import { parseRepurpose, REPURPOSE_INSTRUCTIONS } from "@/lib/content-repurpose";
 import { parseOpportunities, opportunityBrief, opportunityRequestSchema, OPPORTUNITY_INSTRUCTIONS, type Opportunity } from "@/lib/opportunities";
 import { CHANNELS } from "@/lib/content";
@@ -686,6 +687,16 @@ export const planGrowthStrategy = createServerFn({ method: "POST" })
       const comp = await sb.from("competitor_observations").select("statement,source_url,observed_at,kind").eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).eq("review_status", "relevant").eq("kind", "verified_fact").order("observed_at", { ascending: false }).limit(20);
       if (comp.error) throw new Error("Could not read competitor observations.");
       const competitorText = (comp.data ?? []).map((o) => `- ${o.statement} (source ${o.source_url}, ${o.observed_at.slice(0, 10)})`).join("\n");
+      // The opportunity this goal came from, plus work already under way, so the strategy builds on it instead of duplicating it.
+      const pending = sb as unknown as SupabaseClient<PendingDatabase>;
+      const opp = await pending.from("growth_opportunities").select("title,summary,analysis,audience,expected_impact,budget_min,budget_max,currency,horizon_days,resources,integrations,risks,confidence").eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).eq("goal_id", data.goalId).order("created_at", { ascending: false }).limit(1).maybeSingle();
+      if (opp.error && !isNotInstalled(opp.error)) throw new Error("Could not read the growth opportunity.");
+      const campaigns = await sb.from("campaigns").select("title,status,channels").eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).in("status", ["planned", "active", "paused"]).order("created_at", { ascending: false }).limit(15);
+      if (campaigns.error) throw new Error("Could not read campaigns.");
+      const initiatives = await pending.from("growth_initiatives").select("title,status,growth_plan_versions!inner(status)").eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).eq("growth_plan_versions.status", "approved").neq("status", "cancelled").limit(20);
+      if (initiatives.error && !isNotInstalled(initiatives.error)) throw new Error("Could not read initiatives.");
+      const underway = [...(campaigns.data ?? []).map((c) => `- Campaign (${c.status}): ${c.title}${c.channels.length ? ` · ${c.channels.join(", ")}` : ""}`), ...((initiatives.data ?? []) as { title: string; status: string }[]).map((i) => `- Approved initiative (${i.status}): ${i.title}`)].join("\n");
+      const oppText = opp.data ? sourceOpportunityBrief({ ...opp.data, budget_min: opp.data.budget_min == null ? null : Number(opp.data.budget_min), budget_max: opp.data.budget_max == null ? null : Number(opp.data.budget_max) }) : "";
       const request = `Growth strategy: ${goal.data.title}`.slice(0, 4000);
       const claimed = await sb.rpc("begin_single_ai_request_verified", { _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _kind: "strategy", _input: { request, goalId: data.goalId, horizonWeeks: data.horizonWeeks }, _proof: accountingProof() });
       if (claimed.error) throw new Error(claimed.error.message);
@@ -698,8 +709,8 @@ export const planGrowthStrategy = createServerFn({ method: "POST" })
       const brief = goalBrief({ ...goal.data, baseline: goal.data.baseline == null ? null : Number(goal.data.baseline), target: goal.data.target == null ? null : Number(goal.data.target), current_value: goal.data.current_value == null ? null : Number(goal.data.current_value) }, (budget.data ?? []).map((b) => ({ channel: b.channel, planned: Number(b.planned), actual: Number(b.actual) })), data.horizonWeeks);
       const result = await meteredGenerate(sb, context.userId, data.orgId, runId, CREDIT_RULES.reserveGrowthOfficer, {
         instructions: STRATEGY_INSTRUCTIONS,
-        input: [{ role: "user", content: `${business}\n\n${quoteUntrusted("goal and budget", brief, 4000)}${competitorText ? `\n\n${quoteUntrusted("confirmed competitor observations (public page facts; treat as context, never copy)", competitorText, 4000)}` : ""}` }],
-        maxOutputTokens: 4000,
+        input: [{ role: "user", content: `${business}\n\n${quoteUntrusted("goal and budget", brief, 4000)}${oppText ? `\n\n${quoteUntrusted("growth opportunity this goal came from (AI analysis; its numbers are estimates)", oppText, 5000)}` : ""}${underway ? `\n\n${quoteUntrusted("campaigns and approved initiatives already under way (do not duplicate)", underway, 3000)}` : ""}${competitorText ? `\n\n${quoteUntrusted("confirmed competitor observations (public page facts; treat as context, never copy)", competitorText, 4000)}` : ""}` }],
+        maxOutputTokens: 6000,
       });
       const saved = await sb.rpc("finish_single_ai_request_verified", { _id: attempt.id, _reply: result.text.trim(), _proof: accountingProof() });
       if (saved.error) throw new Error("Your paid strategy is preserved. Recover saved work before another request.");

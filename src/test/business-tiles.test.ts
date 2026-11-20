@@ -32,6 +32,12 @@ describe("Command Center number tiles", () => {
     expect(r.periodStart).toBe("2026-10-01");
     expect(get(input, "revenueVsTarget").values).toEqual([{ amount: 80, unit: "percent", currency: "EUR" }]);
   });
+  it("a manually entered or corrected result on a revenue metric is never shown as revenue", () => {
+    const summary = { period: { start: "2026-10-01", end: "2026-10-31" }, actual: { value: 9000, kind: "manual_actual" as const }, planned: 15000, forecast: null, variance: null, onTrack: null, previousActual: null };
+    const input = { ...base, revenue: ok([{ currency: "EUR", summary }]) };
+    expect(get(input, "revenue").unavailable).toBe("no_source");
+    expect(get(input, "revenue").values).toEqual([]);
+  });
   it("revenue against plan is unavailable when no plan exists for that month", () => {
     const summary = { period: { start: "2026-10-01", end: "2026-10-31" }, actual: { value: 12000, kind: "imported_actual" as const }, planned: null, forecast: null, variance: null, onTrack: null, previousActual: null };
     expect(get({ ...base, revenue: ok([{ currency: "EUR", summary }]) }, "revenueVsTarget").unavailable).toBe("no_target");

@@ -56,7 +56,8 @@ export function buildBusinessTiles(i: TileInput): Tile[] {
   const month = monthStart(i.now);
   const data = <T,>(l: Loaded<T>) => (l.ok ? l.data : (undefined as never));
   const latestRevenue = () => {
-    const withActual = data(i.revenue).filter(m => m.summary.actual && m.summary.period);
+    // Only results imported from the payment provider count as revenue; manual or corrected entries never do.
+    const withActual = data(i.revenue).filter(m => m.summary.actual?.kind === "imported_actual" && m.summary.period);
     if (!withActual.length) return null;
     const latest = withActual.map(m => m.summary.period!.start).sort().at(-1)!;
     return { start: latest, items: withActual.filter(m => m.summary.period!.start === latest) };

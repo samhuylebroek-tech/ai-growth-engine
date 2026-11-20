@@ -31,3 +31,25 @@ describe("budget reallocation", () => {
     expect(reallocationProposals([lines[0]!, { ...lines[1]!, planned: 350 }], 0.9)).toEqual([]);
   });
 });
+describe("growth strategy details", () => {
+  const step = (title: string, week: number, extra: Record<string, unknown> = {}) => ({ title, week, effort: "medium", ...extra });
+  it("still reads strategies saved before the detailed format, with empty details", () => {
+    const s = parseStrategy(JSON.stringify({ ...base, channels: [], actions: [step("a", 1)] }));
+    expect(s.audience).toBe(""); expect(s.budget).toBeNull(); expect(s.dependencies).toEqual([]);
+    expect(s.evidence).toEqual({ facts: [], estimates: [], hypotheses: [] });
+    expect(s.actions[0]).toMatchObject({ kind: "task", specialist: "", budget: null, integrations: [], dependsOn: [], needsApproval: false });
+  });
+  it("drops specialists that are not registered and unknown step kinds", () => {
+    const s = parseStrategy(JSON.stringify({ ...base, channels: [], actions: [step("a", 1, { specialist: "hacker", kind: "launch" }), step("b", 2, { specialist: "seo", kind: "campaign" })] }));
+    expect(s.actions.map((a) => [a.specialist, a.kind])).toEqual([["", "task"], ["seo", "campaign"]]);
+  });
+  it("renumbers dependencies after ordering by week and removes forward or self references", () => {
+    const s = parseStrategy(JSON.stringify({ ...base, channels: [], actions: [step("late", 3, { dependsOn: [3, 1] }), step("early", 1, { dependsOn: [1] }), step("mid", 2, { dependsOn: [2, 9] })] }));
+    expect(s.actions.map((a) => a.title)).toEqual(["early", "mid", "late"]);
+    expect(s.actions.map((a) => a.dependsOn)).toEqual([[], [1], [2]]);
+  });
+  it("keeps facts, estimates and hypotheses apart", () => {
+    const s = parseStrategy(JSON.stringify({ ...base, channels: [], actions: [step("a", 1)], evidence: { facts: ["Open since 2019"], estimates: ["~20 leads/month"], hypotheses: ["Parents prefer weekend slots"] } }));
+    expect(s.evidence.facts).toEqual(["Open since 2019"]); expect(s.evidence.estimates).toEqual(["~20 leads/month"]); expect(s.evidence.hypotheses).toEqual(["Parents prefer weekend slots"]);
+  });
+});

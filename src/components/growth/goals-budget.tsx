@@ -10,6 +10,10 @@ import { growthDb as supabase, GROWTH_PLANS_NOT_INSTALLED, isNotInstalled, retry
 import { goalProgress, budgetTotals, budgetAlert, reallocationProposals } from "@/lib/growth-plan";
 import { StrategyPanel } from "@/components/growth/strategy-panel";
 import { InitiativeOperations } from "@/components/growth/initiative-operations";
+import { PlanDetails } from "@/components/growth/plan-details";
+import { GrowthChain } from "@/components/growth/growth-chain";
+import { strategySchema } from "@/lib/growth-strategy";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -128,6 +132,7 @@ function Planner({ orgId, wsId, canEdit, canApprove, userId }: { orgId: string; 
                 {x.priority === "primary" && <Badge>{tr("goals.primary")}</Badge>}<Badge variant="outline">{tr(objKey(x.objective))}</Badge>{x.status !== "active" && <Badge variant="secondary">{tr(statusKey(x.status))}</Badge>}</div>
               <p className="text-sm text-muted-foreground">{tr("goals.goalLine", { metric: x.metric || tr("goals.noMetric"), baseline: x.baseline ?? "—", target: x.target ?? "—" })}{x.due_date ? tr("goals.by", { date: new Date(`${x.due_date}T00:00:00`).toLocaleDateString(tag) }) : ""}</p>
               {p != null ? <div className="space-y-1"><Progress value={p} /><p className="text-xs text-muted-foreground">{tr("goals.progress", { p })}</p></div> : <p className="text-xs text-muted-foreground">{tr("goals.noProgress")}</p>}
+              <GrowthChain orgId={orgId} wsId={wsId} goalId={x.id} />
               <GrowthPlanPanel goalId={x.id} orgId={orgId} wsId={wsId} userId={userId} canEdit={canEdit} canApprove={canApprove} />
               <GoalPlanSnapshot
                 budgetLines={(lines.data ?? []).filter(line => line.goal_id === x.id)}
@@ -233,7 +238,7 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
     queryKey: ["growth-plan-versions", orgId, wsId, goalId],
     retry: retryUnlessNotInstalled,
     queryFn: async () => {
-      const r = await supabase.from("growth_plan_versions").select("id,strategy_id,version,status,title,summary,approved_at,created_at")
+      const r = await supabase.from("growth_plan_versions").select("id,strategy_id,version,status,title,summary,approved_at,created_at,plan_snapshot")
         .eq("org_id", orgId).eq("workspace_id", wsId).eq("goal_id", goalId).order("version", { ascending: false }).limit(10);
       if (r.error) throw r.error;
       return r.data;
@@ -265,6 +270,20 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
       return r.data;
     },
   });
+  const planIds = (plans.data ?? []).map(plan => plan.id);
+  const decisions = useQuery({
+    queryKey: ["growth-plan-decisions", orgId, wsId, goalId, planIds.join(",")],
+    enabled: planIds.length > 0, retry: retryUnlessNotInstalled,
+    queryFn: async () => {
+      const r = await supabase.from("growth_plan_decisions").select("id,plan_version_id,decision,note,decided_at").eq("org_id", orgId).eq("workspace_id", wsId).in("plan_version_id", planIds).order("decided_at", { ascending: false }).limit(50);
+      if (r.error) throw r.error;
+      return r.data;
+    },
+  });
+  const decisionsOn = !(decisions.isError && isNotInstalled(decisions.error));
+  const [details, setDetails] = useState<string | null>(null);
+  const [asking, setAsking] = useState<{ plan: string; decision: "rejected" | "changes_requested" } | null>(null);
+  const [reason, setReason] = useState("");
   const createWork = async (initiativeId: string) => {
     if (!canEdit || busyAction) return;
     setBusyAction(initiativeId);
@@ -286,13 +305,33 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
       setBusyAction(null);
     }
   };
+  const decide = async (id: string, decision: "rejected" | "changes_requested") => {
+    if (!canApprove || busyAction) return;
+    if (reason.trim().length < 3) return void toast.error(tr("goals.pd.reasonNeeded"));
+    setBusyAction(id);
+    try {
+      const r = await supabase.rpc("decide_growth_plan", { _plan: id, _decision: decision, _note: reason.trim() });
+      if (r.error) throw r.error;
+      toast.success(decision === "rejected" ? tr("goals.pd.rejected") : tr("goals.pd.changesRequested"));
+      setAsking(null); setReason("");
+      await qc.invalidateQueries({ queryKey: ["growth-plan-versions", orgId, wsId, goalId] });
+      await qc.invalidateQueries({ queryKey: ["growth-plan-decisions", orgId, wsId, goalId] });
+    } catch (error) {
+      toast.error(isNotInstalled(error) ? tr("goals.pd.notSwitchedOn") : tr("goals.pd.decisionFailed"));
+    } finally {
+      setBusyAction(null);
+    }
+  };
   const approve = async (id: string) => {
     if (!canApprove || busyAction) return;
     setBusyAction(id);
     try {
-      const r = await supabase.rpc("approve_growth_plan", { _plan: id });
+      // Record the decision when decision history is switched on; otherwise approve as before.
+      let r = await supabase.rpc("decide_growth_plan", { _plan: id, _decision: "approved", _note: "" });
+      if (r.error && isNotInstalled(r.error)) r = await supabase.rpc("approve_growth_plan", { _plan: id });
       if (r.error) throw r.error;
       toast.success(tr("goals.planApproved"));
+      await qc.invalidateQueries({ queryKey: ["growth-plan-decisions", orgId, wsId, goalId] });
       await qc.invalidateQueries({ queryKey: ["growth-plan-versions", orgId, wsId, goalId] });
       await qc.invalidateQueries({ queryKey: ["command-center-approved-plans"] });
       await qc.invalidateQueries({ queryKey: ["command-center-approved-initiatives"] });
@@ -304,6 +343,26 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
       setBusyAction(null);
     }
   };
+  const snapshot = (plan: { plan_snapshot: unknown }) => { const parsed = strategySchema.safeParse(plan.plan_snapshot); return parsed.success ? parsed.data : null; };
+  const detailsToggle = (plan: { id: string; plan_snapshot: unknown }) => {
+    const body = snapshot(plan); if (!body) return null;
+    return <div><Button size="sm" variant="link" className="h-auto px-0" aria-expanded={details === plan.id} onClick={() => setDetails(details === plan.id ? null : plan.id)}>{details === plan.id ? tr("goals.pd.hideDetails") : tr("goals.pd.details")}</Button>
+      {details === plan.id && <div className="mt-2 rounded-md border bg-muted/30 p-3"><PlanDetails strategy={body} /></div>}</div>;
+  };
+  const decisionControls = (plan: { id: string }) => {
+    if (!canApprove || !decisionsOn) return null;
+    const open = asking?.plan === plan.id;
+    return <>
+      {!open && <><Button size="sm" variant="outline" disabled={!!busyAction} onClick={() => { setAsking({ plan: plan.id, decision: "changes_requested" }); setReason(""); }}>{tr("goals.pd.requestChanges")}</Button>
+        <Button size="sm" variant="ghost" disabled={!!busyAction} onClick={() => { setAsking({ plan: plan.id, decision: "rejected" }); setReason(""); }}>{tr("goals.pd.reject")}</Button></>}
+      {open && <div className="w-full space-y-2 rounded-md border p-2">
+        <label className="block text-xs font-medium" htmlFor={`reason-${plan.id}`}>{tr("goals.pd.reasonLabel")}</label>
+        <Textarea id={`reason-${plan.id}`} value={reason} maxLength={2000} placeholder={tr("goals.pd.reasonPh")} onChange={e => setReason(e.target.value)} className="min-h-[60px]" />
+        <div className="flex flex-wrap gap-2"><Button size="sm" variant={asking.decision === "rejected" ? "destructive" : "default"} disabled={!!busyAction} onClick={() => decide(plan.id, asking.decision)}>{asking.decision === "rejected" ? tr("goals.pd.confirmReject") : tr("goals.pd.confirmChanges")}</Button><Button size="sm" variant="ghost" onClick={() => setAsking(null)}>{tr("goals.pd.cancel")}</Button></div>
+      </div>}
+    </>;
+  };
+  const versionOf = new Map((plans.data ?? []).map(plan => [plan.id, plan.version] as const));
   return (
     <div className="space-y-2 rounded-lg border p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -316,22 +375,24 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
         : <>
           {draftPlan && draftPlan.id !== current.id && <div className="space-y-2 rounded-md border border-dashed p-3">
             <div className="flex flex-wrap items-center gap-2"><span className="text-sm font-medium">{tr("goals.draftReview", { v: draftPlan.version })}</span><Badge variant="secondary">{tr("goals.status.draft")}</Badge></div>
-            <p className="text-sm text-muted-foreground">{draftPlan.title} · {draftPlan.summary}</p>
+            <p className="line-clamp-3 text-sm text-muted-foreground">{draftPlan.summary}</p>
             {draftInitiatives.isLoading ? <p role="status" className="text-xs text-muted-foreground">{tr("goals.loadingProposed")}</p>
               : draftInitiatives.isError ? <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-destructive"><span>{tr("goals.draftFailed")}</span><Button size="sm" variant="outline" onClick={() => { void draftInitiatives.refetch(); }}>{tr("goals.retry")}</Button></div>
               : <ol className="space-y-1">{(draftInitiatives.data ?? []).map((item, index) => <li key={item.id} className="text-xs"><span className="font-medium">{index + 1}. {item.title}</span> · {tr("goals.week", { n: item.target_week })} · {tr(`goals.effort.${item.effort}` as MessageKey)}{item.channel ? ` · ${item.channel}` : ""}{item.detail ? <span className="block text-muted-foreground">{item.detail}</span> : null}</li>)}</ol>}
+            {detailsToggle(draftPlan)}
             <p className="text-xs text-muted-foreground">{tr("goals.activeUntil")}</p>
-            {canApprove && <Button size="sm" disabled={!!busyAction} onClick={() => approve(draftPlan.id)}>{busyAction === draftPlan.id ? tr("goals.approving") : tr("goals.approveReplacement")}</Button>}
+            <div className="flex flex-wrap gap-2">{canApprove && <Button size="sm" disabled={!!busyAction} onClick={() => approve(draftPlan.id)}>{busyAction === draftPlan.id ? tr("goals.approving") : tr("goals.approveReplacement")}</Button>}{decisionControls(draftPlan)}</div>
             {!canApprove && <p className="text-xs text-muted-foreground">{tr("goals.awaiting")}</p>}
           </div>}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium">V{current.version} · {current.title}</span>
+            <span className="line-clamp-2 text-sm font-medium">V{current.version} · {current.title.replace(/^Growth plan · /, "")}</span>
             <Badge variant={current.status === "approved" ? "default" : "secondary"}>{tr(statusKey(current.status))}</Badge>
             {current.approved_at && <span className="text-xs text-muted-foreground">{tr("goals.approvedOn", { date: new Date(current.approved_at).toLocaleDateString(tag) })}</span>}
           </div>
           {current.status === "draft" && plans.data?.some(plan => plan.status === "approved") &&
             <p className="text-xs text-muted-foreground">{tr("goals.activeUntil")}</p>}
           <p className="text-sm text-muted-foreground">{current.summary}</p>
+          {detailsToggle(current)}
           {initiatives.isLoading ? <p className="text-xs text-muted-foreground">{tr("goals.loadingInitiatives")}</p>
             : initiatives.isError ? <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-destructive"><span>{tr("goals.initiativesFailed")}</span><Button size="sm" variant="outline" onClick={() => { void initiatives.refetch(); }}>{tr("goals.retry")}</Button></div>
             : <ol className="space-y-2">{(initiatives.data ?? []).map((item, index) =>
@@ -340,9 +401,10 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
                 {item.detail && <p className="mt-1 text-xs text-muted-foreground">{item.detail}</p>}
                 {item.channel && <p className="text-xs text-muted-foreground">{tr("goals.channelX", { c: item.channel })}</p>}
                 {item.project_id ? <p className="text-xs text-muted-foreground">{tr("goals.projectCreated")}</p> : ["completed","cancelled"].includes(item.status) ? <p className="text-xs text-muted-foreground">{tr("goals.noWork", { s: tr(statusKey(item.status)) })}</p> : current.status === "approved" && canEdit ? <Button size="sm" variant="outline" disabled={!!busyAction} onClick={() => createWork(item.id)}>{busyAction === item.id ? tr("goals.creatingWork") : tr("goals.createWork")}</Button> : null}
-                {current.status === "approved" && <InitiativeOperations initiativeId={item.id} orgId={orgId} workspaceId={wsId} userId={userId} canEdit={canEdit} status={item.status} />}
+                {current.status === "approved" && <details className="group mt-1"><summary className="cursor-pointer select-none text-xs font-medium text-primary">{tr("goals.op.title")} · {tr(statusKey(item.status))}</summary><InitiativeOperations initiativeId={item.id} orgId={orgId} workspaceId={wsId} userId={userId} canEdit={canEdit} status={item.status} /></details>}
               </li>)}</ol>}
-          {current.status === "draft" && canApprove && <Button size="sm" disabled={!!busyAction} onClick={() => approve(current.id)}>{busyAction === current.id ? tr("goals.approving") : tr("goals.approvePlan")}</Button>}
+          {current.status === "draft" && canApprove && <div className="flex flex-wrap gap-2"><Button size="sm" disabled={!!busyAction} onClick={() => approve(current.id)}>{busyAction === current.id ? tr("goals.approving") : tr("goals.approvePlan")}</Button>{decisionControls(current)}</div>}
+          {(decisions.data ?? []).length > 0 && <div className="border-t pt-2"><p className="text-xs font-medium text-muted-foreground">{tr("goals.pd.history")}</p><ul className="mt-1 space-y-1">{decisions.data!.slice(0, 6).map(d => <li key={d.id} className="text-xs"><span className="font-medium">{tr("goals.pd.decisionLine", { v: versionOf.get(d.plan_version_id) ?? "?", d: tr(`goals.pd.dec.${d.decision}`), when: new Date(d.decided_at).toLocaleString(tag, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) })}</span>{d.note && <span className="block text-muted-foreground">{d.note}</span>}</li>)}</ul></div>}
           {current.status === "draft" && !canApprove && <p className="text-xs text-muted-foreground">{tr("goals.awaiting")}</p>}
         </>}
     </div>

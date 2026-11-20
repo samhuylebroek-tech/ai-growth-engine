@@ -15,6 +15,7 @@ type GeneratedTables = Public["Tables"];
 type GeneratedFunctions = Public["Functions"];
 
 type PlanRow = { approved_at: string | null; approved_by: string | null; created_at: string; created_by: string; goal_id: string; id: string; org_id: string; plan_snapshot: Json; strategic_thesis: string; status: string; strategy_id: string; summary: string; title: string; version: number; workspace_id: string };
+export type PlanDecisionRow = { id: string; org_id: string; workspace_id: string; plan_version_id: string; decision: "approved" | "rejected" | "changes_requested"; note: string; decided_by: string; decided_at: string };
 type InitiativeRow = { project_id: string | null; channel: string; created_at: string; detail: string; effort: string; goal_id: string; id: string; org_id: string; plan_version_id: string; sort_order: number; status: string; target_week: number; title: string; workspace_id: string };
 type OperationRow = { initiative_id: string; org_id: string; workspace_id: string; owner_id: string | null; due_date: string | null; success_metric: string; baseline_value: number | null; target_value: number | null; current_value: number | null; blocker_note: string; updated_by: string; updated_at: string };
 
@@ -63,6 +64,7 @@ type PendingTables = {
       { foreignKeyName: "growth_initiatives_project_scope_fk"; columns: ["project_id", "org_id", "workspace_id"]; isOneToOne: true; referencedRelation: "projects"; referencedColumns: ["id", "org_id", "workspace_id"] },
     ];
   };
+  growth_plan_decisions: { Row: PlanDecisionRow; Insert: never; Update: never; Relationships: [] };
   growth_initiative_operations: {
     Row: OperationRow;
     Insert: Partial<OperationRow> & Pick<OperationRow, "initiative_id" | "org_id" | "workspace_id">;
@@ -90,6 +92,7 @@ type PendingFunctions = {
   update_growth_initiative_operations: { Args: { _initiative: string; _patch: Json }; Returns: Json };
   create_growth_plan_draft: { Args: { _strategy: string }; Returns: Json };
   approve_growth_plan: { Args: { _plan: string }; Returns: Json };
+  decide_growth_plan: { Args: { _plan: string; _decision: "approved" | "rejected" | "changes_requested"; _note: string }; Returns: Json };
   create_growth_strategy_project: { Args: { _selected: Json; _strategy: string }; Returns: Json };
   define_metric: { Args: { _workspace: string; _key: string; _label: string; _unit: string; _currency: string | null; _direction: string; _goal: string | null; _initiative: string | null }; Returns: Json };
   update_metric_definition: { Args: { _metric: string; _patch: Json }; Returns: Json };

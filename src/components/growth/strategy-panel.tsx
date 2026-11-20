@@ -10,6 +10,10 @@ import { strategySchema, type Strategy } from "@/lib/growth-strategy";
 import { growthDb as supabase, GROWTH_PLANS_NOT_INSTALLED, isNotInstalled } from "@/lib/pending-schema";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { PlanDetails } from "@/components/growth/plan-details";
+import { normalizeSteps } from "@/lib/growth-strategy";
 
 const sel = "h-9 rounded-md border border-input bg-background px-2 text-sm";
 
@@ -18,7 +22,8 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
   const run = useServerFn(planGrowthStrategy); const qc = useQueryClient(); const { t: tr, tag } = useI18n();
   const [open, setOpen] = useState(false); const [busy, setBusy] = useState(false);
   const [weeks, setWeeks] = useState(12); const [requestKey, setRequestKey] = useState(() => crypto.randomUUID());
-  const [result, setResult] = useState<{ strategy: Strategy; key: string; saved: boolean } | null>(null);
+  const [result, setResult] = useState<{ strategy: Strategy; key: string; saved: boolean; edited?: boolean } | null>(null);
+  const [editing, setEditing] = useState(false);
   const [strategyId, setStrategyId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [planDraftCreated, setPlanDraftCreated] = useState(false);
@@ -36,19 +41,24 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
     } catch { toast.error(tr("goals.s.unconfirmed")); }
     finally { setBusy(false); }
   };
+  const edit = (change: (s: Strategy) => Strategy) => setResult(current => current ? { ...current, strategy: change(current.strategy), edited: true } : current);
   const save = async () => {
     if (!result || busy) return;
+    if (!result.strategy.summary.trim() || !result.strategy.actions.length || result.strategy.actions.some(a => !a.title.trim())) return void toast.error(tr("goals.pd.oneStep"));
+    // An edited saved strategy becomes a new strategy (and later a new plan version); saved ones are never changed.
+    const key = result.saved ? crypto.randomUUID() : result.key;
+    const body = normalizeSteps(result.strategy);
     setBusy(true);
     try {
       const inserted = await supabase.from("growth_strategies").insert({
         org_id: orgId, workspace_id: wsId, goal_id: goalId,
-        request_key: result.key, summary: result.strategy.summary,
-        body: result.strategy as never, created_by: userId,
+        request_key: key, summary: body.summary.slice(0, 4000),
+        body: body as never, created_by: userId,
       }).select("id").single();
       let id = inserted.data?.id ?? null;
       if (inserted.error?.code === "23505") {
         const existing = await supabase.from("growth_strategies").select("id")
-          .eq("org_id", orgId).eq("workspace_id", wsId).eq("request_key", result.key).maybeSingle();
+          .eq("org_id", orgId).eq("workspace_id", wsId).eq("request_key", key).maybeSingle();
         if (existing.error || !existing.data) throw new Error("Saved strategy could not be recovered.");
         id = existing.data.id;
       } else if (inserted.error) {
@@ -56,7 +66,7 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
       }
       if (!id) throw new Error("Saved strategy ID is missing.");
       setStrategyId(id);
-      setResult(current => current ? { ...current, saved: true } : current);
+      setResult(current => current ? { strategy: body, key, saved: true, edited: false } : current); setEditing(false); setPlanDraftCreated(false);
       toast.success(tr("goals.s.saved"));
       await saved.refetch();
     } catch {
@@ -99,24 +109,27 @@ export function StrategyPanel({ orgId, wsId, goalId, userId }: { orgId: string; 
       </div>
       {view && <div className="space-y-3 text-sm">
         <div className="flex items-center gap-2"><Badge variant="secondary">{tr("goals.s.aiSuggestion")}</Badge>{result.saved && <Badge variant="outline">{tr("goals.s.savedBadge")}</Badge>}</div>
-        <p>{view.summary}</p>
-        {view.channels.length > 0 && <div><p className="font-medium">{tr("goals.s.channelFocus")}</p><ul className="space-y-1">{view.channels.map((c) => <li key={c.name}><span className="font-medium">{c.name}</span> · {tr("goals.s.share", { n: c.share })} — <span className="text-muted-foreground">{c.why}</span></li>)}</ul></div>}
-        <div><p className="font-medium">{tr("goals.s.initiatives")}</p><ul className="space-y-1">{view.actions.map((a, i) => (
-          <li key={i} className="rounded-md bg-background/70 px-2 py-1.5">
-            <span className="font-medium">{tr("goals.s.weekTitle", { n: a.week, title: a.title })}</span>{a.channel && <span className="text-muted-foreground"> · {a.channel}</span>} <Badge variant="outline">{tr(`goals.effort.${a.effort}` as MessageKey)}</Badge>{a.detail && <span className="block text-muted-foreground">{a.detail}</span>}
-          </li>))}</ul><p className="mt-1 text-xs text-muted-foreground">{tr("goals.s.becomeDraft")}</p></div>
-        {view.kpis.length > 0 && <div><p className="font-medium">{tr("goals.s.measure")}</p><ul className="list-disc pl-5">{view.kpis.map((k) => <li key={k.metric}>{k.metric}: {k.target}</li>)}</ul></div>}
-        {view.risks.length > 0 && <div><p className="font-medium">{tr("goals.s.risks")}</p><ul className="list-disc pl-5">{view.risks.map((r) => <li key={r}>{r}</li>)}</ul></div>}
-        {view.assumptions.length > 0 && <div><p className="font-medium">{tr("goals.s.assumptions")}</p><ul className="list-disc pl-5">{view.assumptions.map((r) => <li key={r}>{r}</li>)}</ul></div>}
+        {editing ? <div className="space-y-2 rounded-md border bg-background p-2">
+          <p className="text-xs text-muted-foreground">{tr("goals.pd.editNote")}</p>
+          <label className="block text-xs font-medium">{tr("goals.pd.summaryLabel")}<Textarea value={view.summary} maxLength={1500} onChange={e => edit(st => ({ ...st, summary: e.target.value }))} className="mt-1 min-h-[60px]" /></label>
+          <ol className="space-y-2">{view.actions.map((a, i) => <li key={i} className="space-y-1 rounded border p-2">
+            <div className="flex items-center gap-2"><span className="text-xs font-medium">{i + 1}.</span><Input aria-label={tr("goals.pd.stepTitle", { n: i + 1 })} value={a.title} maxLength={200} onChange={e => edit(st => ({ ...st, actions: st.actions.map((x, j) => j === i ? { ...x, title: e.target.value } : x) }))} className="h-8" />
+              <Input aria-label={tr("goals.pd.stepWeek", { n: i + 1 })} type="number" min={1} max={26} value={a.week} onChange={e => edit(st => ({ ...st, actions: st.actions.map((x, j) => j === i ? { ...x, week: Math.max(1, Math.min(26, Math.round(Number(e.target.value) || 1))) } : x) }))} className="h-8 w-16" />
+              <Button size="sm" variant="ghost" aria-label={tr("goals.pd.removeStep", { n: i + 1 })} disabled={view.actions.length <= 1} onClick={() => edit(st => ({ ...st, actions: st.actions.filter((_, j) => j !== i).map(x => ({ ...x, dependsOn: x.dependsOn.filter(d => d !== i + 1).map(d => (d > i + 1 ? d - 1 : d)) })) }))}>×</Button></div>
+            <Textarea aria-label={tr("goals.pd.stepDetail", { n: i + 1 })} value={a.detail} maxLength={800} onChange={e => edit(st => ({ ...st, actions: st.actions.map((x, j) => j === i ? { ...x, detail: e.target.value } : x) }))} className="min-h-[48px] text-xs" />
+          </li>)}</ol>
+        </div> : <><p>{view.summary}</p><PlanDetails strategy={view} /></>}
+        <p className="text-xs text-muted-foreground">{tr("goals.s.becomeDraft")}</p>
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant="outline" disabled={result.saved || busy || creating} onClick={save}>{result.saved ? tr("goals.s.savedBadge") : busy ? tr("goals.s.saving") : tr("goals.s.save")}</Button>
-          <Button size="sm" disabled={!result.saved || !strategyId || busy || creating || planDraftCreated} onClick={createPlanDraft}>{creating ? tr("goals.s.creatingDraft") : planDraftCreated ? tr("goals.s.draftCreated") : tr("goals.s.createDraft")}</Button>
-          <Button size="sm" variant="ghost" disabled={busy || creating} onClick={() => { setResult(null); setStrategyId(null); setPlanDraftCreated(false); }}>{tr("goals.s.discard")}</Button>
+          <Button size="sm" variant="ghost" disabled={busy || creating} aria-pressed={editing} onClick={() => setEditing(v => !v)}>{editing ? tr("goals.pd.doneEditing") : tr("goals.pd.edit")}</Button>
+          <Button size="sm" variant="outline" disabled={(result.saved && !result.edited) || busy || creating} onClick={save}>{result.saved && result.edited ? tr("goals.pd.saveAsNew") : result.saved ? tr("goals.s.savedBadge") : busy ? tr("goals.s.saving") : tr("goals.s.save")}</Button>
+          <Button size="sm" disabled={!result.saved || !!result.edited || !strategyId || busy || creating || planDraftCreated} onClick={createPlanDraft}>{creating ? tr("goals.s.creatingDraft") : planDraftCreated ? tr("goals.s.draftCreated") : tr("goals.s.createDraft")}</Button>
+          <Button size="sm" variant="ghost" disabled={busy || creating} onClick={() => { setResult(null); setStrategyId(null); setPlanDraftCreated(false); setEditing(false); }}>{tr("goals.s.discard")}</Button>
         </div>
         {result.saved && <p className="text-xs text-muted-foreground">{tr("goals.s.needsApproval")}</p>}
       </div>}
       {(saved.data ?? []).length > 0 && <div className="space-y-1 border-t pt-2"><p className="text-xs font-medium text-muted-foreground">{tr("goals.s.savedList")}</p>
-        {saved.data!.map((s) => <button key={s.id} type="button" className="block w-full truncate rounded px-1 text-left text-sm hover:bg-accent" onClick={() => { const p = strategySchema.safeParse(s.body); if (p.success) { setResult({ strategy: p.data, key: s.request_key, saved: true }); setStrategyId(s.id); setPlanDraftCreated(false); } }}>
+        {saved.data!.map((s) => <button key={s.id} type="button" className="block w-full truncate rounded px-1 text-left text-sm hover:bg-accent" onClick={() => { const p = strategySchema.safeParse(s.body); if (p.success) { setResult({ strategy: p.data, key: s.request_key, saved: true }); setStrategyId(s.id); setPlanDraftCreated(false); setEditing(false); } }}>
           {new Date(s.created_at).toLocaleDateString(tag)} — {s.summary}</button>)}</div>}
     </div>
   );
