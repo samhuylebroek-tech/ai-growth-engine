@@ -288,6 +288,7 @@ const en = {
   "signal.basis.team_records": "Based on your team’s records",
   "signal.basis.website_check": "Based on the website check",
   "signal.basis.pipeline": "Based on your sales pipeline",
+  "signal.basis.business_profile": "Based on your business profile",
   "signal.basis.budget": "Based on your budget",
   "signal.tasks_overdue.title": "{n} plan task(s) are past their deadline, starting with “{task}”",
   "signal.tasks_overdue.question": "The Growth Plan has {n} overdue task(s), starting with “{task}”. What should we do first: finish, re-plan or drop them?",
@@ -299,6 +300,8 @@ const en = {
   "signal.runs_waiting.question": "{n} AI task run(s) are waiting for an admin's approval. Which should go ahead?",
   "signal.runs_uncertain.title": "{n} AI run(s) have an uncertain outcome",
   "signal.runs_uncertain.question": "{n} AI task run(s) have an uncertain outcome. How do we resolve them without paying twice?",
+  "signal.facts_conflict.title": "Conflicting confirmed facts on {n} topic(s)",
+  "signal.facts_conflict.question": "{n} topic(s) in our business profile have different confirmed values. Which ones matter for our plans, and how do we decide the correct value?",
   "signal.basis.ai_work": "Based on AI task runs",
 } as const;
 
@@ -578,6 +581,7 @@ const nl: Dictionary = {
   "signal.basis.team_records": "Op basis van de gegevens van je team",
   "signal.basis.website_check": "Op basis van de websitecontrole",
   "signal.basis.pipeline": "Op basis van je verkooppijplijn",
+  "signal.basis.business_profile": "Gebaseerd op je bedrijfsprofiel",
   "signal.basis.budget": "Op basis van je budget",
   "signal.tasks_overdue.title": "{n} plantaak/-taken zijn over hun deadline, te beginnen met “{task}”",
   "signal.tasks_overdue.question": "Het groeiplan heeft {n} verlopen taak/taken, te beginnen met “{task}”. Wat doen we eerst: afronden, herplannen of schrappen?",
@@ -589,6 +593,8 @@ const nl: Dictionary = {
   "signal.runs_waiting.question": "{n} AI-taakopdracht(en) wachten op goedkeuring van een beheerder. Welke mogen door?",
   "signal.runs_uncertain.title": "{n} AI-opdracht(en) hebben een onzekere uitkomst",
   "signal.runs_uncertain.question": "{n} AI-taakopdracht(en) hebben een onzekere uitkomst. Hoe handelen we die af zonder dubbel te betalen?",
+  "signal.facts_conflict.title": "Tegenstrijdige bevestigde feiten over {n} onderwerp(en)",
+  "signal.facts_conflict.question": "{n} onderwerp(en) in ons bedrijfsprofiel hebben verschillende bevestigde waarden. Welke zijn belangrijk voor onze plannen en hoe bepalen we de juiste waarde?",
   "signal.basis.ai_work": "Gebaseerd op AI-taakopdrachten",
 };
 
@@ -865,6 +871,7 @@ const fr: Dictionary = {
   "signal.basis.team_records": "D’après les données de votre équipe",
   "signal.basis.website_check": "D’après le contrôle du site",
   "signal.basis.pipeline": "D’après votre pipeline commercial",
+  "signal.basis.business_profile": "D'après votre profil d'entreprise",
   "signal.basis.budget": "D’après votre budget",
   "signal.tasks_overdue.title": "{n} tâche(s) du plan ont dépassé leur échéance, à commencer par « {task} »",
   "signal.tasks_overdue.question": "Le plan compte {n} tâche(s) en retard, à commencer par « {task} ». Que faire d’abord : terminer, replanifier ou abandonner ?",
@@ -876,6 +883,8 @@ const fr: Dictionary = {
   "signal.runs_waiting.question": "{n} exécution(s) IA attendent la validation d’un administrateur. Lesquelles lancer ?",
   "signal.runs_uncertain.title": "{n} exécution(s) IA ont un résultat incertain",
   "signal.runs_uncertain.question": "{n} exécution(s) IA ont un résultat incertain. Comment les régler sans payer deux fois ?",
+  "signal.facts_conflict.title": "Faits confirmés contradictoires sur {n} sujet(s)",
+  "signal.facts_conflict.question": "{n} sujet(s) de notre profil ont des valeurs confirmées différentes. Lesquels comptent pour nos plans, et comment déterminer la bonne valeur ?",
   "signal.basis.ai_work": "D’après les exécutions IA",
 };
 

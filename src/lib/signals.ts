@@ -16,6 +16,7 @@ import {
 } from "@/lib/performance";
 import { budgetAlert } from "@/lib/growth-plan";
 
+import { detectFactConflicts } from "@/lib/fact-conflicts";
 export type SignalKind = "conflict" | "stale" | "missing" | "risk" | "opportunity";
 export type Level = "high" | "medium" | "low";
 export type SignalCode =
@@ -35,10 +36,11 @@ export type SignalCode =
   | "initiative_behind"
   | "runs_failing"
   | "runs_waiting"
-  | "runs_uncertain";
+  | "runs_uncertain"
+  | "facts_conflict";
 export type SignalBasis =
-  "planning_vs_metric" | "team_records" | "website_check" | "pipeline" | "budget" | "ai_work";
-export type SignalDestination = "/app/performance" | "/app/goals" | "/app/pipeline" | "/app/seo" | "/app/tasks";
+  "planning_vs_metric" | "team_records" | "website_check" | "pipeline" | "budget" | "ai_work" | "business_profile";
+export type SignalDestination = "/app/performance" | "/app/goals" | "/app/pipeline" | "/app/seo" | "/app/tasks" | "/app/profile";
 export type Signal = {
   id: string;
   code: SignalCode;
@@ -100,6 +102,23 @@ export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signa
   const rows: Measurement[] = d.measurements ?? [];
   const forMetric = (m: MetricRow) => rows.filter((r) => r.metric_id === m.id);
   const latestActual = (m: MetricRow) => summarizeMetric(m, forMetric(m)).actual;
+
+  // 0. Confirmed facts that contradict each other: the Growth Officer would otherwise read both as true.
+  const conflicts = detectFactConflicts(
+    d.facts.map((f, i) => ({ ...f, id: `f${i}` })),
+  ).filter((c) => c.confirmedConflict);
+  if (conflicts.length)
+    add(
+      `facts-conflict:${conflicts.map((c) => c.topic).join("|")}`,
+      "facts_conflict",
+      "conflict",
+      "high",
+      "medium",
+      "high",
+      "business_profile",
+      "/app/profile",
+      { n: conflicts.length, topics: conflicts.slice(0, 3).map((c) => short(c.key, 40)).join(", ") },
+    );
 
   // 1. Completed initiatives: a finished task list is not a business result.
   for (const i of d.initiatives.filter((x) => x.status === "completed")) {

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { detectFactConflicts } from "@/lib/fact-conflicts";
 import type { Database } from "@/integrations/supabase/types";
 import { quoteUntrusted } from "./upload";
 import { detectSignals } from "@/lib/signals";
@@ -882,6 +883,19 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
         `- ${clip(f.key, 60)}: ${clip(f.value, 220)} (source: ${f.source_type}${f.created_at ? `, confirmed ${day(f.created_at)}` : ""})`,
     ),
   });
+
+  const factConflicts = detectFactConflicts(d.facts.map((f, i) => ({ ...f, id: `f${i}` }))).filter((c) => c.confirmedConflict);
+  if (factConflicts.length)
+    sections.push({
+      key: "fact-conflicts",
+      title: "CONFLICTING CONFIRMED FACTS (unresolved: do not pick one; ask the team to decide in the business profile)",
+      evidence: ["verified_business_fact"],
+      budget: 500,
+      priority: 1,
+      lines: factConflicts.map(
+        (c) => `- ${clip(c.key, 60)}: ${c.facts.filter((f) => f.verified).map((f) => `"${clip(f.value, 80)}" (${f.source_type})`).join(" vs ")}`,
+      ),
+    });
 
   sections.push({
     key: "growth-goals",

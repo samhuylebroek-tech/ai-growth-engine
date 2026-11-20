@@ -421,7 +421,7 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
   const [outcome, setOutcome] = useState("");
   const [busy, setBusy] = useState(false);
   const linked = useMemo(() => linkedFor(d, p.id), [d, p.id]);
-  const quality = qualityOfLinked(linked);
+  const quality = qualityOfLinked(linked, d);
   const level = p.level ?? "formal";
   const gateInput = {
     level,

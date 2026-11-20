@@ -63,6 +63,8 @@ export type NormalEvidence = {
   role: "supports" | "contradicts";
   /** Set when an AI claimed something stronger than it can establish (e.g. "fact"); shown as unverified. */
   downgradedFrom?: EvidenceType;
+  /** Expired, source deleted or no longer confirmed: counts at most as an estimate until refreshed. */
+  stale?: boolean;
 };
 
 export type Quality = "strong" | "some" | "limited" | "hypothesis" | "missing";
@@ -76,6 +78,7 @@ export type QualityReason =
   | "unreviewed"
   | "contradicted"
   | "gaps"
+  | "stale"
   | "none";
 export type QualityResult = {
   level: Quality;
@@ -94,9 +97,11 @@ const down = (q: Quality): Quality => QUALITY_ORDER[Math.min(QUALITY_ORDER.index
 export function evidenceQuality(items: readonly NormalEvidence[]): QualityResult {
   const sup = items.filter((e) => e.role === "supports");
   const usable = sup.filter((e) => e.independent && e.accepted);
-  const facts = usable.filter((e) => e.type === "verified_fact").length;
-  const measurements = usable.filter((e) => e.type === "measured_observation").length;
-  const estimates = usable.filter((e) => e.type === "estimate").length;
+  const hard = (e: NormalEvidence) => e.type === "verified_fact" || e.type === "measured_observation";
+  const stale = usable.filter((e) => e.stale && hard(e)).length;
+  const facts = usable.filter((e) => e.type === "verified_fact" && !e.stale).length;
+  const measurements = usable.filter((e) => e.type === "measured_observation" && !e.stale).length;
+  const estimates = usable.filter((e) => e.type === "estimate").length + stale;
   const assumptions = sup.filter((e) => e.type === "assumption" || e.type === "hypothesis").length;
   const gaps = items.filter((e) => e.type === "missing_information").length;
   const contradicted = items.some((e) => e.role === "contradicts" && e.accepted && e.type !== "missing_information");
@@ -122,6 +127,7 @@ export function evidenceQuality(items: readonly NormalEvidence[]): QualityResult
     reasons.push("gaps");
     if (level === "strong") level = "some";
   }
+  if (stale) reasons.push("stale");
   if (!items.length) reasons.push("none");
   return { level, reasons, counts: { facts, measurements, estimates, assumptions, gaps } };
 }
@@ -132,6 +138,7 @@ export function evidenceQuality(items: readonly NormalEvidence[]): QualityResult
 export function fromEvidenceItem(
   e: { evidence_type: EvidenceType | null; origin: EvidenceOrigin; status: EvidenceStatus },
   role: "supports" | "contradicts" = "supports",
+  stale = false,
 ): NormalEvidence | null {
   if (!e.evidence_type || e.status === "reevaluated" || e.status === "rejected") return null;
   return {
@@ -139,6 +146,7 @@ export function fromEvidenceItem(
     independent: e.origin !== "ai",
     accepted: e.status === "accepted" || e.status === "used_in_decision",
     role,
+    ...(stale ? { stale: true } : {}),
   };
 }
 

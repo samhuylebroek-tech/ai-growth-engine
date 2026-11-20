@@ -23,6 +23,7 @@ import { nextGrowthActions, type GrowthAction } from "./growth-actions";
 import { understand, type Knowledge } from "./understanding";
 import { progressOf, type Src } from "./comparison";
 import { fromEvidenceItem, type NormalEvidence } from "@/lib/evidence";
+import { evidenceFreshness, isStale, sourceState } from "@/lib/evidence-freshness";
 import type { EvidenceItemRow, ProposalEvidenceRow } from "@/lib/pending-schema";
 import type { Measurement } from "@/lib/performance";
 
@@ -360,13 +361,32 @@ export function buildView(d: BiData, f: Filters, model: Model, now: Date = new D
   };
 }
 
+/** Records the caller could read, to tell whether the record behind a piece of evidence still exists / is confirmed. */
+// A list read up to its limit may be incomplete, so a record absent from it is "unknown", never "missing".
+export const SOURCE_READ_LIMITS = { facts: 200, measurements: 5000 } as const;
+export function knownSources(d: Partial<Pick<BiData, "facts" | "measurements" | "revenue">>) {
+  return {
+    ...(d.facts && d.facts.length < SOURCE_READ_LIMITS.facts
+      ? { facts: new Map(d.facts.filter((f) => f.id).map((f) => [f.id!, f.verified])) }
+      : {}),
+    ...(d.measurements && d.measurements.length < SOURCE_READ_LIMITS.measurements
+      ? { measurements: new Set(d.measurements.map((m) => m.id)) }
+      : {}),
+    ...(d.revenue ? { revenue: new Set(d.revenue.map((r) => r.id)) } : {}),
+  };
+}
+
 /** Linked evidence per improvement proposal, normalized (rejected and superseded versions drop out). */
-export function linkedEvidence(d: Pick<BiData, "evidence" | "proposalEvidence">): Map<string, NormalEvidence[]> {
+export function linkedEvidence(
+  d: Pick<BiData, "evidence" | "proposalEvidence"> & Partial<Pick<BiData, "facts" | "measurements" | "revenue">>,
+  now: Date = new Date(),
+): Map<string, NormalEvidence[]> {
   const byId = new Map((d.evidence ?? []).map((e) => [e.id, e]));
+  const known = knownSources(d);
   const out = new Map<string, NormalEvidence[]>();
   for (const l of d.proposalEvidence ?? []) {
     const e = byId.get(l.evidence_id);
-    const n = e ? fromEvidenceItem(e, l.role) : null;
+    const n = e ? fromEvidenceItem(e, l.role, isStale(evidenceFreshness({ ...e, source: sourceState(e, known) }, now).level)) : null;
     if (n) out.set(l.proposal_id, [...(out.get(l.proposal_id) ?? []), n]);
   }
   return out;

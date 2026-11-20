@@ -11,7 +11,9 @@ import { growthDb, type EvidenceItemRow, type ProposalRow } from "@/lib/pending-
 import type { Json } from "@/integrations/supabase/types";
 import type { BiData } from "@/lib/bi/view";
 import { isActual } from "@/lib/performance";
-import { evidenceQuality, type NormalEvidence, type Quality, type QualityResult } from "@/lib/evidence";
+import { evidenceQuality, fromEvidenceItem, type NormalEvidence, type Quality, type QualityResult } from "@/lib/evidence";
+import { evidenceFreshness, isStale, sourceState, type Freshness } from "@/lib/evidence-freshness";
+import { knownSources } from "@/lib/bi/view";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -65,16 +67,23 @@ export function linkedFor(d: BiData, proposalId: string): Linked[] {
     .filter((x): x is Linked => !!x)
     .sort((a, b) => a.created_at.localeCompare(b.created_at));
 }
-export const normalLinked = (items: readonly Linked[]): NormalEvidence[] =>
+export const freshnessOf = (e: Linked, d: BiData) => evidenceFreshness({ ...e, source: sourceState(e, knownSources(d)) });
+export const normalLinked = (items: readonly Linked[], d: BiData): NormalEvidence[] =>
   items
-    .filter((e) => e.evidence_type && e.status !== "rejected" && e.status !== "reevaluated")
-    .map((e) => ({
-      type: e.evidence_type!,
-      independent: e.origin !== "ai",
-      accepted: e.status === "accepted" || e.status === "used_in_decision",
-      role: e.role,
-    }));
-export const qualityOfLinked = (items: readonly Linked[]) => evidenceQuality(normalLinked(items));
+    .map((e) => fromEvidenceItem(e, e.role, isStale(freshnessOf(e, d).level)))
+    .filter((x): x is NormalEvidence => !!x);
+export const qualityOfLinked = (items: readonly Linked[], d: BiData) => evidenceQuality(normalLinked(items, d));
+
+const FRESH_TONE: Record<Freshness, string> = { current: "high", updated: "medium", outdated: "low", expired: "low", unavailable: "low", verify: "low" };
+export function FreshnessBadge({ e, d }: { e: Linked; d: BiData }) {
+  const { t } = useI18n();
+  const r = freshnessOf(e, d);
+  return (
+    <Badge kind={FRESH_TONE[r.level]}>
+      <span title={t("ev.fr.help")}>{r.historical && r.level === "current" ? t("ev.fr.historical") : t(tk(`ev.fr.${r.level}`))}</span>
+    </Badge>
+  );
+}
 
 export function EvidenceList({ items, canAdd, p, d }: { items: Linked[]; canAdd: boolean; p: ProposalRow; d: BiData }) {
   const { t } = useI18n();
@@ -119,6 +128,7 @@ export function EvidenceList({ items, canAdd, p, d }: { items: Linked[]; canAdd:
                 </Badge>
                 <Badge kind={e.origin === "ai" ? "low" : "none"}>{t(tk(`ev.origin.${e.origin}`))}</Badge>
                 {e.version_no > 1 && <Badge kind="none">{t("ev.version", { n: e.version_no })}</Badge>}
+                <FreshnessBadge e={e} d={d} />
               </div>
               <p className="mt-1 break-words">{e.description}</p>
               <p className="mt-0.5 text-muted-foreground">

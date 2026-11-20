@@ -15,6 +15,7 @@ import { PageHeader, StatusChip, EmptyState } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { FactConflicts } from "@/components/app/fact-conflicts";
 
 export const Route = createFileRoute("/_authenticated/app/profile")({ head: () => pageHead(translate(readLocale(), "account.profile.headTitle"), translate(readLocale(), "account.profile.headDescription")), component: Profile });
 
@@ -80,6 +81,7 @@ function Profile() {
         </div></div>
       )}
       <h2 className="mb-3 mt-10 font-semibold">{t("account.profile.knowledge")}</h2>
+      {q.data && <FactConflicts facts={q.data.facts} canDecide={confirmFacts} onResolved={refresh} sourceLabel={(st) => (st in SOURCE_LABEL ? t(SOURCE_LABEL[st as keyof typeof SOURCE_LABEL]) : st)} />}
       <p className="mb-4 text-sm text-muted-foreground">{t("account.profile.trust")}</p>
       <div className="mb-5 flex flex-wrap gap-3"><Input aria-label={t("account.profile.searchLabel")} placeholder={t("account.profile.search")} value={search} onChange={e => setSearch(e.target.value)} className="max-w-sm" /><select aria-label={t("account.profile.status")} className="rounded-md border border-border bg-card px-3 text-xs" value={filter} onChange={e => setFilter(e.target.value)}><option value="all">{t("account.profile.all")}</option><option value="confirmed">{t("account.confirmed")}</option><option value="review">{t("account.reviewNeeded")}</option></select></div>
       {edit && (
