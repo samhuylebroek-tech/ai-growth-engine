@@ -9,8 +9,10 @@ export const LOCALE_NAME: Record<Locale, string> = {
 };
 /** Tag used for dates, numbers and currencies. */
 export const LOCALE_TAG: Record<Locale, string> = { en: "en-GB", nl: "nl-BE", fr: "fr-BE" };
+import { AREA_EN, AREA_NL, AREA_FR } from "./areas";
 
 const en = {
+  ...AREA_EN,
   "recovery.pendingTitle": "Unfinished AI requests",
   "recovery.title": "Saved requests",
   "recovery.reload": "Reload saved requests",
@@ -286,6 +288,7 @@ export type MessageKey = keyof typeof en;
 type Dictionary = Record<MessageKey, string>;
 
 const nl: Dictionary = {
+  ...AREA_NL,
   "recovery.pendingTitle": "Onvoltooide AI-verzoeken",
   "recovery.title": "Bewaarde verzoeken",
   "recovery.reload": "Bewaarde verzoeken herladen",
@@ -554,6 +557,7 @@ const nl: Dictionary = {
 };
 
 const fr: Dictionary = {
+  ...AREA_FR,
   "recovery.pendingTitle": "Demandes d’IA non terminées",
   "recovery.title": "Demandes enregistrées",
   "recovery.reload": "Recharger les demandes",

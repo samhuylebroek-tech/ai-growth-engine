@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { LOCALES, MESSAGES, resolveLocale, translate } from "@/lib/i18n/messages";
 import { NAVIGATION } from "@/lib/navigation";
+import { AREAS } from "@/lib/i18n/areas";
 
 describe("interface languages", () => {
   it("defines every English key in Dutch and French, none left empty", () => {
@@ -9,6 +10,9 @@ describe("interface languages", () => {
       expect(Object.keys(MESSAGES[l]).sort()).toEqual(keys);
       expect(Object.values(MESSAGES[l]).every((v) => v.trim().length > 0)).toBe(true);
     }
+  });
+  it("keeps each screen area's keys under its own prefix, so areas never overwrite each other", () => {
+    for (const a of AREAS) for (const l of LOCALES) for (const k of Object.keys(a[l])) expect(k.startsWith(`${a.prefix}.`)).toBe(true);
   });
   it("translates every navigation destination and group", () => {
     for (const g of NAVIGATION) {
