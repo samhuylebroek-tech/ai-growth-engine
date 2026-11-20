@@ -1,4 +1,9 @@
 # AI Growth OS — Task Queue
+## Master build directive (revenue opportunities) — 2026-11-20
+- [x] Revenue Opportunity Engine: user-started AI discovery across 9 growth areas, scores/budget/evidence/KPIs/risks, shortlist/dismiss/convert-to-goal, Home card, Growth Officer context; staging proposal 0060 (22 SQL checks).
+- [x] Uncertain AI outcomes: in-app close step (requester or org admin) counting reserved credits as used — no refund, no replay; staging proposal 0061 (14 SQL checks). Verified on staging.
+- [ ] Root cause of the one cancelled 61 s AI call on staging is unknown (later 87 s call succeeded); output cap lowered to keep calls short.
+- [B] Proposals 0060/0061 into the live database: owner approval.
 ## Master development directive — 2026-11-20
 - [x] A: branch/commits/staging verified; runtime environment guard (staging refuses mixed/production config, noindex, staging label); Cloudflare plan with minimal token rights.
 - [x] B: security review — OAuth redirect allowlist, PKCE, constant-time state check; regression tests; open risks in docs/SECURITY.md.

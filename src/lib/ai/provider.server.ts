@@ -32,6 +32,9 @@ const lovableGateway: AIProvider = {
       if (!r.usage || r.usage.input_tokens == null || r.usage.output_tokens == null) throw new AIOutcomeUnknownError({ providerRequestId: r.id });
       return { text, inputTokens: r.usage.input_tokens, outputTokens: r.usage.output_tokens, model: DEFAULT_MODEL, provider: "lovable-gateway", providerRequestId: r.id };
     } catch (e) {
+      // Diagnostics only: error class, code and gateway IDs — never prompt text, output or credentials.
+      if (e instanceof GatewayError) console.error("AI gateway call failed", { name: e.name, code: e.code, outcome: e.outcome, httpStatus: e.httpStatus, ids: e.ids });
+      else console.error("AI provider call failed", { name: e instanceof Error ? e.name : typeof e });
       if (e instanceof GatewayError && e.outcome === "not_started") {
         throw new AINotStartedError(e instanceof PaymentRequiredError ? "The AI service is out of credits." : e instanceof RateLimitError ? "The AI service is busy. Please try again later." : "The AI request was rejected before execution.");
       }

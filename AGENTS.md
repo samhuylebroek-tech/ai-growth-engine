@@ -70,3 +70,4 @@ use the editor.
 - A declared APP_ENVIRONMENT is checked on every request by `src/lib/environment.ts`; mixed or production-referencing staging settings return 503 instead of serving, so staging can never silently fall back to live configuration.
 - Proactive signals come from deterministic rules in `src/lib/signals.ts` over the same scoped business context the Growth Officer reads, so Home and AI agree and cost no credits; signals point to evidence, never to a cause.
 - Interface text lives in `src/lib/i18n/messages.ts` (en reference; nl/fr must define every key, tested); the locale is a cookie read identically on server and client to avoid hydration mismatches.
+- An uncertain AI outcome is closed only by the requester or an org admin through a proof-checked SQL function that counts the reserved credits as used; it never refunds or replays, because the provider may already have run and billed.

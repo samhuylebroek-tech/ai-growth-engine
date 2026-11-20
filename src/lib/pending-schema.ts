@@ -4,7 +4,7 @@ import type { Database, Json } from "@/integrations/supabase/types";
 
 /**
  * Schema added by committed-but-not-yet-applied migrations 0043_atomic_growth_strategy_conversion, 0046–0052 and
- * 0056_performance_measurements, plus the staging-only proposals 0057/0059 (docs/proposals: read-only connectors)
+ * 0056_performance_measurements, plus the staging-only proposals 0057/0059 (read-only connectors) and 0060 (revenue opportunities)
  * (see docs/MIGRATION_POLICY.md). The generated types follow the connected database, which does not have these
  * objects yet, so the growth plan/initiative screens type against this extension. At runtime the database still
  * answers "not found" for these objects until the migrations are applied; screens must keep their error states.
@@ -24,7 +24,10 @@ type MeasurementRow = { id: string; org_id: string; workspace_id: string; metric
 type ConnectionRow = GeneratedTables["connector_connections"]["Row"] & { account_label: string | null; scopes: string[]; expires_at: string | null; last_checked_at: string | null; last_sync_at: string | null; last_error: string | null };
 type ImportRunRow = { id: string; org_id: string; workspace_id: string; connector_key: string; request_key: string; months: number; status: string; created_count: number; corrected_count: number; unchanged_count: number; skipped_count: number; error: string | null; started_by: string; started_at: string; finished_at: string | null };
 
+export type OpportunityRow = { id: string; org_id: string; workspace_id: string; request_key: string; position: number; domain: string; title: string; summary: string; analysis: string; audience: string; expected_impact: string; impact: number; feasibility: number; cost: number; time_to_value: number; risk: number; complexity: string; budget_min: number | null; budget_max: number | null; currency: string; horizon_days: number; resources: string[]; integrations: string[]; risks: string[]; kpis: Json; evidence: Json; confidence: string; status: string; goal_id: string | null; decided_by: string | null; decided_at: string | null; created_by: string; created_at: string };
+
 type PendingTables = {
+  growth_opportunities: { Row: OpportunityRow; Insert: Partial<OpportunityRow>; Update: never; Relationships: [] };
   connector_connections: { Row: ConnectionRow; Insert: Partial<ConnectionRow>; Update: Partial<ConnectionRow>; Relationships: GeneratedTables["connector_connections"]["Relationships"] };
   connector_import_runs: { Row: ImportRunRow; Insert: Partial<ImportRunRow>; Update: Partial<ImportRunRow>; Relationships: [] };
   metric_definitions: {
@@ -80,6 +83,8 @@ type PendingBudgetLines = {
 
 type ConvertPlan = GeneratedFunctions["convert_execution_plan"];
 type PendingFunctions = {
+  set_growth_opportunity_status: { Args: { _opportunity: string; _status: string }; Returns: string };
+  convert_growth_opportunity: { Args: { _opportunity: string }; Returns: Json };
   convert_execution_plan: { Args: ConvertPlan["Args"] & { _goal?: string | null }; Returns: ConvertPlan["Returns"] };
   create_growth_initiative_work: { Args: { _initiative: string }; Returns: Json };
   update_growth_initiative_operations: { Args: { _initiative: string; _patch: Json }; Returns: Json };
@@ -118,4 +123,5 @@ export function isNotInstalled(error: unknown): boolean {
 export const retryUnlessNotInstalled = (failureCount: number, error: unknown) => !isNotInstalled(error) && failureCount < 3;
 export const GROWTH_PLANS_NOT_INSTALLED = "Growth Plans are not switched on for this workspace yet. Goals, budget, strategies and work keep working as usual.";
 export const CONNECTORS_NOT_INSTALLED = "Read-only data connections are not switched on for this workspace yet. Nothing is imported until they are.";
+export const OPPORTUNITIES_NOT_INSTALLED = "Growth opportunities are not switched on for this workspace yet.";
 export const PERFORMANCE_NOT_INSTALLED = "Performance tracking is not switched on for this workspace yet. Goals, budget and work keep working as usual.";

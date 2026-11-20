@@ -22,6 +22,7 @@ import { parseReview, REVIEW_INSTRUCTIONS, DIMENSION_KEYS, type Review } from "@
 import { draftBriefSchema, writingProfileContext, briefText, DRAFT_INSTRUCTIONS } from "@/lib/content-draft";
 import { parseStrategy, goalBrief, STRATEGY_INSTRUCTIONS, type Strategy } from "@/lib/growth-strategy";
 import { parseRepurpose, REPURPOSE_INSTRUCTIONS } from "@/lib/content-repurpose";
+import { parseOpportunities, opportunityBrief, opportunityRequestSchema, OPPORTUNITY_INSTRUCTIONS, type Opportunity } from "@/lib/opportunities";
 import { CHANNELS } from "@/lib/content";
 
 type DB = SupabaseClient<Database>;
@@ -204,9 +205,16 @@ export const recoverSingleAIRequest = createServerFn({ method: "POST" })
         if (closed.error) throw new Error(closed.error.message);
         return { ok: true, data: { status: closed.data, conversationId: null } };
       }
-      if (!["delivered", "settled"].includes(receipt.data.state) || !receipt.data.response_text) throw new Error("Provider outcome is uncertain. Credits remain reserved; no new request was sent.");
+      if (receipt.data.state === "settled" && !receipt.data.response_text) return { ok: true, data: { status: "closed", conversationId: null } };
+      if (!["delivered", "settled"].includes(receipt.data.state) || !receipt.data.response_text) return { ok: true, data: { status: "uncertain", conversationId: null } };
       const selected = await selectedExecutionContext(sb, data, attempt.input.executionContext);
-      const reply = attempt.kind === "growth_officer" ? parseProposals(receipt.data.response_text).clean : specialistMarkdown(parseSpecialistOutput(receipt.data.response_text), selected.sources);
+      // Structured requests (strategy, opportunities, drafts, reviews, repurposing) keep the paid JSON exactly;
+      // their screens parse it. Only free-form specialist answers are rendered to markdown here.
+      const raw = z.object({ purpose: z.string().optional(), goalId: z.string().optional(), assetId: z.string().optional() }).passthrough().safeParse(row.data.input);
+      const structured = raw.success && !!(raw.data.purpose || raw.data.goalId || raw.data.assetId);
+      const reply = attempt.kind === "growth_officer" ? parseProposals(receipt.data.response_text).clean
+        : structured ? receipt.data.response_text.trim()
+        : specialistMarkdown(parseSpecialistOutput(receipt.data.response_text), selected.sources);
       const saved = attempt.kind === "growth_officer"
         ? await sb.rpc("finish_growth_request_verified", { _id: attempt.id, _reply: reply, _proposals: parseProposals(receipt.data.response_text).proposals, _proof: accountingProof() })
         : await sb.rpc("finish_single_ai_request_verified", { _id: attempt.id, _reply: reply, _proof: accountingProof() });
@@ -750,4 +758,84 @@ export const repurposeContent = createServerFn({ method: "POST" })
       if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId);
       return { ok: false, error: friendly(error) };
     }
+  });
+
+type OpportunityDb = { from(table: "growth_opportunities"): { select(c: string): { eq(k: string, v: string): { eq(k: string, v: string): { limit(n: number): PromiseLike<{ error: { code?: string } | null }> } } }; upsert(rows: unknown[], o: { onConflict: string; ignoreDuplicates: boolean }): PromiseLike<{ error: { code?: string } | null }> } };
+const OPPORTUNITIES_OFF = "Growth opportunities are not switched on for this workspace yet.";
+
+async function saveOpportunities(sb: DB, scope: { orgId: string; workspaceId: string }, requestKey: string, userId: string, items: Opportunity[]) {
+  const rows = items.map((o, i) => ({ ...o, org_id: scope.orgId, workspace_id: scope.workspaceId, request_key: requestKey, position: i + 1, created_by: userId }));
+  // ON CONFLICT DO NOTHING: repeating a request key never duplicates rows.
+  const r = await (sb as unknown as OpportunityDb).from("growth_opportunities").upsert(rows, { onConflict: "workspace_id,request_key,position", ignoreDuplicates: true });
+  return !r.error;
+}
+
+/** Explicit, user-started discovery of revenue opportunities across all growth areas. Results are saved as open opportunities; deciding is separate. */
+export const discoverOpportunities = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => opportunityRequestSchema.parse(input))
+  .handler(async ({ data, context }): Promise<Result<{ count: number; saved: boolean; credits: number }>> => {
+    const sb = context.supabase as DB;
+    let runId: string | null = null;
+    try {
+      await requireRole(sb, data.orgId, "member");
+      await requireWorkspace(sb, data);
+      const role = await sb.rpc("has_workspace_role", { _workspace: data.workspaceId, _min: "member" });
+      if (role.error || !role.data) throw new Error("You need workspace member access.");
+      // Check the table before spending credits, so an environment without it never charges for unsaveable work.
+      const installed = await (sb as unknown as OpportunityDb).from("growth_opportunities").select("id").eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).limit(1);
+      if (installed.error) throw new Error(installed.error.code && ["PGRST205", "42P01"].includes(installed.error.code) ? OPPORTUNITIES_OFF : "Could not read saved opportunities.");
+      const conns = await sb.from("connector_connections").select("connector_key,status").eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).eq("status", "connected").limit(30);
+      // Fail closed: a permission or read error must not be presented to the model as "nothing connected".
+      if (conns.error && !["PGRST205", "42P01"].includes(conns.error.code ?? "")) throw new Error("Connected sources could not be read. No AI request was sent.");
+      await assertEntitled(sb, data.orgId, "ai_assistant");
+      const request = `Revenue opportunities (${data.horizonDays} days)${data.focus ? `: ${data.focus}` : ""}`.slice(0, 4000);
+      const claimed = await sb.rpc("begin_single_ai_request_verified", { _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _kind: "strategy", _input: { request, purpose: "opportunities", horizonDays: data.horizonDays, focus: data.focus, locale: data.locale }, _proof: accountingProof() });
+      if (claimed.error) throw new Error(claimed.error.message);
+      const attempt = singleRequestSchema.parse(claimed.data);
+      if (!attempt.claimed) {
+        if (attempt.status !== "succeeded" || !attempt.reply) throw new Error("This request already exists. Recover saved work; it will not be sent again.");
+        const items = parseOpportunities(attempt.reply);
+        return { ok: true, data: { count: items.length, saved: await saveOpportunities(sb, data, data.requestKey, context.userId, items), credits: 0 } };
+      }
+      runId = attempt.run_id;
+      const business = await workspaceContext(sb, data);
+      const result = await meteredGenerate(sb, context.userId, data.orgId, runId, CREDIT_RULES.reserveGrowthOfficer, {
+        instructions: OPPORTUNITY_INSTRUCTIONS,
+        input: [{ role: "user", content: `${business}\n\n${quoteUntrusted("owner request", opportunityBrief(data, (conns.data ?? []).map((c) => c.connector_key)), 1500)}` }],
+        // Bounded so the call finishes well within a minute; long single calls risk an uncertain outcome.
+        maxOutputTokens: 3500,
+      });
+      const saved = await sb.rpc("finish_single_ai_request_verified", { _id: attempt.id, _reply: result.text.trim(), _proof: accountingProof() });
+      if (saved.error) throw new Error("Your paid result is preserved. Recover saved work before another request.");
+      let items: Opportunity[];
+      try { items = parseOpportunities(result.text); }
+      catch { throw new Error("The result came back in an unexpected format. Usage is recorded; no automatic retry was made."); }
+      return { ok: true, data: { count: items.length, saved: await saveOpportunities(sb, data, data.requestKey, context.userId, items), credits: result.credits } };
+    } catch (error) {
+      if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId).neq("status", "succeeded");
+      return { ok: false, error: friendly(error) };
+    }
+  });
+
+/**
+ * Closes a single request whose provider outcome is unknown by accepting its reserved credits as used.
+ * Conservative by design: never refunds (the provider may have run), never replays, invents no answer.
+ * The requester or an organization admin may do this; the database re-checks both and records an audit entry.
+ */
+export const acceptUncertainAIOutcome = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ orgId: z.string().uuid(), workspaceId: z.string().uuid(), requestId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<Result<{ credits: number }>> => {
+    const sb = context.supabase as DB;
+    try {
+      await requireWorkspace(sb, data);
+      const row = await sb.from("single_ai_requests").select("run_id,user_id,status").eq("id", data.requestId).eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).maybeSingle();
+      if (row.error || !row.data) throw new Error("Request unavailable in this workspace.");
+      if (row.data.user_id !== context.userId) await requireRole(sb, data.orgId, "admin");
+      const r = await (sb as unknown as { rpc(n: "accept_unknown_ai_outcome_verified", a: { _run: string; _proof: string }): PromiseLike<{ data: number | null; error: { code?: string; message: string } | null }> })
+        .rpc("accept_unknown_ai_outcome_verified", { _run: row.data.run_id, _proof: accountingProof() });
+      if (r.error) throw new Error(r.error.code === "PGRST202" ? "This step is not switched on in this environment yet." : r.error.message === "outcome is not uncertain" ? "This request is still running or already resolved." : "The request could not be closed.");
+      return { ok: true, data: { credits: r.data ?? 0 } };
+    } catch (error) { return { ok: false, error: friendly(error) }; }
   });

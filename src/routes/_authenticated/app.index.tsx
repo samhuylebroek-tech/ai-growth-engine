@@ -22,6 +22,7 @@ import { PrimaryGrowthFocus } from "@/components/app/primary-growth-focus";
 import { GrowthInitiativePulse } from "@/components/app/growth-initiative-pulse";
 import { HomePerformance, HomeBudget, PerformanceAttention } from "@/components/app/home-insights";
 import { GrowthSignals } from "@/components/app/growth-signals";
+import { HomeOpportunities } from "@/components/app/home-opportunities";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/app/")({ head: () => pageHead("Business command center", "Your workspace activity, active AI assignments, decisions and growth opportunities in one place."), component: Overview });
@@ -85,6 +86,7 @@ function Overview() {
         {!attention && <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground"><Check className="h-4 w-4 text-success" />{t("home.nothing")}</div>}
         {d.approvalCount > 3 && <Button variant="link" size="sm" className="mt-2 px-0" asChild><Link to="/app/approvals">See all {d.approvalCount} pending decisions <ArrowUpRight /></Link></Button>}</section>
         <GrowthSignals />
+        <HomeOpportunities />
         <section><SectionHeading eyebrow={t("home.underway")} title={t("home.activeWork")} action={<Button variant="ghost" size="sm" asChild><Link to="/app/activity">All work <ArrowUpRight /></Link></Button>} /><HomeWork section="active" />{w?.active.length ? w.active.slice(0, 5).map(r => <ActivityRow key={r.id} item={{ id: r.id, entityId: r.id, kind: "ai", title: name(r.agent_key), detail: r.summary ?? `Responsible specialist · ${name(r.agent_key)}`, status: r.status, time: r.created_at, to: "/app/activity" }} compact={compact} open={() => setSelected({ id: r.id, entityId: r.id, kind: "ai", title: name(r.agent_key), detail: r.summary ?? "No next step or progress estimate recorded.", status: r.status, time: r.created_at, to: "/app/activity" })} />) : <Quiet icon={<Sparkles />} title={work.isLoading ? "Checking active work…" : work.isError ? "Active work unavailable" : "No AI assignments in progress"} text="New research assignments appear here while running." />}{(w?.activeCount ?? 0) > 5 && <Button variant="link" size="sm" asChild><Link to="/app/activity">View all {w?.activeCount} assignments <ArrowUpRight /></Link></Button>}</section>
         {work.isError && <div role="alert" className="flex flex-wrap items-center gap-3 text-sm text-destructive">Workspace activity could not load.<Button variant="outline" size="sm" onClick={() => work.refetch()}>Retry activity</Button></div>}
         {order.filter(s => !hidden.includes(s)).map(s => <section key={s} className="min-w-0 border-t border-border pt-7">{work.isLoading && ["activity", "results"].includes(s) ? <p role="status" className="text-sm text-muted-foreground">Loading {LABELS[s].toLowerCase()}…</p> : work.isError && ["activity", "results"].includes(s) ? <p className="text-sm text-muted-foreground">{LABELS[s]} unavailable.</p> : sectionContent[s]}</section>)}

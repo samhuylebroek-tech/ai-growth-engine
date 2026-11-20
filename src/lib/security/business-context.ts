@@ -106,21 +106,24 @@ export type BusinessDomains = {
   connections: DomainRead<Connection>;
   /** Performance metrics (0056); optional so callers that predate the measurement layer stay valid. */
   metrics?: DomainRead<MetricRow>; measurements?: Measurement[];
+  /** Revenue opportunities (proposal 0060); optional for the same reason. */
+  opportunities?: DomainRead<OpportunityLine>;
 };
+export type OpportunityLine = { title: string; domain: string; status: string; impact: number; feasibility: number; confidence: string; horizon_days: number; created_at: string };
 
 // Plain union (not tied to generated types) because growth plan/initiative tables may not be installed yet; missing ones read as "unavailable".
 type ScopedTable =
   "business_profiles" | "business_facts" | "approvals" | "growth_goals" | "growth_plan_versions" | "growth_initiatives" | "growth_initiative_operations"
   | "projects" | "tasks" | "budget_lines" | "crm_deals" | "competitors" | "competitor_observations" | "seo_audits"
   | "content_assets" | "content_versions" | "content_version_decisions" | "campaigns" | "connector_connections"
-  | "metric_definitions" | "performance_measurements";
+  | "metric_definitions" | "performance_measurements" | "growth_opportunities";
 type ScopedQuery = PromiseLike<Res> & {
   eq(column: string, value: unknown): ScopedQuery; neq(column: string, value: unknown): ScopedQuery;
   in(column: string, values: readonly unknown[]): ScopedQuery; order(column: string, options?: { ascending?: boolean }): ScopedQuery;
   limit(count: number): ScopedQuery; maybeSingle(): PromiseLike<Res>;
 };
 
-const LIMITS = { facts: 60, goals: 12, recs: 8, plans: 6, initiatives: 40, tasks: 80, budget: 30, deals: 500, competitors: 15, observations: 40, content: 30, versions: 200, campaigns: 12, connections: 30, metrics: 20, measurements: 240 } as const;
+const LIMITS = { facts: 60, goals: 12, recs: 8, plans: 6, initiatives: 40, tasks: 80, budget: 30, deals: 500, competitors: 15, observations: 40, content: 30, versions: 200, campaigns: 12, connections: 30, metrics: 20, measurements: 240, opportunities: 8 } as const;
 
 /** Reads every domain as the caller, explicitly scoped; workspace ownership must be verified before calling. */
 export async function readBusinessDomains(sb: DB, scope: BusinessScope, workspace: BusinessDomains["workspace"]): Promise<BusinessDomains> {
@@ -129,7 +132,7 @@ export async function readBusinessDomains(sb: DB, scope: BusinessScope, workspac
   const t = (name: ScopedTable, columns: string) =>
     (sb as unknown as { from(table: ScopedTable): { select(columns: string): ScopedQuery } }).from(name).select(columns).eq("org_id", orgId).eq("workspace_id", workspaceId);
 
-  const [profile, facts, recs, goals, plans, budgetFirst, deals, competitors, seo, content, campaigns, connections, metrics] = await Promise.all([
+  const [profile, facts, recs, goals, plans, budgetFirst, deals, competitors, seo, content, campaigns, connections, metrics, opportunities] = await Promise.all([
     strict<{ objectives: unknown; monthly_budget_eur: number | null; onboarding_completed_at: string | null }>("business profile", t("business_profiles", "objectives,monthly_budget_eur,onboarding_completed_at").maybeSingle(), 1),
     strict<Fact>("verified facts", t("business_facts", "key,value,source_type,verified,created_at").eq("verified", true).order("created_at", { ascending: false }).limit(LIMITS.facts), LIMITS.facts),
     strict<Recommendation>("recommendations", t("approvals", "title,status,created_at").order("created_at", { ascending: false }).limit(LIMITS.recs), LIMITS.recs),
@@ -143,6 +146,7 @@ export async function readBusinessDomains(sb: DB, scope: BusinessScope, workspac
     optional<Campaign>("campaigns", t("campaigns", "title,status,category,budget_eur,results,start_date,end_date").neq("status", "archived").order("updated_at", { ascending: false }).limit(LIMITS.campaigns), LIMITS.campaigns),
     optional<Connection>("connections", t("connector_connections", "connector_key,status").limit(LIMITS.connections), LIMITS.connections),
     optional<MetricRow>("performance metrics", t("metric_definitions", "id,label,unit,currency,direction,goal_id,initiative_id").eq("archived", false).order("created_at").limit(LIMITS.metrics), LIMITS.metrics),
+    optional<OpportunityLine>("growth opportunities", t("growth_opportunities", "title,domain,status,impact,feasibility,confidence,horizon_days,created_at").in("status", ["open", "shortlisted"]).order("created_at", { ascending: false }).limit(LIMITS.opportunities), LIMITS.opportunities),
   ]);
 
   // Budget/initiative links arrived in a later schema version; fall back to the base columns only when that column is not installed.
@@ -183,7 +187,7 @@ export async function readBusinessDomains(sb: DB, scope: BusinessScope, workspac
     plans, initiatives: rowsOf(initiatives), operations: rowsOf(operations), projects: rowsOf(projects), tasks: rowsOf(tasks),
     budget, deals, competitors, observations: rowsOf(observations),
     seo, content, versions: rowsOf(versions), decisions: rowsOf(decisions), campaigns, connections,
-    metrics, measurements: rowsOf(measurements),
+    metrics, measurements: rowsOf(measurements), opportunities,
   };
 }
 
@@ -401,6 +405,10 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
   const signalLines = detectSignals(d, now).slice(0, 12).map(sig => `- [${sig.kind}; impact ${sig.impact}; urgency ${sig.urgency}] ${translate("en", `signal.${sig.code}.title`, sig.vars)}`);
   if (signalLines.length) signalLines.push("- raise the most important of these when relevant even if the user did not ask; name conflicting figures side by side and ask which is correct instead of choosing one");
   sections.push({ key: "detected-signals", title: "DETECTED SIGNALS (CONFLICTS, GAPS, STALE DATA, RISKS, OPPORTUNITIES)", evidence: ["rule_signal"], budget: 900, priority: 2, lines: signalLines });
+
+  const opportunityLines = d.opportunities?.status === "unavailable" ? [UNAVAILABLE]
+    : (d.opportunities?.rows ?? []).map(o => `- [${o.status === "shortlisted" ? "shortlisted by the team" : "awaiting a decision"}] ${clip(o.title, 120)} · ${o.domain} · impact ${o.impact}/5 · feasibility ${o.feasibility}/5 · confidence ${o.confidence} · ${o.horizon_days} days`);
+  sections.push({ key: "growth-opportunities", title: "DISCOVERED GROWTH OPPORTUNITIES", evidence: ["ai_hypothesis"], budget: 700, priority: 7, lines: opportunityLines });
 
   sections.push({ key: "recommendations", title: "PREVIOUS RECOMMENDATIONS", evidence: ["ai_hypothesis"], budget: 450, priority: 10,
     lines: d.recommendations.map(r => `- [${r.status}] ${clip(r.title, 120)}`) });

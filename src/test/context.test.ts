@@ -275,4 +275,12 @@ describe("business context helpers", () => {
     expect(renderBusinessContext(domains, NOW)).toBe(renderBusinessContext(domains, NOW));
     expect(renderBusinessContext(domains, NOW)).toContain("context date: 2026-11-17");
   });
+  it("labels discovered opportunities as AI hypotheses and reports a missing module as unavailable", () => {
+    const empty = () => ({ status: "ok" as const, rows: [], truncated: false });
+    const base: BusinessDomains = { workspace: { id: "w", name: "W" }, objectives: null, facts: [], goals: [], recommendations: [], plans: empty(), initiatives: [], operations: [], projects: [], tasks: [], budget: empty(), deals: empty(), competitors: empty(), observations: [], seo: empty(), content: empty(), versions: [], decisions: [], campaigns: empty(), connections: empty() };
+    const withRows = renderBusinessContext({ ...base, opportunities: { status: "ok", truncated: false, rows: [{ title: "Referral programme", domain: "retention", status: "shortlisted", impact: 4, feasibility: 5, confidence: "medium", horizon_days: 90, created_at: "2026-11-10" }] } }, NOW);
+    expect(withRows).toContain("## DISCOVERED GROWTH OPPORTUNITIES [earlier AI recommendation — hypothesis, never a fact]");
+    expect(withRows).toContain("[shortlisted by the team] Referral programme · retention · impact 4/5 · feasibility 5/5");
+    expect(renderBusinessContext({ ...base, opportunities: { status: "unavailable" } }, NOW)).toContain('<untrusted source="growth-opportunities">\n(unavailable');
+  });
 });
