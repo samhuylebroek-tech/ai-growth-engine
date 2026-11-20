@@ -1,4 +1,6 @@
 import { useEffect, useMemo } from "react";
+import { useI18n } from "@/lib/i18n";
+import type { MessageKey } from "@/lib/i18n/messages";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { ArrowUpRight, UserRound } from "lucide-react";
@@ -31,6 +33,7 @@ type Issue = {
 export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (count: number) => void }) {
   const o = useOrg();
   const navigate = useNavigate();
+  const { t, tag } = useI18n();
   const canAskGrowthOfficer = can(o.workspaceRole, "ai.use");
   const plans = useQuery({
     queryKey: ["command-center-approved-plans", o.org?.id, o.workspace?.id],
@@ -106,8 +109,8 @@ export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (coun
       }, today);
       if (!classification) continue;
       rows.push({
-        id: item.id, title: item.title, planTitle: plan?.title ?? "Approved Growth Plan",
-        goalTitle: goal?.title ?? "Growth goal", status: item.status,
+        id: item.id, title: item.title, planTitle: plan?.title ?? t("goals.p.planFallback"),
+        goalTitle: goal?.title ?? t("goals.p.goalFallback"), status: item.status,
         dueDate, ownerId: op?.owner_id ?? null, blocker: op?.blocker_note ?? "",
         metric: op?.success_metric ?? "", baseline: op?.baseline_value ?? null,
         current: op?.current_value ?? null, target: op?.target_value ?? null,
@@ -115,7 +118,10 @@ export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (coun
       });
     }
     return sortInitiativeAttention(rows);
-  }, [initiatives.data, operations.data, plans.data, goals.data]);
+  }, [initiatives.data, operations.data, plans.data, goals.data, t]);
+  const reasonText = (issue: Issue) => issue.kind === "blocked" ? issue.reason
+    : issue.kind === "overdue" || issue.kind === "due_soon" ? t(`goals.p.reason.${issue.kind}`, { date: issue.dueDate ? new Date(`${issue.dueDate}T12:00:00`).toLocaleDateString(tag) : "" })
+    : t(`goals.p.reason.${issue.kind}`);
 
   const issues = rankedIssues.slice(0, 6);
 
@@ -142,31 +148,31 @@ export function GrowthInitiativePulse({ onCountChange }: { onCountChange?: (coun
     navigate({ to: "/app/growth-officer" });
   }
 
-  if (plans.isLoading || initiatives.isLoading || operations.isLoading || goals.isLoading) return <p role="status" className="py-2 text-xs text-muted-foreground">Checking approved growth initiatives…</p>;
+  if (plans.isLoading || initiatives.isLoading || operations.isLoading || goals.isLoading) return <p role="status" className="py-2 text-xs text-muted-foreground">{t("goals.p.checking")}</p>;
   if (plans.isError && isNotInstalled(plans.error)) return <p className="py-2 text-xs text-muted-foreground">{GROWTH_PLANS_NOT_INSTALLED}</p>;
-  if (plans.isError || initiatives.isError || operations.isError || goals.isError) return <div role="alert" className="py-2 text-xs text-destructive">Initiative status could not be loaded. <Button size="sm" variant="link" onClick={() => { void plans.refetch(); void initiatives.refetch(); void operations.refetch(); void goals.refetch(); }}>Retry</Button></div>;
+  if (plans.isError || initiatives.isError || operations.isError || goals.isError) return <div role="alert" className="py-2 text-xs text-destructive">{t("goals.p.failed")} <Button size="sm" variant="link" onClick={() => { void plans.refetch(); void initiatives.refetch(); void operations.refetch(); void goals.refetch(); }}>{t("goals.retry")}</Button></div>;
   const open = initiatives.data ?? [];
   const inProgress = open.filter(i => i.status === "in_progress").length;
-  const summary = plans.data?.length ? <p className="py-1 text-xs text-muted-foreground">{plans.data.length} approved Growth Plan{plans.data.length === 1 ? "" : "s"} · {open.length} open initiative{open.length === 1 ? "" : "s"}: {inProgress} in progress, {open.filter(i => i.status === "planned").length} planned{open.filter(i => i.status === "paused").length ? `, ${open.filter(i => i.status === "paused").length} paused` : ""}</p> : null;
-  if (!issues.length) return <>{summary}<p className="py-2 text-xs text-muted-foreground">No approved initiative currently needs follow-up. Active initiatives will appear here when a deadline, blocker, owner or measurement needs attention.</p></>;
+  const summary = plans.data?.length ? <p className="py-1 text-xs text-muted-foreground">{t("goals.p.summary", { plans: plans.data.length, open: open.length, progress: inProgress, planned: open.filter(i => i.status === "planned").length })}{open.filter(i => i.status === "paused").length ? t("goals.p.paused", { n: open.filter(i => i.status === "paused").length }) : ""}</p> : null;
+  if (!issues.length) return <>{summary}<p className="py-2 text-xs text-muted-foreground">{t("goals.p.none")}</p></>;
 
   return <div className="space-y-2">{summary}
-    <p className="text-[10px] text-muted-foreground">Prioritized from approved plans using recorded blockers, dates, ownership and outcome data. Nothing is sent or executed automatically.</p>
+    <p className="text-[10px] text-muted-foreground">{t("goals.p.how")}</p>
     {issues.map(issue => <div key={issue.id} className="rounded-md border border-border p-3">
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant={issue.kind === "blocked" || issue.kind === "overdue" ? "destructive" : "secondary"}>
-          {issue.kind === "blocked" ? "Blocked" : issue.kind === "overdue" ? "Overdue" : issue.kind === "due_soon" ? "Due soon" : issue.kind === "unassigned" ? "No owner" : "Needs measurement"}
+          {t(`goals.p.kind.${issue.kind}`)}
         </Badge>
-        <span className="text-[10px] text-muted-foreground">{issue.status.replace(/_/g," ")}</span>
+        <span className="text-[10px] text-muted-foreground">{t(`goals.status.${issue.status}` as MessageKey)}</span>
       </div>
       <p className="mt-2 text-sm font-medium">{issue.title}</p>
-      <p className="mt-1 text-xs text-muted-foreground">{issue.goalTitle} · {issue.reason}</p>
-      {issue.ownerId && <p className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground"><UserRound className="h-3 w-3" />{issue.ownerId === o.userId ? "Assigned to you" : "Assigned to a workspace member"}</p>}
+      <p className="mt-1 text-xs text-muted-foreground">{issue.goalTitle} · {reasonText(issue)}</p>
+      {issue.ownerId && <p className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground"><UserRound className="h-3 w-3" />{issue.ownerId === o.userId ? t("goals.op.assignedYou") : t("goals.op.assignedMember")}</p>}
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <Button size="sm" variant="outline" disabled={!canAskGrowthOfficer} title={canAskGrowthOfficer ? "Prepare a contextual Growth Officer question" : "Workspace member access is required"} onClick={() => askAbout(issue)}>Discuss with Growth Officer <ArrowUpRight /></Button>
-        <Button size="sm" variant="ghost" asChild><Link to="/app/goals">Open Growth Plan <ArrowUpRight /></Link></Button>
+        <Button size="sm" variant="outline" disabled={!canAskGrowthOfficer} title={canAskGrowthOfficer ? t("goals.p.prepare") : t("goals.p.memberRequired")} onClick={() => askAbout(issue)}>{t("goals.p.discuss")} <ArrowUpRight /></Button>
+        <Button size="sm" variant="ghost" asChild><Link to="/app/goals">{t("goals.p.openPlan")} <ArrowUpRight /></Link></Button>
       </div>
     </div>)}
-    {rankedIssues.length > issues.length && <p className="text-[10px] text-muted-foreground">Showing the {issues.length} highest-priority items of {rankedIssues.length} needing follow-up.</p>}
+    {rankedIssues.length > issues.length && <p className="text-[10px] text-muted-foreground">{t("goals.p.showing", { n: issues.length, total: rankedIssues.length })}</p>}
   </div>;
 }

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useI18n } from "@/lib/i18n";
 import { ArrowUpRight, Target } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +11,7 @@ import { GoalLinkedMetrics } from "@/components/app/home-insights";
 
 export function PrimaryGrowthFocus() {
   const { org, workspace } = useOrg();
+  const { t, tag } = useI18n();
   const goals = useQuery({
     queryKey: ["growth-goals-focus", org?.id, workspace?.id],
     enabled: !!org?.id && !!workspace?.id,
@@ -39,38 +41,38 @@ export function PrimaryGrowthFocus() {
             <Target className="h-4 w-4" />
           </span>
           <div className="min-w-0">
-            <p className="section-label mb-1">The outcome we are working towards</p>
-            <h2 id="growth-focus-title" className="text-base font-semibold">Your primary growth goal</h2>
+            <p className="section-label mb-1">{t("goals.f.label")}</p>
+            <h2 id="growth-focus-title" className="text-base font-semibold">{t("goals.f.title")}</h2>
           </div>
         </div>
         <Button variant="ghost" size="sm" asChild>
-          <Link to="/app/goals">Goals & budget <ArrowUpRight /></Link>
+          <Link to="/app/goals">{t("goals.title")} <ArrowUpRight /></Link>
         </Button>
       </div>
 
       {goals.isLoading ? (
-        <p role="status" className="mt-4 text-sm text-muted-foreground">Loading your active growth goal…</p>
+        <p role="status" className="mt-4 text-sm text-muted-foreground">{t("goals.f.loading")}</p>
       ) : goals.isError ? (
         <div role="alert" className="mt-4 text-sm text-destructive">
-          Your growth goal could not be loaded. <button className="underline" onClick={() => goals.refetch()}>Retry</button>
+          {t("goals.f.failed")} <button className="underline" onClick={() => goals.refetch()}>{t("goals.retry")}</button>
         </div>
       ) : goal ? (
         <div className="mt-4">
           <p className="text-lg font-semibold leading-snug">{goal.title}</p>
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-            {goal.metric && <span>Metric: {goal.metric}</span>}
-            {goal.due_date && <span>Target date: {new Date(goal.due_date + "T12:00:00").toLocaleDateString()}</span>}
+            {goal.metric && <span>{t("goals.f.metric", { m: goal.metric })}</span>}
+            {goal.due_date && <span>{t("goals.f.date", { d: new Date(goal.due_date + "T12:00:00").toLocaleDateString(tag) })}</span>}
           </div>
           {progress !== null && (
             <div className="mt-4">
               <div className="mb-2 flex items-center justify-between gap-3 text-xs">
-                <span className="text-muted-foreground">Progress from baseline</span>
+                <span className="text-muted-foreground">{t("goals.f.progress")}</span>
                 <strong className="tabular-nums">{goal.current_value} / {goal.target} {goal.metric}</strong>
               </div>
               <div
                 className="h-2 overflow-hidden rounded-full bg-muted"
                 role="progressbar"
-                aria-label="Recorded growth goal progress"
+                aria-label={t("goals.f.progressLabel")}
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={progress}
@@ -79,19 +81,19 @@ export function PrimaryGrowthFocus() {
               </div>
             </div>
           )}
-          {progress === null && <p className="mt-2 text-xs text-muted-foreground">Progress is not measured yet. No performance value is assumed.</p>}
+          {progress === null && <p className="mt-2 text-xs text-muted-foreground">{t("goals.f.notMeasured")}</p>}
           <GoalLinkedMetrics goalId={goal.id} />
         </div>
       ) : (
         <div className="mt-4 rounded-lg bg-muted/40 p-3">
-          <p className="text-sm font-medium">No active growth goal has been set.</p>
-          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Start with one measurable business outcome. The Growth Officer can then help turn it into a strategy and concrete work.</p>
-          <Button size="sm" className="mt-3" asChild><Link to="/app/goals">Set your first growth goal <ArrowUpRight /></Link></Button>
+          <p className="text-sm font-medium">{t("goals.f.none")}</p>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("goals.f.noneBody")}</p>
+          <Button size="sm" className="mt-3" asChild><Link to="/app/goals">{t("goals.f.setFirst")} <ArrowUpRight /></Link></Button>
         </div>
       )}
 
       <div className="mt-4 border-t border-border pt-4">
-        <p className="mb-2 text-xs font-medium">Move this goal forward with your Growth Officer</p>
+        <p className="mb-2 text-xs font-medium">{t("goals.f.moveForward")}</p>
         <GrowthQuestion compact />
       </div>
     </section>

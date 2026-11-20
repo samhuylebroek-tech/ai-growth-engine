@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useI18n } from "@/lib/i18n";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2, FolderKanban, CheckSquare, Megaphone } from "lucide-react";
@@ -19,6 +20,7 @@ import { draftExecutionPlan, executionOptions, planSchema } from "@/lib/executio
 
 export function PlanReview({ sourceId, content }: { sourceId: string; content: string }) {
   const o = useOrg();
+  const { t: tr } = useI18n();
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -49,7 +51,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
     if (!o.workspace || busy) return;
     const valid = planSchema.safeParse(plan);
     if (!valid.success) {
-      toast.error(valid.error.issues[0]?.message ?? "Check your plan");
+      toast.error(valid.error.issues[0]?.message ?? tr("officer.plan.checkPlan"));
       return;
     }
     setBusy(true);
@@ -64,7 +66,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
       });
       if (r.error) throw r.error;
       await qc.invalidateQueries({ queryKey: ["execution"] });
-      toast.success("Reviewed plan saved. Repeated requests reuse the same work.");
+      toast.success(tr("officer.plan.saved"));
       setOpen(false);
       const data = r.data as { parent_id?: string };
       if (kind === "project")
@@ -73,7 +75,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
         await navigate({ to: "/app/campaigns", search: { item: data.parent_id } });
       else await navigate({ to: "/app/tasks", search: { item: undefined } });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not save the plan");
+      toast.error(e instanceof Error ? e.message : tr("officer.plan.saveFailed"));
     } finally {
       setBusy(false);
     }
@@ -90,7 +92,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
         }}
       >
         <FolderKanban />
-        Turn into work
+        {tr("officer.plan.turnInto")}
       </Button>
       <Dialog
         open={open}
@@ -100,35 +102,35 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
       >
         <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Review execution plan</DialogTitle>
+            <DialogTitle>{tr("officer.plan.review")}</DialogTitle>
             <DialogDescription>
-              Nothing is created until you confirm. No external publishing.
+              {tr("officer.plan.nothingYet")}
             </DialogDescription>
           </DialogHeader>
           {kind !== "tasks" && (
             <label className="block space-y-1 text-xs">
-              Link to growth goal
+              {tr("officer.plan.linkGoal")}
               <select
-                aria-label="Link to growth goal"
+                aria-label={tr("officer.plan.linkGoal")}
                 className="w-full rounded-md border border-border bg-background p-2"
                 value={selectedGoalId}
                 onChange={(e) => setGoalId(e.target.value)}
                 disabled={goals.isLoading || goals.isError}
               >
-                <option value="">No growth goal</option>
+                <option value="">{tr("officer.plan.noGoal")}</option>
                 {goals.data?.map((goal) => (
                   <option key={goal.id} value={goal.id}>{goal.title}</option>
                 ))}
               </select>
-              {goals.isError && <span role="alert" className="block text-destructive">Growth goals could not load. Retry by closing and reopening this review.</span>}
+              {goals.isError && <span role="alert" className="block text-destructive">{tr("officer.plan.goalsFailed")}</span>}
             </label>
           )}
           <div className="flex flex-wrap gap-1">
             {(
               [
-                { key: "project", label: "Project", icon: FolderKanban },
-                { key: "tasks", label: "Tasks", icon: CheckSquare },
-                { key: "campaign", label: "Campaign", icon: Megaphone },
+                { key: "project", label: "officer.plan.kind.project", icon: FolderKanban },
+                { key: "tasks", label: "officer.plan.kind.tasks", icon: CheckSquare },
+                { key: "campaign", label: "officer.plan.kind.campaign", icon: Megaphone },
               ] as const
             ).map((k) => (
               <Button
@@ -138,30 +140,30 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
                 onClick={() => setKind(k.key)}
               >
                 <k.icon />
-                {k.label}
+                {tr(k.label)}
               </Button>
             ))}
           </div>
           <label className="space-y-1 text-xs">
-            Title
+            {tr("officer.plan.title")}
             <Input
-              aria-label="Plan title"
+              aria-label={tr("officer.plan.titleLabel")}
               value={plan.title}
               onChange={(e) => setPlan({ ...plan, title: e.target.value })}
             />
           </label>
           <label className="space-y-1 text-xs">
-            Objective
+            {tr("officer.plan.objective")}
             <Input
-              aria-label="Plan objective"
+              aria-label={tr("officer.plan.objectiveLabel")}
               value={plan.objective}
               onChange={(e) => setPlan({ ...plan, objective: e.target.value })}
             />
           </label>
           <label className="space-y-1 text-xs">
-            Description
+            {tr("officer.plan.description")}
             <Textarea
-              aria-label="Plan description"
+              aria-label={tr("officer.plan.descriptionLabel")}
               rows={3}
               value={plan.description}
               onChange={(e) => setPlan({ ...plan, description: e.target.value })}
@@ -169,9 +171,9 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
           </label>
           {kind === "campaign" && (
             <label className="space-y-1 text-xs">
-              Campaign type
+              {tr("officer.plan.campaignType")}
               <select
-                aria-label="Plan campaign type"
+                aria-label={tr("officer.plan.campaignType")}
                 className="w-full rounded-md border border-border bg-background p-2"
                 value={plan.category}
                 onChange={(e) =>
@@ -182,13 +184,13 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
                 }
               >
                 {planSchema.innerType().shape.category.options.map((c) => (
-                  <option key={c}>{c}</option>
+                  <option key={c} value={c}>{tr(`officer.cat.${c}`)}</option>
                 ))}
               </select>
             </label>
           )}
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Proposed tasks · {plan.tasks.length}</h3>
+            <h3 className="text-sm font-semibold">{tr("officer.plan.tasksCount", { n: plan.tasks.length })}</h3>
             <Button
               variant="ghost"
               size="sm"
@@ -204,7 +206,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
               }
             >
               <Plus />
-              Add task
+              {tr("officer.plan.addTask")}
             </Button>
           </div>
           <div className="divide-y divide-border">
@@ -212,7 +214,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
               <div key={i} className="space-y-2 py-3">
                 <div className="flex gap-2">
                   <Input
-                    aria-label={`Proposed task ${i + 1}`}
+                    aria-label={tr("officer.plan.task", { n: i + 1 })}
                     value={t.title}
                     onChange={(e) =>
                       setPlan({
@@ -226,7 +228,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label={`Remove proposed task ${i + 1}`}
+                    aria-label={tr("officer.plan.removeTask", { n: i + 1 })}
                     onClick={() =>
                       setPlan({ ...plan, tasks: plan.tasks.filter((_, j) => j !== i) })
                     }
@@ -236,7 +238,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
                 </div>
                 <div className="grid gap-2 sm:grid-cols-3">
                   <Input
-                    aria-label={`Proposed deadline ${i + 1}`}
+                    aria-label={tr("officer.plan.deadline", { n: i + 1 })}
                     type="date"
                     value={t.due_date}
                     onChange={(e) =>
@@ -249,7 +251,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
                     }
                   />
                   <select
-                    aria-label={`Proposed priority ${i + 1}`}
+                    aria-label={tr("officer.plan.priority", { n: i + 1 })}
                     className="min-w-0 rounded-md border border-border bg-background px-2 text-xs"
                     value={t.priority}
                     onChange={(e) =>
@@ -268,12 +270,12 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
                       })
                     }
                   >
-                    {["low", "medium", "high", "urgent"].map((p) => (
-                      <option key={p}>{p}</option>
+                    {(["low", "medium", "high", "urgent"] as const).map((p) => (
+                      <option key={p} value={p}>{tr(`officer.prio.${p}`)}</option>
                     ))}
                   </select>
                   <select
-                    aria-label={`Proposed owner ${i + 1}`}
+                    aria-label={tr("officer.plan.owner", { n: i + 1 })}
                     className="min-w-0 rounded-md border border-border bg-background px-2 text-xs"
                     value={t.owner_id}
                     onChange={(e) =>
@@ -285,7 +287,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
                       })
                     }
                   >
-                    <option value="">Unassigned</option>
+                    <option value="">{tr("officer.plan.unassigned")}</option>
                     {q.data?.members.map((m) => (
                       <option value={m.user_id} key={m.user_id}>
                         {m.display_name}
@@ -297,7 +299,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
             ))}
           </div>
           <Button disabled={busy || q.isError} onClick={create}>
-            {busy ? "Saving reviewed plan…" : "Confirm & create"}
+            {busy ? tr("officer.plan.saving") : tr("officer.plan.confirm")}
           </Button>
         </DialogContent>
       </Dialog>

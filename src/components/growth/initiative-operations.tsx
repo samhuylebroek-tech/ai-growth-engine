@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useI18n } from "@/lib/i18n";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
@@ -19,6 +20,7 @@ export function InitiativeOperations({ initiativeId, orgId, workspaceId, userId,
   initiativeId: string; orgId: string; workspaceId: string; userId: string; canEdit: boolean; status: string;
 }) {
   const qc = useQueryClient();
+  const { t: tr } = useI18n();
   const queryKey = ["growth-initiative-operations", orgId, workspaceId, initiativeId];
   const query = useQuery({
     queryKey,
@@ -51,7 +53,7 @@ export function InitiativeOperations({ initiativeId, orgId, workspaceId, userId,
     const numeric = ["baseline_value", "target_value", "current_value"] as const;
     for (const key of numeric) {
       const raw = value(form[key]).trim();
-      if (raw && (!Number.isFinite(Number(raw)) || Number(raw) < 0)) return void toast.error("Outcome values must be zero or higher.");
+      if (raw && (!Number.isFinite(Number(raw)) || Number(raw) < 0)) return void toast.error(tr("goals.op.valuesInvalid"));
     }
     const patch = {
       owner_id: form.owner_id ?? "",
@@ -66,8 +68,8 @@ export function InitiativeOperations({ initiativeId, orgId, workspaceId, userId,
     setSaving(true);
     try {
       const r = await supabase.rpc("update_growth_initiative_operations", { _initiative: initiativeId, _patch: patch });
-      if (r.error) { toast.error("Initiative update could not be saved."); return; }
-      toast.success("Initiative updated");
+      if (r.error) { toast.error(tr("goals.op.saveFailed")); return; }
+      toast.success(tr("goals.op.updated"));
       await qc.invalidateQueries({ queryKey });
       await qc.invalidateQueries({ queryKey: ["growth-initiatives", orgId, workspaceId] });
       await qc.invalidateQueries({ queryKey: ["growth-initiatives", workspaceId] });
@@ -85,26 +87,26 @@ export function InitiativeOperations({ initiativeId, orgId, workspaceId, userId,
       : Math.max(0, Math.min(100, Math.round((Number(form.current_value) - Number(form.baseline_value)) / (Number(form.target_value) - Number(form.baseline_value)) * 100)))
     : null;
   return <div className="mt-2 space-y-2 rounded-md border bg-background p-3">
-    <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-semibold">Ownership & outcome</p>
-      {form.blocker_note && <Badge variant="destructive">Blocked</Badge>}
+    <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-semibold">{tr("goals.op.title")}</p>
+      {form.blocker_note && <Badge variant="destructive">{tr("goals.op.blocked")}</Badge>}
     </div>
-    {query.isLoading ? <p role="status" className="text-xs text-muted-foreground">Loading initiative operations…</p> : query.isError ? (
+    {query.isLoading ? <p role="status" className="text-xs text-muted-foreground">{tr("goals.op.loading")}</p> : query.isError ? (
       <div role="alert" className="flex flex-wrap items-center justify-between gap-2 text-xs text-destructive">
-        <span>Initiative details could not be loaded. Your saved values have not been changed.</span>
-        <Button size="sm" variant="outline" onClick={() => { void query.refetch(); }}>Retry</Button>
+        <span>{tr("goals.op.loadFailed")}</span>
+        <Button size="sm" variant="outline" onClick={() => { void query.refetch(); }}>{tr("goals.retry")}</Button>
       </div>
     ) : <>
       <div className="grid gap-2 sm:grid-cols-2">
-        <div className="space-y-1"><label className="text-xs text-muted-foreground" htmlFor={initiativeId+"-owner"}>Owner</label>{canEdit ? <select id={initiativeId+"-owner"} className="h-8 w-full min-w-0 rounded-md border border-input bg-background px-2 text-xs" value={form.owner_id ?? ""} disabled={members.isLoading || members.isError} onChange={e => set("owner_id",e.target.value)}><option value="">Unassigned</option>{(members.data ?? []).map(member => <option key={member.id} value={member.id}>{member.name}{member.id === userId ? " (you)" : ""}</option>)}</select> : <p className="text-xs">{form.owner_id === userId ? "Assigned to you" : form.owner_id ? "Assigned to a workspace member" : "Unassigned"}</p>}{members.isError && canEdit && <p role="alert" className="text-[10px] text-destructive">Workspace members could not be loaded.</p>}</div>
-        <div className="space-y-1"><label className="text-xs text-muted-foreground" htmlFor={initiativeId+"-due"}>Deadline</label><Input id={initiativeId+"-due"} type="date" className="h-8" value={form.due_date ?? ""} disabled={!canEdit} onChange={e => set("due_date",e.target.value)} /></div>
+        <div className="space-y-1"><label className="text-xs text-muted-foreground" htmlFor={initiativeId+"-owner"}>{tr("goals.op.owner")}</label>{canEdit ? <select id={initiativeId+"-owner"} className="h-8 w-full min-w-0 rounded-md border border-input bg-background px-2 text-xs" value={form.owner_id ?? ""} disabled={members.isLoading || members.isError} onChange={e => set("owner_id",e.target.value)}><option value="">{tr("officer.plan.unassigned")}</option>{(members.data ?? []).map(member => <option key={member.id} value={member.id}>{member.name}{member.id === userId ? tr("goals.op.you") : ""}</option>)}</select> : <p className="text-xs">{form.owner_id === userId ? tr("goals.op.assignedYou") : form.owner_id ? tr("goals.op.assignedMember") : tr("officer.plan.unassigned")}</p>}{members.isError && canEdit && <p role="alert" className="text-[10px] text-destructive">{tr("goals.op.membersFailed")}</p>}</div>
+        <div className="space-y-1"><label className="text-xs text-muted-foreground" htmlFor={initiativeId+"-due"}>{tr("goals.deadline")}</label><Input id={initiativeId+"-due"} type="date" className="h-8" value={form.due_date ?? ""} disabled={!canEdit} onChange={e => set("due_date",e.target.value)} /></div>
       </div>
       <div className="grid gap-2 sm:grid-cols-2">
-        <div className="space-y-1"><label className="text-xs text-muted-foreground">Success metric</label><Input className="h-8" placeholder="e.g. qualified leads / month" value={form.success_metric} disabled={!canEdit} onChange={e => set("success_metric",e.target.value)} /></div>
-        {(["baseline_value","target_value","current_value"] as const).map(key => <div key={key} className="space-y-1"><label className="text-xs text-muted-foreground">{key === "baseline_value" ? "Baseline" : key === "target_value" ? "Target" : "Current result"}</label><Input type="number" min={0} className="h-8" value={value(form[key])} disabled={!canEdit} onChange={e => set(key,e.target.value)} /></div>)}
+        <div className="space-y-1"><label className="text-xs text-muted-foreground">{tr("goals.op.metric")}</label><Input className="h-8" placeholder={tr("goals.op.metricPh")} value={form.success_metric} disabled={!canEdit} onChange={e => set("success_metric",e.target.value)} /></div>
+        {(["baseline_value","target_value","current_value"] as const).map(key => <div key={key} className="space-y-1"><label className="text-xs text-muted-foreground">{key === "baseline_value" ? tr("goals.baseline") : key === "target_value" ? tr("goals.target") : tr("goals.op.current")}</label><Input type="number" min={0} className="h-8" value={value(form[key])} disabled={!canEdit} onChange={e => set(key,e.target.value)} /></div>)}
       </div>
-      {progress != null && <p className="text-xs text-muted-foreground">Recorded progress: {progress}% from values entered here; no connected metric source</p>}
-      <div className="space-y-1"><label className="text-xs text-muted-foreground">Blocker / decision needed</label><Input className="h-8" maxLength={1000} placeholder="What is holding this initiative back?" value={form.blocker_note} disabled={!canEdit} onChange={e => set("blocker_note",e.target.value)} /></div>
-      {canEdit && <div className="flex flex-wrap items-center justify-between gap-2"><select aria-label="Initiative status" className="h-8 rounded-md border border-input bg-background px-2 text-xs" value={nextStatus} onChange={e => setNextStatus(e.target.value)}>{["planned","in_progress","completed","paused","cancelled"].map(s => <option key={s} value={s}>{s.replace("_"," ")}</option>)}</select><Button size="sm" onClick={save} disabled={saving || query.isLoading || query.isError}><Save className="mr-1 h-3.5 w-3.5" />{saving ? "Saving…" : "Save operations"}</Button></div>}
+      {progress != null && <p className="text-xs text-muted-foreground">{tr("goals.op.progress", { p: progress })}</p>}
+      <div className="space-y-1"><label className="text-xs text-muted-foreground">{tr("goals.op.blocker")}</label><Input className="h-8" maxLength={1000} placeholder={tr("goals.op.blockerPh")} value={form.blocker_note} disabled={!canEdit} onChange={e => set("blocker_note",e.target.value)} /></div>
+      {canEdit && <div className="flex flex-wrap items-center justify-between gap-2"><select aria-label={tr("goals.op.status")} className="h-8 rounded-md border border-input bg-background px-2 text-xs" value={nextStatus} onChange={e => setNextStatus(e.target.value)}>{(["planned","in_progress","completed","paused","cancelled"] as const).map(s => <option key={s} value={s}>{tr(`goals.status.${s}`)}</option>)}</select><Button size="sm" onClick={save} disabled={saving || query.isLoading || query.isError}><Save className="mr-1 h-3.5 w-3.5" />{saving ? tr("goals.s.saving") : tr("goals.op.save")}</Button></div>}
     </>}
   </div>;
 }

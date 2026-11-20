@@ -1,4 +1,6 @@
 import { useRef, useState } from "react";
+import { useI18n } from "@/lib/i18n";
+import type { MessageKey } from "@/lib/i18n/messages";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import ReactMarkdown from "react-markdown";
@@ -21,6 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 export function CoordinationWorkbench() {
   const o = useOrg(); const qc = useQueryClient(); const run = useServerFn(runCoordinatedAnalysis);
   const recover = useServerFn(recoverCoordinatedAnalysis);
+  const { t, tag } = useI18n();
   const [agents, setAgents] = useState<SpecialistKey[]>(["strategy", "research"]);
   const [request, setRequest] = useState(""); const [refs, setRefs] = useState<ExecutionRef[]>([]);
   const [busy, setBusy] = useState(false);
@@ -50,8 +53,8 @@ export function CoordinationWorkbench() {
     try {
       const response = await run({ data: { orgId: o.org.id, workspaceId: o.workspace.id, requestKey, request, agents, executionContext: refs } });
       if (!response.ok) { toast.error(response.error); return; }
-      setResult(response.data); toast.success("Coordinated analysis saved");
-    } catch { toast.error("The request could not finish. Check history before starting another analysis."); }
+      setResult(response.data); toast.success(t("officer.coordSaved"));
+    } catch { toast.error(t("officer.coordFailed")); }
     finally {
       setBusy(false);
       for (const key of ["coordination", "convs", "command-center", "overview", "billing", "notification-center"]) qc.invalidateQueries({ queryKey: [key] });
@@ -60,9 +63,9 @@ export function CoordinationWorkbench() {
   async function open(row: NonNullable<typeof history.data>[number]) {
     if (!o.org || !o.workspace || !row.conversation_id || !row.message_id) return;
     const parent = await supabase.from("conversations").select("id").eq("id", row.conversation_id).eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).eq("user_id", o.userId).maybeSingle();
-    if (parent.error || !parent.data) { toast.error("Saved analysis is no longer available in this workspace."); return; }
+    if (parent.error || !parent.data) { toast.error(t("officer.savedGone")); return; }
     const message = await supabase.from("messages").select("content").eq("conversation_id", parent.data.id).eq("org_id", o.org.id).eq("id", row.message_id).single();
-    if (message.error) { toast.error("Could not open the saved result."); return; }
+    if (message.error) { toast.error(t("officer.openFailed")); return; }
     setResult({ reply: message.data.content, messageId: row.message_id });
   }
   async function recoverRow(row: NonNullable<typeof history.data>[number]) {
@@ -71,8 +74,8 @@ export function CoordinationWorkbench() {
     try {
       const response = await recover({ data: { orgId: o.org.id, workspaceId: o.workspace.id, analysisId: row.id, close: new Date(row.lease_expires_at).getTime() <= Date.now() } });
       if (!response.ok) toast.error(response.error);
-      else toast.success(response.data.pending ? "Saved work recovered; uncertain AI usage remains reserved for investigation." : response.data.status === "succeeded" ? "Saved analysis recovered without new AI calls." : "Saved usage reconciled. No new AI calls were made.");
-    } catch { toast.error("Recovery could not finish. No new AI request was sent."); }
+      else toast.success(response.data.pending ? t("officer.recPending") : response.data.status === "succeeded" ? t("officer.recSucceeded") : t("officer.recReconciled"));
+    } catch { toast.error(t("officer.recFailed")); }
     finally { setBusy(false); for (const key of ["coordination", "billing", "convs", "command-center"]) qc.invalidateQueries({ queryKey: [key] }); }
   }
   function downloadPartial(row: NonNullable<typeof history.data>[number]) {
@@ -86,21 +89,21 @@ export function CoordinationWorkbench() {
     const a = document.createElement("a"); a.href = url; a.download = "coordinated-growth-analysis.md"; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   return <section className="mb-10 border-b border-border pb-7">
-    <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold"><Network className="h-5 w-5 text-primary" />Coordinated analysis</h2>
+    <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold"><Network className="h-5 w-5 text-primary" />{t("officer.coordTitle")}</h2>
     <form onSubmit={e => { e.preventDefault(); submit(); }}>
-      <div className="mb-4 flex flex-wrap gap-5">{(Object.keys(SPECIALISTS) as SpecialistKey[]).map(key => <label key={key} className="flex items-center gap-2 text-sm"><Checkbox aria-label={`Coordinate ${SPECIALISTS[key].name}`} checked={agents.includes(key)} disabled={busy || (!agents.includes(key) && agents.length === 2)} onCheckedChange={checked => setAgents(current => checked ? [...current, key] : current.filter(a => a !== key))} />{SPECIALISTS[key].name}</label>)}</div>
-      <label htmlFor="coordination-assignment" className="mb-2 block text-sm font-semibold">Assignment for the team</label>
-      <Textarea id="coordination-assignment" value={request} onChange={e => setRequest(e.target.value)} disabled={busy} maxLength={4000} rows={3} placeholder="Compare two perspectives and propose a focused next move…" />
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3"><ExecutionContextPicker value={refs} onChange={setRefs} disabled={busy} /><Button type="submit" disabled={busy || agents.length !== 2 || request.trim().length < 3 || !can(o.workspaceRole, "ai.use")}><Network />{busy ? "Coordinating…" : "Coordinate specialists"}</Button></div>
-      <p className="mt-3 text-xs text-muted-foreground">Two specialist analyses + Growth Officer synthesis · maximum {COORDINATION_LIMITS.maxCredits} credits reserved · unused credits returned · no external actions.</p>
+      <div className="mb-4 flex flex-wrap gap-5">{(Object.keys(SPECIALISTS) as SpecialistKey[]).map(key => <label key={key} className="flex items-center gap-2 text-sm"><Checkbox aria-label={t("officer.coordinate", { name: t(`officer.spec.${key}` as MessageKey) })} checked={agents.includes(key)} disabled={busy || (!agents.includes(key) && agents.length === 2)} onCheckedChange={checked => setAgents(current => checked ? [...current, key] : current.filter(a => a !== key))} />{t(`officer.spec.${key}` as MessageKey)}</label>)}</div>
+      <label htmlFor="coordination-assignment" className="mb-2 block text-sm font-semibold">{t("officer.teamAssignment")}</label>
+      <Textarea id="coordination-assignment" value={request} onChange={e => setRequest(e.target.value)} disabled={busy} maxLength={4000} rows={3} placeholder={t("officer.teamPlaceholder")} />
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3"><ExecutionContextPicker value={refs} onChange={setRefs} disabled={busy} /><Button type="submit" disabled={busy || agents.length !== 2 || request.trim().length < 3 || !can(o.workspaceRole, "ai.use")}><Network />{busy ? t("officer.coordinating") : t("officer.coordinateBtn")}</Button></div>
+      <p className="mt-3 text-xs text-muted-foreground">{t("officer.coordNote", { n: COORDINATION_LIMITS.maxCredits })}</p>
     </form>
-    {busy && <p role="status" className="mt-4 text-sm text-muted-foreground">Specialists are analyzing, then Growth Officer compares their findings.</p>}
-    <div className="mt-6"><h3 className="mb-2 text-sm font-semibold">Recent coordinated history</h3>
-      {history.isLoading && <p role="status" className="text-xs text-muted-foreground">Loading analyses…</p>}
-      {history.isError && <p role="alert" className="text-xs text-destructive">History could not load.<Button variant="link" size="sm" onClick={() => history.refetch()}>Retry</Button></p>}
-      {history.data?.map(row => <div key={row.id} className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border py-2 text-xs"><span className="min-w-0 break-words">{new Date(row.created_at).toLocaleString()} · {row.status}{row.error ? ` · ${row.error}` : ""}</span><div className="flex flex-wrap gap-1">{row.status === "succeeded" ? <Button variant="link" size="sm" disabled={busy} onClick={() => open(row)}>Open saved analysis</Button> : <Button variant="outline" size="sm" disabled={busy} onClick={() => recoverRow(row)}><RotateCcw />Recover saved work</Button>}{row.partial_results && Object.keys(row.partial_results).length > 0 && <Button variant="ghost" size="icon" title="Download preserved steps" aria-label="Download preserved steps" onClick={() => downloadPartial(row)}><FileText /></Button>}</div></div>)}
-      {!history.isLoading && !history.isError && !history.data?.length && <p className="text-xs text-muted-foreground">No coordinated analyses yet.</p>}
+    {busy && <p role="status" className="mt-4 text-sm text-muted-foreground">{t("officer.coordBusy")}</p>}
+    <div className="mt-6"><h3 className="mb-2 text-sm font-semibold">{t("officer.recentCoord")}</h3>
+      {history.isLoading && <p role="status" className="text-xs text-muted-foreground">{t("officer.loadingAnalyses")}</p>}
+      {history.isError && <p role="alert" className="text-xs text-destructive">{t("officer.historyFailed")}<Button variant="link" size="sm" onClick={() => history.refetch()}>{t("officer.retry")}</Button></p>}
+      {history.data?.map(row => <div key={row.id} className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border py-2 text-xs"><span className="min-w-0 break-words">{new Date(row.created_at).toLocaleString(tag)} · {t(`officer.status.${row.status}` as MessageKey)}{row.error ? ` · ${row.error}` : ""}</span><div className="flex flex-wrap gap-1">{row.status === "succeeded" ? <Button variant="link" size="sm" disabled={busy} onClick={() => open(row)}>{t("officer.openSaved")}</Button> : <Button variant="outline" size="sm" disabled={busy} onClick={() => recoverRow(row)}><RotateCcw />{t("officer.recover")}</Button>}{row.partial_results && Object.keys(row.partial_results).length > 0 && <Button variant="ghost" size="icon" title={t("officer.downloadSteps")} aria-label={t("officer.downloadSteps")} onClick={() => downloadPartial(row)}><FileText /></Button>}</div></div>)}
+      {!history.isLoading && !history.isError && !history.data?.length && <p className="text-xs text-muted-foreground">{t("officer.noCoord")}</p>}
     </div>
-    {result && <article className="mt-6 border-t border-border pt-5"><div className="mb-4 flex items-center justify-between gap-3"><p className="text-xs text-muted-foreground">Saved team analysis{result.credits !== undefined ? ` · ${result.credits} credits` : ""}</p><Button variant="ghost" size="icon" aria-label="Download coordinated analysis" title="Download analysis" onClick={download}><Download /></Button></div><div className="prose-chat min-w-0 break-words text-sm leading-relaxed"><ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml>{result.reply}</ReactMarkdown></div><div className="mt-4"><PlanReview sourceId={result.messageId} content={result.reply} /></div></article>}
+    {result && <article className="mt-6 border-t border-border pt-5"><div className="mb-4 flex items-center justify-between gap-3"><p className="text-xs text-muted-foreground">{t("officer.savedTeam")}{result.credits !== undefined ? t("officer.creditsSuffix", { n: result.credits }) : ""}</p><Button variant="ghost" size="icon" aria-label={t("officer.downloadAnalysis")} title={t("officer.downloadAnalysis")} onClick={download}><Download /></Button></div><div className="prose-chat min-w-0 break-words text-sm leading-relaxed"><ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml>{result.reply}</ReactMarkdown></div><div className="mt-4"><PlanReview sourceId={result.messageId} content={result.reply} /></div></article>}
   </section>;
 }
