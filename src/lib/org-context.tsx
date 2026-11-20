@@ -1,3 +1,4 @@
+import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +16,11 @@ interface OrgCtx {
   setOrgId: (id: string) => void; setWorkspaceId: (id: string) => void;
   isPlatformStaff: boolean; loading: boolean; refresh: () => Promise<void>;
 }
-const Ctx = createContext<OrgCtx | null>(null);
+// One context identity per page: when a hot reload or a separately loaded chunk re-evaluates this module,
+// it reuses the existing context instead of creating a second one that the mounted provider does not fill.
+const CTX_KEY = "__agoOrgContext";
+const store = globalThis as unknown as Record<string, React.Context<OrgCtx | null> | undefined>;
+const Ctx = store[CTX_KEY] ?? (store[CTX_KEY] = createContext<OrgCtx | null>(null));
 
 const ORG_KEY = "ago.org"; const WS_KEY = "ago.ws";
 
