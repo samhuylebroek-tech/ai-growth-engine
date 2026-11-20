@@ -35,6 +35,11 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
 - **Manual exchange rates** — earlier manual test rates next to official ECB rates. Official rates already win on
   the same date. *Keep*; they document the manual-rate path.
 
+- **Phase 8.2 evidence walkthrough (2026-11-20)** — one team proposal "QA-E2E evidence …" (formal level,
+  approved by the QA admin) with one linked evidence item pointing at the manual "Qualified leads" measurement
+  (now "used in a decision"). Evidence items and their history are insert-only by design. *Keep as approval
+  evidence; the proposal can be withdrawn through the app if a clean list is wanted.*
+
 ## Cleanup proposal (needs separate approval)
 
 1. Archive (status change, not delete) the five QA-named goals/campaigns/tasks through the normal app screens.

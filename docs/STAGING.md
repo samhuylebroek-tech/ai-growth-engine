@@ -189,6 +189,24 @@ Proposal `0070_organization_growth_intelligence` (applied to staging only; 78/78
 | Member with one business: single-business view, only Overview and Resources | PASS |
 | Dutch phone (390 px) and French desktop, context switcher with organization / business / brand | PASS |
 
+## Phase 8.2 — evidence governance & quality (staging) — 2026-11-20
+
+Proposal `0073_evidence_governance` (staging only; 53/53 rolled-back assertions; Drizzle ledger still 57; all
+37 SQL suites pass, nothing persisted). Evidence items have six types (verified fact, measured observation,
+estimate, assumption, hypothesis, missing information); facts/measurements must point at a real record of the
+same business; AI-origin evidence is never a fact and never counts as independent. Evidence is versioned and
+insert-only with an event history. Improvement proposals have three levels: observation (never work), formal
+(accepted independent evidence or a stated reason, plus a review) and execution (adds objective, risk,
+measurement and approval requirement, and needs a fact or measurement). An administrator approves only with the
+exact list of evidence IDs shown on screen.
+
+| Check (staging app, real sign-ins) | Result |
+| --- | --- |
+| Admin EN: create formal proposal → approve disabled → add measurement evidence → accept → review → approve → reload; evidence becomes "used in a decision" | PASS |
+| Member NL phone: sees the proposal, no approve button; viewer FR: no approve button | PASS |
+| Tab titles EN/NL/FR on every page; approvals, activity, notifications, documents, growth areas, specialists in NL/FR | PASS |
+| 16 main pages as owner (EN desktop) and viewer (NL phone): no errors, no horizontal scroll | PASS |
+
 ## Not done / blocked
 
 - **Reachable staging URL** — needs the token above. Until then staging runs only inside the build sandbox.

@@ -1,15 +1,17 @@
 # AI Growth OS — Task Queue
 ## Phase 8.2 — product completion, evidence governance & quality — 2026-11-20
-- [ ] B1 Audit: 20 systems, findings + checklist in docs/PHASE_8_2_REPORT.md.
-- [ ] B2 Evidence governance (proposal 0073): six evidence types, lifecycle with history and versions, proposal levels (observation/formal/execution), admin inspects evidence before approval, AI text never counts as independent evidence.
-- [ ] B3 Evidence quality labels on opportunities, proposals, org opportunities, strategy/Growth Officer recommendations, experiments, next best actions; transparent ranking factors; duplicate explanations; standard recommendation stages.
-- [ ] B4 Strategy integrity: versions, approval references, task origin traceability (validate; fix gaps).
-- [ ] B5 Financial integrity: credits, revenue, budgets, currencies (validate with tests).
-- [ ] B6 Localized browser tab titles/descriptions EN/NL/FR on every route.
-- [ ] B7 Security: evidence tables in the access matrix; role refusals with exact codes.
-- [ ] B8 Integration safety: simulated lifecycle validation.
-- [ ] B9 Staging end-to-end walkthroughs (business, organization, roles, finance, external actions).
-- [ ] B10 Test-data inventory refresh, final report, commit.
+- [x] B1 Audit: 20 systems, findings + checklist in docs/PHASE_8_2_REPORT.md.
+- [x] B2 Evidence governance (proposal 0073): six evidence types, lifecycle with history and versions, proposal levels (observation/formal/execution), admin inspects evidence before approval, AI text never counts as independent evidence.
+- [x] B3 Evidence quality labels on opportunities, proposals, org opportunities, strategy/Growth Officer recommendations, experiments, next best actions; transparent ranking factors; duplicate explanations; standard recommendation stages.
+- [x] B4 Strategy integrity: versions, approval references, task origin traceability (validate; fix gaps).
+- [x] B5 Financial integrity: credits, revenue, budgets, currencies (validate with tests).
+- [x] B6 Localized browser tab titles/descriptions EN/NL/FR on every route.
+- [x] B7 Security: evidence tables in the access matrix; role refusals with exact codes.
+- [x] B8 Integration safety: simulated lifecycle validation.
+- [x] B9 Staging end-to-end walkthroughs (business, organization, roles, finance, external actions).
+- [x] B10 Test-data inventory refresh, final report, commit.
+- [ ] Owner center and remaining deeper module texts in NL/FR.
+- [B] Proposal 0073 into the live database: owner approval.
 ## Phase 8.1 — finalization & operational readiness — 2026-11-20
 - [x] Org Growth Officer: real business names in stored drafts (display-only, original kept), refs stored for new drafts, similar names distinguishable.
 - [x] Organization AI credit overview (proposal 0071): pool balance, reserved/consumed/released, month, per business/specialist/Org Growth Officer, drill-down.

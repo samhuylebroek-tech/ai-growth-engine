@@ -76,3 +76,5 @@ use the editor.
 - Costs come from pure `src/lib/cost-rollup.ts` over RLS reads: each task once per level, budgets per currency, no unattributed revenue/ROI.
 - Business intelligence (proposal 0066): revenue is a permanent per-currency ledger, attribution is pure `src/lib/bi/` over RLS reads; see `src/lib/bi/AGENTS.md`.
 - Multi-business organizations (proposals 0067–0070): businesses are workspaces, org reporting and org intelligence are pure over RLS reads, and organization decisions only take effect through each business's own rights; see `src/lib/org/AGENTS.md`.
+- Evidence governance (proposal 0073): evidence is typed, record-checked and insert-only in SQL; quality labels come from pure `src/lib/evidence.ts`, and AI-origin text never counts as independent evidence, so recommendations cannot certify themselves.
+- Browser tab titles use `localHead(key)` with `head.<key>.*` texts; registry names render through `src/lib/i18n/registry-text.ts`, so every page reads in the interface language.
