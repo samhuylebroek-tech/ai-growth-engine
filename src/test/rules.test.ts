@@ -61,3 +61,22 @@ describe("capability registry", () => {
     expect(() => defineCapability({ key: "x", name: "x", description: "", risk: "write_external", minRole: "member", credits: 1, requiresApproval: false, status: "planned" })).toThrow();
   });
 });
+
+describe("business editor role (proposal 0067/0068)", () => {
+  it("only editors and above confirm business facts and manage budgets", () => {
+    expect(can("member", "profile.confirm")).toBe(false);
+    expect(can("member", "budgets.manage")).toBe(false);
+    expect(can("editor", "profile.confirm")).toBe(true);
+    expect(can("editor", "budgets.manage")).toBe(true);
+  });
+  it("editors keep every member right but cannot manage specialists or exchange rates", () => {
+    expect(can("editor", "profile.edit")).toBe(true);
+    expect(can("editor", "specialists.manage")).toBe(false);
+    expect(can("editor", "rates.manage")).toBe(false);
+    expect(can("admin", "finance.consolidated")).toBe(true);
+    expect(can("editor", "finance.consolidated")).toBe(false);
+  });
+  it("administrators can invite editors but never owners", () => {
+    expect(assignableRoles("admin")).toEqual(["admin", "editor", "member", "viewer"]);
+  });
+});

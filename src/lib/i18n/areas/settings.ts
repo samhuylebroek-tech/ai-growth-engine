@@ -5,6 +5,7 @@ export const settings = defineArea("settings", {
   en: {
     "settings.role.owner": "Owner",
     "settings.role.admin": "Administrator",
+    "settings.role.editor": "Editor",
     "settings.role.member": "Member",
     "settings.role.viewer": "Viewer",
     "settings.wsSaved": "Workspace access saved",
@@ -62,6 +63,7 @@ export const settings = defineArea("settings", {
   nl: {
     "settings.role.owner": "Eigenaar",
     "settings.role.admin": "Beheerder",
+    "settings.role.editor": "Redacteur",
     "settings.role.member": "Lid",
     "settings.role.viewer": "Kijker",
     "settings.wsSaved": "Toegang tot werkruimte bewaard",
@@ -119,6 +121,7 @@ export const settings = defineArea("settings", {
   fr: {
     "settings.role.owner": "Propriétaire",
     "settings.role.admin": "Administrateur",
+    "settings.role.editor": "Éditeur",
     "settings.role.member": "Membre",
     "settings.role.viewer": "Lecteur",
     "settings.wsSaved": "Accès à l’espace enregistré",

@@ -33,6 +33,7 @@ import { toast } from "sonner";
 import { useOrg } from "@/lib/org-context";
 import { can } from "@/lib/permissions";
 import { supabase } from "@/integrations/supabase/client";
+import { growthDb, isNotInstalled, retryUnlessNotInstalled } from "@/lib/pending-schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -635,7 +636,19 @@ export function WorkForm({
     labels: item && "labels" in item ? item.labels.join(", ") : "",
     agent_key: item && "agent_key" in item ? (item.agent_key ?? "") : "",
     recurrence: item && "recurrence" in item ? item.recurrence : "none",
+    unit_id: (item as { unit_id?: string | null } | undefined)?.unit_id ?? "",
   }));
+  // Brands and units of this business (proposal 0066); a campaign may target one of them.
+  const units = useQuery({
+    queryKey: ["business-units", o.workspace?.id],
+    enabled: kind === "campaigns" && !!o.workspace,
+    retry: retryUnlessNotInstalled,
+    queryFn: async () => {
+      const r = await growthDb.from("business_units").select("id,name").eq("workspace_id", o.workspace?.id ?? "").eq("archived", false).order("name").limit(200);
+      if (r.error) { if (isNotInstalled(r.error)) return []; throw r.error; }
+      return r.data ?? [];
+    },
+  });
   const [busy, setBusy] = useState(false);
   const editable = can(o.workspaceRole, "profile.edit");
   const set = (key: keyof typeof form, value: string) => setForm((f) => ({ ...f, [key]: value }));
@@ -725,15 +738,16 @@ export function WorkForm({
             .map((x) => x.trim())
             .filter(Boolean),
           results: form.results,
+          ...(form.unit_id || (item as { unit_id?: string | null } | undefined)?.unit_id ? { unit_id: form.unit_id || null } : {}),
         };
         r = item
-          ? await supabase
+          ? await growthDb
               .from("campaigns")
               .update(values)
               .eq("id", item.id)
               .eq("org_id", o.org.id)
               .eq("workspace_id", o.workspace.id)
-          : await supabase
+          : await growthDb
               .from("campaigns")
               .insert({
                 ...values,
@@ -866,6 +880,7 @@ export function WorkForm({
             {field("audience", tx("work.f.audience"))}
             {field("budget_eur", tx("work.f.budget"), "number")}
             {field("channels", tx("work.f.channels"))}
+            {!!units.data?.length && select("unit_id", tx("work.f.brand"), [{ value: "", label: tx("work.f.brandWhole") }, ...units.data.map((u) => ({ value: u.id, label: u.name }))])}
           </>
         )}
       </div>

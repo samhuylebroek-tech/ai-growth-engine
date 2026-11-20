@@ -189,6 +189,28 @@ type MetricRow = {
   created_at: string;
   updated_at: string;
 };
+export type ExchangeRateRow = {
+  id: string;
+  org_id: string;
+  base_currency: string;
+  quote_currency: string;
+  rate: number;
+  rate_date: string;
+  source: string;
+  kind: "manual" | "official";
+  created_by: string;
+  created_at: string;
+};
+export type SpecialistAllocationRow = {
+  workspace_id: string;
+  org_id: string;
+  specialist_key: string;
+  enabled: boolean;
+  priority: number;
+  monthly_credit_cap: number | null;
+  updated_by: string;
+  updated_at: string;
+};
 export type BusinessUnitRow = {
   id: string;
   org_id: string;
@@ -569,6 +591,8 @@ type PendingTables = {
   execution_cycles: { Row: ExecutionCycleRow; Insert: never; Update: never; Relationships: [] };
   external_actions: { Row: ExternalActionRow; Insert: never; Update: never; Relationships: [] };
   business_units: { Row: BusinessUnitRow; Insert: never; Update: never; Relationships: [] };
+  exchange_rates: { Row: ExchangeRateRow; Insert: never; Update: never; Relationships: [] };
+  specialist_allocations: { Row: SpecialistAllocationRow; Insert: never; Update: never; Relationships: [] };
   revenue_events: { Row: RevenueEventRow; Insert: never; Update: never; Relationships: [] };
   attribution_touchpoints: { Row: TouchpointRow; Insert: never; Update: never; Relationships: [] };
   growth_experiments: { Row: ExperimentRow; Insert: never; Update: never; Relationships: [] };
@@ -601,11 +625,34 @@ type PendingTables = {
   };
 };
 
+/** Proposal 0067 adds 'editor' to org_role; the generated enum predates it. */
+export type OrgRoleWithEditor = "owner" | "admin" | "editor" | "member" | "viewer";
+type OrgMembers = GeneratedTables["organization_members"];
+type PendingOrgMembers = {
+  Row: Omit<OrgMembers["Row"], "role"> & { role: OrgRoleWithEditor };
+  Insert: Omit<OrgMembers["Insert"], "role"> & { role?: OrgRoleWithEditor };
+  Update: Omit<OrgMembers["Update"], "role"> & { role?: OrgRoleWithEditor };
+  Relationships: OrgMembers["Relationships"];
+};
+/** Proposal 0068: optional brand/unit link on goals, campaigns and budget lines (same business only). */
+type UnitLinked<T extends { Row: object; Insert: object; Update: object; Relationships: unknown }> = {
+  Row: T["Row"] & { unit_id: string | null };
+  Insert: T["Insert"] & { unit_id?: string | null };
+  Update: T["Update"] & { unit_id?: string | null };
+  Relationships: T["Relationships"];
+};
+type BusinessProfiles = GeneratedTables["business_profiles"];
+type PendingBusinessProfiles = {
+  Row: BusinessProfiles["Row"] & { reporting_currency: string };
+  Insert: BusinessProfiles["Insert"];
+  Update: BusinessProfiles["Update"];
+  Relationships: BusinessProfiles["Relationships"];
+};
 type BudgetLines = GeneratedTables["budget_lines"];
 type PendingBudgetLines = {
-  Row: BudgetLines["Row"] & { initiative_id: string | null };
-  Insert: BudgetLines["Insert"] & { initiative_id?: string | null };
-  Update: BudgetLines["Update"] & { initiative_id?: string | null };
+  Row: BudgetLines["Row"] & { initiative_id: string | null; unit_id: string | null };
+  Insert: BudgetLines["Insert"] & { initiative_id?: string | null; unit_id?: string | null };
+  Update: BudgetLines["Update"] & { initiative_id?: string | null; unit_id?: string | null };
   Relationships: [
     ...BudgetLines["Relationships"],
     {
@@ -847,6 +894,22 @@ type PendingFunctions = {
     Args: { _connection: string; _key: string; _proof: string };
     Returns: Json;
   };
+  import_official_rates_verified: {
+    Args: { _org: string; _date: string; _rates: { currency: string; rate: string }[]; _proof: string };
+    Returns: number;
+  };
+  set_business_currency: { Args: { _workspace: string; _currency: string }; Returns: string };
+  record_exchange_rate: {
+    Args: { _org: string; _base: string; _quote: string; _rate: number; _date: string; _source: string };
+    Returns: string;
+  };
+  set_specialist_allocation: {
+    Args: { _workspace: string; _specialist: string; _enabled: boolean; _priority: number; _cap: number | null };
+    Returns: Json;
+  };
+  /** Proposal 0067 adds the editor role, which the generated enum does not know yet. */
+  create_invitation: { Args: { _org: string; _email: string; _role: OrgRoleWithEditor }; Returns: string };
+  set_workspace_member: { Args: { _workspace: string; _user: string; _role?: OrgRoleWithEditor }; Returns: undefined };
   create_business_unit: {
     Args: { _workspace: string; _kind: string; _name: string; _parent: string | null };
     Returns: Json;
@@ -936,8 +999,14 @@ type PendingFunctions = {
 
 export type PendingDatabase = Omit<Database, "public"> & {
   public: Omit<Public, "Tables" | "Functions"> & {
-    Tables: Omit<GeneratedTables, "budget_lines" | keyof PendingTables> &
-      PendingTables & { budget_lines: PendingBudgetLines };
+    Tables: Omit<GeneratedTables, "budget_lines" | "growth_goals" | "campaigns" | "business_profiles" | "organization_members" | keyof PendingTables> &
+      PendingTables & {
+        budget_lines: PendingBudgetLines;
+        growth_goals: UnitLinked<GeneratedTables["growth_goals"]>;
+        campaigns: UnitLinked<GeneratedTables["campaigns"]>;
+        business_profiles: PendingBusinessProfiles;
+        organization_members: PendingOrgMembers;
+      };
     Functions: Omit<GeneratedFunctions, keyof PendingFunctions> & PendingFunctions;
   };
 };

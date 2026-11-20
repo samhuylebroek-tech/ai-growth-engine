@@ -6,6 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Copy, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { growthDb } from "@/lib/pending-schema";
 import { useOrg } from "@/lib/org-context";
 import { assignableRoles, can, hasRole, type OrgRole } from "@/lib/permissions";
 import { PageHeader, Panel } from "@/components/app/status";
@@ -28,7 +29,7 @@ function SettingsPage() {
     if (result.error) throw result.error; return result.data ?? [];
   } });
   async function assignWorkspace(workspaceId: string, userId: string, role: string) {
-    const { error } = await supabase.rpc("set_workspace_member", { _workspace: workspaceId, _user: userId, ...(role === "none" ? {} : { _role: role as OrgRole }) });
+    const { error } = await growthDb.rpc("set_workspace_member", { _workspace: workspaceId, _user: userId, ...(role === "none" ? {} : { _role: role as OrgRole }) });
     if (error) { toast.error(error.message); return; }
     toast.success(t("settings.wsSaved")); await qc.invalidateQueries({ queryKey: ["workspace-assignments", orgId] }); await o.refresh();
   }
@@ -44,11 +45,11 @@ function SettingsPage() {
   async function rename(e: React.FormEvent) { e.preventDefault(); if (!orgId || !o.org) return; const { error } = await supabase.from("organizations").update({ name: orgName.trim() || o.org.name }).eq("id", orgId); if (error) toast.error(t("settings.notAllowed")); else { toast.success(t("settings.saved")); await supabase.rpc("log_audit", { _org: orgId, _action: "organization.renamed", _target_type: "organization", _target_id: orgId }); o.refresh(); } }
   async function invite(e: React.FormEvent) {
     e.preventDefault();
-    const { error } = await supabase.rpc("create_invitation", { _org: orgId!, _email: email, _role: role });
+    const { error } = await growthDb.rpc("create_invitation", { _org: orgId!, _email: email, _role: role });
     if (error) { toast.error(error.message); return; }
     setEmail(""); qc.invalidateQueries({ queryKey: ["invites"] }); toast.success(t("settings.inviteCreated"));
   }
-  async function changeRole(userId: string, r: OrgRole) { const { error } = await supabase.from("organization_members").update({ role: r }).eq("org_id", orgId!).eq("user_id", userId); if (error) toast.error("Not allowed"); else await supabase.rpc("log_audit", { _org: orgId!, _action: "member.role_changed", _target_type: "user", _target_id: userId, _metadata: { role: r } }); qc.invalidateQueries({ queryKey: ["members"] }); }
+  async function changeRole(userId: string, r: OrgRole) { const { error } = await growthDb.from("organization_members").update({ role: r }).eq("org_id", orgId!).eq("user_id", userId); if (error) toast.error("Not allowed"); else await supabase.rpc("log_audit", { _org: orgId!, _action: "member.role_changed", _target_type: "user", _target_id: userId, _metadata: { role: r } }); qc.invalidateQueries({ queryKey: ["members"] }); }
   async function removeMember(userId: string) { const { error } = await supabase.from("organization_members").delete().eq("org_id", orgId!).eq("user_id", userId); if (error) toast.error("Not allowed"); else await supabase.rpc("log_audit", { _org: orgId!, _action: "member.removed", _target_type: "user", _target_id: userId }); qc.invalidateQueries({ queryKey: ["members"] }); }
   async function addWs(e: React.FormEvent) {
     e.preventDefault();
@@ -77,7 +78,7 @@ function SettingsPage() {
         {assignments.isError && <p role="alert" className="text-sm text-destructive">{t("settings.wsAccessFailed")} <Button variant="link" onClick={() => assignments.refetch()}>{t("settings.retry")}</Button></p>}
         <div className="divide-y divide-border">{o.workspaces.map(w => <div key={w.id} className="py-4">
           <div className="flex items-center justify-between gap-3"><h3 className="text-sm font-semibold">{w.name}</h3><Button variant="outline" size="sm" onClick={() => o.setWorkspaceId(w.id)} disabled={o.workspace?.id === w.id}>{o.workspace?.id === w.id ? t("settings.selected") : t("settings.openWs")}</Button></div>
-          {o.role === "owner" && members.data?.filter(m => m.role !== "owner").map(m => <div key={m.user_id} className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm"><span>{m.name ?? t("settings.memberFallback")}</span><select aria-label={t("settings.accessFor", { name: m.name ?? t("settings.memberFallback"), ws: w.name })} className="rounded-md border border-border bg-background px-3" disabled={assignments.isLoading} value={assignments.data?.find(a => a.user_id === m.user_id && a.workspace_id === w.id)?.role ?? "none"} onChange={e => assignWorkspace(w.id, m.user_id, e.target.value)}><option value="none">{t("settings.noAccess")}</option>{(["viewer", "member", "admin"] as const).filter(r => hasRole(m.role, r)).map(r => <option key={r} value={r}>{t(`settings.role.${r}`)}</option>)}</select></div>)}
+          {o.role === "owner" && members.data?.filter(m => m.role !== "owner").map(m => <div key={m.user_id} className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm"><span>{m.name ?? t("settings.memberFallback")}</span><select aria-label={t("settings.accessFor", { name: m.name ?? t("settings.memberFallback"), ws: w.name })} className="rounded-md border border-border bg-background px-3" disabled={assignments.isLoading} value={assignments.data?.find(a => a.user_id === m.user_id && a.workspace_id === w.id)?.role ?? "none"} onChange={e => assignWorkspace(w.id, m.user_id, e.target.value)}><option value="none">{t("settings.noAccess")}</option>{(["viewer", "member", "editor", "admin"] as const).filter(r => hasRole(m.role, r)).map(r => <option key={r} value={r}>{t(`settings.role.${r}`)}</option>)}</select></div>)}
         </div>)}</div>
         <p className="mt-2 text-xs text-muted-foreground">{t("settings.ownersNote")}</p>
       </section>

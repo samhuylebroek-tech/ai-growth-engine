@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { OrgRole } from "@/lib/permissions";
+import { ROLE_RANK, type OrgRole } from "@/lib/permissions";
 
 export interface Membership { org_id: string; role: OrgRole; organizations: { id: string; name: string; type: string; status: string } | null }
 export interface Workspace { id: string; org_id: string; name: string; kind: string }
@@ -61,8 +61,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
       if (result.error) throw result.error;
       const role = result.data?.role;
       if (!role || !current) return null;
-      const rank: Record<OrgRole, number> = { viewer: 1, member: 2, admin: 3, owner: 4 };
-      return rank[role] < rank[current.role] ? role : current.role;
+      return ROLE_RANK[role] < ROLE_RANK[current.role] ? role : current.role;
     },
   });
 

@@ -31,7 +31,7 @@ function Onboarding() {
   const [goals, setGoals] = useState(""); const [budget, setBudget] = useState("");
   const [first, setFirst] = useState({ title: "", metric: "", target: "", due: "" });
   const [busy, setBusy] = useState(false); const [error, setError] = useState(""); const [sources, setSources] = useState<string[]>([]);
-  const editable = can(o.workspaceRole, "profile.edit");
+  const editable = can(o.workspaceRole, "profile.confirm");
   useEffect(() => {
     if (!o.workspace) return;
     let active = true;
@@ -105,7 +105,7 @@ function Onboarding() {
 
   return <div className="mx-auto max-w-4xl">
     <div className="mb-8 flex items-center gap-3 text-xs text-muted-foreground"><span className={step === "website" ? "font-semibold text-primary" : ""}>01 Your business</span><ArrowRight className="h-3 w-3" /><span className={step === "review" ? "font-semibold text-primary" : ""}>02 Confirm facts</span><ArrowRight className="h-3 w-3" /><span className={step === "goals" ? "font-semibold text-primary" : ""}>03 Growth direction</span></div>
-    {!editable && <p role="alert" className="mb-6 text-destructive">Member access is required to edit the business profile.</p>}
+    {!editable && <p role="alert" className="mb-6 text-destructive">Editor access is required to confirm the business profile.</p>}
     {error && <div role="alert" className="mb-6 rounded-md border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{error}</div>}
     {step === "website" ? <div className="max-w-2xl py-8">
       <Globe2 className="mb-6 h-10 w-10 text-primary" /><h1 className="text-3xl font-semibold">Start with your website.</h1><p className="mt-3 max-w-lg text-muted-foreground">Build the foundation for your first growth analysis.</p>

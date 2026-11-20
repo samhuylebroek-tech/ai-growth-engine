@@ -31,10 +31,10 @@ export function GoalsAndBudget() {
   const { t: tr } = useI18n();
   if (loading) return <p className="p-6 text-muted-foreground">{tr("goals.loading")}</p>;
   if (!workspace || !org) return <p className="p-6 text-muted-foreground">{tr("goals.chooseWorkspace")}</p>;
-  return <Planner key={workspace.id} orgId={org.id} wsId={workspace.id} canEdit={hasRole(workspaceRole, "member")} userId={userId} canApprove={hasRole(workspaceRole, "admin")} />;
+  return <Planner key={workspace.id} orgId={org.id} wsId={workspace.id} canEdit={hasRole(workspaceRole, "member")} canBudget={hasRole(workspaceRole, "editor")} userId={userId} canApprove={hasRole(workspaceRole, "admin")} />;
 }
 
-function Planner({ orgId, wsId, canEdit, canApprove, userId }: { orgId: string; wsId: string; canEdit: boolean; canApprove: boolean; userId: string }) {
+function Planner({ orgId, wsId, canEdit, canBudget, canApprove, userId }: { orgId: string; wsId: string; canEdit: boolean; canBudget: boolean; canApprove: boolean; userId: string }) {
   const qc = useQueryClient();
   const { t: tr, tag } = useI18n();
   const [month, setMonth] = useState(monthStart());
@@ -55,6 +55,11 @@ function Planner({ orgId, wsId, canEdit, canApprove, userId }: { orgId: string; 
       return r.data ?? [];
     },
   });
+  // Brands and business units of this business (proposal 0066); absent tables simply mean no brand choice.
+  const units = useQuery({ queryKey: ["business-units", wsId], retry: retryUnlessNotInstalled, queryFn: async () => {
+    const r = await supabase.from("business_units").select("id,name,kind").eq("workspace_id", wsId).eq("archived", false).order("name").limit(200);
+    if (r.error) { if (isNotInstalled(r.error)) return []; throw r.error; } return r.data ?? []; } });
+  const unitName = (id: string | null | undefined) => (id ? units.data?.find(u => u.id === id)?.name ?? null : null);
   const lines = useQuery({ queryKey: ["budget-lines", wsId, month], queryFn: async () => {
     const r = await supabase.from("budget_lines").select("*").eq("workspace_id", wsId).eq("period_month", month).order("created_at").limit(200);
     if (r.error) throw r.error; return r.data; } });
@@ -70,26 +75,26 @@ function Planner({ orgId, wsId, canEdit, canApprove, userId }: { orgId: string; 
   };
   const refresh = () => qc.invalidateQueries({ queryKey: ["growth-goals", wsId] }).then(() => qc.invalidateQueries({ queryKey: ["budget-lines", wsId] }));
 
-  const [g, setG] = useState({ title: "", objective: "leads", metric: "", baseline: "", target: "", due: "" });
+  const [g, setG] = useState({ title: "", objective: "leads", metric: "", baseline: "", target: "", due: "", unit: "" });
   const addGoal = async () => {
     if (!g.title.trim()) return void toast.error(tr("goals.nameGoal"));
-    const r = await supabase.from("growth_goals").insert({ org_id: orgId, workspace_id: wsId, title: g.title.trim(), objective: g.objective, metric: g.metric.trim(), baseline: num(g.baseline), target: num(g.target), due_date: g.due || null, priority: (goals.data?.length ?? 0) === 0 ? "primary" : "secondary" });
+    const r = await supabase.from("growth_goals").insert({ org_id: orgId, workspace_id: wsId, title: g.title.trim(), objective: g.objective, metric: g.metric.trim(), baseline: num(g.baseline), target: num(g.target), due_date: g.due || null, priority: (goals.data?.length ?? 0) === 0 ? "primary" : "secondary", ...(g.unit ? { unit_id: g.unit } : {}) });
     if (r.error) return void toast.error(tr("goals.saveGoalFailed"));
-    setG({ title: "", objective: "leads", metric: "", baseline: "", target: "", due: "" }); await refresh();
+    setG({ title: "", objective: "leads", metric: "", baseline: "", target: "", due: "", unit: "" }); await refresh();
   };
   const updateGoal = async (id: string, patch: { current_value?: number | null; priority?: string; status?: string }) => {
     const r = await supabase.from("growth_goals").update(patch).eq("id", id);
     if (r.error) toast.error(tr("goals.updateGoalFailed")); await refresh();
   };
 
-  const [b, setB] = useState({ channel: "", planned: "", cap: "", goal: "", initiative: "" });
+  const [b, setB] = useState({ channel: "", planned: "", cap: "", goal: "", initiative: "", unit: "" });
   const addLine = async () => {
     const planned = num(b.planned) ?? 0, cap = num(b.cap);
     if (!b.channel.trim()) return void toast.error(tr("goals.nameChannel"));
     if (cap != null && planned > cap) return void toast.error(tr("goals.overCap"));
-    const r = await supabase.from("budget_lines").insert({ org_id: orgId, workspace_id: wsId, channel: b.channel.trim(), period_month: month, planned, hard_cap: cap, goal_id: b.goal || null, initiative_id: b.initiative || null });
+    const r = await supabase.from("budget_lines").insert({ org_id: orgId, workspace_id: wsId, channel: b.channel.trim(), period_month: month, planned, hard_cap: cap, goal_id: b.goal || null, initiative_id: b.initiative || null, ...(b.unit ? { unit_id: b.unit } : {}) });
     if (r.error) return void toast.error(tr("goals.saveLineFailed"));
-    setB({ channel: "", planned: "", cap: "", goal: "", initiative: "" }); await refresh();
+    setB({ channel: "", planned: "", cap: "", goal: "", initiative: "", unit: "" }); await refresh();
   };
   const setActual = async (id: string, v: string) => {
     const n = num(v); if (n == null || n < 0) return;
@@ -129,7 +134,7 @@ function Planner({ orgId, wsId, canEdit, canApprove, userId }: { orgId: string; 
           {(goals.data ?? []).map(x => { const p = goalProgress(x.baseline, x.target, x.current_value); return (
             <div key={x.id} className="min-w-0 space-y-2 rounded-lg border bg-card p-4">
               <div className="flex flex-wrap items-center gap-2"><span className="font-medium">{x.title}</span>
-                {x.priority === "primary" && <Badge>{tr("goals.primary")}</Badge>}<Badge variant="outline">{tr(objKey(x.objective))}</Badge>{x.status !== "active" && <Badge variant="secondary">{tr(statusKey(x.status))}</Badge>}</div>
+                {unitName(x.unit_id) && <Badge variant="outline">{unitName(x.unit_id)}</Badge>}{x.priority === "primary" && <Badge>{tr("goals.primary")}</Badge>}<Badge variant="outline">{tr(objKey(x.objective))}</Badge>{x.status !== "active" && <Badge variant="secondary">{tr(statusKey(x.status))}</Badge>}</div>
               <p className="text-sm text-muted-foreground">{tr("goals.goalLine", { metric: x.metric || tr("goals.noMetric"), baseline: x.baseline ?? "—", target: x.target ?? "—" })}{x.due_date ? tr("goals.by", { date: new Date(`${x.due_date}T00:00:00`).toLocaleDateString(tag) }) : ""}</p>
               {p != null ? <div className="space-y-1"><Progress value={p} /><p className="text-xs text-muted-foreground">{tr("goals.progress", { p })}</p></div> : <p className="text-xs text-muted-foreground">{tr("goals.noProgress")}</p>}
               <GrowthChain orgId={orgId} wsId={wsId} goalId={x.id} />
@@ -157,6 +162,7 @@ function Planner({ orgId, wsId, canEdit, canApprove, userId }: { orgId: string; 
           <Input aria-label={tr("goals.baseline")} type="number" min={0} placeholder={tr("goals.baseline")} value={g.baseline} onChange={e => setG({ ...g, baseline: e.target.value })} />
           <Input aria-label={tr("goals.target")} type="number" min={0} placeholder={tr("goals.target")} value={g.target} onChange={e => setG({ ...g, target: e.target.value })} />
           <Input aria-label={tr("goals.deadline")} type="date" value={g.due} onChange={e => setG({ ...g, due: e.target.value })} />
+          {!!units.data?.length && <select aria-label={tr("goals.brand")} className={sel} value={g.unit} onChange={e => setG({ ...g, unit: e.target.value })}><option value="">{tr("goals.brandWhole")}</option>{units.data.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select>}
           <Button onClick={addGoal} className="sm:col-span-3 lg:col-span-1"><Plus className="mr-1 h-4 w-4" />{tr("goals.addGoal")}</Button>
         </div>}
       </section>
@@ -174,9 +180,9 @@ function Planner({ orgId, wsId, canEdit, canApprove, userId }: { orgId: string; 
           <table className="w-full text-sm"><thead className="bg-muted/50 text-left"><tr><th className="p-2">{tr("goals.channel")}</th><th className="p-2">{tr("goals.goalInitiative")}</th><th className="p-2">{tr("goals.planned")}</th><th className="p-2">{tr("goals.cap")}</th><th className="p-2">{tr("goals.spent")}</th><th className="p-2">{tr("goals.status")}</th></tr></thead>
             <tbody>{(lines.data ?? []).length === 0 && <tr><td colSpan={6} className="p-3 text-muted-foreground">{tr("goals.noBudget")}</td></tr>}
               {(lines.data ?? []).map(l => { const a = budgetAlert(l); return (
-                <tr key={l.id} className="border-t"><td className="p-2">{l.channel}</td><td className="p-2 text-muted-foreground">{goals.data?.find(x => x.id === l.goal_id)?.title ?? "—"}{l.initiative_id && <span className="block text-xs">{budgetInitiatives.data?.find(i => i.id === l.initiative_id)?.title ?? tr("goals.initiativeLinked")}</span>}</td>
+                <tr key={l.id} className="border-t"><td className="p-2">{l.channel}{unitName(l.unit_id) && <span className="block text-xs text-muted-foreground">{unitName(l.unit_id)}</span>}</td><td className="p-2 text-muted-foreground">{goals.data?.find(x => x.id === l.goal_id)?.title ?? "—"}{l.initiative_id && <span className="block text-xs">{budgetInitiatives.data?.find(i => i.id === l.initiative_id)?.title ?? tr("goals.initiativeLinked")}</span>}</td>
                   <td className="p-2">{fmt(Number(l.planned))}</td><td className="p-2">{l.hard_cap != null ? fmt(Number(l.hard_cap)) : "—"}</td>
-                  <td className="p-2">{canEdit ? <Input aria-label={tr("goals.spentOn", { channel: l.channel })} className="h-8 w-28" type="number" min={0} defaultValue={Number(l.actual)} onBlur={e => { if (Number(e.target.value) !== Number(l.actual)) void setActual(l.id, e.target.value); }} /> : fmt(Number(l.actual))}</td>
+                  <td className="p-2">{canBudget ? <Input aria-label={tr("goals.spentOn", { channel: l.channel })} className="h-8 w-28" type="number" min={0} defaultValue={Number(l.actual)} onBlur={e => { if (Number(e.target.value) !== Number(l.actual)) void setActual(l.id, e.target.value); }} /> : fmt(Number(l.actual))}</td>
                   <td className="p-2">{a === "over_cap" ? <Badge variant="destructive">{tr("goals.overHardCap")}</Badge> : a === "over_plan" ? <Badge variant="destructive">{tr("goals.overPlan")}</Badge> : a === "near_plan" ? <Badge variant="secondary">{tr("goals.nearPlan")}</Badge> : <Badge variant="outline">{tr("goals.onTrack")}</Badge>}</td></tr>); })}
             </tbody></table>
         </div>
@@ -184,9 +190,11 @@ function Planner({ orgId, wsId, canEdit, canApprove, userId }: { orgId: string; 
           <p className="text-sm font-medium">{tr("goals.moves")}</p>
           <p className="text-xs text-muted-foreground">{tr("goals.movesNote")}</p>
           {proposals.map((m, i) => <div key={i} className="flex flex-wrap items-center justify-between gap-2 border-t pt-2 text-sm"><span>{tr("goals.moveLine", { amount: fmt(m.amount), from: m.from, to: m.to })}<span className="block text-xs text-muted-foreground">{moveReason(m)}</span></span>
-            {canEdit && <Button size="sm" variant="outline" onClick={() => applyMove(m)}>{tr("goals.apply")}</Button>}</div>)}
+            {canBudget && <Button size="sm" variant="outline" onClick={() => applyMove(m)}>{tr("goals.apply")}</Button>}</div>)}
         </div>}
-        {canEdit && <div className="grid gap-2 rounded-lg border border-dashed p-4 sm:grid-cols-5">
+        {canEdit && !canBudget && <p className="text-xs text-muted-foreground">{tr("goals.budgetEditors")}</p>}
+        {canBudget && <div className="grid gap-2 rounded-lg border border-dashed p-4 sm:grid-cols-5">
+          {!!units.data?.length && <select aria-label={tr("goals.brand")} className={sel} value={b.unit} onChange={e => setB({ ...b, unit: e.target.value })}><option value="">{tr("goals.brandWhole")}</option>{units.data.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select>}
           <Input aria-label={tr("goals.channel")} placeholder={tr("goals.channelPh")} value={b.channel} onChange={e => setB({ ...b, channel: e.target.value })} />
           <Input aria-label={tr("goals.plannedAmount")} type="number" min={0} placeholder={tr("goals.plannedPh")} value={b.planned} onChange={e => setB({ ...b, planned: e.target.value })} />
           <Input aria-label={tr("goals.hardCap")} type="number" min={0} placeholder={tr("goals.hardCapPh")} value={b.cap} onChange={e => setB({ ...b, cap: e.target.value })} />

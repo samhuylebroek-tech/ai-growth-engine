@@ -86,8 +86,12 @@ begin
   begin perform public.update_growth_initiative_operations(i1,jsonb_build_object('owner_id',ub)); fail:=fail+1; failures:=failures||' operations_outsider_owner'; exception when others then pass:=pass+1; end;
   begin perform public.update_growth_initiative_operations(i1,'{"status":"done"}'); fail:=fail+1; failures:=failures||' operations_bad_status'; exception when others then pass:=pass+1; end;
   -- Budget can attach to the approved initiative of the same goal only.
+  -- Since proposal 0068 budgets need a business editor or above; a member is refused.
+  begin insert into public.budget_lines(org_id,workspace_id,channel,period_month,planned,goal_id,initiative_id) values(oa,wa,'seo','2026-12-01',100,ga,i1); fail:=fail+1; failures:=failures||' member_budget_since_0068'; exception when others then pass:=pass+1; end;
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub',ua,'role','authenticated')::text, true); execute 'set local role authenticated';
   insert into public.budget_lines(org_id,workspace_id,channel,period_month,planned,goal_id,initiative_id) values(oa,wa,'seo','2026-12-01',100,ga,i1); pass:=pass+1;
   begin insert into public.budget_lines(org_id,workspace_id,channel,period_month,planned,goal_id,initiative_id) values(oa,wa,'seo','2026-12-01',100,ga2,i1); fail:=fail+1; failures:=failures||' budget_wrong_goal'; exception when others then pass:=pass+1; end;
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub',um,'role','authenticated')::text, true); execute 'set local role authenticated';
   -- Second strategy -> version 2 draft.
   insert into public.growth_strategies(org_id,workspace_id,goal_id,request_key,summary,body) values(oa,wa,ga,gen_random_uuid(),'Plan two','{"actions":[{"title":"Webinar series"}]}') returning id into s2;
   r := public.create_growth_plan_draft(s2); p2 := (r->>'plan_id')::uuid;

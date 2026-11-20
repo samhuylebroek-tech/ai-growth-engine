@@ -75,3 +75,4 @@ use the editor.
 - Task-run eligibility is one SQL gate (task_run_gate, proposal 0064) shared by manual runs and bounded admin-started cycles that log a reason per task; schedules only mark cycles due, since runs need a signed-in session.
 - Costs come from pure `src/lib/cost-rollup.ts` over RLS reads: each task once per level, budgets per currency, no unattributed revenue/ROI.
 - Business intelligence (proposal 0066): revenue is a permanent per-currency ledger, attribution is pure `src/lib/bi/` over RLS reads; see `src/lib/bi/AGENTS.md`.
+- Multi-business organizations (proposals 0067–0069): businesses are workspaces and org reporting is pure over RLS reads; see `src/lib/org/AGENTS.md`.

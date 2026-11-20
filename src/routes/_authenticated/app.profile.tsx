@@ -5,6 +5,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Check, Trash2, Pencil, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { growthDb } from "@/lib/pending-schema";
+import { REPORTING_CURRENCIES } from "@/lib/org/consolidation";
 import { useOrg } from "@/lib/org-context";
 import { can } from "@/lib/permissions";
 import { PageHeader, StatusChip, EmptyState } from "@/components/app/status";
@@ -17,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/app/profile")({ head: () =
 const SOURCE_LABEL: Record<string, string> = { user: "You", document: "Document", website: "Website", ai_assumption: "AI assumption", external: "External research" };
 
 function Profile() {
-  const o = useOrg(); const qc = useQueryClient(); const ws = o.workspace?.id; const edit = can(o.workspaceRole, "profile.edit");
+  const o = useOrg(); const qc = useQueryClient(); const ws = o.workspace?.id; const edit = can(o.workspaceRole, "profile.edit"); const confirmFacts = can(o.workspaceRole, "profile.confirm");
   const [k, setK] = useState(""); const [v, setV] = useState("");
   const [filter, setFilter] = useState("all"); const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<string | null>(null); const [value, setValue] = useState("");
@@ -25,7 +27,7 @@ function Profile() {
     queryKey: ["profile", ws], enabled: !!ws,
     queryFn: async () => {
       const [bp, facts] = await Promise.all([
-        supabase.from("business_profiles").select("*").eq("workspace_id", ws ?? "").maybeSingle(),
+        growthDb.from("business_profiles").select("*").eq("workspace_id", ws ?? "").maybeSingle(),
         supabase.from("business_facts").select("*").eq("workspace_id", ws ?? "").order("created_at", { ascending: false }),
       ]);
       if (bp.error) throw bp.error; if (facts.error) throw facts.error;
@@ -36,8 +38,14 @@ function Profile() {
 
   async function addFact(e: React.FormEvent) {
     e.preventDefault(); if (!o.org || !ws) return;
-    const { error } = await supabase.from("business_facts").insert({ org_id: o.org.id, workspace_id: ws, key: k.trim(), value: v.trim(), source_type: "user", verified: true });
+    // Members add suggestions; only editors and above add confirmed facts (enforced in the database).
+    const { error } = await supabase.from("business_facts").insert({ org_id: o.org.id, workspace_id: ws, key: k.trim(), value: v.trim(), source_type: "user", verified: confirmFacts });
     if (error) toast.error("Could not add fact"); else { setK(""); setV(""); refresh(); }
+  }
+  async function setCurrency(cur: string) {
+    if (!ws) return;
+    const { error } = await growthDb.rpc("set_business_currency", { _workspace: ws, _currency: cur });
+    if (error) toast.error(error.message); else { toast.success(`Reporting currency set to ${cur}`); refresh(); }
   }
   async function verify(id: string) { const { error } = await supabase.from("business_facts").update({ verified: true }).eq("id", id); if (error) toast.error("Not allowed"); refresh(); }
   async function remove(id: string) { const { error } = await supabase.from("business_facts").delete().eq("id", id); if (error) toast.error("Not allowed"); refresh(); }
@@ -56,7 +64,8 @@ function Profile() {
       {q.isLoading && <div role="status" className="py-12 text-sm text-muted-foreground">Loading business knowledge…</div>}
       {q.isError && <div role="alert" className="py-4 text-sm text-destructive">Business knowledge could not load.</div>}
       {bp && (
-        <div><p className="mb-4 text-xs text-muted-foreground">Profile entries · confirm the sourced facts below before using them as trusted AI context.</p><div className="grid gap-x-8 gap-y-6 border-y border-border py-6 md:grid-cols-3">
+        <div><p className="mb-4 text-xs text-muted-foreground">Profile entries · confirm the sourced facts below before using them as trusted AI context.</p>
+          {"reporting_currency" in bp && <div className="mb-4 flex flex-wrap items-center gap-2 text-sm"><span className="text-xs text-muted-foreground">Reporting currency</span>{confirmFacts ? <select aria-label="Reporting currency" className="rounded-md border border-input bg-background px-2 py-1 text-sm" value={bp.reporting_currency} onChange={(e) => setCurrency(e.target.value)}>{[...new Set([bp.reporting_currency, ...REPORTING_CURRENCIES])].map((c) => <option key={c} value={c}>{c}</option>)}</select> : <span className="font-medium">{bp.reporting_currency}</span>}<span className="text-xs text-muted-foreground">Used when this business is shown in the organization overview; amounts are never converted without a recorded rate.</span></div>}<div className="grid gap-x-8 gap-y-6 border-y border-border py-6 md:grid-cols-3">
           <div className="md:col-span-2"><div className="text-xs text-muted-foreground">Description</div><p className="mt-1 text-sm">{bp.description || "—"}</p>
             <div className="mt-4 grid grid-cols-2 gap-4 text-sm"><div><div className="text-xs text-muted-foreground">Industry</div>{bp.industry || "—"}</div><div><div className="text-xs text-muted-foreground">Business model</div>{bp.business_model || "—"}</div>
               <div><div className="text-xs text-muted-foreground">Website</div><span className="break-all">{bp.website || "—"}</span></div><div><div className="text-xs text-muted-foreground">Monthly budget</div>{bp.monthly_budget_eur ? `€${bp.monthly_budget_eur}` : "—"}</div></div>
@@ -77,7 +86,7 @@ function Profile() {
           <Button type="submit">Add fact</Button>
         </form>
       )}
-      {visibleFacts.length ? <div className="divide-y divide-border border-y border-border">{visibleFacts.map(f => <article key={f.id} className="grid gap-3 py-5 md:grid-cols-[180px_minmax(0,1fr)_auto]"><div><h3 className="text-sm font-semibold">{f.key}</h3><div className="mt-2"><StatusChip status={f.verified ? "approved" : "pending"}>{f.verified ? "Confirmed" : f.source_type === "ai_assumption" ? "AI hypothesis" : "Needs review"}</StatusChip></div></div><div className="min-w-0">{editing === f.id ? <Textarea aria-label="Edit fact value" maxLength={3000} value={value} onChange={e => setValue(e.target.value)} /> : <p className="break-words text-sm leading-relaxed">{f.value}</p>}<p className="mt-2 break-all text-[10px] text-muted-foreground">{SOURCE_LABEL[f.source_type]}{f.source_ref ? ` · ${f.source_ref}` : ""}{f.confidence !== null ? ` · ${Math.round(f.confidence * 100)}% confidence` : ""}</p></div>{edit && <div className="flex items-start gap-1">{editing === f.id ? <><Button size="sm" variant="outline" onClick={() => saveFact(f.id)}>Save</Button><Button size="icon" variant="ghost" aria-label="Cancel editing" onClick={() => setEditing(null)}><X /></Button></> : <><Button size="icon" variant="ghost" onClick={() => { setEditing(f.id); setValue(f.value); }} aria-label="Edit fact" title="Edit fact"><Pencil /></Button>{!f.verified && <Button size="icon" variant="ghost" onClick={() => verify(f.id)} aria-label="Confirm fact" title="Confirm fact"><Check /></Button>}<Button size="icon" variant="ghost" onClick={() => remove(f.id)} aria-label="Delete" title="Delete fact"><Trash2 /></Button></>}</div>}</article>)}</div> : !q.isLoading && !q.isError ? <EmptyState title={q.data?.facts.length ? "No matching facts" : "Build a reliable business foundation"} text={q.data?.facts.length ? "No knowledge matches these filters." : "Add a business fact, research your website or upload a document."} action={<Button variant="outline" asChild><Link to="/app/onboarding">Discover your business</Link></Button>} /> : null}
+      {visibleFacts.length ? <div className="divide-y divide-border border-y border-border">{visibleFacts.map(f => <article key={f.id} className="grid gap-3 py-5 md:grid-cols-[180px_minmax(0,1fr)_auto]"><div><h3 className="text-sm font-semibold">{f.key}</h3><div className="mt-2"><StatusChip status={f.verified ? "approved" : "pending"}>{f.verified ? "Confirmed" : f.source_type === "ai_assumption" ? "AI hypothesis" : "Needs review"}</StatusChip></div></div><div className="min-w-0">{editing === f.id ? <Textarea aria-label="Edit fact value" maxLength={3000} value={value} onChange={e => setValue(e.target.value)} /> : <p className="break-words text-sm leading-relaxed">{f.value}</p>}<p className="mt-2 break-all text-[10px] text-muted-foreground">{SOURCE_LABEL[f.source_type]}{f.source_ref ? ` · ${f.source_ref}` : ""}{f.confidence !== null ? ` · ${Math.round(f.confidence * 100)}% confidence` : ""}</p></div>{edit && (confirmFacts || !f.verified) && <div className="flex items-start gap-1">{editing === f.id ? <><Button size="sm" variant="outline" onClick={() => saveFact(f.id)}>Save</Button><Button size="icon" variant="ghost" aria-label="Cancel editing" onClick={() => setEditing(null)}><X /></Button></> : <><Button size="icon" variant="ghost" onClick={() => { setEditing(f.id); setValue(f.value); }} aria-label="Edit fact" title="Edit fact"><Pencil /></Button>{!f.verified && confirmFacts && <Button size="icon" variant="ghost" onClick={() => verify(f.id)} aria-label="Confirm fact" title="Confirm fact"><Check /></Button>}<Button size="icon" variant="ghost" onClick={() => remove(f.id)} aria-label="Delete" title="Delete fact"><Trash2 /></Button></>}</div>}</article>)}</div> : !q.isLoading && !q.isError ? <EmptyState title={q.data?.facts.length ? "No matching facts" : "Build a reliable business foundation"} text={q.data?.facts.length ? "No knowledge matches these filters." : "Add a business fact, research your website or upload a document."} action={<Button variant="outline" asChild><Link to="/app/onboarding">Discover your business</Link></Button>} /> : null}
 
     </>
   );

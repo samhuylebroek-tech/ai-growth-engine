@@ -265,3 +265,11 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [ ] Guided onboarding: products, audiences, existing marketing, resources
 - [ ] AI growth strategy from a goal (explained costs, assumptions, risks)
 - [ ] Budget reallocation proposals; social/SEO/ads/email operations (need integrations)
+
+## Phase 7 — multi-business organization (Nov 20)
+- [x] Editor role, reporting currency, brand links, specialist allocation (proposals 0067/0068, staging)
+- [x] Organization overview: consolidated per-currency figures, comparison, coordination findings, next actions, specialist network
+- [x] Official daily ECB exchange rates fetched automatically (user choice, replaces admin-typed rates)
+- [x] Staging browser checks EN/NL/FR, desktop/phone
+- [ ] Organization-level AI Growth Officer strategy (metered AI over several businesses)
+- [B] Proposals 0067–0069 on the live database: needs separate approval
