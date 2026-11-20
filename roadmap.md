@@ -335,7 +335,8 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] Home signals and Growth Officer context include campaign budget overruns and waiting re-planning proposals.
 - [x] Experiment management 2.0: full lifecycle, sample size, stop/guardrail, cumulative results, data-checked outcomes, follow-ups, Growth Officer drafts (staging 0079–0080).
 - [x] Specialist quality control and second review (staging proposal 0081).
-- [ ] Report types: daily summary, initiative, specialist performance (beyond AI execution), organization growth — not started.
+- [x] Report types: daily summary and specialist performance (runs, credits, second-review scores, decisions).
+- [ ] Report types: initiative and organization growth — not started.
 - [ ] Financial KPIs needing cost of goods and customer data (gross margin, CAC, CLV, ROAS) — need cost/customer records that do not exist yet.
 - [ ] AI-written re-planning analysis (the current proposals come from planning rules, no AI call).
 - [ ] Production rollout of proposals 0063–0078 — needs the owner's separate approval.
@@ -344,6 +345,7 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] Experiment management 2.0 (0079–0080)
 - [x] Specialist quality control with independent second review (0081): free checks, 10-dimension review by a different specialist, explainable score, editor decision
 - [ ] AI-written re-planning analysis on top of the planning rules
-- [ ] Remaining report types (daily, initiative, specialist, organization)
+- [x] Daily summary and specialist performance reports
+- [ ] Initiative and organization growth reports
 - [ ] Campaign diagnostics 2.0 and financial KPIs where source data exists
 - [ ] Command Center and end-to-end journeys across roles, languages and screens

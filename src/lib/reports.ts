@@ -4,11 +4,12 @@
 import { campaignHealth, type HealthState } from "@/lib/campaign-health";
 import { spendSummary } from "@/lib/campaign-spend";
 
-export const REPORT_TYPES = ["weekly", "monthly", "financial", "campaign", "ai_execution", "experiments"] as const;
+export const REPORT_TYPES = ["daily", "weekly", "monthly", "financial", "campaign", "ai_execution", "specialists", "experiments"] as const;
 export type ReportType = (typeof REPORT_TYPES)[number];
-export type PeriodKey = "7d" | "30d" | "last_month";
+export type PeriodKey = "1d" | "7d" | "30d" | "last_month";
+export const PERIOD_KEYS: readonly PeriodKey[] = ["1d", "7d", "30d", "last_month"];
 export type Period = { from: string; to: string };
-export const DEFAULT_PERIOD: Record<ReportType, PeriodKey> = { weekly: "7d", monthly: "last_month", financial: "last_month", campaign: "30d", ai_execution: "30d", experiments: "30d" };
+export const DEFAULT_PERIOD: Record<ReportType, PeriodKey> = { daily: "1d", weekly: "7d", monthly: "last_month", specialists: "30d", financial: "last_month", campaign: "30d", ai_execution: "30d", experiments: "30d" };
 
 const DAY = 86_400_000;
 const add = (d: string, n: number) => new Date(Date.parse(`${d}T00:00:00Z`) + n * DAY).toISOString().slice(0, 10);
@@ -24,7 +25,7 @@ export function periods(key: PeriodKey, today: string): { current: Period; previ
     const prevFirst = new Date(Date.UTC(y, m - 3, 1)).toISOString().slice(0, 10);
     return { current: { from: first, to: last }, previous: { from: prevFirst, to: add(first, -1) } };
   }
-  const n = key === "7d" ? 7 : 30;
+  const n = key === "1d" ? 1 : key === "7d" ? 7 : 30;
   const from = add(today, -(n - 1));
   return { current: { from, to: today }, previous: { from: add(from, -n), to: add(from, -1) } };
 }
@@ -74,7 +75,7 @@ export function taskFigures(tasks: readonly TaskRow[], p: Period, today: string)
   };
 }
 
-export type RunRow = { status: string; credits_charged: number | null; created_at: string; specialist_key?: string | null };
+export type RunRow = { id?: string; status: string; credits_charged: number | null; created_at: string; specialist_key?: string | null };
 export function runFigures(runs: readonly RunRow[], p: Period) {
   const mine = runs.filter((r) => inP(r.created_at, p));
   const by = (s: string) => mine.filter((r) => r.status === s).length;
@@ -88,6 +89,53 @@ export function runFigures(runs: readonly RunRow[], p: Period) {
   }
   return { total: mine.length, succeeded: by("succeeded"), failed: by("failed"), uncertain: by("uncertain"), waiting: by("awaiting_approval"),
     credits: mine.reduce((n, r) => n + (r.credits_charged ?? 0), 0), perSpecialist };
+}
+
+export type ReviewRow = { task_run_id: string; original_specialist: string; score: number; verdict: string; independence_warning: boolean; created_at: string };
+export type DecisionRow = { task_run_id: string; decision: string; created_at: string };
+export type Quality = { reviews: readonly ReviewRow[]; decisions: readonly DecisionRow[] };
+export type SpecialistLine = {
+  specialist: string; runs: number; succeeded: number; failed: number; credits: number; creditsPerSuccess: number | null;
+  reviews: number; avgScore: number | null; unreliable: number; accepted: number; corrected: number; rework: number; rejected: number;
+};
+/**
+ * Specialist performance for a period: runs and credits from task runs, quality from second reviews and the
+ * editors' decisions. A decision belongs to the specialist of the reviewed run; scores are averaged only over reviews
+ * that exist, so a specialist without reviews shows "no score" rather than zero.
+ */
+export function specialistLines(runs: readonly RunRow[], quality: Quality | null, p: Period): SpecialistLine[] {
+  const base = runFigures(runs, p).perSpecialist;
+  const runSpecialist = new Map(runs.flatMap((r) => (r.id ? [[r.id, r.specialist_key ?? "growth_officer"] as const] : [])));
+  const lines = new Map<string, SpecialistLine>();
+  const line = (k: string) => {
+    let l = lines.get(k);
+    if (!l) {
+      const b = base[k] ?? { runs: 0, succeeded: 0, failed: 0, credits: 0 };
+      l = { specialist: k, ...b, creditsPerSuccess: b.succeeded ? r2(b.credits / b.succeeded) : null, reviews: 0, avgScore: null, unreliable: 0, accepted: 0, corrected: 0, rework: 0, rejected: 0 };
+      lines.set(k, l);
+    }
+    return l;
+  };
+  for (const k of Object.keys(base)) line(k);
+  const scores = new Map<string, number[]>();
+  for (const r of quality?.reviews ?? []) {
+    if (!inP(r.created_at, p)) continue;
+    const l = line(r.original_specialist);
+    l.reviews += 1;
+    if (r.verdict === "unreliable") l.unreliable += 1;
+    scores.set(l.specialist, [...(scores.get(l.specialist) ?? []), r.score]);
+  }
+  for (const [k, v] of scores) line(k).avgScore = Math.round(v.reduce((a, b) => a + b, 0) / v.length);
+  for (const d of quality?.decisions ?? []) {
+    const k = runSpecialist.get(d.task_run_id);
+    if (!k || !inP(d.created_at, p)) continue;
+    const l = line(k);
+    if (d.decision === "accepted") l.accepted += 1;
+    else if (d.decision === "accepted_with_corrections") l.corrected += 1;
+    else if (d.decision === "needs_rework") l.rework += 1;
+    else if (d.decision === "rejected") l.rejected += 1;
+  }
+  return [...lines.values()].sort((a, b) => b.runs - a.runs || a.specialist.localeCompare(b.specialist));
 }
 
 export type ExperimentRow = { status: string; evidence_strength: string | null; updated_at: string; started_at: string | null };
@@ -117,11 +165,12 @@ export function campaignLines(campaigns: readonly CampaignRow[], tasks: readonly
 export type Delta = { now: number; before: number; change: number; pct: number | null };
 export const delta = (now: number, before: number): Delta => ({ now, before, change: r2(now - before), pct: before === 0 ? null : Math.round(((now - before) / Math.abs(before)) * 100) });
 
-export type MissingCode = "revenue" | "spend" | "spend_unavailable" | "runs" | "experiments" | "campaigns" | "return_on_spend";
+export type MissingCode = "revenue" | "spend" | "spend_unavailable" | "runs" | "experiments" | "campaigns" | "return_on_spend" | "quality_unavailable";
 export type ReportInput = {
   revenue: readonly RevenueRow[]; spend: readonly SpendRow[] | null; tasks: readonly TaskRow[]; runs: readonly RunRow[];
   experiments: readonly ExperimentRow[]; campaigns: readonly CampaignRow[];
   replans?: { pending: number; approvedInPeriod: number } | undefined;
+  quality?: Quality | null | undefined;
 };
 export type Report = ReturnType<typeof buildReport>;
 
@@ -141,7 +190,7 @@ export function buildReport(type: ReportType, key: PeriodKey, i: ReportInput, to
     const perSpend = spent && spent > 0 && now ? r2(now.net / spent) : null;
     return { currency: c, now: now ?? null, net: delta(now?.net ?? 0, before?.net ?? 0), refunds: now?.refunds ?? 0, spent, perSpend, estimated: rev.estimated[c] ?? null };
   });
-  const wantsMoney = type === "weekly" || type === "monthly" || type === "financial";
+  const wantsMoney = type === "daily" || type === "weekly" || type === "monthly" || type === "financial";
   if (wantsMoney && currencies.length === 0) missing.push("revenue");
   if (wantsMoney || type === "campaign") {
     if (!i.spend) missing.push("spend_unavailable");
@@ -150,7 +199,10 @@ export function buildReport(type: ReportType, key: PeriodKey, i: ReportInput, to
   if (wantsMoney && finance.length && finance.every((f) => f.perSpend === null)) missing.push("return_on_spend");
   const runs = runFigures(i.runs, current);
   const runsPrev = runFigures(i.runs, previous);
-  if ((type === "ai_execution" || type === "weekly" || type === "monthly") && runs.total === 0) missing.push("runs");
+  const summary = type === "daily" || type === "weekly" || type === "monthly";
+  if ((type === "ai_execution" || type === "specialists" || summary) && runs.total === 0) missing.push("runs");
+  if (type === "specialists" && !i.quality) missing.push("quality_unavailable");
+  const specialists = type === "specialists" ? specialistLines(i.runs, i.quality ?? null, current) : [];
   const exps = experimentFigures(i.experiments, current);
   if (type === "experiments" && i.experiments.length === 0) missing.push("experiments");
   const camps = campaignLines(i.campaigns, i.tasks, i.spend, today);
@@ -158,8 +210,8 @@ export function buildReport(type: ReportType, key: PeriodKey, i: ReportInput, to
   const tasks = taskFigures(i.tasks, current, today);
   const tasksPrev = taskFigures(i.tasks, previous, today);
   const show = {
-    finance: wantsMoney, spend: wantsMoney || type === "campaign", tasks: type === "weekly" || type === "monthly",
-    runs: type === "ai_execution" || type === "weekly" || type === "monthly", specialists: type === "ai_execution",
+    finance: wantsMoney, spend: wantsMoney || type === "campaign", tasks: summary,
+    runs: type === "ai_execution" || type === "specialists" || summary, specialists: type === "ai_execution", performance: type === "specialists",
     experiments: type === "experiments" || type === "monthly", campaigns: type === "campaign" || type === "monthly",
   };
   return {
@@ -167,6 +219,6 @@ export function buildReport(type: ReportType, key: PeriodKey, i: ReportInput, to
     spend: spend ? { ...spend, before: spendPrev?.spent ?? {} } : null,
     tasks: { ...tasks, done: delta(tasks.doneLastChanged, tasksPrev.doneLastChanged), created: delta(tasks.created, tasksPrev.created) },
     runs: { ...runs, totalDelta: delta(runs.total, runsPrev.total), creditsDelta: delta(runs.credits, runsPrev.credits) },
-    experiments: exps, campaigns: camps, replans: i.replans ?? null, missing,
+    experiments: exps, campaigns: camps, replans: i.replans ?? null, specialists, missing,
   };
 }

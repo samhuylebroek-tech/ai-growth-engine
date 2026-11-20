@@ -50,3 +50,36 @@ describe("reports", () => {
     expect(f).toEqual({ created: 0, doneLastChanged: 1, open: 2, overdue: 1 });
   });
 });
+
+describe("daily and specialist reports", () => {
+  it("daily compares today with yesterday", () => {
+    expect(periods("1d", today)).toEqual({ current: { from: "2026-11-20", to: "2026-11-20" }, previous: { from: "2026-11-19", to: "2026-11-19" } });
+  });
+
+  it("specialist performance joins runs, second reviews and editor decisions for the period", () => {
+    const run = (id: string, specialist_key: string, status: string, credits: number, created_at = "2026-11-18T10:00:00Z") => ({ id, specialist_key, status, credits_charged: credits, created_at });
+    const r = buildReport("specialists", "30d", {
+      ...empty,
+      runs: [run("a", "seo", "succeeded", 6), run("b", "seo", "succeeded", 4), run("c", "seo", "failed", 0), run("d", "content", "succeeded", 5, "2026-08-01T00:00:00Z")],
+      quality: {
+        reviews: [
+          { task_run_id: "a", original_specialist: "seo", score: 75, verdict: "acceptable", independence_warning: false, created_at: "2026-11-19T00:00:00Z" },
+          { task_run_id: "b", original_specialist: "seo", score: 40, verdict: "unreliable", independence_warning: false, created_at: "2026-11-19T00:00:00Z" },
+        ],
+        decisions: [
+          { task_run_id: "a", decision: "accepted_with_corrections", created_at: "2026-11-20T00:00:00Z" },
+          { task_run_id: "b", decision: "needs_rework", created_at: "2026-11-20T00:00:00Z" },
+          { task_run_id: "d", decision: "accepted", created_at: "2026-08-02T00:00:00Z" },
+        ],
+      },
+    }, today);
+    expect(r.specialists).toEqual([{ specialist: "seo", runs: 3, succeeded: 2, failed: 1, credits: 10, creditsPerSuccess: 5, reviews: 2, avgScore: 58, unreliable: 1, accepted: 0, corrected: 1, rework: 1, rejected: 0 }]);
+    expect(r.missing).not.toContain("quality_unavailable");
+  });
+
+  it("a specialist without reviews has no score, and missing quality control is reported", () => {
+    const r = buildReport("specialists", "30d", { ...empty, runs: [{ id: "x", specialist_key: "crm", status: "succeeded", credits_charged: 3, created_at: "2026-11-20T00:00:00Z" }], quality: null }, today);
+    expect(r.specialists[0]?.avgScore).toBeNull();
+    expect(r.missing).toContain("quality_unavailable");
+  });
+});

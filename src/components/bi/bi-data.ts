@@ -100,7 +100,7 @@ export function biOptions(orgId: string | undefined, wsId: string | undefined) {
         sc(
           growthDb
             .from("task_runs")
-            .select("task_id,specialist_key,status,credits_charged,created_at,finished_at"),
+            .select("id,task_id,specialist_key,status,credits_charged,created_at,finished_at"),
         )
           .order("created_at", { ascending: false })
           .limit(LIMIT),
