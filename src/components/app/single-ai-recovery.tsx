@@ -12,16 +12,17 @@ import { Button } from "@/components/ui/button";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-export function SingleAIRecovery({ onRecovered }: { onRecovered?: (id: string) => void }) {
+/** pendingOnly: list only requests that did not complete (pages whose results are not chat answers). */
+export function SingleAIRecovery({ onRecovered, pendingOnly = false }: { onRecovered?: (id: string) => void; pendingOnly?: boolean }) {
   const o = useOrg(); const qc = useQueryClient(); const recover = useServerFn(recoverSingleAIRequest); const accept = useServerFn(acceptUncertainAIOutcome);
   const { t, tag } = useI18n();
   const [busy, setBusy] = useState<string | null>(null);
   const [uncertain, setUncertain] = useState<string | null>(null);
   const [opened, setOpened] = useState<string | null>(null);
-  const history = useQuery({ queryKey: ["single-ai-history", o.userId, o.org?.id, o.workspace?.id], enabled: !!o.org && !!o.workspace, queryFn: async () => {
+  const history = useQuery({ queryKey: ["single-ai-history", pendingOnly, o.userId, o.org?.id, o.workspace?.id], enabled: !!o.org && !!o.workspace, queryFn: async () => {
     if (!o.org || !o.workspace) return [];
     const r = await supabase.from("single_ai_requests").select("id,kind,status,created_at,reply,conversation_id").eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).eq("user_id", o.userId).order("created_at", { ascending: false }).limit(20);
-    if (r.error) throw r.error; return r.data;
+    if (r.error) throw r.error; return pendingOnly ? r.data.filter((row) => row.status !== "succeeded") : r.data;
   } });
   async function restore(id: string) {
     if (!o.org || !o.workspace || busy) return;
@@ -61,7 +62,7 @@ export function SingleAIRecovery({ onRecovered }: { onRecovered?: (id: string) =
     const a = document.createElement("a"); a.href = url; a.download = "saved-ai-answer.md"; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   if (!history.data?.length && !history.isError) return null;
-  return <section className="mt-6 border-t border-border py-5"><h2 className="text-sm font-semibold">{t("recovery.title")}</h2>{history.isError ? <Button variant="link" onClick={() => history.refetch()}>{t("recovery.reload")}</Button> : <div className="mt-3 divide-y divide-border">{history.data?.map(row => <div key={row.id} className="flex flex-wrap items-center justify-between gap-3 py-3"><div className="text-xs"><p className="font-medium">{t(`recovery.kind.${row.kind}` as MessageKey)}</p><p className="mt-1 text-muted-foreground">{t(`recovery.status.${row.status}` as MessageKey)} · {new Date(row.created_at).toLocaleString(tag)}</p></div><div className="flex gap-1">{row.reply && <Button variant="ghost" size="icon" title={t("recovery.download")} aria-label={t("recovery.download")} onClick={() => download(row.reply ?? "")}><Download /></Button>}<Button variant="outline" size="sm" disabled={!!busy} onClick={() => {
+  return <section className="mt-6 border-t border-border py-5"><h2 className="text-sm font-semibold">{t(pendingOnly ? "recovery.pendingTitle" : "recovery.title")}</h2>{history.isError ? <Button variant="link" onClick={() => history.refetch()}>{t("recovery.reload")}</Button> : <div className="mt-3 divide-y divide-border">{history.data?.map(row => <div key={row.id} className="flex flex-wrap items-center justify-between gap-3 py-3"><div className="text-xs"><p className="font-medium">{t(`recovery.kind.${row.kind}` as MessageKey)}</p><p className="mt-1 text-muted-foreground">{t(`recovery.status.${row.status}` as MessageKey)} · {new Date(row.created_at).toLocaleString(tag)}</p></div><div className="flex gap-1">{row.reply && <Button variant="ghost" size="icon" title={t("recovery.download")} aria-label={t("recovery.download")} onClick={() => download(row.reply ?? "")}><Download /></Button>}<Button variant="outline" size="sm" disabled={!!busy} onClick={() => {
     if (row.status === "succeeded" && row.conversation_id) {
       if (onRecovered) onRecovered(row.conversation_id); else setOpened(row.reply);
     } else restore(row.id);

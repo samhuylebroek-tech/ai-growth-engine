@@ -11,6 +11,7 @@ export const LOCALE_NAME: Record<Locale, string> = {
 export const LOCALE_TAG: Record<Locale, string> = { en: "en-GB", nl: "nl-BE", fr: "fr-BE" };
 
 const en = {
+  "recovery.pendingTitle": "Unfinished AI requests",
   "recovery.title": "Saved requests",
   "recovery.reload": "Reload saved requests",
   "recovery.download": "Download saved answer",
@@ -285,6 +286,7 @@ export type MessageKey = keyof typeof en;
 type Dictionary = Record<MessageKey, string>;
 
 const nl: Dictionary = {
+  "recovery.pendingTitle": "Onvoltooide AI-verzoeken",
   "recovery.title": "Bewaarde verzoeken",
   "recovery.reload": "Bewaarde verzoeken herladen",
   "recovery.download": "Bewaard antwoord downloaden",
@@ -552,6 +554,7 @@ const nl: Dictionary = {
 };
 
 const fr: Dictionary = {
+  "recovery.pendingTitle": "Demandes d’IA non terminées",
   "recovery.title": "Demandes enregistrées",
   "recovery.reload": "Recharger les demandes",
   "recovery.download": "Télécharger la réponse",

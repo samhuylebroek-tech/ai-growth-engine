@@ -179,7 +179,7 @@ function Opportunities({ orgId, wsId, canEdit, canAsk }: { orgId: string; wsId: 
                 <OpportunityCard key={row.id} row={row} tag={tag} canEdit={canEdit} canAsk={canAsk} busy={acting === row.id}
                   onDecide={(s) => decide(row, s)} onConvert={() => convert(row)} onAsk={() => ask(row)} />
               ))}</ul>)}
-          {canEdit && <SingleAIRecovery />}
+          {canEdit && <SingleAIRecovery pendingOnly />}
         </>
       )}
     </div>
