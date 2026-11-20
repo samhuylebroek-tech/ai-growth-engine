@@ -21,6 +21,7 @@ import {
 import { KPI_CATEGORY, periodRange, type Kpi } from "@/lib/bi/kpis";
 import type { GrowthAction } from "@/lib/bi/growth-actions";
 import { fingerprintOf } from "@/lib/recommendation-memory";
+import { leverCoverage } from "@/lib/growth-levers";
 import { AREAS } from "@/lib/bi/understanding";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -123,6 +124,7 @@ function OverviewBody({
       <Indicators v={v} />
       <Comparison d={d} model={model} />
       <Understanding v={v} />
+      <Levers d={d} />
       <Units d={d} />
     </>
   );
@@ -720,6 +722,43 @@ function Understanding({ v }: { v: View }) {
             </li>
           );
         })}
+      </ul>
+    </Section>
+  );
+}
+
+function Levers({ d }: { d: BiData }) {
+  const { t } = useI18n();
+  const coverage = useMemo(
+    () =>
+      leverCoverage({
+        facts: d.facts,
+        metricLabels: d.metrics.filter((m) => !m.archived).map((m) => `${m.key} ${m.label}`),
+        revenueRows: d.revenue.length,
+        attributedTouches: d.touches.filter((x) => !x.retracted_at).length,
+        deals: d.deals.length,
+        budgetLines: d.budget.length,
+        campaigns: d.campaigns.length,
+        experiments: d.experiments.length,
+      }),
+    [d],
+  );
+  const src = (x: string) => t(tk(`bi.lever.src.${x}`));
+  return (
+    <Section title={t("bi.lever.title")} intro={t("bi.lever.intro")}>
+      <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {coverage.map((c) => (
+          <li key={c.lever} className="min-w-0 rounded-md border border-border bg-card px-3 py-2 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-medium">{t(tk(`bi.lever.${c.lever}`))}</span>
+              <Badge kind={c.missing.length === 0 ? "high" : c.have.length ? "medium" : "low"}>
+                {c.missing.length === 0 ? t("bi.lever.ready") : c.have.length ? t("bi.lever.partial") : t("bi.lever.none")}
+              </Badge>
+            </div>
+            {c.have.length > 0 && <p className="mt-1 break-words text-[11px] text-muted-foreground">{t("bi.lever.have")} {c.have.map(src).join(", ")}</p>}
+            {c.missing.length > 0 && <p className="mt-0.5 break-words text-[11px] text-muted-foreground">{t("bi.lever.missing")} {c.missing.map(src).join(", ")}</p>}
+          </li>
+        ))}
       </ul>
     </Section>
   );

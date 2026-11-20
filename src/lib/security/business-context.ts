@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { detectFactConflicts } from "@/lib/fact-conflicts";
+import { leverCoverage, leverLines } from "@/lib/growth-levers";
 import type { Database } from "@/integrations/supabase/types";
 import { quoteUntrusted } from "./upload";
 import { detectSignals } from "@/lib/signals";
@@ -1343,6 +1344,29 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
     budget: 450,
     priority: 8,
     lines: proposalLines,
+  });
+
+  // The fifteen growth levers, each with the records that can support it and what is missing (no figures invented).
+  const maybeRows = <T,>(r: DomainRead<T> | undefined) => (r ? rowsOf(r) : []);
+  sections.push({
+    key: "growth-levers",
+    title: "GROWTH LEVERS: AVAILABLE DATA AND GAPS (check each before recommending; availability is not a result)",
+    evidence: ["knowledge_gap"],
+    budget: 1100,
+    priority: 6,
+    lines: leverLines(
+      leverCoverage({
+        facts: d.facts.map((f) => ({ key: f.key, verified: f.verified })),
+        metricLabels: maybeRows(d.metrics).map((m) => m.label),
+        revenueRows: maybeRows(d.revenue).length,
+        attributedTouches: (d.touches ?? []).length,
+        deals: maybeRows(d.deals).length,
+        budgetLines: maybeRows(d.budget).length,
+        campaigns: maybeRows(d.campaigns).length,
+        experiments: maybeRows(d.experiments).length,
+        competitorObservations: d.observations.length,
+      }),
+    ),
   });
 
   // Areas without a verified fact: the Growth Officer asks instead of assuming.
