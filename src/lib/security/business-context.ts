@@ -301,6 +301,8 @@ export type ExperimentLine = {
   evidence_strength: string | null;
   conclusion: string;
   updated_at: string;
+  outcome?: string | null;
+  result_data_class?: string | null;
 };
 export type ProposalLine = {
   title: string;
@@ -571,7 +573,7 @@ export async function readBusinessDomains(
     ),
     optional<ExperimentLine>(
       "growth experiments",
-      t("growth_experiments", "title,status,method,evidence_strength,conclusion,updated_at")
+      t("growth_experiments", "title,status,method,evidence_strength,conclusion,updated_at,outcome,result_data_class")
         .in("status", ["approved", "running", "completed"])
         .order("updated_at", { ascending: false })
         .limit(LIMITS.experiments),
@@ -1374,7 +1376,7 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
       ? [UNAVAILABLE]
       : (d.experiments?.rows ?? []).map((x) =>
           x.status === "completed"
-            ? `- [learning; ${STRENGTH[x.evidence_strength ?? "inconclusive"]}] ${clip(x.title, 100)} (${x.method}): ${clip(x.conclusion, 200)}`
+            ? `- [learning; ${x.result_data_class === "simulated" ? "simulated practice run — not evidence about real customers" : STRENGTH[x.evidence_strength ?? "inconclusive"]}${x.outcome ? `; outcome ${x.outcome}` : ""}] ${clip(x.title, 100)} (${x.method}): ${clip(x.conclusion, 200)}`
             : `- [${x.status}] ${clip(x.title, 100)} (${x.method}) — no result yet`,
         );
   sections.push({

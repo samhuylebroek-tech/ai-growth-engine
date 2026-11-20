@@ -322,7 +322,7 @@ export function nextGrowthActions(i: ActionInput, limit = 8): GrowthAction[] {
         ...q(experimentQuality(x.status, x.evidence_strength ?? null)),
       });
     } else if (
-      x.status === "running" &&
+      (x.status === "running" || x.status === "collecting") &&
       x.started_at &&
       new Date(x.started_at).getTime() + x.duration_days * 86_400_000 <= i.now.getTime()
     ) {

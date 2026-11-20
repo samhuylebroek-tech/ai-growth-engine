@@ -25,6 +25,7 @@ import { parseStrategy, goalBrief, sourceOpportunityBrief, STRATEGY_INSTRUCTIONS
 import { parseRepurpose, REPURPOSE_INSTRUCTIONS } from "@/lib/content-repurpose";
 import { parseOpportunities, opportunityBrief, opportunityRequestSchema, OPPORTUNITY_INSTRUCTIONS, type Opportunity } from "@/lib/opportunities";
 import { CHANNELS } from "@/lib/content";
+import { designRequestSchema, parseDesigns, designPayload, designKey, DESIGN_INSTRUCTIONS, type Design } from "@/lib/experiment-design-ai";
 
 type DB = SupabaseClient<Database>;
 type Result<T> = { ok: true; data: T } | { ok: false; error: string };
@@ -824,6 +825,67 @@ export const discoverOpportunities = createServerFn({ method: "POST" })
       try { items = parseOpportunities(result.text); }
       catch { throw new Error("The result came back in an unexpected format. Usage is recorded; no automatic retry was made."); }
       return { ok: true, data: { count: items.length, saved: await saveOpportunities(sb, data, data.requestKey, context.userId, items), credits: result.credits } };
+    } catch (error) {
+      if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId).neq("status", "succeeded");
+      return { ok: false, error: friendly(error) };
+    }
+  });
+
+async function saveDesigns(sb: DB, workspaceId: string, requestKey: string, items: Design[]) {
+  const pending = sb as unknown as SupabaseClient<PendingDatabase>;
+  let saved = 0;
+  for (const [i, d] of items.entries()) {
+    // Deterministic per-design keys: recovering the same answer returns the existing drafts instead of duplicating them.
+    const r = await pending.rpc("design_experiment", { _workspace: workspaceId, _request: await designKey(requestKey, i), _p: designPayload(d) as never });
+    if (!r.error) saved += 1;
+  }
+  return saved;
+}
+
+/** Explicit, user-started experiment design by the Growth Officer. Saves up to three drafts; review and approval stay with people. */
+export const designExperiments = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => designRequestSchema.parse(input))
+  .handler(async ({ data, context }): Promise<Result<{ count: number; saved: number; credits: number }>> => {
+    const sb = context.supabase as DB;
+    let runId: string | null = null;
+    try {
+      await requireRole(sb, data.orgId, "member");
+      await requireWorkspace(sb, data);
+      const role = await sb.rpc("has_workspace_role", { _workspace: data.workspaceId, _min: "member" });
+      if (role.error || !role.data) throw new Error("You need workspace member access.");
+      // Check that drafts can be saved before spending credits.
+      const pending = sb as unknown as SupabaseClient<PendingDatabase>;
+      const installed = await pending.from("experiment_events").select("id").eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).limit(1);
+      if (installed.error) throw new Error(isNotInstalled(installed.error) ? "Experiment management is not available in this environment yet. No AI request was sent." : "Could not read experiments. No AI request was sent.");
+      await assertEntitled(sb, data.orgId, "ai_assistant");
+      const request = `Experiment designs${data.focus ? `: ${data.focus}` : ""}`.slice(0, 4000);
+      const claimed = await sb.rpc("begin_single_ai_request_verified", { _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _kind: "strategy", _input: { request, purpose: "experiments", focus: data.focus, locale: data.locale }, _proof: accountingProof() });
+      if (claimed.error) throw new Error(claimed.error.message);
+      const attempt = singleRequestSchema.parse(claimed.data);
+      if (!attempt.claimed) {
+        if (attempt.status !== "succeeded" || !attempt.reply) throw new Error("This request already exists. Recover saved work; it will not be sent again.");
+        const items = parseDesigns(attempt.reply);
+        return { ok: true, data: { count: items.length, saved: await saveDesigns(sb, data.workspaceId, data.requestKey, items), credits: 0 } };
+      }
+      runId = attempt.run_id;
+      const business = await workspaceContext(sb, data);
+      const lang = { en: "English", nl: "Dutch", fr: "French" }[data.locale];
+      const result = await meteredGenerate(sb, context.userId, data.orgId, runId, CREDIT_RULES.reserveGrowthOfficer, {
+        instructions: DESIGN_INSTRUCTIONS,
+        input: [{ role: "user", content: `${business}
+
+Answer in ${lang}.${data.focus ? `
+
+${quoteUntrusted("owner focus", data.focus, 600)}` : ""}` }],
+        maxOutputTokens: 3000,
+      });
+      const saved = await sb.rpc("finish_single_ai_request_verified", { _id: attempt.id, _reply: result.text.trim(), _proof: accountingProof() });
+      if (saved.error) throw new Error("Your paid result is preserved. Recover saved work before another request.");
+      let items: Design[];
+      try { items = parseDesigns(result.text); }
+      catch { throw new Error("The result came back in an unexpected format. Usage is recorded; no automatic retry was made."); }
+      return { ok: true, data: { count: items.length, saved: await saveDesigns(sb, data.workspaceId, data.requestKey, items), credits: result.credits } };
     } catch (error) {
       if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId).neq("status", "succeeded");
       return { ok: false, error: friendly(error) };

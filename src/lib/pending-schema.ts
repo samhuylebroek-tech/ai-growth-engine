@@ -260,6 +260,48 @@ export type TouchpointRow = {
   created_by: string;
   created_at: string;
 };
+export type ExperimentStatus =
+  | "draft"
+  | "in_review"
+  | "proposed"
+  | "approved"
+  | "rejected"
+  | "scheduled"
+  | "running"
+  | "collecting"
+  | "evaluating"
+  | "paused"
+  | "completed"
+  | "cancelled";
+export type ExperimentEventRow = {
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  experiment_id: string;
+  action: string;
+  from_status: string | null;
+  to_status: string;
+  note: string;
+  data: Json;
+  actor_id: string;
+  created_at: string;
+};
+export type ExperimentObservationRow = {
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  experiment_id: string;
+  request_key: string;
+  observed_on: string;
+  variant_n: number;
+  variant_conversions: number;
+  control_n: number;
+  control_conversions: number;
+  data_class: "manual" | "simulated" | "imported";
+  note: string;
+  recorded_by: string;
+  created_at: string;
+};
 export type ExperimentRow = {
   id: string;
   org_id: string;
@@ -282,7 +324,7 @@ export type ExperimentRow = {
   duration_days: number;
   risks: string;
   method: "ab_test" | "comparison_group" | "before_after" | "observational";
-  status: "proposed" | "approved" | "rejected" | "running" | "completed" | "cancelled";
+  status: ExperimentStatus;
   decided_by: string | null;
   decided_at: string | null;
   decision_note: string;
@@ -296,6 +338,23 @@ export type ExperimentRow = {
   conclusion: string;
   evidence_strength: "controlled" | "correlational" | "inconclusive" | null;
   z_score?: number | null;
+  // proposal 0079
+  primary_kpi?: string;
+  secondary_kpis?: string[];
+  control_description?: string;
+  baseline_rate?: number | null;
+  min_effect?: number | null;
+  sample_per_group?: number | null;
+  success_criteria?: string;
+  stop_criteria?: string;
+  guardrail_min_rate?: number | null;
+  scheduled_start?: string | null;
+  paused_from?: "running" | "collecting" | null;
+  outcome?: "successful" | "unsuccessful" | "inconclusive" | null;
+  follow_up_of?: string | null;
+  reviewed_by?: string | null;
+  design_version?: number;
+  result_data_class?: "manual" | "simulated" | "imported" | null;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -750,6 +809,8 @@ type PendingTables = {
   task_replan_proposals: { Row: TaskReplanProposalRow; Insert: never; Update: never; Relationships: [] };
   task_replan_decisions: { Row: TaskReplanDecisionRow; Insert: never; Update: never; Relationships: [] };
   campaign_spend_entries: { Row: CampaignSpendRow; Insert: never; Update: never; Relationships: [] };
+  experiment_events: { Row: ExperimentEventRow; Insert: never; Update: never; Relationships: [] };
+  experiment_observations: { Row: ExperimentObservationRow; Insert: never; Update: never; Relationships: [] };
   proposal_evidence: { Row: ProposalEvidenceRow; Insert: never; Update: never; Relationships: [] };
   simulated_provider_records: {
     Row: SimRecordRow;
@@ -1144,6 +1205,10 @@ type PendingFunctions = {
   };
   retract_touchpoint: { Args: { _touchpoint: string }; Returns: Json };
   propose_experiment: { Args: { _workspace: string; _request: string; _p: Json }; Returns: Json };
+  design_experiment: { Args: { _workspace: string; _request: string; _p: Json }; Returns: Json };
+  revise_experiment_design: { Args: { _experiment: string; _version: number; _p: Json }; Returns: Json };
+  move_experiment: { Args: { _experiment: string; _action: string; _data: Json }; Returns: Json };
+  record_experiment_observation: { Args: { _experiment: string; _request: string; _p: Json }; Returns: Json };
   advance_experiment: {
     Args: {
       _experiment: string;

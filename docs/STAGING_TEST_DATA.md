@@ -63,6 +63,12 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
   simulated spend entries (EUR 200 ref SIM-QA-1, reservation EUR 50, EUR 120 ref SIM-QA-2, correction −EUR 10), so it
   shows a budget overrun on purpose. *Keep as test evidence; entries are permanent history by design.*
 
+- **Phase 8.5 experiments (2026-11-20)** — staging proposals 0079 (experiment lifecycle, observations, history) and 0080
+  (simulated results are never evidence). Main workspace: "QA checkout reassurance banner" went through the whole
+  lifecycle with simulated observations (12/12 then 30/30 per group) and was completed as "successful"; 0080 relabelled
+  its evidence strength from "controlled" to "inconclusive" because the data was simulated. One Growth Officer draft
+  ("Toets of een herbestelherinnering …", 5 credits) was created from a real AI request. *Keep; history is insert-only.*
+
 ## Cleanup proposal (needs separate approval)
 
 1. Archive (status change, not delete) the five QA-named goals/campaigns/tasks through the normal app screens.

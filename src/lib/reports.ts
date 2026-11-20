@@ -94,8 +94,8 @@ export type ExperimentRow = { status: string; evidence_strength: string | null; 
 export function experimentFigures(rows: readonly ExperimentRow[], p: Period) {
   const concluded = rows.filter((e) => e.status === "completed" && inP(e.updated_at, p));
   return {
-    running: rows.filter((e) => e.status === "running").length,
-    proposed: rows.filter((e) => e.status === "proposed").length,
+    running: rows.filter((e) => ["running", "collecting", "evaluating", "paused"].includes(e.status)).length,
+    proposed: rows.filter((e) => ["draft", "in_review", "proposed"].includes(e.status)).length,
     concluded: concluded.length,
     controlled: concluded.filter((e) => e.evidence_strength === "controlled").length,
     correlational: concluded.filter((e) => e.evidence_strength === "correlational").length,
