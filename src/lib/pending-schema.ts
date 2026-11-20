@@ -482,6 +482,34 @@ export type OpportunityRow = {
   created_at: string;
 };
 
+/** Proposal 0070: organization growth intelligence (staging only until approved). */
+export type OrgEvidence = { text: string; class: "verified" | "recorded" | "estimate" | "assumption" | "missing" };
+export type OrgStrategyRow = {
+  id: string; org_id: string; request_id: string; version: number; business_ids: string[]; title: string; summary: string;
+  horizon_months: number; body: Json; status: "draft" | "approved" | "superseded" | "rejected"; created_by: string; created_at: string;
+  decided_by: string | null; decided_at: string | null; decision_note: string;
+};
+export type OrgOpportunityRow = {
+  id: string; org_id: string; strategy_id: string | null; origin: "rule" | "ai"; rule_key: string | null; kind: string; title: string;
+  business_ids: string[]; evidence: Json; expected_impact: string; estimated_cost: string; dependencies: string; risks: string;
+  confidence: "low" | "medium" | "high"; next_action: string; status: "hypothesis" | "validating" | "validated" | "dismissed" | "converted";
+  created_by: string; created_at: string; updated_at: string; decided_by: string | null; decided_at: string | null; decision_note: string;
+};
+export type OrgInitiativeRow = {
+  id: string; org_id: string; request_key: string; opportunity_id: string | null; strategy_id: string | null; title: string; shared_objective: string;
+  success_metrics: Json; required_specialists: string[]; owner_id: string | null; business_ids: string[];
+  status: "awaiting_commitments" | "committed" | "declined" | "active" | "completed" | "cancelled"; created_by: string; created_at: string; updated_at: string;
+};
+export type OrgCommitmentRow = {
+  id: string; initiative_id: string; org_id: string; workspace_id: string; business_objective: string; budget_amount: number; currency: string;
+  tasks: Json; status: "pending" | "approved" | "declined"; project_id: string | null; decided_by: string | null; decided_at: string | null;
+  decision_note: string; created_at: string;
+};
+export type OrgAllocationRow = {
+  id: string; org_id: string; request_key: string; kind: "budget_shift" | "specialist_capacity"; title: string; reasoning: string; payload: Json;
+  business_ids: string[]; status: "pending" | "applied" | "rejected" | "withdrawn"; result: Json | null; created_by: string; created_at: string;
+  decided_by: string | null; decided_at: string | null; decision_note: string;
+};
 type PendingTables = {
   growth_opportunities: {
     Row: OpportunityRow;
@@ -593,6 +621,11 @@ type PendingTables = {
   business_units: { Row: BusinessUnitRow; Insert: never; Update: never; Relationships: [] };
   exchange_rates: { Row: ExchangeRateRow; Insert: never; Update: never; Relationships: [] };
   specialist_allocations: { Row: SpecialistAllocationRow; Insert: never; Update: never; Relationships: [] };
+  org_strategies: { Row: OrgStrategyRow; Insert: never; Update: never; Relationships: [] };
+  org_opportunities: { Row: OrgOpportunityRow; Insert: never; Update: never; Relationships: [] };
+  org_initiatives: { Row: OrgInitiativeRow; Insert: never; Update: never; Relationships: [] };
+  org_initiative_commitments: { Row: OrgCommitmentRow; Insert: never; Update: never; Relationships: [] };
+  org_allocation_proposals: { Row: OrgAllocationRow; Insert: never; Update: never; Relationships: [] };
   revenue_events: { Row: RevenueEventRow; Insert: never; Update: never; Relationships: [] };
   attribution_touchpoints: { Row: TouchpointRow; Insert: never; Update: never; Relationships: [] };
   growth_experiments: { Row: ExperimentRow; Insert: never; Update: never; Relationships: [] };
@@ -903,6 +936,16 @@ type PendingFunctions = {
     Args: { _org: string; _base: string; _quote: string; _rate: number; _date: string; _source: string };
     Returns: string;
   };
+  record_org_opportunity: { Args: { _org: string; _p: Json }; Returns: Json };
+  set_org_opportunity_status: { Args: { _id: string; _status: string; _note: string }; Returns: Json };
+  propose_org_initiative: { Args: { _org: string; _request: string; _p: Json }; Returns: Json };
+  decide_org_commitment: { Args: { _id: string; _approve: boolean; _note: string }; Returns: Json };
+  set_org_initiative_status: { Args: { _id: string; _status: string }; Returns: Json };
+  propose_org_allocation: { Args: { _org: string; _request: string; _kind: string; _title: string; _reasoning: string; _payload: Json }; Returns: Json };
+  decide_org_allocation: { Args: { _id: string; _decision: "apply" | "reject" | "withdraw"; _note: string }; Returns: Json };
+  decide_org_strategy: { Args: { _id: string; _decision: "approve" | "reject" | "retire"; _note: string }; Returns: Json };
+  begin_org_ai_request_verified: { Args: { _org: string; _workspace: string; _request: string; _input: Json; _proof: string }; Returns: Json };
+  finish_org_strategy_verified: { Args: { _id: string; _reply: string; _strategy: Json; _proof: string }; Returns: Json };
   set_specialist_allocation: {
     Args: { _workspace: string; _specialist: string; _enabled: boolean; _priority: number; _cap: number | null };
     Returns: Json;

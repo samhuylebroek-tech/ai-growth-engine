@@ -1,4 +1,13 @@
 # AI Growth OS — Task Queue
+## Phase 8 — organization growth intelligence — 2026-11-20
+- [x] Audit: branch, staging identity, hierarchy, Growth Officer, org reporting, specialists, budgets/credits/goals/strategies/performance.
+- [x] Proposal 0070 (staging only): org strategies, cross-business opportunities, shared initiatives with per-business commitments, allocation proposals, org AI request accounting; SQL assertions.
+- [x] Pure org intelligence: opportunity rules, resource allocation, specialist orchestration, monitoring, ranked next best actions.
+- [x] Organization Growth Officer (metered, admin-started) drafting an organization strategy and AI opportunities.
+- [x] Organization Command Center upgrade: objectives, officer summary, comparison, opportunities, initiatives, budgets, specialists, actions, risks, pending decisions, history.
+- [x] Context switcher: organization / business / brand-unit; single-business stays simple.
+- [x] EN/NL/FR; Vitest + SQL suites + staging browser checks (desktop/tablet/phone).
+- [ ] Open: organization-level AI credit total on the Resources tab; staging draft strategy v1 still shows B1/B2 codes (new answers are named).
 ## Phase 6 — business intelligence, revenue & attribution — 2026-11-20
 - [x] Proposal 0066 on staging only (88 SQL checks): brands/units, metric links, permanent revenue ledger, verified imports needing read permission, touchpoints, experiments, improvement proposals.
 - [x] Business performance overview: per-currency figures with source/period/class, standard KPIs per business model, strategy/campaign/channel comparisons, six attribution models, next best actions, business knowledge map.

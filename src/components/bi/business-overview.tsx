@@ -69,9 +69,10 @@ export function BiState({
   return <>{children(q.data)}</>;
 }
 
-export function BusinessOverview() {
+export function BusinessOverview({ initialUnit = null }: { initialUnit?: string | null } = {}) {
   const q = useBi();
-  const [filters, setFilters] = useState<Filters>(NO_FILTERS);
+  // A brand/unit chosen in the context switcher opens the overview filtered to it.
+  const [filters, setFilters] = useState<Filters>(initialUnit ? { ...NO_FILTERS, unit: initialUnit } : NO_FILTERS);
   const [model, setModel] = useState<Model>("last_touch");
   return (
     <BiState q={q}>

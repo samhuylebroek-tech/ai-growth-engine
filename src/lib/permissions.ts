@@ -12,6 +12,7 @@ export type Action =
   | "approvals.decide" | "audit.read"
   | "profile.edit" | "documents.upload" | "ai.use" | "approvals.propose"
   | "profile.confirm" | "budgets.manage" | "specialists.manage" | "finance.consolidated" | "rates.manage"
+  | "org.strategy" | "org.coordinate"
   | "read";
 
 const MIN_ROLE: Record<Action, OrgRole> = {
@@ -24,6 +25,10 @@ const MIN_ROLE: Record<Action, OrgRole> = {
   // specialists; organization admins see consolidated finances and record exchange rates.
   "profile.confirm": "editor", "budgets.manage": "editor", "specialists.manage": "admin",
   "finance.consolidated": "admin", "rates.manage": "admin",
+  // Organization level (proposal 0070): admins start the Organization Growth Officer and approve organization strategies;
+  // editors record opportunities and prepare shared initiatives and allocation proposals. Applying anything still needs the
+  // business-level right in every affected business, checked by the database.
+  "org.strategy": "admin", "org.coordinate": "editor",
   read: "viewer",
 };
 

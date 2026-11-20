@@ -943,3 +943,139 @@ ${TASK_OUTPUT_FORMAT} ${LANGUAGE_RULE}`,
       return { ok: false, error: friendly(error) };
     }
   });
+
+// ---- Organization Growth Officer (proposal 0070) -------------------------------------------------------------------
+const orgRequestSchema = z.object({
+  id: z.string().uuid(), run_id: z.string().uuid(), claimed: z.boolean().optional(), kind: z.literal("organization"),
+  status: z.enum(["running", "succeeded", "failed"]), workspace_id: z.string().uuid(), credits: z.number().int().nullable(),
+});
+const ORG_INTEL_OFF = "Organization strategy is not switched on in this environment yet.";
+type PendingDB = SupabaseClient<PendingDatabase>;
+
+/** Saves a paid organization answer as a draft strategy. An answer that is not valid JSON is kept as an unstructured draft, never dropped. */
+async function saveOrgStrategy(sb: DB, requestId: string, raw: string, refMap: Record<string, string>, refNames: Record<string, string>) {
+  const { parseOrgStrategy } = await import("@/lib/org/strategy");
+  let body: Record<string, unknown>; let structured = true;
+  try { body = parseOrgStrategy(raw, refMap, refNames); }
+  catch { structured = false; body = { title: "Organization strategy (unstructured answer)", summary: raw.trim().slice(0, 3900) || "No answer text.", unstructured: true }; }
+  const r = await (sb as unknown as PendingDB).rpc("finish_org_strategy_verified", { _id: requestId, _reply: raw.trim() || "(empty)", _strategy: body as never, _proof: accountingProof() });
+  if (r.error) throw new Error("Your paid strategy is preserved. Recover saved work on the organization page; nothing will be sent again.");
+  const out = z.object({ strategy_id: z.string().uuid(), version: z.number(), credits: z.number(), opportunities: z.number(), replayed: z.boolean() }).parse(r.data);
+  return { ...out, structured };
+}
+
+/**
+ * Explicit, admin-started organization strategy across selected businesses. One paid call through the single-request
+ * accounting (anchored to one analysed business for its receipt). Every read runs as the caller, so the brief only covers
+ * businesses the caller can open; the result is a draft until an organization admin approves it.
+ */
+export const planOrganizationStrategy = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({
+    orgId: z.string().uuid(), anchorWorkspaceId: z.string().uuid(), businessIds: z.array(z.string().uuid()).min(2).max(12), requestKey: z.string().uuid(),
+    horizonMonths: z.number().int().min(1).max(36), focus: z.string().trim().max(1000), locale: z.enum(["en", "nl", "fr"]),
+  }).parse(input))
+  .handler(async ({ data, context }): Promise<Result<{ strategyId: string; version: number; credits: number; opportunities: number; structured: boolean }>> => {
+    const sb = context.supabase as DB; const pending = sb as unknown as PendingDB;
+    let runId: string | null = null;
+    try {
+      await requireRole(sb, data.orgId, "admin");
+      const ids = [...new Set(data.businessIds)].sort();
+      if (ids.length !== data.businessIds.length || !ids.includes(data.anchorWorkspaceId)) throw new Error("Choose each business once, including the one that records the request.");
+      const ws = await sb.from("workspaces").select("id,name").eq("org_id", data.orgId).in("id", ids);
+      if (ws.error || (ws.data ?? []).length !== ids.length) throw new Error("You need access to every business in this analysis.");
+      for (const id of ids) {
+        const role = await sb.rpc("has_workspace_role", { _workspace: id, _min: "member" });
+        if (role.error || !role.data) throw new Error("You need member access to every business in this analysis.");
+      }
+      const installed = await pending.from("org_strategies").select("id").eq("org_id", data.orgId).limit(1);
+      if (installed.error) throw new Error(isNotInstalled(installed.error) ? ORG_INTEL_OFF : "Could not read organization strategies.");
+      await assertEntitled(sb, data.orgId, "ai_assistant");
+      const businesses = (ws.data ?? []).map((w) => ({ id: w.id, name: w.name })).sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
+      const refMap: Record<string, string> = {}; const refNames: Record<string, string> = {}; const refOf = new Map<string, string>();
+      businesses.forEach((b, i) => { refMap[`B${i + 1}`] = b.id; refNames[`B${i + 1}`] = b.name; refOf.set(b.id, `B${i + 1}`); });
+
+      const input = { request: `Organization strategy (${ids.length} businesses, ${data.horizonMonths} months)`, businesses: ids, horizonMonths: data.horizonMonths, focus: data.focus, locale: data.locale };
+      const claimed = await pending.rpc("begin_org_ai_request_verified", { _org: data.orgId, _workspace: data.anchorWorkspaceId, _request: data.requestKey, _input: input as never, _proof: accountingProof() });
+      if (claimed.error) throw new Error(claimed.error.message);
+      const attempt = orgRequestSchema.parse(claimed.data);
+      if (!attempt.claimed) {
+        if (attempt.status === "succeeded") {
+          const s = await pending.from("org_strategies").select("id,version").eq("request_id", attempt.id).maybeSingle();
+          if (s.error || !s.data) throw new Error("Saved strategy unavailable.");
+          return { ok: true, data: { strategyId: s.data.id, version: s.data.version, credits: attempt.credits ?? 0, opportunities: 0, structured: true } };
+        }
+        throw new Error("This request already exists. Recover saved work on the organization page; it will not be sent again.");
+      }
+      runId = attempt.run_id;
+
+      // Deterministic organization picture, read as the caller (RLS), the same one the Command Center shows.
+      const { fetchOrgOverview, monthStartIso } = await import("@/components/org/org-data");
+      const { fetchOrgIntel } = await import("@/components/org/org-data");
+      const { buildOrgView } = await import("@/lib/org/overview");
+      const { orgIntelligence } = await import("@/lib/org/intelligence");
+      const { overviewText, orgBrief, ORG_STRATEGY_INSTRUCTIONS } = await import("@/lib/org/strategy");
+      const today = new Date().toISOString().slice(0, 10); const month = monthStartIso();
+      const from = new Date(Date.now() - 89 * 86_400_000).toISOString().slice(0, 10);
+      const d = await fetchOrgOverview(data.orgId, ids, from, month, pending);
+      const intel = await fetchOrgIntel(data.orgId, pending);
+      const view = buildOrgView(d, businesses, from, today, month);
+      const iq = orgIntelligence(d, view, businesses, today, intel);
+      const org = await sb.from("organizations").select("name").eq("id", data.orgId).single();
+      if (org.error) throw new Error("Could not read the organization.");
+      const ref = (id: string) => refOf.get(id) ?? "?";
+      const nm = (id: string) => businesses.find((b) => b.id === id)?.name ?? "?";
+      const overview = overviewText({
+        rows: view.rows, refOf: ref, period: `${from} to ${today}`, profiles: view.profiles, findings: view.findings,
+        opportunities: iq.allDrafts.map((o) => ({ kind: o.kind, businesses: o.businesses, subject: o.subject, confidence: o.confidence })),
+        recs: iq.recs.map((r) => ({ kind: r.kind, summary: r.kind === "budget_shift" ? `${r.amount} ${r.currency} ${r.channel} from ${ref(r.from)} to ${ref(r.to)}` : `${r.specialist} cap ${r.cap ?? "none"} in ${ref(r.business)} (${r.direction})` })),
+        monitor: iq.monitor.map((m) => ({ code: m.code, severity: m.severity, businesses: m.businesses })),
+        specialists: iq.insights.map((s) => ({ specialist: s.specialist, code: s.code, businesses: s.businesses, open: s.open })),
+        capacity: ids.map((id) => ({ id, mode: d.settings.find((s) => s.workspace_id === id)?.mode ?? null, paused: !!d.settings.find((s) => s.workspace_id === id)?.paused, approvedPlans: d.approvedPlans.filter((p) => p.workspace_id === id).length })),
+        approvedOrgStrategy: iq.approved ? `${iq.approved.title}: ${iq.approved.summary}`.slice(0, 800) : null,
+      });
+      const contexts: string[] = [];
+      for (const b of businesses) contexts.push(quoteUntrusted(`business ${ref(b.id)} (${nm(b.id)}) own context — never apply to another business`, await workspaceContext(sb, { orgId: data.orgId, workspaceId: b.id }), 6000));
+      const brief = orgBrief({ orgName: org.data.name, horizonMonths: data.horizonMonths, focus: data.focus, locale: data.locale, overview });
+      const result = await meteredGenerate(sb, context.userId, data.orgId, runId, CREDIT_RULES.reserveOrganization, {
+        instructions: ORG_STRATEGY_INSTRUCTIONS,
+        input: [{ role: "user", content: `${quoteUntrusted("organization brief", brief, 14000)}\n\n${contexts.join("\n\n")}` }],
+        maxOutputTokens: 5000,
+      });
+      const saved = await saveOrgStrategy(sb, attempt.id, result.text, refMap, refNames);
+      return { ok: true, data: { strategyId: saved.strategy_id, version: saved.version, credits: result.credits, opportunities: saved.opportunities, structured: saved.structured } };
+    } catch (error) {
+      if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId).neq("status", "succeeded");
+      return { ok: false, error: friendly(error) };
+    }
+  });
+
+/** Recovers an organization request without calling the AI again: saves a delivered answer, or closes a request that never started. */
+export const recoverOrgStrategy = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ orgId: z.string().uuid(), requestId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<Result<{ status: "saved" | "closed" | "uncertain" | "done" }>> => {
+    const sb = context.supabase as DB;
+    try {
+      const row = await sb.from("single_ai_requests").select("id,run_id,status,input,workspace_id").eq("id", data.requestId).eq("org_id", data.orgId).eq("user_id", context.userId).eq("kind", "organization").maybeSingle();
+      if (row.error || !row.data) throw new Error("Request unavailable.");
+      if (row.data.status !== "running") return { ok: true, data: { status: "done" } };
+      const receipt = await sb.from("ai_call_receipts").select("state,response_text").eq("run_id", row.data.run_id).maybeSingle();
+      if (receipt.error) throw new Error("Could not read the saved answer.");
+      if (receipt.data && ["delivered", "settled"].includes(receipt.data.state) && receipt.data.response_text) {
+        const ids = z.object({ businesses: z.array(z.string().uuid()) }).parse(row.data.input).businesses;
+        const ws = await sb.from("workspaces").select("id,name").eq("org_id", data.orgId).in("id", ids);
+        if (ws.error) throw new Error("Could not read the businesses.");
+        const sorted = (ws.data ?? []).sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
+        const refMap: Record<string, string> = {}; const refNames: Record<string, string> = {}; sorted.forEach((b, i) => { refMap[`B${i + 1}`] = b.id; refNames[`B${i + 1}`] = b.name; });
+        await saveOrgStrategy(sb, row.data.id, receipt.data.response_text, refMap, refNames);
+        return { ok: true, data: { status: "saved" } };
+      }
+      if (!receipt.data || receipt.data.state === "not_started") {
+        const closed = await sb.rpc("close_single_ai_request_verified", { _id: row.data.id, _proof: accountingProof() });
+        if (closed.error) throw new Error(closed.error.message === "Request is still active" ? "This request is still running. Try again in a few minutes." : "The request could not be closed.");
+        return { ok: true, data: { status: "closed" } };
+      }
+      return { ok: true, data: { status: "uncertain" } };
+    } catch (error) { return { ok: false, error: friendly(error) }; }
+  });

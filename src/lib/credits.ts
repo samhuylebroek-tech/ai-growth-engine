@@ -8,6 +8,8 @@ export const CREDIT_RULES = {
   maxPerCall: 50,
   /** credits reserved before a Growth Officer call; settled against actual tokens */
   reserveGrowthOfficer: 3,
+  /** credits reserved before an Organization Growth Officer call (several businesses' context); settled against actual tokens */
+  reserveOrganization: 12,
 };
 
 export function creditsForTokens(inputTokens: number, outputTokens: number): number {

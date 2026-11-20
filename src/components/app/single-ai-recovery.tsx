@@ -21,7 +21,7 @@ export function SingleAIRecovery({ onRecovered, pendingOnly = false }: { onRecov
   const [opened, setOpened] = useState<string | null>(null);
   const history = useQuery({ queryKey: ["single-ai-history", pendingOnly, o.userId, o.org?.id, o.workspace?.id], enabled: !!o.org && !!o.workspace, queryFn: async () => {
     if (!o.org || !o.workspace) return [];
-    const r = await supabase.from("single_ai_requests").select("id,kind,status,created_at,reply,conversation_id").eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).eq("user_id", o.userId).order("created_at", { ascending: false }).limit(20);
+    const r = await supabase.from("single_ai_requests").select("id,kind,status,created_at,reply,conversation_id").eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).eq("user_id", o.userId).neq("kind", "organization").order("created_at", { ascending: false }).limit(20);
     if (r.error) throw r.error; return pendingOnly ? r.data.filter((row) => row.status !== "succeeded") : r.data;
   } });
   async function restore(id: string) {

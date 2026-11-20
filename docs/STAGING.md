@@ -177,6 +177,18 @@ named email addresses. Minimum token permissions:
 Also needed: the Cloudflare account ID and the email addresses that may open staging. Not needed: DNS
 edit for other records, billing, or any production Worker permission.
 
+## Phase 8 — organization growth intelligence (staging) — 2026-11-20
+
+Proposal `0070_organization_growth_intelligence` (applied to staging only; 78/78 rolled-back assertions, every refusal checked to be a deliberate one): organization strategies (versioned drafts, admin approval), cross-business opportunities, shared initiatives with one commitment per business, resource proposals (budget shift / specialist cap) and the metered organization AI request. Drizzle ledger still 57; all 33 SQL suites pass with no rows persisted.
+
+| Check (staging app, real sign-ins) | Result |
+| --- | --- |
+| Owner: all six organization tabs render, no console errors | PASS |
+| Track detected opportunity → validate → propose initiative → approve per business → project + task created inside each business → history shows every step | PASS |
+| Organization Growth Officer (real AI call): structured draft strategy with priorities per business, collaboration, resources, risks | PASS |
+| Member with one business: single-business view, only Overview and Resources | PASS |
+| Dutch phone (390 px) and French desktop, context switcher with organization / business / brand | PASS |
+
 ## Not done / blocked
 
 - **Reachable staging URL** — needs the token above. Until then staging runs only inside the build sandbox.

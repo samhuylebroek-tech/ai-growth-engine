@@ -46,7 +46,8 @@ export function businessTilesOptions(orgId: string | undefined, wsId: string | u
         settle(scope(supabase.from("crm_deals").select("stage,value,currency,closed_at", { count: "exact" })).or(`stage.in.(lead,qualified,proposal,negotiation),and(stage.eq.won,closed_at.gte.${since})`).limit(DEAL_LIMIT),
           r => ((r.count ?? 0) > DEAL_LIMIT ? { ok: false, reason: "too_many" } : null)),
         settle(scope(supabase.from("budget_lines").select("planned,actual,currency")).eq("period_month", `${month}-01`).limit(500)),
-        settle(scope(supabase.from("agent_runs").select("id", { count: "exact" })).gte("created_at", since).limit(RUN_LIMIT),
+        // Organization-level analyses are recorded under one business only for their receipt; they are not that business's cost.
+        settle(scope(supabase.from("agent_runs").select("id", { count: "exact" })).gte("created_at", since).neq("agent_key", "organization_growth_officer").limit(RUN_LIMIT),
           r => ((r.count ?? 0) > RUN_LIMIT ? { ok: false, reason: "too_many" } : null)),
         settle(scope(growthDb.from("metric_definitions").select("id,currency")).like("key", "stripe_net_revenue_%").eq("archived", false).limit(20)),
       ]);
