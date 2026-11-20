@@ -7,6 +7,8 @@ import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/lib/i18n";
+import { LanguagePicker } from "@/components/app/language-picker";
 
 function safeRedirect(r: unknown): string {
   if (typeof r !== "string") return "/app";
@@ -25,7 +27,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const { redirect } = Route.useSearch();
-  const navigate = useNavigate();
+  const navigate = useNavigate(); const { t: tx } = useI18n();
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [name, setName] = useState("");
   const [busy, setBusy] = useState(false); const [sent, setSent] = useState<string | null>(null);
@@ -41,20 +43,20 @@ function AuthPage() {
       } else if (mode === "signup") {
         const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + target, data: { full_name: name } } });
         if (error) throw error;
-        setSent("Check your inbox to confirm your email, then sign in.");
+        setSent(tx("pages.au.confirm"));
       } else {
         const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
         if (error) throw error;
-        setSent("If an account exists for that email, a reset link is on its way.");
+        setSent(tx("pages.au.resetSent"));
       }
-    } catch (err) { toast.error(err instanceof Error ? err.message : "Something went wrong"); }
+    } catch (err) { toast.error(err instanceof Error ? err.message : tx("pages.au.wrong")); }
     finally { setBusy(false); }
   }
 
   async function social(provider: "google" | "microsoft") {
     if (redirect) sessionStorage.setItem("ago.postAuth", target);
     const r = await lovable.auth.signInWithOAuth(provider, { redirect_uri: window.location.origin + "/auth" });
-    if (r.error) { toast.error(`${provider === "google" ? "Google" : "Microsoft"} sign-in failed`); return; }
+    if (r.error) { toast.error(tx("pages.au.socialFailed", { p: provider === "google" ? "Google" : "Microsoft" })); return; }
     if (r.redirected) return;
     navigate({ to: target as "/app" });
   }
@@ -62,39 +64,39 @@ function AuthPage() {
   async function organizationSso() {
     if (redirect) sessionStorage.setItem("ago.postAuth", target);
     const { error } = await supabase.auth.signInWithOAuth({ provider: "custom:app-oidc", options: { redirectTo: window.location.origin + "/auth" } });
-    if (error) toast.error("Organization sign-in is not configured yet.");
+    if (error) toast.error(tx("pages.au.ssoMissing"));
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background bg-glow px-4">
       <div className="w-full max-w-sm">
-        <Link to="/" className="mb-8 flex items-center justify-center gap-2 font-display text-lg font-bold"><Zap className="h-5 w-5 text-primary" /> AI Growth Engine</Link>
+        <div className="mb-8 flex items-center justify-between gap-3"><Link to="/" className="flex items-center gap-2 font-display text-lg font-bold"><Zap className="h-5 w-5 text-primary" /> AI Growth Engine</Link><LanguagePicker /></div>
         <div className="rounded-lg border border-border bg-card p-7">
-          <h1 className="text-xl font-bold">{mode === "signin" ? "Welcome back" : mode === "signup" ? "Create your account" : "Reset your password"}</h1>
+          <h1 className="text-xl font-bold">{mode === "signin" ? tx("pages.au.welcome") : mode === "signup" ? tx("pages.au.create") : tx("pages.au.reset")}</h1>
           {sent ? <p className="mt-4 text-sm text-muted-foreground">{sent}</p> : (
             <>
               {mode !== "forgot" && (
                 <>
                   <div className="mt-6 grid gap-2">
-                    <Button type="button" variant="outline" className="w-full border-google-border bg-google-background px-3 text-google-foreground hover:bg-google-background/90" onClick={() => social("google")}><GoogleLogo />Continue with Google</Button>
-                    <Button type="button" variant="outline" className="w-full" onClick={() => social("microsoft")}>Continue with Microsoft</Button>
-                    <Button type="button" variant="ghost" className="w-full text-xs" onClick={organizationSso}>Continue with organization SSO</Button>
-                    <p className="text-center text-xs text-muted-foreground">Organization SSO is available after an administrator configures OIDC.</p>
+                    <Button type="button" variant="outline" className="w-full border-google-border bg-google-background px-3 text-google-foreground hover:bg-google-background/90" onClick={() => social("google")}><GoogleLogo />{tx("pages.au.google")}</Button>
+                    <Button type="button" variant="outline" className="w-full" onClick={() => social("microsoft")}>{tx("pages.au.microsoft")}</Button>
+                    <Button type="button" variant="ghost" className="w-full text-xs" onClick={organizationSso}>{tx("pages.au.sso")}</Button>
+                    <p className="text-center text-xs text-muted-foreground">{tx("pages.au.ssoNote")}</p>
                   </div>
-                  <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground"><div className="h-px flex-1 bg-border" />or<div className="h-px flex-1 bg-border" /></div>
+                  <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground"><div className="h-px flex-1 bg-border" />{tx("pages.au.or")}<div className="h-px flex-1 bg-border" /></div>
                 </>
               )}
               <form onSubmit={submit} className="space-y-4">
-                {mode === "signup" && <div className="space-y-1.5"><Label htmlFor="name">Name</Label><Input id="name" value={name} onChange={(e) => setName(e.target.value)} required maxLength={100} /></div>}
-                <div className="space-y-1.5"><Label htmlFor="email">Email</Label><Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" /></div>
-                {mode !== "forgot" && <div className="space-y-1.5"><Label htmlFor="password">Password</Label><Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} autoComplete={mode === "signup" ? "new-password" : "current-password"} /></div>}
-                <Button type="submit" className="w-full" disabled={busy}>{busy ? "Please wait…" : mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Send reset link"}</Button>
+                {mode === "signup" && <div className="space-y-1.5"><Label htmlFor="name">{tx("pages.au.name")}</Label><Input id="name" value={name} onChange={(e) => setName(e.target.value)} required maxLength={100} /></div>}
+                <div className="space-y-1.5"><Label htmlFor="email">{tx("pages.au.email")}</Label><Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" /></div>
+                {mode !== "forgot" && <div className="space-y-1.5"><Label htmlFor="password">{tx("pages.au.password")}</Label><Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} autoComplete={mode === "signup" ? "new-password" : "current-password"} /></div>}
+                <Button type="submit" className="w-full" disabled={busy}>{busy ? tx("pages.au.wait") : mode === "signin" ? tx("pages.au.signIn") : mode === "signup" ? tx("pages.au.createAccount") : tx("pages.au.sendReset")}</Button>
               </form>
             </>
           )}
           <div className="mt-6 space-y-2 text-center text-sm text-muted-foreground">
-            {mode === "signin" && <><Button variant="link" onClick={() => { setMode("forgot"); setSent(null); }}>Forgot password?</Button><div>New here? <Button variant="link" onClick={() => { setMode("signup"); setSent(null); }}>Create an account</Button></div></>}
-            {mode !== "signin" && <Button variant="link" onClick={() => { setMode("signin"); setSent(null); }}>Back to sign in</Button>}
+            {mode === "signin" && <><Button variant="link" onClick={() => { setMode("forgot"); setSent(null); }}>{tx("pages.au.forgot")}</Button><div>{tx("pages.au.newHere")} <Button variant="link" onClick={() => { setMode("signup"); setSent(null); }}>{tx("pages.au.createLink")}</Button></div></>}
+            {mode !== "signin" && <Button variant="link" onClick={() => { setMode("signin"); setSent(null); }}>{tx("pages.au.back")}</Button>}
           </div>
         </div>
       </div>

@@ -59,6 +59,8 @@ import {
 } from "@/lib/execution";
 
 import { pageSlice } from "@/lib/pagination";
+import { useI18n } from "@/lib/i18n";
+import { MESSAGES, type MessageKey } from "@/lib/i18n/messages";
 
 const label = (s: string) => s.replace(/_/g, " ");
 const due = (item: WorkItem) => ("due_date" in item ? item.due_date : item.end_date);
@@ -74,6 +76,8 @@ export function ExecutionWorkspace({
   const o = useOrg();
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const { t: tx, tag } = useI18n();
+  const lbl = (s: string) => (`work.l.${s}` in MESSAGES.en ? tx(`work.l.${s}` as MessageKey) : label(s));
   const q = useQuery(executionOptions(o.org?.id, o.workspace?.id, o.userId));
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -132,7 +136,7 @@ export function ExecutionWorkspace({
       if (r.error) throw r.error;
       await refresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Status could not change");
+      toast.error(e instanceof Error ? e.message : tx("work.statusFailed"));
     }
   }
   function close() {
@@ -151,7 +155,7 @@ export function ExecutionWorkspace({
   };
   const name = (id: string | null) =>
     q.data?.members.find((m) => m.user_id === id)?.display_name ??
-    (id ? "Assigned teammate" : "Unassigned");
+    (id ? tx("work.assignedTeammate") : tx("work.unassigned"));
   const dates = [];
   for (
     let d = startOfWeek(startOfMonth(month), { weekStartsOn: 1 });
@@ -163,8 +167,8 @@ export function ExecutionWorkspace({
     <>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="section-label mb-2">Execution / {o.workspace?.name}</p>
-          <h1 className="text-2xl font-semibold capitalize">{kind}</h1>
+          <p className="section-label mb-2">{tx("work.eyebrow", { ws: o.workspace?.name ?? "" })}</p>
+          <h1 className="text-2xl font-semibold">{tx(`work.kind.${kind}`)}</h1>
         </div>
         {editable && (
           <Button
@@ -175,7 +179,7 @@ export function ExecutionWorkspace({
             size="sm"
           >
             <Plus />
-            New {kind.slice(0, -1)}
+            {tx(`work.new.${kind}`)}
           </Button>
         )}
       </div>
@@ -192,12 +196,12 @@ export function ExecutionWorkspace({
             aria-pressed={filter === f}
           >
             {f === "mine"
-              ? "My tasks"
+              ? tx("work.mine")
               : f === "team"
-                ? "Team tasks"
+                ? tx("work.teamTasks")
                 : f === "all"
-                  ? "All " + kind
-                  : label(f)}
+                  ? tx(`work.all.${kind}`)
+                  : lbl(f)}
           </Button>
         ))}
       </div>
@@ -205,35 +209,35 @@ export function ExecutionWorkspace({
         <div className="relative min-w-36 flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
-            aria-label={`Search ${kind}`}
-            placeholder={`Search ${kind}…`}
+            aria-label={tx(`work.search.${kind}`)}
+            placeholder={tx(`work.search.${kind}`)}
             className="pl-9"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <select
-          aria-label="Work status"
+          aria-label={tx("work.workStatus")}
           className={inputClass}
           value={status}
           onChange={(e) => setStatus(e.target.value)}
         >
-          <option value="all">All statuses</option>
+          <option value="all">{tx("work.allStatuses")}</option>
           {STATUSES[kind].map((s) => (
             <option key={s} value={s}>
-              {label(s)}
+              {lbl(s)}
             </option>
           ))}
         </select>
         <select
-          aria-label="Work priority"
+          aria-label={tx("work.workPriority")}
           className={inputClass}
           value={priority}
           onChange={(e) => setPriority(e.target.value)}
         >
-          <option value="all">All priorities</option>
+          <option value="all">{tx("work.allPriorities")}</option>
           {PRIORITIES.map((s) => (
-            <option key={s}>{s}</option>
+            <option key={s} value={s}>{lbl(s)}</option>
           ))}
         </select>
         <div className="flex">
@@ -247,8 +251,8 @@ export function ExecutionWorkspace({
               variant={view === v.id ? "secondary" : "ghost"}
               size="icon"
               key={v.id}
-              title={label(v.id)}
-              aria-label={`${label(v.id)} view`}
+              title={lbl(v.id)}
+              aria-label={tx("work.viewX", { v: lbl(v.id) })}
               aria-pressed={view === v.id}
               onClick={() => setView(v.id)}
             >
@@ -258,12 +262,12 @@ export function ExecutionWorkspace({
         </div>
       </div>
       {q.isLoading ? (
-        <p role="status">Loading work…</p>
+        <p role="status">{tx("work.loading")}</p>
       ) : q.isError ? (
         <div role="alert" className="text-sm text-destructive">
-          Work could not load.
+          {tx("work.loadFailed")}
           <Button variant="link" onClick={() => q.refetch()}>
-            Retry
+            {tx("work.retry")}
           </Button>
         </div>
       ) : (
@@ -277,7 +281,7 @@ export function ExecutionWorkspace({
                       size="icon"
                       variant="ghost"
                       className="h-7 w-7"
-                      aria-label={`Complete ${x.title}`}
+                      aria-label={tx("work.completeX", { t: x.title })}
                       disabled={x.status === "done"}
                       onClick={() => updateStatus(x, "done")}
                     >
@@ -297,8 +301,8 @@ export function ExecutionWorkspace({
                       {x.title}
                     </Button>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {name(x.owner_id)} · {x.priority}
-                      {due(x) && ` · ${due(x)}`}
+                      {name(x.owner_id)} · {lbl(x.priority)}
+                      {due(x) && ` · ${new Date(`${due(x)}T12:00:00`).toLocaleDateString(tag)}`}
                     </p>
                   </div>
                   <span
@@ -311,7 +315,7 @@ export function ExecutionWorkspace({
                         : "text-muted-foreground",
                     )}
                   >
-                    {label(x.status)}
+                    {lbl(x.status)}
                   </span>
                   {kind !== "tasks" && (
                     <span className="text-xs text-muted-foreground">
@@ -326,7 +330,7 @@ export function ExecutionWorkspace({
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label={`Open ${x.title}`}
+                    aria-label={tx("work.openX", { t: x.title })}
                     onClick={() => open(x)}
                   >
                     <ArrowUpRight />
@@ -335,13 +339,13 @@ export function ExecutionWorkspace({
               ))}
             </div>
           )}
-          {view === "list" && <div className="my-4 flex items-center justify-between gap-3"><p className="text-xs text-muted-foreground">{paged.total} matching {kind} · page {paged.page} of {paged.pages}</p><div className="flex gap-1"><Button variant="outline" size="icon" aria-label="Previous work page" disabled={paged.page === 1} onClick={() => setPage(paged.page - 1)}><ChevronLeft /></Button><Button variant="outline" size="icon" aria-label="Next work page" disabled={paged.page === paged.pages} onClick={() => setPage(paged.page + 1)}><ChevronRight /></Button></div></div>}
+          {view === "list" && <div className="my-4 flex items-center justify-between gap-3"><p className="text-xs text-muted-foreground">{tx("work.paging", { n: paged.total, p: paged.page, of: paged.pages })}</p><div className="flex gap-1"><Button variant="outline" size="icon" aria-label={tx("work.prevPage")} disabled={paged.page === 1} onClick={() => setPage(paged.page - 1)}><ChevronLeft /></Button><Button variant="outline" size="icon" aria-label={tx("work.nextPage")} disabled={paged.page === paged.pages} onClick={() => setPage(paged.page + 1)}><ChevronRight /></Button></div></div>}
           {view === "kanban" && (
             <div className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
               {STATUSES[kind].map((s) => (
                 <section key={s} className="min-w-0 border-t-2 border-border pt-3">
-                  <h2 className="mb-4 flex justify-between text-xs font-semibold capitalize">
-                    {label(s)}
+                  <h2 className="mb-4 flex justify-between text-xs font-semibold">
+                    {lbl(s)}
                     <span className="text-muted-foreground">
                       {filtered.filter((x) => x.status === s).length}
                     </span>
@@ -359,21 +363,21 @@ export function ExecutionWorkspace({
                             {x.title}
                           </Button>
                           <p className="mt-3 text-xs text-muted-foreground">
-                            {name(x.owner_id)} · {x.priority}
+                            {name(x.owner_id)} · {lbl(x.priority)}
                           </p>
                           {due(x) && (
-                            <p className="mt-2 text-xs text-muted-foreground">Due {due(x)}</p>
+                            <p className="mt-2 text-xs text-muted-foreground">{tx("work.dueX", { d: new Date(`${due(x)}T12:00:00`).toLocaleDateString(tag) })}</p>
                           )}
                           {editable && (
                             <select
                               className={`${inputClass} mt-3 w-full`}
-                              aria-label={`Status for ${x.title}`}
+                              aria-label={tx("work.statusFor", { t: x.title })}
                               value={x.status}
                               onChange={(e) => updateStatus(x, e.target.value)}
                             >
                               {STATUSES[kind].map((v) => (
                                 <option key={v} value={v}>
-                                  {label(v)}
+                                  {lbl(v)}
                                 </option>
                               ))}
                             </select>
@@ -391,23 +395,23 @@ export function ExecutionWorkspace({
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label="Previous month"
+                  aria-label={tx("work.prevMonth")}
                   onClick={() => setMonth(addMonths(month, -1))}
                 >
                   <ChevronLeft />
                 </Button>
-                <h2 className="text-sm font-semibold">{format(month, "MMMM yyyy")}</h2>
+                <h2 className="text-sm font-semibold">{month.toLocaleDateString(tag, { month: "long", year: "numeric" })}</h2>
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label="Next month"
+                  aria-label={tx("work.nextMonth")}
                   onClick={() => setMonth(addMonths(month, 1))}
                 >
                   <ChevronRight />
                 </Button>
               </div>
               <div className="grid grid-cols-7 border-l border-t border-border">
-                {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
+                {[0, 1, 2, 3, 4, 5, 6].map((i) => new Date(2024, 0, 1 + i).toLocaleDateString(tag, { weekday: "short" })).map((d) => (
                   <div
                     key={d}
                     className="border-b border-r border-border py-2 text-center text-[10px] text-muted-foreground"
@@ -447,7 +451,7 @@ export function ExecutionWorkspace({
                 ))}
               </div>
               <p className="mt-3 text-xs text-muted-foreground">
-                {filtered.filter((x) => !due(x)).length} items have no deadline.
+                {tx("work.noDeadlineCount", { n: filtered.filter((x) => !due(x)).length })}
               </p>
             </>
           )}
@@ -465,7 +469,7 @@ export function ExecutionWorkspace({
                     className="grid gap-2 border-l-2 border-primary py-4 pl-4 sm:grid-cols-[180px_1fr]"
                   >
                     <p className="text-xs text-muted-foreground">
-                      {x.start_date ?? "No start date"} → {due(x) ?? "No deadline"}
+                      {x.start_date ? new Date(`${x.start_date}T12:00:00`).toLocaleDateString(tag) : tx("work.noStart")} → {due(x) ? new Date(`${due(x)}T12:00:00`).toLocaleDateString(tag) : tx("work.noDeadline")}
                     </p>
                     <Button
                       variant="link"
@@ -481,12 +485,12 @@ export function ExecutionWorkspace({
           {!filtered.length && (
             <div className="py-12 text-center">
               <p className="text-sm font-medium">
-                {items.length ? "No matching work" : `No ${kind} yet`}
+                {items.length ? tx("work.noMatch") : tx(`work.none.${kind}`)}
               </p>
               <p className="mt-2 text-xs text-muted-foreground">
                 {items.length
-                  ? "Try another filter."
-                  : "Create your first item or review a Growth Officer recommendation."}
+                  ? tx("work.tryFilter")
+                  : tx("work.createFirst")}
               </p>
               {items.length > 0 && (
                 <Button
@@ -498,7 +502,7 @@ export function ExecutionWorkspace({
                     setPriority("all");
                   }}
                 >
-                  Clear filters
+                  {tx("work.clearFilters")}
                 </Button>
               )}
             </div>
@@ -508,9 +512,9 @@ export function ExecutionWorkspace({
       <Dialog open={create} onOpenChange={setCreate}>
         <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>New {kind.slice(0, -1)}</DialogTitle>
+            <DialogTitle>{tx(`work.new.${kind}`)}</DialogTitle>
             <DialogDescription>
-              {o.workspace?.name} · Saved only in this workspace.
+              {tx("work.savedOnly", { ws: o.workspace?.name ?? "" })}
             </DialogDescription>
           </DialogHeader>
           {create && (
@@ -535,7 +539,7 @@ export function ExecutionWorkspace({
           <DialogHeader>
             <DialogTitle>{active?.title}</DialogTitle>
             <DialogDescription>
-              {kind.slice(0, -1)} · {o.workspace?.name}
+              {tx(`work.one.${kind}`)} · {o.workspace?.name}
             </DialogDescription>
           </DialogHeader>
           {active && (
@@ -571,6 +575,8 @@ export function WorkForm({
   const o = useOrg();
   const q = useQuery(executionOptions(o.org?.id, o.workspace?.id, o.userId));
   const qc = useQueryClient();
+  const { t: tx } = useI18n();
+  const lbl = (s: string) => (`work.l.${s}` in MESSAGES.en ? tx(`work.l.${s}` as MessageKey) : label(s));
   const [form, setForm] = useState(() => ({
     title: item?.title ?? "",
     description: item?.description ?? "",
@@ -609,7 +615,7 @@ export function WorkForm({
       (kind === "tasks" ? form.due_date : form.end_date) &&
       form.start_date > (kind === "tasks" ? form.due_date : form.end_date)
     ) {
-      toast.error("End date precedes start date");
+      toast.error(tx("work.endBeforeStart"));
       return;
     }
     setBusy(true);
@@ -706,10 +712,10 @@ export function WorkForm({
       }
       if (r.error) throw r.error;
       await qc.invalidateQueries({ queryKey: ["execution"] });
-      toast.success(item ? "Work updated" : "Work created");
+      toast.success(item ? tx("work.updated") : tx("work.created"));
       onSaved();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not save work");
+      toast.error(e instanceof Error ? e.message : tx("work.saveFailed"));
     } finally {
       setBusy(false);
     }
@@ -754,88 +760,88 @@ export function WorkForm({
   );
   return (
     <form onSubmit={submit} className="space-y-4">
-      {field("title", "Title")}
+      {field("title", tx("work.f.title"))}
       <label className="block space-y-1 text-xs">
-        Description
+        {tx("work.f.description")}
         <Textarea
-          aria-label="Description"
+          aria-label={tx("work.f.description")}
           disabled={!editable}
           value={form.description}
           onChange={(e) => set("description", e.target.value)}
           rows={3}
         />
       </label>
-      {kind !== "tasks" && field("objective", "Objective")}
+      {kind !== "tasks" && field("objective", tx("work.f.objective"))}
       <div className="grid gap-3 sm:grid-cols-2">
         {select(
           "status",
-          "Status",
-          STATUSES[kind].map((s) => ({ value: s, label: label(s) })),
+          tx("work.f.status"),
+          STATUSES[kind].map((s) => ({ value: s, label: lbl(s) })),
         )}
         {select(
           "priority",
-          "Priority",
-          PRIORITIES.map((s) => ({ value: s, label: s })),
+          tx("work.f.priority"),
+          PRIORITIES.map((s) => ({ value: s, label: lbl(s) })),
         )}
-        {field("start_date", "Start date", "date")}
+        {field("start_date", tx("work.f.start"), "date")}
         {kind === "tasks"
-          ? field("due_date", "Deadline", "date")
-          : field("end_date", "End date", "date")}
-        {select("owner_id", "Responsible person", [
-          { value: "", label: "Unassigned" },
+          ? field("due_date", tx("work.f.deadline"), "date")
+          : field("end_date", tx("work.f.end"), "date")}
+        {select("owner_id", tx("work.f.owner"), [
+          { value: "", label: tx("work.unassigned") },
           ...(q.data?.members.map((m) => ({ value: m.user_id, label: m.display_name })) ?? []),
         ])}
-        {kind === "projects" && field("category", "Category")}
+        {kind === "projects" && field("category", tx("work.f.category"))}
         {kind === "campaigns" &&
           select(
             "category",
-            "Campaign type",
+            tx("work.f.campaignType"),
             ["marketing", "seo", "content", "social", "advertising", "email", "sales"].map((c) => ({
               value: c,
-              label: c,
+              label: lbl(c),
             })),
           )}
         {kind === "tasks" && (
           <>
-            {select("project_id", "Project", [
-              { value: "", label: "No project" },
+            {select("project_id", tx("work.f.project"), [
+              { value: "", label: tx("work.f.noProject") },
               ...(q.data?.projects.map((p) => ({ value: p.id, label: p.title })) ?? []),
             ])}
-            {select("campaign_id", "Campaign", [
-              { value: "", label: "No campaign" },
+            {select("campaign_id", tx("work.f.campaign"), [
+              { value: "", label: tx("work.f.noCampaign") },
               ...(q.data?.campaigns.map((p) => ({ value: p.id, label: p.title })) ?? []),
             ])}
-            {select("parent_task_id", "Parent task", [
-              { value: "", label: "No parent task" },
+            {select("parent_task_id", tx("work.f.parent"), [
+              { value: "", label: tx("work.f.noParent") },
               ...(q.data?.tasks
                 .filter((t) => t.id !== item?.id)
                 .map((p) => ({ value: p.id, label: p.title })) ?? []),
             ])}
-            {field("labels", "Labels (comma separated)")}
+            {field("labels", tx("work.f.labels"))}
             {select("agent_key", "AI specialist", [
               { value: "", label: "No AI assignment" },
               { value: "growth_officer", label: "Growth Officer · research only" },
             ])}
-            {select("recurrence", "Repeat", [
-              { value: "none", label: "Does not repeat" },
-              { value: "weekly", label: "Weekly · confirm next occurrence" },
-              { value: "monthly", label: "Monthly · confirm next occurrence" },
+            {select("recurrence", tx("work.f.repeat"), [
+              { value: "none", label: tx("work.f.noRepeat") },
+              { value: "weekly", label: tx("work.f.weekly") },
+              { value: "monthly", label: tx("work.f.monthly") },
             ])}
           </>
         )}
         {kind === "campaigns" && (
           <>
-            {field("audience", "Audience")}
-            {field("budget_eur", "Budget EUR", "number")}
-            {field("channels", "Channels (comma separated)")}
+            {field("audience", tx("work.f.audience"))}
+            {field("budget_eur", tx("work.f.budget"), "number")}
+            {field("channels", tx("work.f.channels"))}
           </>
         )}
       </div>
       {kind === "campaigns" && (
         <label className="block space-y-1 text-xs">
-          Recorded results
+          {tx("work.f.results")}
           <Textarea
-            aria-label="Recorded results"
+            aria-label={tx("work.f.results")}
             disabled={!editable}
             value={form.results}
             onChange={(e) => set("results", e.target.value)}
@@ -844,7 +850,7 @@ export function WorkForm({
       )}
       {editable && (
         <Button type="submit" disabled={busy || q.isError}>
-          {busy ? "Saving…" : item ? "Save changes" : "Create " + kind.slice(0, -1)}
+          {busy ? tx("work.saving") : item ? tx("work.saveChanges") : tx(`work.create.${kind}`)}
         </Button>
       )}
     </form>
@@ -864,6 +870,8 @@ function WorkDetails({
   const qc = useQueryClient();
   const q = useQuery(executionOptions(o.org?.id, o.workspace?.id, o.userId));
   const [tab, setTab] = useState("overview");
+  const { t: tx, tag } = useI18n();
+  const lbl = (s: string) => (`work.l.${s}` in MESSAGES.en ? tx(`work.l.${s}` as MessageKey) : label(s));
   const [text, setText] = useState("");
   const [related, setRelated] = useState("");
   const [deadline, setDeadline] = useState("");
@@ -903,7 +911,7 @@ function WorkDetails({
       setDeadline("");
       await refresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not add item");
+      toast.error(e instanceof Error ? e.message : tx("work.addFailed"));
     } finally {
       setBusy(false);
     }
@@ -921,7 +929,7 @@ function WorkDetails({
   async function upload(file: File) {
     if (!o.org || !o.workspace || busy) return;
     if (file.size > 10 * 1024 * 1024) {
-      toast.error("Maximum file size is 10 MB");
+      toast.error(tx("work.maxSize"));
       return;
     }
     setBusy(true);
@@ -948,9 +956,9 @@ function WorkDetails({
         throw n.error;
       }
       await refresh();
-      toast.success("Attachment added");
+      toast.success(tx("work.attached"));
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Upload failed");
+      toast.error(e instanceof Error ? e.message : tx("work.uploadFailed"));
     } finally {
       setBusy(false);
     }
@@ -999,13 +1007,13 @@ function WorkDetails({
             variant={tab === t ? "secondary" : "ghost"}
             onClick={() => setTab(t)}
           >
-            {label(t)}
+            {lbl(t)}
           </Button>
         ))}
       </div>
       {item.source_message_id && (
         <p className="text-xs text-muted-foreground">
-          Linked to Growth Officer recommendation · {item.source_message_id.slice(0, 8)}
+          {tx("work.linkedRec", { id: item.source_message_id.slice(0, 8) })}
         </p>
       )}
       {tab === "overview" && (
@@ -1014,7 +1022,7 @@ function WorkDetails({
           {kind === "tasks" && "agent_key" in item && item.agent_key && editable && (
             <Button variant="outline" onClick={runAgent}>
               <Sparkles />
-              Review with Growth Officer
+              {tx("work.reviewOfficer")}
             </Button>
           )}
           {kind === "tasks" &&
@@ -1029,12 +1037,12 @@ function WorkDetails({
                   if (r.error) toast.error(r.error.message);
                   else {
                     await refresh();
-                    toast.success("Next occurrence created once");
+                    toast.success(tx("work.nextCreated"));
                   }
                 }}
               >
                 <Repeat />
-                Create next occurrence
+                {tx("work.createNext")}
               </Button>
             )}
         </>
@@ -1042,8 +1050,7 @@ function WorkDetails({
       {tab === "tasks" && (
         <>
           <p className="text-xs text-muted-foreground">
-            {tasks.length} {kind === "tasks" ? "subtasks" : "tasks"} · {taskProgress(tasks)}%
-            completed
+            {tx(kind === "tasks" ? "work.progressSub" : "work.progressTasks", { n: tasks.length, p: taskProgress(tasks) })}
           </p>
           {tasks.map((t) => (
             <div
@@ -1052,14 +1059,14 @@ function WorkDetails({
             >
               <span className="min-w-0 break-words text-sm">{t.title}</span>
               <span className="shrink-0 text-xs text-muted-foreground">
-                {label(t.status)} · {t.due_date ?? "No deadline"}
+                {lbl(t.status)} · {t.due_date ? new Date(`${t.due_date}T12:00:00`).toLocaleDateString(tag) : tx("work.noDeadline")}
               </span>
             </div>
           ))}
           {editable && (
             <Button variant="outline" onClick={() => setAddTask(!addTask)}>
               <Plus />
-              {kind === "tasks" ? "Add subtask" : "Add task"}
+              {kind === "tasks" ? tx("work.addSubtask") : tx("work.addTask")}
             </Button>
           )}
           {addTask && (
@@ -1088,8 +1095,8 @@ function WorkDetails({
               <article key={n.id} className="border-b border-border py-3">
                 <p className="text-xs text-muted-foreground">
                   {q.data?.members.find((m) => m.user_id === n.created_by)?.display_name ??
-                    "Teammate"}{" "}
-                  · {new Date(n.created_at).toLocaleString()}
+                    tx("work.teammate")}{" "}
+                  · {new Date(n.created_at).toLocaleString(tag)}
                 </p>
                 <p className="mt-2 whitespace-pre-wrap break-words text-sm">{n.body}</p>
               </article>
@@ -1097,14 +1104,14 @@ function WorkDetails({
           {editable && (
             <>
               <Textarea
-                aria-label="Comment"
+                aria-label={tx("work.comment")}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 maxLength={10000}
-                placeholder="Add a comment…"
+                placeholder={tx("work.addCommentPh")}
               />
               <Button disabled={busy || !text.trim()} onClick={() => note("comment")}>
-                Add comment
+                {tx("work.addComment")}
               </Button>
             </>
           )}
@@ -1120,7 +1127,7 @@ function WorkDetails({
                   variant="ghost"
                   size="icon"
                   disabled={!editable}
-                  aria-label={`Complete milestone ${n.title}`}
+                  aria-label={tx("work.completeMilestone", { t: n.title })}
                   onClick={async () => {
                     const r = await supabase
                       .from("execution_notes")
@@ -1134,19 +1141,19 @@ function WorkDetails({
                   <Check className={n.completed ? "text-success" : "text-muted-foreground"} />
                 </Button>
                 <span className="min-w-0 flex-1 break-words text-sm">{n.title}</span>
-                <span className="text-xs">{n.due_date}</span>
+                <span className="text-xs">{n.due_date ? new Date(`${n.due_date}T12:00:00`).toLocaleDateString(tag) : ""}</span>
               </div>
             ))}
           {editable && (
             <>
               <Input
-                aria-label="Milestone title"
-                placeholder="Milestone"
+                aria-label={tx("work.milestoneTitle")}
+                placeholder={tx("work.milestone")}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
               />
               <Input
-                aria-label="Milestone deadline"
+                aria-label={tx("work.milestoneDeadline")}
                 type="date"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
@@ -1156,7 +1163,7 @@ function WorkDetails({
                 onClick={() => note("milestone", { due_date: deadline || null })}
               >
                 <Plus />
-                Add milestone
+                {tx("work.addMilestone")}
               </Button>
             </>
           )}
@@ -1165,21 +1172,20 @@ function WorkDetails({
       {tab === "team" && (
         <>
           <p className="text-xs text-muted-foreground">
-            Responsible ·{" "}
-            {q.data?.members.find((m) => m.user_id === item.owner_id)?.display_name ?? "Unassigned"}
+            {tx("work.responsible", { n: q.data?.members.find((m) => m.user_id === item.owner_id)?.display_name ?? tx("work.unassigned") })}
           </p>
           {notes
             .filter((n) => n.kind === "member")
             .map((n) => (
               <div key={n.id} className="flex items-center justify-between py-2">
                 <span className="text-sm">
-                  {q.data?.members.find((m) => m.user_id === n.user_id)?.display_name ?? "Teammate"}
+                  {q.data?.members.find((m) => m.user_id === n.user_id)?.display_name ?? tx("work.teammate")}
                 </span>
                 {editable && (
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label="Remove team assignment"
+                    aria-label={tx("work.removeTeam")}
                     onClick={() => remove(n)}
                   >
                     <X />
@@ -1190,12 +1196,12 @@ function WorkDetails({
           {editable && (
             <>
               <select
-                aria-label="Add teammate"
+                aria-label={tx("work.addTeammate")}
                 className={inputClass}
                 value={related}
                 onChange={(e) => setRelated(e.target.value)}
               >
-                <option value="">Select teammate</option>
+                <option value="">{tx("work.selectTeammate")}</option>
                 {q.data?.members
                   .filter((m) => !notes.some((n) => n.kind === "member" && n.user_id === m.user_id))
                   .map((m) => (
@@ -1209,7 +1215,7 @@ function WorkDetails({
                 onClick={() => note("member", { user_id: related })}
               >
                 <Plus />
-                Assign teammate
+                {tx("work.assignTeammate")}
               </Button>
             </>
           )}
@@ -1232,7 +1238,7 @@ function WorkDetails({
                 {editable &&
                   (n.created_by === o.userId || can(o.workspaceRole, "members.manage")) && (
                     <Button
-                      aria-label={`Remove ${n.title}`}
+                      aria-label={tx("work.removeX", { t: n.title })}
                       variant="ghost"
                       size="icon"
                       onClick={async () => {
@@ -1255,9 +1261,9 @@ function WorkDetails({
             ))}
           {editable && (
             <label className="block text-xs">
-              Add attachment · max 10 MB
+              {tx("work.addAttachmentMax")}
               <Input
-                aria-label="Add attachment"
+                aria-label={tx("work.addAttachment")}
                 type="file"
                 disabled={busy}
                 onChange={(e) => {
@@ -1281,13 +1287,13 @@ function WorkDetails({
                   {n.body}
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  {n.due_date ?? "No scheduled date"} · Draft, not published
+                  {n.due_date ? new Date(`${n.due_date}T12:00:00`).toLocaleDateString(tag) : tx("work.noScheduled")} · {tx("work.draftNotPublished")}
                 </p>
                 {editable && (
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label={`Remove content ${n.title}`}
+                    aria-label={tx("work.removeContent", { t: n.title })}
                     onClick={() => remove(n)}
                   >
                     <Trash2 />
@@ -1298,21 +1304,21 @@ function WorkDetails({
           {editable && (
             <>
               <Input
-                aria-label="Content title"
+                aria-label={tx("work.contentTitle")}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder="Content piece"
+                placeholder={tx("work.contentPiece")}
               />
               <Textarea
-                aria-label="Content draft"
+                aria-label={tx("work.contentDraft")}
                 value={related}
                 onChange={(e) => setRelated(e.target.value)}
                 maxLength={12000}
-                placeholder="Draft copy…"
+                placeholder={tx("work.draftCopy")}
               />
               <Input
                 type="date"
-                aria-label="Content planned date"
+                aria-label={tx("work.contentDate")}
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
               />
@@ -1327,7 +1333,7 @@ function WorkDetails({
                 }
               >
                 <Plus />
-                Save content draft
+                {tx("work.saveContent")}
               </Button>
             </>
           )}
@@ -1341,13 +1347,13 @@ function WorkDetails({
               <div className="flex items-center justify-between gap-2 py-2" key={n.id}>
                 <p className="min-w-0 break-words text-sm">
                   {q.data?.tasks.find((t) => t.id === n.related_id)?.title} ·{" "}
-                  {q.data?.tasks.find((t) => t.id === n.related_id)?.status}
+                  {lbl(q.data?.tasks.find((t) => t.id === n.related_id)?.status ?? "")}
                 </p>
                 {editable && (
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label="Remove dependency"
+                    aria-label={tx("work.removeDependency")}
                     onClick={() => remove(n)}
                   >
                     <X />
@@ -1358,12 +1364,12 @@ function WorkDetails({
           {editable && (
             <>
               <select
-                aria-label="Task dependency"
+                aria-label={tx("work.taskDependency")}
                 className={inputClass}
                 value={related}
                 onChange={(e) => setRelated(e.target.value)}
               >
-                <option value="">Select prerequisite task</option>
+                <option value="">{tx("work.selectPrereq")}</option>
                 {q.data?.tasks
                   .filter(
                     (t) =>
@@ -1381,7 +1387,7 @@ function WorkDetails({
                 onClick={() => note("dependency", { related_id: related })}
               >
                 <Plus />
-                Add dependency
+                {tx("work.addDependency")}
               </Button>
             </>
           )}
@@ -1394,18 +1400,18 @@ function WorkDetails({
             .map((n) => (
               <p className="border-b border-border py-3 text-sm" key={n.id}>
                 {q.data?.approvals.find((a) => a.id === n.related_id)?.title} ·{" "}
-                {q.data?.approvals.find((a) => a.id === n.related_id)?.status}
+                {lbl(q.data?.approvals.find((a) => a.id === n.related_id)?.status ?? "")}
               </p>
             ))}
           {editable && (
             <>
               <select
-                aria-label="Campaign approval"
+                aria-label={tx("work.campaignApproval")}
                 className={inputClass}
                 value={related}
                 onChange={(e) => setRelated(e.target.value)}
               >
-                <option value="">Select workspace approval</option>
+                <option value="">{tx("work.selectApproval")}</option>
                 {q.data?.approvals
                   .filter((a) => !notes.some((n) => n.related_id === a.id))
                   .map((a) => (
@@ -1419,12 +1425,12 @@ function WorkDetails({
                 onClick={() => note("approval", { related_id: related })}
               >
                 <Plus />
-                Link approval
+                {tx("work.linkApproval")}
               </Button>
             </>
           )}
           <p className="text-xs text-muted-foreground">
-            Campaign status is internal planning. No external publishing is connected.
+            {tx("work.internalOnly")}
           </p>
         </>
       )}
@@ -1440,8 +1446,8 @@ function WorkDetails({
                   : ""}
               </p>
               <p className="mt-1 text-muted-foreground">
-                {q.data?.members.find((m) => m.user_id === e.actor_id)?.display_name ?? "Teammate"}{" "}
-                · {new Date(e.created_at).toLocaleString()}
+                {q.data?.members.find((m) => m.user_id === e.actor_id)?.display_name ?? tx("work.teammate")}{" "}
+                · {new Date(e.created_at).toLocaleString(tag)}
               </p>
             </div>
           ))}

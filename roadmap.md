@@ -1,4 +1,14 @@
 # AI Growth OS — Task Queue
+## Master continuation directive (Phase 3: opportunities → execution) — 2026-11-20
+- [x] P1 NL/FR: tasks, projects, campaigns, pipeline, SEO, competitors, Content Studio (incl. AI draft/review/repurpose/calendar), data sources, app frame, home/pricing/sign-in with language choice.
+- [ ] P2 Command Center number tiles from real data (definition, source, period; "not available" when unreliable).
+- [ ] P3 Opportunity → strategy → approved plan → initiatives/campaigns/tasks, with visible chain and duplicate prevention.
+- [ ] P4 Task orchestration: specialist assignment, execution states, history, cost, retry/cancel/pause.
+- [ ] P5 Autonomy levels (1–4) with external actions always needing explicit authorization.
+- [ ] P6 Proactive Growth Officer signals (stalled tasks, budget deviation, behind target) in Command Center + notifications.
+- [ ] P7 Multiple strategies side by side with conflict/duplicate-spend checks.
+- [ ] P8 Credit visibility: available/reserved/consumed/failed, traceable to strategy/initiative/specialist.
+- [ ] P9 End-to-end test of the full chain on staging, all languages, desktop/mobile, light/dark.
 ## Master build directive (revenue opportunities) — 2026-11-20
 - [x] Revenue Opportunity Engine: user-started AI discovery across 9 growth areas, scores/budget/evidence/KPIs/risks, shortlist/dismiss/convert-to-goal, Home card, Growth Officer context; staging proposal 0060 (22 SQL checks).
 - [x] Uncertain AI outcomes: in-app close step (requester or org admin) counting reserved credits as used — no refund, no replay; staging proposal 0061 (14 SQL checks). Verified on staging.
@@ -11,7 +21,7 @@
 - [x] I: central NL/EN/FR language for navigation, header/menu, statuses, Command Center frame and signals.
 - [x] J: unit 290/290, staging SQL 23/23, browser phone/tablet/desktop light/dark, docs.
 - [x] NL/FR for Growth Officer, Goals & budget, Performance, Growth intelligence, all of Start and Organization settings; Start/activity/notifications never show raw AI JSON.
-- [ ] Next: translate Work (tasks/projects/campaigns), Marketing (Content Studio, SEO, competitors, pipeline), Integrations and public pages; DB-backed rate limit for token connects (proposal); Command Center health/budget/plan tiles from signals.
+- [ ] Next: DB-backed rate limit for token connects (proposal); Command Center health/budget/plan tiles from signals.
 - [B] Backup branch on GitHub: cannot be created from here (no push); platform snapshots exist.
 - [B] Staging URL: Cloudflare token. Live migrations/proposals: owner approval. Real integrations: owner credentials + permission.
 ## Afronding staging en verdere ontwikkeling — 2026-11-19
