@@ -15,6 +15,12 @@ type GeneratedTables = Public["Tables"];
 type GeneratedFunctions = Public["Functions"];
 
 type PlanRow = { approved_at: string | null; approved_by: string | null; created_at: string; created_by: string; goal_id: string; id: string; org_id: string; plan_snapshot: Json; strategic_thesis: string; status: string; strategy_id: string; summary: string; title: string; version: number; workspace_id: string };
+export type ExecutionSettingsRow = { workspace_id: string; org_id: string; mode: number; max_credits_per_run: number; monthly_credit_cap: number; updated_by: string | null; updated_at: string };
+export type TaskProfileRow = { task_id: string; org_id: string; workspace_id: string; specialist_key: string; task_type: "analysis" | "preparation" | "external"; requires_approval: boolean; assigned_by: string; assigned_at: string };
+export type TaskRunRow = { id: string; org_id: string; workspace_id: string; task_id: string; request_key: string; specialist_key: string; task_type: "analysis" | "preparation"; mode: number; attempt: number;
+  status: "awaiting_approval" | "queued" | "paused" | "running" | "succeeded" | "failed" | "uncertain" | "cancelled" | "rejected"; estimated_credits: number; credits_charged: number | null;
+  single_request_id: string | null; agent_run_id: string | null; output: Json | null; error: string | null; decision_note: string | null; decided_by: string | null; lease_until: string | null;
+  requested_by: string; created_at: string; started_at: string | null; finished_at: string | null; updated_at: string };
 export type PlanDecisionRow = { id: string; org_id: string; workspace_id: string; plan_version_id: string; decision: "approved" | "rejected" | "changes_requested"; note: string; decided_by: string; decided_at: string };
 type InitiativeRow = { project_id: string | null; channel: string; created_at: string; detail: string; effort: string; goal_id: string; id: string; org_id: string; plan_version_id: string; sort_order: number; status: string; target_week: number; title: string; workspace_id: string };
 type OperationRow = { initiative_id: string; org_id: string; workspace_id: string; owner_id: string | null; due_date: string | null; success_metric: string; baseline_value: number | null; target_value: number | null; current_value: number | null; blocker_note: string; updated_by: string; updated_at: string };
@@ -65,6 +71,9 @@ type PendingTables = {
     ];
   };
   growth_plan_decisions: { Row: PlanDecisionRow; Insert: never; Update: never; Relationships: [] };
+  execution_settings: { Row: ExecutionSettingsRow; Insert: never; Update: never; Relationships: [] };
+  task_execution_profiles: { Row: TaskProfileRow; Insert: never; Update: never; Relationships: [] };
+  task_runs: { Row: TaskRunRow; Insert: never; Update: never; Relationships: [] };
   growth_initiative_operations: {
     Row: OperationRow;
     Insert: Partial<OperationRow> & Pick<OperationRow, "initiative_id" | "org_id" | "workspace_id">;
@@ -92,6 +101,16 @@ type PendingFunctions = {
   update_growth_initiative_operations: { Args: { _initiative: string; _patch: Json }; Returns: Json };
   create_growth_plan_draft: { Args: { _strategy: string }; Returns: Json };
   approve_growth_plan: { Args: { _plan: string }; Returns: Json };
+  set_execution_settings: { Args: { _workspace: string; _mode: number; _max_per_run: number; _monthly_cap: number }; Returns: Json };
+  assign_task_specialist: { Args: { _task: string; _specialist: string; _type: string; _requires_approval: boolean }; Returns: Json };
+  queue_task_run: { Args: { _task: string; _request: string; _estimate: number }; Returns: Json };
+  decide_task_run: { Args: { _run: string; _decision: "approved" | "rejected"; _note: string }; Returns: Json };
+  control_task_run: { Args: { _run: string; _action: "pause" | "resume" | "cancel" }; Returns: Json };
+  reconcile_task_runs: { Args: { _workspace: string }; Returns: number };
+  task_open_dependencies: { Args: { _task: string }; Returns: number };
+  start_task_run_verified: { Args: { _run: string; _proof: string }; Returns: Json };
+  link_task_run_request_verified: { Args: { _run: string; _request: string; _proof: string }; Returns: undefined };
+  finish_task_run_verified: { Args: { _run: string; _output: Json | null; _error: string; _proof: string }; Returns: Json };
   decide_growth_plan: { Args: { _plan: string; _decision: "approved" | "rejected" | "changes_requested"; _note: string }; Returns: Json };
   create_growth_strategy_project: { Args: { _selected: Json; _strategy: string }; Returns: Json };
   define_metric: { Args: { _workspace: string; _key: string; _label: string; _unit: string; _currency: string | null; _direction: string; _goal: string | null; _initiative: string | null }; Returns: Json };

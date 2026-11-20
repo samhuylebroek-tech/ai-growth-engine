@@ -30,10 +30,15 @@ export type SignalCode =
   | "budget_over_cap"
   | "budget_over_plan"
   | "metric_ahead"
-  | "no_measurement";
+  | "no_measurement"
+  | "tasks_overdue"
+  | "initiative_behind"
+  | "runs_failing"
+  | "runs_waiting"
+  | "runs_uncertain";
 export type SignalBasis =
-  "planning_vs_metric" | "team_records" | "website_check" | "pipeline" | "budget";
-export type SignalDestination = "/app/performance" | "/app/goals" | "/app/pipeline" | "/app/seo";
+  "planning_vs_metric" | "team_records" | "website_check" | "pipeline" | "budget" | "ai_work";
+export type SignalDestination = "/app/performance" | "/app/goals" | "/app/pipeline" | "/app/seo" | "/app/tasks";
 export type Signal = {
   id: string;
   code: SignalCode;
@@ -296,6 +301,29 @@ export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signa
         { metric: short(m.label, 50) },
       );
   }
+
+  // 6. Execution: overdue initiative tasks, initiatives past their planned week, and AI task runs that need attention.
+  const today = now.toISOString().slice(0, 10);
+  const overdue = d.tasks.filter((x) => x.due_date && x.due_date < today && !["done", "cancelled"].includes(x.status));
+  if (overdue.length)
+    add("tasks:overdue", "tasks_overdue", "risk", "medium", "high", "high", "team_records", "/app/tasks", { n: overdue.length, task: short(overdue[0]!.title) });
+  const approvedAt = new Map(rowsOf(d.plans).map((p) => [p.id, p.approved_at]));
+  for (const i of d.initiatives.filter((x) => x.target_week != null && !["completed", "cancelled"].includes(x.status)).slice(0, 40)) {
+    const at = approvedAt.get(i.plan_version_id);
+    if (!at) continue;
+    const late = days(at, now)! - i.target_week! * 7;
+    if (late > 0)
+      add(`behind:${i.id}`, "initiative_behind", "risk", "medium", "medium", "high", "team_records", "/app/goals", { initiative: short(i.title), week: i.target_week!, days: late });
+  }
+  const runs = rowsOf(d.taskRuns);
+  const failedPerTask = new Map<string, number>();
+  for (const r of runs) if (r.status === "failed") failedPerTask.set(r.task_id, (failedPerTask.get(r.task_id) ?? 0) + 1);
+  const failing = [...failedPerTask.values()].filter((n) => n >= 2).length;
+  if (failing) add("runs:failing", "runs_failing", "risk", "medium", "medium", "medium", "ai_work", "/app/tasks", { n: failing });
+  const waiting = runs.filter((r) => r.status === "awaiting_approval").length;
+  if (waiting) add("runs:waiting", "runs_waiting", "missing", "low", "high", "high", "ai_work", "/app/tasks", { n: waiting });
+  const uncertain = runs.filter((r) => r.status === "uncertain").length;
+  if (uncertain) add("runs:uncertain", "runs_uncertain", "risk", "medium", "high", "medium", "ai_work", "/app/tasks", { n: uncertain });
 
   const seen = new Set<string>();
   return out

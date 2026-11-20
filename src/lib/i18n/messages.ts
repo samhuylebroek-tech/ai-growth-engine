@@ -282,6 +282,17 @@ const en = {
   "signal.basis.website_check": "Based on the website check",
   "signal.basis.pipeline": "Based on your sales pipeline",
   "signal.basis.budget": "Based on your budget",
+  "signal.tasks_overdue.title": "{n} plan task(s) are past their deadline, starting with “{task}”",
+  "signal.tasks_overdue.question": "The Growth Plan has {n} overdue task(s), starting with “{task}”. What should we do first: finish, re-plan or drop them?",
+  "signal.initiative_behind.title": "Initiative “{initiative}” is {days} days past its planned week {week}",
+  "signal.initiative_behind.question": "The initiative “{initiative}” was planned for week {week} and is {days} days behind. What is holding it up and should the plan change?",
+  "signal.runs_failing.title": "{n} task(s) failed with AI more than once",
+  "signal.runs_failing.question": "{n} task(s) failed with an AI specialist more than once. Should we reassign them, add information, or do them ourselves?",
+  "signal.runs_waiting.title": "{n} AI run(s) are waiting for approval",
+  "signal.runs_waiting.question": "{n} AI task run(s) are waiting for an admin's approval. Which should go ahead?",
+  "signal.runs_uncertain.title": "{n} AI run(s) have an uncertain outcome",
+  "signal.runs_uncertain.question": "{n} AI task run(s) have an uncertain outcome. How do we resolve them without paying twice?",
+  "signal.basis.ai_work": "Based on AI task runs",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -554,6 +565,17 @@ const nl: Dictionary = {
   "signal.basis.website_check": "Op basis van de websitecontrole",
   "signal.basis.pipeline": "Op basis van je verkooppijplijn",
   "signal.basis.budget": "Op basis van je budget",
+  "signal.tasks_overdue.title": "{n} plantaak/-taken zijn over hun deadline, te beginnen met “{task}”",
+  "signal.tasks_overdue.question": "Het groeiplan heeft {n} verlopen taak/taken, te beginnen met “{task}”. Wat doen we eerst: afronden, herplannen of schrappen?",
+  "signal.initiative_behind.title": "Initiatief “{initiative}” loopt {days} dagen achter op geplande week {week}",
+  "signal.initiative_behind.question": "Het initiatief “{initiative}” stond gepland voor week {week} en loopt {days} dagen achter. Wat houdt het tegen en moet het plan veranderen?",
+  "signal.runs_failing.title": "{n} taak/taken mislukten meer dan eens met AI",
+  "signal.runs_failing.question": "{n} taak/taken mislukten meer dan eens bij een AI-specialist. Wijzen we ze anders toe, vullen we informatie aan of doen we ze zelf?",
+  "signal.runs_waiting.title": "{n} AI-opdracht(en) wachten op goedkeuring",
+  "signal.runs_waiting.question": "{n} AI-taakopdracht(en) wachten op goedkeuring van een beheerder. Welke mogen door?",
+  "signal.runs_uncertain.title": "{n} AI-opdracht(en) hebben een onzekere uitkomst",
+  "signal.runs_uncertain.question": "{n} AI-taakopdracht(en) hebben een onzekere uitkomst. Hoe handelen we die af zonder dubbel te betalen?",
+  "signal.basis.ai_work": "Gebaseerd op AI-taakopdrachten",
 };
 
 const fr: Dictionary = {
@@ -823,6 +845,17 @@ const fr: Dictionary = {
   "signal.basis.website_check": "D’après le contrôle du site",
   "signal.basis.pipeline": "D’après votre pipeline commercial",
   "signal.basis.budget": "D’après votre budget",
+  "signal.tasks_overdue.title": "{n} tâche(s) du plan ont dépassé leur échéance, à commencer par « {task} »",
+  "signal.tasks_overdue.question": "Le plan compte {n} tâche(s) en retard, à commencer par « {task} ». Que faire d’abord : terminer, replanifier ou abandonner ?",
+  "signal.initiative_behind.title": "L’initiative « {initiative} » a {days} jours de retard sur la semaine {week} prévue",
+  "signal.initiative_behind.question": "L’initiative « {initiative} » était prévue en semaine {week} et a {days} jours de retard. Qu’est-ce qui la bloque et faut-il adapter le plan ?",
+  "signal.runs_failing.title": "{n} tâche(s) ont échoué plusieurs fois avec l’IA",
+  "signal.runs_failing.question": "{n} tâche(s) ont échoué plusieurs fois avec un spécialiste IA. Faut-il les réattribuer, compléter les informations ou les faire nous-mêmes ?",
+  "signal.runs_waiting.title": "{n} exécution(s) IA attendent une validation",
+  "signal.runs_waiting.question": "{n} exécution(s) IA attendent la validation d’un administrateur. Lesquelles lancer ?",
+  "signal.runs_uncertain.title": "{n} exécution(s) IA ont un résultat incertain",
+  "signal.runs_uncertain.question": "{n} exécution(s) IA ont un résultat incertain. Comment les régler sans payer deux fois ?",
+  "signal.basis.ai_work": "D’après les exécutions IA",
 };
 
 export const MESSAGES: Record<Locale, Dictionary> = { en, nl, fr };

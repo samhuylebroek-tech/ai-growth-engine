@@ -1,4 +1,16 @@
 # AI Growth OS — Task Queue
+## Master build directive Phase 4 (execution engine) — 2026-11-20
+- [x] B1 Task data model: specialist assignment, task type, per-run records with stable keys, one open run per task, max 3 attempts (staging proposal 0063, 47 SQL checks).
+- [x] B2 15 AI specialists with structured results through the existing metered single-request accounting; verified with 4 real staging runs.
+- [~] B3 Runtime: queue, start, pause/resume/cancel before start, lease expiry + settlement from recorded AI state, uncertain never retried. No background scheduler: runs start from the user's action or the mode-4 batch (needs a deployed URL + cron, blocked on staging URL).
+- [x] B4 Modes 1–4 per workspace, task-level approval requirement (stricter wins), admin approve/reject with reason; external actions never run by AI.
+- [~] B5 Credits: per-run estimate, per-run and monthly caps, reserved/used, cost per task and per specialist. Open: cost per initiative/campaign/strategy views.
+- [x] B6 Tasks: AI work tab, filters (AI, awaiting approval, running, failed, blocked, completed), list badges, run history.
+- [x] B7 Home: 10 execution tiles from records.
+- [x] B8 Signals: overdue plan tasks, initiatives behind their week, repeated AI failures, runs awaiting approval, uncertain runs.
+- [ ] B9 Connector execution interfaces with mocks (no real activation).
+- [ ] Approval "edit parameters" for a run; strategy-level mode setting.
+- [B] Proposal 0063 into the live database: owner approval.
 ## Master continuation directive (Phase 3: opportunities → execution) — 2026-11-20
 - [x] P1 NL/FR: tasks, projects, campaigns, pipeline, SEO, competitors, Content Studio (incl. AI draft/review/repurpose/calendar), data sources, app frame, home/pricing/sign-in with language choice.
 - [x] P2 Command Center number tiles: 15 tiles from real records with kind/source/period/definition; revenue only from an imported source; verified against staging data.

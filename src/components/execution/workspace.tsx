@@ -59,12 +59,21 @@ import {
 } from "@/lib/execution";
 
 import { pageSlice } from "@/lib/pagination";
+import { TaskAIWork } from "@/components/execution/task-ai-work";
+import { ExecutionBar } from "@/components/execution/execution-bar";
+import { taskExecutionOptions, runsByTask, runTone } from "@/components/execution/task-runs-data";
 import { useI18n } from "@/lib/i18n";
 import { MESSAGES, type MessageKey } from "@/lib/i18n/messages";
 
 const label = (s: string) => s.replace(/_/g, " ");
 const due = (item: WorkItem) => ("due_date" in item ? item.due_date : item.end_date);
 const inputClass = "min-w-0 rounded-md border border-border bg-background px-2 py-2 text-xs";
+
+/** Tasks with a dependency on a task that is not done or cancelled yet. */
+function blockedTasks(notes: readonly { kind: string; entity_type: string; entity_id: string; related_id: string | null }[], tasks: readonly { id: string; status: string }[]) {
+  const open = new Set(tasks.filter((t) => !["done", "cancelled"].includes(t.status)).map((t) => t.id));
+  return new Set(notes.filter((n) => n.kind === "dependency" && n.entity_type === "tasks" && n.related_id && open.has(n.related_id)).map((n) => n.entity_id));
+}
 
 export function ExecutionWorkspace({
   kind,
@@ -103,6 +112,11 @@ export function ExecutionWorkspace({
       .map((n) => n.entity_id),
   );
   const today = localDay();
+  const exec = useQuery({ ...taskExecutionOptions(o.org?.id, o.workspace?.id, o.workspaceRole !== "viewer" && o.workspaceRole !== null), enabled: kind === "tasks" && !!o.org && !!o.workspace });
+  const execRuns = runsByTask(exec.data?.runs ?? []);
+  const execProfiles = new Map((exec.data?.profiles ?? []).map((p) => [p.task_id, p]));
+  const blockedIds = blockedTasks(q.data?.notes ?? [], q.data?.tasks ?? []);
+  const runState = (id: string) => execRuns.get(id)?.latest.status;
   const filtered = items.filter(
     (x) =>
       `${x.title} ${x.description} ${"labels" in x ? x.labels.join(" ") : ""}`
@@ -114,6 +128,12 @@ export function ExecutionWorkspace({
         (filter === "team" && (x.owner_id !== null || assignees.has(x.id))) ||
         (filter === "mine" && (x.owner_id === o.userId || assignees.has(x.id))) ||
         (filter === "today" && due(x) === today) ||
+        (filter === "ai" && execProfiles.has(x.id)) ||
+        (filter === "approval" && runState(x.id) === "awaiting_approval") ||
+        (filter === "running" && ["queued", "running"].includes(runState(x.id) ?? "")) ||
+        (filter === "failed" && ["failed", "uncertain"].includes(runState(x.id) ?? "")) ||
+        (filter === "blocked" && blockedIds.has(x.id) && !["done", "cancelled"].includes(x.status)) ||
+        (filter === "completed" && x.status === "done") ||
         (filter === "upcoming" && !!due(x) && String(due(x)) > today) ||
         (filter === "overdue" &&
           !!due(x) &&
@@ -185,7 +205,7 @@ export function ExecutionWorkspace({
       </div>
       <div className="mb-5 flex flex-wrap gap-1">
         {(kind === "tasks"
-          ? ["mine", "team", "all", "today", "upcoming", "overdue"]
+          ? ["mine", "team", "all", "today", "upcoming", "overdue", ...(exec.data ? ["ai", "approval", "running", "failed", "blocked", "completed"] : [])]
           : ["all", "today", "upcoming", "overdue"]
         ).map((f) => (
           <Button
@@ -201,10 +221,13 @@ export function ExecutionWorkspace({
                 ? tx("work.teamTasks")
                 : f === "all"
                   ? tx(`work.all.${kind}`)
-                  : lbl(f)}
+                  : ["ai", "approval", "running", "failed", "blocked", "completed"].includes(f)
+                    ? tx(`run.f.${f}` as MessageKey)
+                    : lbl(f)}
           </Button>
         ))}
       </div>
+      {kind === "tasks" && <ExecutionBar tasks={q.data?.tasks ?? []} blockedIds={blockedIds} />}
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <div className="relative min-w-36 flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -304,6 +327,13 @@ export function ExecutionWorkspace({
                       {name(x.owner_id)} · {lbl(x.priority)}
                       {due(x) && ` · ${new Date(`${due(x)}T12:00:00`).toLocaleDateString(tag)}`}
                     </p>
+                    {kind === "tasks" && (execProfiles.has(x.id) || blockedIds.has(x.id)) && (
+                      <p className="mt-1 flex flex-wrap gap-1 text-xs">
+                        {execProfiles.has(x.id) && <span className="rounded border px-1.5 py-0.5 text-muted-foreground">{tx(`run.sp.${execProfiles.get(x.id)!.specialist_key}` as MessageKey)}</span>}
+                        {runState(x.id) && <span className={cn("rounded border px-1.5 py-0.5", runTone(runState(x.id)!))}>{tx(`run.st.${runState(x.id)}` as MessageKey)}</span>}
+                        {blockedIds.has(x.id) && !["done", "cancelled"].includes(x.status) && <span className="rounded border border-warning/50 px-1.5 py-0.5 text-warning">{tx("run.f.blocked")}</span>}
+                      </p>
+                    )}
                   </div>
                   <span
                     className={cn(
@@ -993,7 +1023,7 @@ function WorkDetails({
     "team",
     "comments",
     "files",
-    ...(kind === "tasks" ? ["dependencies"] : []),
+    ...(kind === "tasks" ? ["dependencies", "ai"] : []),
     ...(kind === "campaigns" ? ["content", "approvals"] : []),
     "history",
   ];
@@ -1007,7 +1037,7 @@ function WorkDetails({
             variant={tab === t ? "secondary" : "ghost"}
             onClick={() => setTab(t)}
           >
-            {lbl(t)}
+            {t === "ai" ? tx("run.tab") : lbl(t)}
           </Button>
         ))}
       </div>
@@ -1046,6 +1076,9 @@ function WorkDetails({
               </Button>
             )}
         </>
+      )}
+      {tab === "ai" && kind === "tasks" && (
+        <TaskAIWork task={item as { id: string; title: string; description: string; status: string }} blocked={blockedTasks(q.data?.notes ?? [], q.data?.tasks ?? []).has(item.id)} />
       )}
       {tab === "tasks" && (
         <>
