@@ -12,6 +12,7 @@ import { PageHeader, Panel, StatusChip, EmptyState } from "@/components/app/stat
 import { Button } from "@/components/ui/button";
 import { ExternalApprovalsNotice } from "@/components/integrations/external-approvals-notice";
 import { useI18n } from "@/lib/i18n";
+import { capText } from "@/lib/i18n/registry-text";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { QualityBadge } from "@/components/bi/evidence";
 
@@ -68,7 +69,7 @@ function Approvals() {
         return (
           <Panel key={a.id}>
             <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0"><div className="font-semibold">{a.title}</div><div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><span>{cap?.name ?? a.capability_key}</span><StatusChip status={a.risk}>{t("apv.risk", { r: t(`apv.risk.${a.risk}` as MessageKey) })}</StatusChip><StatusChip status={a.status} />{cap?.status === "planned" && <StatusChip status="planned">{t("apv.notAvailable")}</StatusChip>}</div></div>
+              <div className="min-w-0"><div className="font-semibold">{a.title}</div><div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><span>{cap ? capText(t as (k: string) => string, cap).name : a.capability_key}</span><StatusChip status={a.risk}>{t("apv.risk", { r: t(`apv.risk.${a.risk}` as MessageKey) })}</StatusChip><StatusChip status={a.status} />{cap?.status === "planned" && <StatusChip status="planned">{t("apv.notAvailable")}</StatusChip>}</div></div>
               {a.status === "pending" && canDecide && <div className="flex gap-2"><Button size="sm" variant="outline" disabled={!!busy} onClick={() => decide(a.id, false)}>{t("apv.reject")}</Button><Button size="sm" disabled={!!busy || isBlocked} title={isBlocked ? t("apv.blockedPolicy") : undefined} onClick={() => decide(a.id, true)}>{busy === a.id ? t("apv.saving") : t("apv.approve")}</Button></div>}
             </div>
             {a.run_id && <div className="mt-3 flex flex-wrap items-center gap-2"><QualityBadge q="hypothesis" /><span className="text-xs text-muted-foreground">{t("apv.aiNote")}</span></div>}
@@ -83,8 +84,8 @@ function Approvals() {
         <p className="mt-1 text-sm text-muted-foreground">{t("apv.policyIntro")}</p>
         {policies.isError && <p role="alert" className="mt-3 text-sm text-destructive">{t("apv.policyFailed")} <Button variant="link" onClick={() => policies.refetch()}>{t("apv.retry")}</Button></p>}
         <div className="mt-4 divide-y divide-border rounded-lg border border-border">{CAPABILITIES.map((c) => <div key={c.key} className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm">
-          <div className="min-w-0 flex-1"><div className="font-medium">{c.name}</div><div className="text-xs text-muted-foreground">{c.description}</div></div>
-          <select aria-label={t("apv.policyFor", { c: c.name })} className="rounded-md border border-input bg-background px-3 text-sm" disabled={policyBusy === c.key || policies.isLoading} value={policies.data?.find((p) => p.capability_key === c.key)?.mode === "blocked" ? "blocked" : "approval"} onChange={(e) => setPolicy(c.key, e.target.value as "approval" | "blocked")}><option value="approval">{t("apv.mode.approval")}</option><option value="blocked">{t("apv.mode.blocked")}</option></select>
+          <div className="min-w-0 flex-1"><div className="font-medium">{capText(t as (k: string) => string, c).name}</div><div className="text-xs text-muted-foreground">{capText(t as (k: string) => string, c).description}</div></div>
+          <select aria-label={t("apv.policyFor", { c: capText(t as (k: string) => string, c).name })} className="rounded-md border border-input bg-background px-3 text-sm" disabled={policyBusy === c.key || policies.isLoading} value={policies.data?.find((p) => p.capability_key === c.key)?.mode === "blocked" ? "blocked" : "approval"} onChange={(e) => setPolicy(c.key, e.target.value as "approval" | "blocked")}><option value="approval">{t("apv.mode.approval")}</option><option value="blocked">{t("apv.mode.blocked")}</option></select>
         </div>)}</div>
       </section>}
       {!canDecide && <p className="mt-6 text-xs text-muted-foreground">{t("apv.onlyAdmins")}</p>}

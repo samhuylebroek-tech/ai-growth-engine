@@ -1,6 +1,6 @@
 import type { OrgRole } from "@/lib/permissions";
 
-export type Status = "implemented" | "simulated" | "planned";
+export type Status = "implemented" | "partial" | "simulated" | "planned";
 export type Risk = "read" | "write_internal" | "write_external";
 
 export interface CapabilityManifest {

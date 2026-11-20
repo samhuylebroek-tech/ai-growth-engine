@@ -7,27 +7,28 @@ import { Sparkles, ArrowUpRight } from "lucide-react";
 import { PageHeader, Panel, StatusChip } from "@/components/app/status";
 import { SpecialistWorkbench } from "@/components/app/specialist-workbench";
 import { CoordinationWorkbench } from "@/components/app/coordination-workbench";
+import { useI18n } from "@/lib/i18n";
+import { agentText, capText } from "@/lib/i18n/registry-text";
 
 export const Route = createFileRoute("/_authenticated/app/agents")({ head: () => localHead("agents"), component: Agents });
 
-const RISK: Record<string, string> = { read: "Reads data", write_internal: "Changes data inside the platform", write_external: "Acts outside the platform — always needs approval" };
-
 function Agents() {
+  const { t: tx } = useI18n(); const t = tx as (k: string) => string;
   return (
     <>
-      <PageHeader title="Growth specialists" description="Available research and planning, with clear boundaries." actions={<Button variant="outline" asChild><Link to="/app/growth-officer"><Sparkles />Work with Growth Officer</Link></Button>} />
+      <PageHeader title={t("reg.title")} description={t("reg.intro")} actions={<Button variant="outline" asChild><Link to="/app/growth-officer"><Sparkles />{t("reg.workGo")}</Link></Button>} />
       <SpecialistWorkbench />
       <CoordinationWorkbench />
       <div className="grid gap-4 md:grid-cols-2">{AGENTS.map((a) => (
         <Panel key={a.key}>
-          <div className="flex items-start justify-between gap-2"><div className="font-semibold">{a.name}</div><StatusChip status={a.status} /></div>
-          <p className="mt-2 text-sm text-muted-foreground">{a.description}</p>{a.status === "implemented" && <Button variant="link" size="sm" className="mt-3 px-0" asChild><Link to={a.key === "growth_officer" ? "/app/growth-officer" : a.key === "business_intelligence" ? "/app/onboarding" : "/app/agents"}>{a.key === "growth_officer" ? "Open conversation" : a.key === "business_intelligence" ? "Research business" : "Open specialist workspace"}<ArrowUpRight /></Link></Button>}{a.status === "planned" && <p className="mt-3 text-[11px] text-muted-foreground">Not operational yet.</p>}
-          <div className="mt-3 flex flex-wrap gap-1.5">{a.capabilities.map((k) => <span key={k} className="rounded-md bg-secondary px-2 py-0.5 text-xs">{capabilityByKey(k)?.name ?? k}</span>)}</div>
+          <div className="flex items-start justify-between gap-2"><div className="font-semibold">{agentText(t, a).name}</div><StatusChip status={a.status} /></div>
+          <p className="mt-2 text-sm text-muted-foreground">{agentText(t, a).description}</p>{a.status === "implemented" && <Button variant="link" size="sm" className="mt-3 px-0" asChild><Link to={a.key === "growth_officer" ? "/app/growth-officer" : a.key === "business_intelligence" ? "/app/onboarding" : "/app/agents"}>{t(a.key === "growth_officer" ? "reg.openConversation" : a.key === "business_intelligence" ? "reg.research" : "reg.openWorkspace")}<ArrowUpRight /></Link></Button>}{a.status === "planned" && <p className="mt-3 text-[11px] text-muted-foreground">{t("reg.notOperational")}</p>}
+          <div className="mt-3 flex flex-wrap gap-1.5">{a.capabilities.map((k) => <span key={k} className="rounded-md bg-secondary px-2 py-0.5 text-xs">{(() => { const c = capabilityByKey(k); return c ? capText(t, c).name : k; })()}</span>)}</div>
         </Panel>
       ))}</div>
-      <h2 className="mb-3 mt-10 font-semibold">Capabilities</h2>
-      <div className="overflow-x-auto rounded-lg border border-border"><table className="mobile-records w-full min-w-[640px] text-sm"><thead className="bg-muted/50 text-left text-xs text-muted-foreground"><tr><th className="px-4 py-2">Capability</th><th className="px-4 py-2">What it touches</th><th className="px-4 py-2">Min. role</th><th className="px-4 py-2">Credits</th><th className="px-4 py-2">Status</th></tr></thead>
-        <tbody className="divide-y divide-border">{CAPABILITIES.map((c) => <tr key={c.key}><td className="px-4 py-2.5"><div className="font-medium">{c.name}</div><div className="text-xs text-muted-foreground">{c.description}</div></td><td className="px-4 py-2.5 text-xs text-muted-foreground">{RISK[c.risk]}</td><td className="px-4 py-2.5 capitalize">{c.minRole}</td><td className="px-4 py-2.5">{c.credits}</td><td className="px-4 py-2.5"><StatusChip status={c.status} /></td></tr>)}</tbody></table></div>
+      <h2 className="mb-3 mt-10 font-semibold">{t("reg.capabilities")}</h2>
+      <div className="overflow-x-auto rounded-lg border border-border"><table className="mobile-records w-full min-w-[640px] text-sm"><thead className="bg-muted/50 text-left text-xs text-muted-foreground"><tr><th className="px-4 py-2">{t("reg.col.capability")}</th><th className="px-4 py-2">{t("reg.col.touches")}</th><th className="px-4 py-2">{t("reg.col.role")}</th><th className="px-4 py-2">{t("reg.col.credits")}</th><th className="px-4 py-2">{t("reg.col.status")}</th></tr></thead>
+        <tbody className="divide-y divide-border">{CAPABILITIES.map((c) => <tr key={c.key}><td className="px-4 py-2.5"><div className="font-medium">{capText(t, c).name}</div><div className="text-xs text-muted-foreground">{capText(t, c).description}</div></td><td className="px-4 py-2.5 text-xs text-muted-foreground">{t(`reg.risk.${c.risk}`)}</td><td className="px-4 py-2.5">{t(`reg.role.${c.minRole}`)}</td><td className="px-4 py-2.5">{c.credits}</td><td className="px-4 py-2.5"><StatusChip status={c.status} /></td></tr>)}</tbody></table></div>
     </>
   );
 }
