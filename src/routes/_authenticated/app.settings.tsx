@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { Copy, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/lib/org-context";
-import { useI18n } from "@/lib/i18n";
 import { assignableRoles, can, hasRole, type OrgRole } from "@/lib/permissions";
 import { PageHeader, Panel } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
