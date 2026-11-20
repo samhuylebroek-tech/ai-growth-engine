@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+import { SPECIALIST_INTEGRATIONS } from "@/lib/integrations/catalog";
 import { useEffect, useRef, useState } from "react";
 import { gateCode } from "@/lib/scheduler";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -103,7 +105,7 @@ export function TaskAIWork({ task, blocked }: { task: { id: string; title: strin
         <h3 className="flex items-center gap-2 text-sm font-semibold"><Bot className="h-4 w-4" />{t("run.assignTitle")}</h3>
         <Badge variant="outline" className="font-normal">{t("run.mode", { n: s.mode })} · {t(`run.modeName.${s.mode}` as MessageKey)}</Badge>
       </div>
-      {profile ? <p className="text-sm">{t(`run.sp.${profile.specialist_key}` as MessageKey)} · {t(`run.type.${profile.task_type}` as MessageKey)}{profile.requires_approval ? ` · ${t("run.needsApproval")}` : ""}</p>
+      {profile ? <p className="text-sm">{t(`run.sp.${profile.specialist_key}` as MessageKey)} · {t(`run.type.${profile.task_type}` as MessageKey)}{profile.requires_approval ? ` · ${t("run.needsApproval")}` : ""}{(SPECIALIST_INTEGRATIONS[profile.specialist_key as TaskSpecialist]?.prepares.length ?? 0) > 0 && <> · <Link to="/app/actions" search={{ task: task.id }} className="text-primary hover:underline">{t("xa.prepareFromTask")}</Link></>}</p>
         : <p className="text-xs text-muted-foreground">{t("run.suggested", { s: t(`run.sp.${suggestion.specialist}` as MessageKey) })}{suggestion.matched.length ? ` (${suggestion.matched.slice(0, 3).join(", ")})` : ""}</p>}
       {role !== "viewer" && (!latest || !["awaiting_approval", "queued", "paused", "running", "uncertain"].includes(latest.status)) && <div className="grid gap-2 sm:grid-cols-2">
         <label className="grid gap-1 text-xs">{t("run.specialist")}

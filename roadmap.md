@@ -5,8 +5,10 @@
 - [x] Scheduled cycles become due and an admin starts them (user decision: no unattended system account).
 - [x] Growth Officer next best actions, duplicates, bottlenecks (deterministic, no credits).
 - [x] Costs & ROI page: credits per goal, plan, initiative, campaign, project, task, specialist; budgets per currency; revenue/ROI not attributed without a source.
-- [ ] Integration framework: connection health/scopes/read-vs-write per platform, with mock adapters only.
-- [ ] Controlled external actions: recommendation → draft → approved → executed → verified, with mock verification.
+- [x] Integration Hub (Phase 5B, proposal 0065, 66 SQL checks): six permission levels per connection, health/freshness, simulated providers for 11 platforms, revoke, sync history.
+- [x] External actions: one lifecycle recommendation → draft → review → approval → execution → verification → result; simulated execution with timeout/denial/expiry/drift scenarios; specialist boundaries; Home and approvals overview.
+- [ ] Real provider write adapters (Google Ads, Meta, LinkedIn, HubSpot writes, Salesforce, Mailchimp, WordPress): need credentials, provider app approval and the owner's permission.
+- [ ] Planned-vs-actual comparison and optimisation proposals over verified results (links are stored; comparison not built).
 - [ ] Continuous optimisation loop and strategy version comparison.
 - [ ] Multi-business / brand units within an organisation.
 - [ ] Command Center: add budget deviations, spend and opportunities to Home tiles.

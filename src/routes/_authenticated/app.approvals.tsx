@@ -10,6 +10,7 @@ import { can } from "@/lib/permissions";
 import { CAPABILITIES, capabilityByKey } from "@/lib/registry/capabilities";
 import { PageHeader, Panel, StatusChip, EmptyState } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
+import { ExternalApprovalsNotice } from "@/components/integrations/external-approvals-notice";
 
 export const Route = createFileRoute("/_authenticated/app/approvals")({ head: () => pageHead("Approvals", "Review growth actions and track decisions."), component: Approvals });
 
@@ -54,6 +55,7 @@ function Approvals() {
   return (
     <>
       <PageHeader title="Review & approvals" description="Decide what moves forward." actions={canManage && <Button variant="outline" onClick={() => setShowPolicies(!showPolicies)} aria-expanded={showPolicies}>{showPolicies ? "Close policies" : "Action policies"}</Button>} />
+      <ExternalApprovalsNotice />
       <div className="mb-5 flex gap-1 rounded-lg bg-muted p-1 text-sm w-fit">{(["pending", "decided"] as const).map((t) => <Button key={t} variant={tab === t ? "secondary" : "ghost"} size="sm" onClick={() => setTab(t)} aria-pressed={tab === t} className="capitalize">{t}</Button>)}</div>
       {q.isLoading && <p role="status" className="py-8 text-sm text-muted-foreground">Loading approvals…</p>}
       {q.isError && <p role="alert" className="text-sm text-destructive">Approvals could not load. <Button variant="link" onClick={() => q.refetch()}>Retry</Button></p>}

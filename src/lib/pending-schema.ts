@@ -33,7 +33,15 @@ type OperationRow = { initiative_id: string; org_id: string; workspace_id: strin
 type MetricRow = { id: string; org_id: string; workspace_id: string; key: string; label: string; unit: string; currency: string | null; direction: string; goal_id: string | null; initiative_id: string | null; archived: boolean; created_by: string; created_at: string; updated_at: string };
 type MeasurementRow = { id: string; org_id: string; workspace_id: string; metric_id: string; period_start: string; period_end: string; kind: string; value: number; source: string; source_ref: string; note: string; request_key: string; corrects_id: string | null; created_by: string; created_at: string };
 
-type ConnectionRow = GeneratedTables["connector_connections"]["Row"] & { account_label: string | null; scopes: string[]; expires_at: string | null; last_checked_at: string | null; last_sync_at: string | null; last_error: string | null };
+type ConnectionRow = GeneratedTables["connector_connections"]["Row"] & { account_label: string | null; scopes: string[]; expires_at: string | null; last_checked_at: string | null; last_sync_at: string | null; last_error: string | null;
+  granted_levels: string[]; connected_by: string | null; connected_at: string | null; simulated: boolean };
+export type ExternalActionRow = { id: string; org_id: string; workspace_id: string; request_key: string; task_id: string; project_id: string | null; campaign_id: string | null;
+  goal_id: string | null; initiative_id: string | null; plan_version_id: string | null; strategy_id: string | null; connection_id: string; provider: string; simulated: boolean;
+  specialist_key: string; action_type: string; required_level: string; title: string; description: string; payload: Json; estimated_cost: number | null; currency: string | null;
+  stage: "draft" | "in_review" | "approved" | "rejected" | "executing" | "executed" | "failed" | "uncertain" | "cancelled"; approval_mode: "manual" | "policy" | null;
+  decided_by: string | null; decided_at: string | null; decision_note: string; attempts: number; exec_key: string | null; external_ref: string | null; executed_at: string | null;
+  error: string | null; verification: "not_verified" | "pending" | "verified" | "failed" | "unavailable"; verified_at: string | null; evidence: Json; created_by: string; created_at: string; updated_at: string };
+type SimRecordRow = { id: string; org_id: string; workspace_id: string; connection_id: string; request_key: string; action_type: string; external_ref: string; state: string; payload: Json; created_at: string };
 type ImportRunRow = { id: string; org_id: string; workspace_id: string; connector_key: string; request_key: string; months: number; status: string; created_count: number; corrected_count: number; unchanged_count: number; skipped_count: number; error: string | null; started_by: string; started_at: string; finished_at: string | null };
 
 export type OpportunityRow = { id: string; org_id: string; workspace_id: string; request_key: string; position: number; domain: string; title: string; summary: string; analysis: string; audience: string; expected_impact: string; impact: number; feasibility: number; cost: number; time_to_value: number; risk: number; complexity: string; budget_min: number | null; budget_max: number | null; currency: string; horizon_days: number; resources: string[]; integrations: string[]; risks: string[]; kpis: Json; evidence: Json; confidence: string; status: string; goal_id: string | null; decided_by: string | null; decided_at: string | null; created_by: string; created_at: string };
@@ -80,6 +88,8 @@ type PendingTables = {
   task_execution_profiles: { Row: TaskProfileRow; Insert: never; Update: never; Relationships: [] };
   task_runs: { Row: TaskRunRow; Insert: never; Update: never; Relationships: [] };
   execution_cycles: { Row: ExecutionCycleRow; Insert: never; Update: never; Relationships: [] };
+  external_actions: { Row: ExternalActionRow; Insert: never; Update: never; Relationships: [] };
+  simulated_provider_records: { Row: SimRecordRow; Insert: never; Update: never; Relationships: [] };
   execution_cycle_items: { Row: ExecutionCycleItemRow; Insert: never; Update: never; Relationships: [] };
   growth_initiative_operations: {
     Row: OperationRow;
@@ -135,6 +145,21 @@ type PendingFunctions = {
   disconnect_connector_verified: { Args: { _workspace: string; _connector: string; _proof: string }; Returns: undefined };
   begin_connector_import_verified: { Args: { _workspace: string; _connector: string; _request: string; _months: number; _proof: string }; Returns: Json };
   finish_connector_import_verified: { Args: { _run: string; _status: string; _created: number; _corrected: number; _unchanged: number; _skipped: number; _error: string | null; _proof: string }; Returns: undefined };
+  connect_simulated_integration: { Args: { _workspace: string; _provider: string; _levels: string[]; _scenario: string }; Returns: Json };
+  set_integration_levels: { Args: { _connection: string; _levels: string[] }; Returns: Json };
+  set_simulated_integration_health: { Args: { _connection: string; _status: string }; Returns: undefined };
+  revoke_simulated_integration: { Args: { _connection: string }; Returns: undefined };
+  create_external_action: { Args: { _workspace: string; _request: string; _task: string; _connection: string; _specialist: string; _type: string; _title: string; _description: string; _payload: Json; _cost: number | null; _currency: string | null }; Returns: Json };
+  submit_external_action: { Args: { _action: string }; Returns: Json };
+  decide_external_action: { Args: { _action: string; _approve: boolean; _note: string }; Returns: Json };
+  cancel_external_action: { Args: { _action: string }; Returns: Json };
+  mark_stalled_external_action: { Args: { _action: string }; Returns: Json };
+  external_action_blocker: { Args: { _action: string }; Returns: string | null };
+  begin_external_action_verified: { Args: { _action: string; _key: string; _proof: string }; Returns: Json };
+  finish_external_action_verified: { Args: { _action: string; _key: string; _outcome: string; _ref: string | null; _error: string | null; _health: string | null; _proof: string }; Returns: Json };
+  record_external_verification_verified: { Args: { _action: string; _status: string; _found: boolean; _ref: string | null; _evidence: Json; _proof: string }; Returns: Json };
+  sim_provider_write_verified: { Args: { _connection: string; _key: string; _type: string; _state: string; _payload: Json; _proof: string }; Returns: Json };
+  sim_provider_lookup_verified: { Args: { _connection: string; _key: string; _proof: string }; Returns: Json };
   record_measurement: { Args: { _metric: string; _kind: string; _period_start: string; _period_end: string; _value: number; _note: string; _source_ref: string; _request: string; _corrects: string | null }; Returns: Json };
 };
 
@@ -159,4 +184,5 @@ export const retryUnlessNotInstalled = (failureCount: number, error: unknown) =>
 export const GROWTH_PLANS_NOT_INSTALLED = "Growth Plans are not switched on for this workspace yet. Goals, budget, strategies and work keep working as usual.";
 export const CONNECTORS_NOT_INSTALLED = "Read-only data connections are not switched on for this workspace yet. Nothing is imported until they are.";
 export const OPPORTUNITIES_NOT_INSTALLED = "Growth opportunities are not switched on for this workspace yet.";
+export const INTEGRATION_HUB_NOT_INSTALLED = "The Integration Hub and external actions are not switched on for this workspace yet.";
 export const PERFORMANCE_NOT_INSTALLED = "Performance tracking is not switched on for this workspace yet. Goals, budget and work keep working as usual.";

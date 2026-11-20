@@ -17,6 +17,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedAppActionsRouteImport } from './routes/_authenticated/app.actions'
 import { Route as AuthenticatedAppActivityRouteImport } from './routes/_authenticated/app.activity'
 import { Route as AuthenticatedAppAgentsRouteImport } from './routes/_authenticated/app.agents'
 import { Route as AuthenticatedAppApprovalsRouteImport } from './routes/_authenticated/app.approvals'
@@ -82,6 +83,11 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppActionsRoute = AuthenticatedAppActionsRouteImport.update({
+  id: '/actions',
+  path: '/actions',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppActivityRoute =
@@ -245,6 +251,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/app/actions': typeof AuthenticatedAppActionsRoute
   '/app/activity': typeof AuthenticatedAppActivityRoute
   '/app/agents': typeof AuthenticatedAppAgentsRoute
   '/app/approvals': typeof AuthenticatedAppApprovalsRoute
@@ -280,6 +287,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/app/actions': typeof AuthenticatedAppActionsRoute
   '/app/activity': typeof AuthenticatedAppActivityRoute
   '/app/agents': typeof AuthenticatedAppAgentsRoute
   '/app/approvals': typeof AuthenticatedAppApprovalsRoute
@@ -318,6 +326,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/app/actions': typeof AuthenticatedAppActionsRoute
   '/_authenticated/app/activity': typeof AuthenticatedAppActivityRoute
   '/_authenticated/app/agents': typeof AuthenticatedAppAgentsRoute
   '/_authenticated/app/approvals': typeof AuthenticatedAppApprovalsRoute
@@ -356,6 +365,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin'
     | '/app'
+    | '/app/actions'
     | '/app/activity'
     | '/app/agents'
     | '/app/approvals'
@@ -391,6 +401,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/reset-password'
     | '/admin'
+    | '/app/actions'
     | '/app/activity'
     | '/app/agents'
     | '/app/approvals'
@@ -428,6 +439,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/admin'
     | '/_authenticated/app'
+    | '/_authenticated/app/actions'
     | '/_authenticated/app/activity'
     | '/_authenticated/app/agents'
     | '/_authenticated/app/approvals'
@@ -522,6 +534,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/actions': {
+      id: '/_authenticated/app/actions'
+      path: '/actions'
+      fullPath: '/app/actions'
+      preLoaderRoute: typeof AuthenticatedAppActionsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/activity': {
@@ -717,6 +736,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppActionsRoute: typeof AuthenticatedAppActionsRoute
   AuthenticatedAppActivityRoute: typeof AuthenticatedAppActivityRoute
   AuthenticatedAppAgentsRoute: typeof AuthenticatedAppAgentsRoute
   AuthenticatedAppApprovalsRoute: typeof AuthenticatedAppApprovalsRoute
@@ -747,6 +767,7 @@ interface AuthenticatedAppRouteChildren {
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppActionsRoute: AuthenticatedAppActionsRoute,
   AuthenticatedAppActivityRoute: AuthenticatedAppActivityRoute,
   AuthenticatedAppAgentsRoute: AuthenticatedAppAgentsRoute,
   AuthenticatedAppApprovalsRoute: AuthenticatedAppApprovalsRoute,
