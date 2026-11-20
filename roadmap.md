@@ -1,9 +1,9 @@
 # AI Growth OS — Task Queue
 ## Phase 8.2 extended sprint — 2026-11-20
 - [x] Environment verified (branch, HEAD a53b2d6, staging marker, ledger 57, proposals to 0073).
-- [ ] Evidence freshness (type-aware; historical records never expire; source unavailable / verification required).
-- [ ] Fact conflicts: detection with sources/authority, atomic resolution (staging proposal 0074), Growth Officer context + alert.
-- [ ] Recommendations: duplicate detection, explanation completeness.
+- [x] Evidence freshness (type-aware; historical records never expire; source unavailable / verification required).
+- [x] Fact conflicts: detection with sources/authority, atomic resolution (staging proposal 0074), Growth Officer context + alert.
+- [x] Recommendations: duplicate detection, explanation completeness.
 - [ ] Stability stress test (context/language/user switching, rapid navigation, network interruption).
 - [ ] Localization sweep of every route in NL/FR; fix English leftovers.
 - [ ] Staging test-data inventory from live staging queries.

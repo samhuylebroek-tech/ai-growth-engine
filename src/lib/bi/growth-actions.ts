@@ -66,6 +66,8 @@ export type GrowthAction = {
   /** Evidence behind the item (proposal 0073 labels); "uncertain" ranks are shown as indicative only. */
   quality: Quality;
   uncertain: boolean;
+  /** Other suggestions about the same thing that were folded into this one (ids), so nothing is shown twice. */
+  alsoSuggested?: string[];
 };
 
 export type ActionInput = {
@@ -344,7 +346,37 @@ export function nextGrowthActions(i: ActionInput, limit = 8): GrowthAction[] {
       ...q(oq),
     });
   }
-  return out.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id)).slice(0, limit);
+  return dedupeActions(out.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id))).slice(0, limit);
+}
+
+// Same recommendation from two places (an AI opportunity and a team proposal, or the same idea saved twice):
+// titles are compared on their meaningful words; the highest-ranked copy stays and lists the others.
+const STOP = new Set(["the","a","an","and","or","of","for","to","in","on","with","de","het","een","en","of","voor","van","naar","met","op","le","la","les","un","une","des","et","du","pour","avec","sur"]);
+export function titleWords(t: string): Set<string> {
+  return new Set(
+    t.toLowerCase().normalize("NFKD").replace(/\p{M}/gu, "").split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 1 && !STOP.has(w)),
+  );
+}
+export function sameIdea(a: string, b: string): boolean {
+  const x = titleWords(a), y = titleWords(b);
+  if (!x.size || !y.size) return false;
+  let shared = 0;
+  for (const w of x) if (y.has(w)) shared++;
+  return shared / (x.size + y.size - shared) >= 0.75;
+}
+// Only undecided suggestions fold together; a step on work already approved or running stays its own action.
+const FOLDABLE: readonly ActionKind[] = ["opportunity", "decide_proposal"];
+export function dedupeActions(sorted: readonly GrowthAction[]): GrowthAction[] {
+  const kept: GrowthAction[] = [];
+  for (const a of sorted) {
+    const title = FOLDABLE.includes(a.kind) && typeof a.vars["title"] === "string" ? (a.vars["title"] as string) : null;
+    const twin = title
+      ? kept.find((k) => FOLDABLE.includes(k.kind) && typeof k.vars["title"] === "string" && sameIdea(k.vars["title"] as string, title))
+      : undefined;
+    if (twin) twin.alsoSuggested = [...(twin.alsoSuggested ?? []), a.id];
+    else kept.push({ ...a });
+  }
+  return kept;
 }
 
 /** AI-discovered opportunity evidence ([{class|kind|type, text}]) normalized; AI "facts" become unverified claims. */

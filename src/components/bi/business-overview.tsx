@@ -397,6 +397,9 @@ export function GrowthActions({
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
             <QualityBadge q={a.quality} />
             {a.uncertain && <span className="text-[11px] text-muted-foreground">{t("ev.indicative")}</span>}
+            {a.alsoSuggested?.length ? (
+              <span className="text-[11px] text-muted-foreground">{t("bi.actions.alsoSuggested", { n: a.alsoSuggested.length })}</span>
+            ) : null}
           </div>
           {!compact && (
             <p className="mt-1 text-[11px] text-muted-foreground">
