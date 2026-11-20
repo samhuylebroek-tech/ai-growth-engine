@@ -378,7 +378,8 @@ export function knownSources(d: Partial<Pick<BiData, "facts" | "measurements" | 
 
 /** Linked evidence per improvement proposal, normalized (rejected and superseded versions drop out). */
 export function linkedEvidence(
-  d: Pick<BiData, "evidence" | "proposalEvidence"> & Partial<Pick<BiData, "facts" | "measurements" | "revenue">>,
+  d: Pick<BiData, "evidence" | "proposalEvidence"> &
+    Partial<Pick<BiData, "facts" | "measurements" | "revenue">>,
   now: Date = new Date(),
 ): Map<string, NormalEvidence[]> {
   const byId = new Map((d.evidence ?? []).map((e) => [e.id, e]));
@@ -386,7 +387,13 @@ export function linkedEvidence(
   const out = new Map<string, NormalEvidence[]>();
   for (const l of d.proposalEvidence ?? []) {
     const e = byId.get(l.evidence_id);
-    const n = e ? fromEvidenceItem(e, l.role, isStale(evidenceFreshness({ ...e, source: sourceState(e, known) }, now).level)) : null;
+    const n = e
+      ? fromEvidenceItem(
+          e,
+          l.role,
+          isStale(evidenceFreshness({ ...e, source: sourceState(e, known) }, now).level),
+        )
+      : null;
     if (n) out.set(l.proposal_id, [...(out.get(l.proposal_id) ?? []), n]);
   }
   return out;

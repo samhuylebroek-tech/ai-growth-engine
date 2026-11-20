@@ -4,10 +4,10 @@
 - [x] Evidence freshness (type-aware; historical records never expire; source unavailable / verification required).
 - [x] Fact conflicts: detection with sources/authority, atomic resolution (staging proposal 0074), Growth Officer context + alert.
 - [x] Recommendations: duplicate detection, explanation completeness.
-- [ ] Stability stress test (context/language/user switching, rapid navigation, network interruption).
-- [ ] Localization sweep of every route in NL/FR; fix English leftovers.
-- [ ] Staging test-data inventory from live staging queries.
-- [ ] Final regression, report, commit.
+- [x] Stability stress test (context/language/user switching, rapid navigation, network interruption).
+- [x] Localization sweep of every route in NL/FR; fix English leftovers.
+- [x] Staging test-data inventory from live staging queries.
+- [x] Final regression, report, commit.
 ## Phase 8.2 — product completion, evidence governance & quality — 2026-11-20
 - [x] B1 Audit: 20 systems, findings + checklist in docs/PHASE_8_2_REPORT.md.
 - [x] B2 Evidence governance (proposal 0073): six evidence types, lifecycle with history and versions, proposal levels (observation/formal/execution), admin inspects evidence before approval, AI text never counts as independent evidence.
@@ -19,7 +19,7 @@
 - [x] B8 Integration safety: simulated lifecycle validation.
 - [x] B9 Staging end-to-end walkthroughs (business, organization, roles, finance, external actions).
 - [x] B10 Test-data inventory refresh, final report, commit.
-- [ ] Owner center and remaining deeper module texts in NL/FR.
+- [x] Owner center and remaining deeper module texts in NL/FR.
 - [B] Proposal 0073 into the live database: owner approval.
 ## Phase 8.1 — finalization & operational readiness — 2026-11-20
 - [x] Org Growth Officer: real business names in stored drafts (display-only, original kept), refs stored for new drafts, similar names distinguishable.

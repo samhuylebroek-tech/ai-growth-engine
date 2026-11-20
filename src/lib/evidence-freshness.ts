@@ -49,10 +49,17 @@ export function evidenceFreshness(e: FreshnessInput, now: Date = new Date()): Fr
   if (e.source === "unconfirmed") return res("verify");
   if (e.evidence_type === "missing_information" || historical) return res("current");
   const [fresh, expire] = WINDOWS[e.source_kind] ?? WINDOWS.other;
-  if (ageDays > expire) return res(SOFT.includes(e.evidence_type as EvidenceType) ? "verify" : "expired");
-  if (ageDays > fresh) return res(e.source_kind === "business_fact" || SOFT.includes(e.evidence_type as EvidenceType) ? "verify" : "outdated");
+  if (ageDays > expire)
+    return res(SOFT.includes(e.evidence_type as EvidenceType) ? "verify" : "expired");
+  if (ageDays > fresh)
+    return res(
+      e.source_kind === "business_fact" || SOFT.includes(e.evidence_type as EvidenceType)
+        ? "verify"
+        : "outdated",
+    );
   const touched = e.updated_at ? Date.parse(e.updated_at) : NaN;
-  if ((e.version_no ?? 1) > 1 && Number.isFinite(touched) && now.getTime() - touched <= 14 * DAY) return res("updated");
+  if ((e.version_no ?? 1) > 1 && Number.isFinite(touched) && now.getTime() - touched <= 14 * DAY)
+    return res("updated");
   return res("current");
 }
 
@@ -62,14 +69,20 @@ export const isStale = (f: Freshness) => f === "expired" || f === "unavailable" 
 /** Looks up the record behind an evidence item in data the caller already read under its own access rights. */
 export function sourceState(
   e: { source_kind: SourceKind; source_ref: string },
-  known: { facts?: ReadonlyMap<string, boolean>; measurements?: ReadonlySet<string>; revenue?: ReadonlySet<string> },
+  known: {
+    facts?: ReadonlyMap<string, boolean>;
+    measurements?: ReadonlySet<string>;
+    revenue?: ReadonlySet<string>;
+  },
 ): SourceState {
   if (!e.source_ref) return "unknown";
   if (e.source_kind === "business_fact" && known.facts) {
     const v = known.facts.get(e.source_ref);
     return v === undefined ? "missing" : v ? "found" : "unconfirmed";
   }
-  if (e.source_kind === "measurement" && known.measurements) return known.measurements.has(e.source_ref) ? "found" : "missing";
-  if (e.source_kind === "revenue_event" && known.revenue) return known.revenue.has(e.source_ref) ? "found" : "missing";
+  if (e.source_kind === "measurement" && known.measurements)
+    return known.measurements.has(e.source_ref) ? "found" : "missing";
+  if (e.source_kind === "revenue_event" && known.revenue)
+    return known.revenue.has(e.source_ref) ? "found" : "missing";
   return "unknown";
 }

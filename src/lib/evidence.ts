@@ -202,6 +202,8 @@ export type EvidenceDraft = {
   period_start?: string;
   period_end?: string;
   goal_id?: string;
+  /** Interface text for the description (key + values), so it reads and is saved in the reader's language. */
+  text?: { key: string; vars: Record<string, string | number> };
 };
 
 // ---- improvement proposal gates (mirror of advance_optimization_proposal) ----------------------------------------

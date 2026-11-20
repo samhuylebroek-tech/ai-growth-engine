@@ -39,8 +39,15 @@ export type SignalCode =
   | "runs_uncertain"
   | "facts_conflict";
 export type SignalBasis =
-  "planning_vs_metric" | "team_records" | "website_check" | "pipeline" | "budget" | "ai_work" | "business_profile";
-export type SignalDestination = "/app/performance" | "/app/goals" | "/app/pipeline" | "/app/seo" | "/app/tasks" | "/app/profile";
+  | "planning_vs_metric"
+  | "team_records"
+  | "website_check"
+  | "pipeline"
+  | "budget"
+  | "ai_work"
+  | "business_profile";
+export type SignalDestination =
+  "/app/performance" | "/app/goals" | "/app/pipeline" | "/app/seo" | "/app/tasks" | "/app/profile";
 export type Signal = {
   id: string;
   code: SignalCode;
@@ -104,9 +111,9 @@ export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signa
   const latestActual = (m: MetricRow) => summarizeMetric(m, forMetric(m)).actual;
 
   // 0. Confirmed facts that contradict each other: the Growth Officer would otherwise read both as true.
-  const conflicts = detectFactConflicts(
-    d.facts.map((f, i) => ({ ...f, id: `f${i}` })),
-  ).filter((c) => c.confirmedConflict);
+  const conflicts = detectFactConflicts(d.facts.map((f, i) => ({ ...f, id: `f${i}` }))).filter(
+    (c) => c.confirmedConflict,
+  );
   if (conflicts.length)
     add(
       `facts-conflict:${conflicts.map((c) => c.topic).join("|")}`,
@@ -117,7 +124,13 @@ export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signa
       "high",
       "business_profile",
       "/app/profile",
-      { n: conflicts.length, topics: conflicts.slice(0, 3).map((c) => short(c.key, 40)).join(", ") },
+      {
+        n: conflicts.length,
+        topics: conflicts
+          .slice(0, 3)
+          .map((c) => short(c.key, 40))
+          .join(", "),
+      },
     );
 
   // 1. Completed initiatives: a finished task list is not a business result.
@@ -323,26 +336,77 @@ export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signa
 
   // 6. Execution: overdue initiative tasks, initiatives past their planned week, and AI task runs that need attention.
   const today = now.toISOString().slice(0, 10);
-  const overdue = d.tasks.filter((x) => x.due_date && x.due_date < today && !["done", "cancelled"].includes(x.status));
+  const overdue = d.tasks.filter(
+    (x) => x.due_date && x.due_date < today && !["done", "cancelled"].includes(x.status),
+  );
   if (overdue.length)
-    add("tasks:overdue", "tasks_overdue", "risk", "medium", "high", "high", "team_records", "/app/tasks", { n: overdue.length, task: short(overdue[0]!.title) });
+    add(
+      "tasks:overdue",
+      "tasks_overdue",
+      "risk",
+      "medium",
+      "high",
+      "high",
+      "team_records",
+      "/app/tasks",
+      { n: overdue.length, task: short(overdue[0]!.title) },
+    );
   const approvedAt = new Map(rowsOf(d.plans).map((p) => [p.id, p.approved_at]));
-  for (const i of d.initiatives.filter((x) => x.target_week != null && !["completed", "cancelled"].includes(x.status)).slice(0, 40)) {
+  for (const i of d.initiatives
+    .filter((x) => x.target_week != null && !["completed", "cancelled"].includes(x.status))
+    .slice(0, 40)) {
     const at = approvedAt.get(i.plan_version_id);
     if (!at) continue;
     const late = days(at, now)! - i.target_week! * 7;
     if (late > 0)
-      add(`behind:${i.id}`, "initiative_behind", "risk", "medium", "medium", "high", "team_records", "/app/goals", { initiative: short(i.title), week: i.target_week!, days: late });
+      add(
+        `behind:${i.id}`,
+        "initiative_behind",
+        "risk",
+        "medium",
+        "medium",
+        "high",
+        "team_records",
+        "/app/goals",
+        { initiative: short(i.title), week: i.target_week!, days: late },
+      );
   }
   const runs = rowsOf(d.taskRuns);
   const failedPerTask = new Map<string, number>();
-  for (const r of runs) if (r.status === "failed") failedPerTask.set(r.task_id, (failedPerTask.get(r.task_id) ?? 0) + 1);
+  for (const r of runs)
+    if (r.status === "failed")
+      failedPerTask.set(r.task_id, (failedPerTask.get(r.task_id) ?? 0) + 1);
   const failing = [...failedPerTask.values()].filter((n) => n >= 2).length;
-  if (failing) add("runs:failing", "runs_failing", "risk", "medium", "medium", "medium", "ai_work", "/app/tasks", { n: failing });
+  if (failing)
+    add(
+      "runs:failing",
+      "runs_failing",
+      "risk",
+      "medium",
+      "medium",
+      "medium",
+      "ai_work",
+      "/app/tasks",
+      { n: failing },
+    );
   const waiting = runs.filter((r) => r.status === "awaiting_approval").length;
-  if (waiting) add("runs:waiting", "runs_waiting", "missing", "low", "high", "high", "ai_work", "/app/tasks", { n: waiting });
+  if (waiting)
+    add("runs:waiting", "runs_waiting", "missing", "low", "high", "high", "ai_work", "/app/tasks", {
+      n: waiting,
+    });
   const uncertain = runs.filter((r) => r.status === "uncertain").length;
-  if (uncertain) add("runs:uncertain", "runs_uncertain", "risk", "medium", "high", "medium", "ai_work", "/app/tasks", { n: uncertain });
+  if (uncertain)
+    add(
+      "runs:uncertain",
+      "runs_uncertain",
+      "risk",
+      "medium",
+      "high",
+      "medium",
+      "ai_work",
+      "/app/tasks",
+      { n: uncertain },
+    );
 
   const seen = new Set<string>();
   return out

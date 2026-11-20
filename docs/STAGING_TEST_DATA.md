@@ -40,6 +40,11 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
   (now "used in a decision"). Evidence items and their history are insert-only by design. *Keep as approval
   evidence; the proposal can be withdrawn through the app if a clean list is wanted.*
 
+- **Phase 8.2 extended sprint (2026-11-20, re-counted by read-only query)** — business counts are unchanged from the
+  table above, plus two business facts "QA delivery fee …" in Main workspace (one confirmed, one returned to review
+  by the conflict-resolution walkthrough) and one `facts.conflict_resolved` audit entry. Ledger 57, 5 auth users.
+  *Keep as conflict-resolution evidence; the unconfirmed value can be deleted in the business profile if wanted.*
+
 ## Cleanup proposal (needs separate approval)
 
 1. Archive (status change, not delete) the five QA-named goals/campaigns/tasks through the normal app screens.

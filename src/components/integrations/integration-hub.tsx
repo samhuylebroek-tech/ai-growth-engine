@@ -1,6 +1,7 @@
 // Integration Hub: health overview, the Growth Officer's integration problems, every connection with its separately
 // granted permissions, and simulated connections for testing. Real providers stay read-only here.
 import { useState } from "react";
+import { connectionErrorText } from "@/lib/integrations/error-text";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -116,7 +117,7 @@ function ConnectionCard({ c, admin, member, busy, now, open, onLevels, onHealth,
       <dt className="text-muted-foreground">{t("xa.account")}</dt><dd className="break-words">{c.simulated ? t("xa.simAccount") : c.account_label ?? "—"}</dd>
       <dt className="text-muted-foreground">{t("xa.connectedOn")}</dt><dd>{c.connected_at ? new Date(c.connected_at).toLocaleDateString(tag) : "—"}</dd>
       <dt className="text-muted-foreground">{t("xa.lastSync")}</dt><dd>{c.last_sync_at ? new Date(c.last_sync_at).toLocaleString(tag, { dateStyle: "medium", timeStyle: "short" }) : t("xa.never")} · {t(`xa.fresh.${fr}` as MessageKey)}</dd>
-      {c.last_error && <><dt className="text-muted-foreground">{t("xa.lastError")}</dt><dd className="break-words text-destructive">{c.last_error}</dd></>}
+      {c.last_error && <><dt className="text-muted-foreground">{t("xa.lastError")}</dt><dd className="break-words text-destructive">{connectionErrorText(c.last_error, t)}</dd></>}
       <dt className="text-muted-foreground">{t("xa.openActionsN")}</dt><dd>{open}</dd>
     </dl>
     <fieldset className="mt-3" disabled={!admin || busy || h === "disconnected"}>

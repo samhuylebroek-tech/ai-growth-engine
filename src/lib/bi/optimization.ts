@@ -231,6 +231,16 @@ export function detectImprovements(i: OptInput): Candidate[] {
               {
                 type: "measured_observation",
                 description: `${b.channel} ${month}: ${Number(b.actual)} ${b.currency} spent of ${Number(b.planned)} planned (entered)`,
+                text: {
+                  key: "ev.rec.budget",
+                  vars: {
+                    channel: b.channel,
+                    month,
+                    actual: Number(b.actual),
+                    planned: Number(b.planned),
+                    currency: b.currency,
+                  },
+                },
                 source_kind: "budget_line",
                 source_ref: b.id,
                 period_start: b.period_month.slice(0, 10),
@@ -285,6 +295,17 @@ export function detectImprovements(i: OptInput): Candidate[] {
             {
               type: "estimate",
               description: `${a.model} attribution: ${best.ch} ${Math.round(best.r * 100) / 100} vs ${second.ch} ${Math.round(second.r * 100) / 100} ${a.currency} revenue per spend`,
+              text: {
+                key: "ev.rec.attribution",
+                vars: {
+                  model: a.model,
+                  best: best.ch,
+                  br: Math.round(best.r * 100) / 100,
+                  second: second.ch,
+                  sr: Math.round(second.r * 100) / 100,
+                  currency: a.currency,
+                },
+              },
               source_kind: "other",
               source_ref: `attribution:${a.model}:${a.currency}`,
             },
@@ -308,6 +329,10 @@ export function detectImprovements(i: OptInput): Candidate[] {
           {
             type: "missing_information",
             description: `${Math.round((a.unattributed / a.total) * 100)}% of recorded ${a.currency} revenue has no recorded touchpoint`,
+            text: {
+              key: "ev.rec.unattributed",
+              vars: { share: Math.round((a.unattributed / a.total) * 100), currency: a.currency },
+            },
             source_kind: "other",
             source_ref: `unattributed:${a.currency}`,
           },
@@ -335,6 +360,14 @@ export function detectImprovements(i: OptInput): Candidate[] {
         {
           type: "measured_observation",
           description: `${x.title}: variant ${Number(x.variant_value)} vs control ${Number(x.control_value)} (controlled)`,
+          text: {
+            key: "ev.rec.experiment",
+            vars: {
+              title: x.title,
+              variant: Number(x.variant_value),
+              control: Number(x.control_value),
+            },
+          },
           source_kind: "experiment",
           source_ref: x.id,
           period_start: (x.started_at ?? x.updated_at).slice(0, 10),
@@ -358,7 +391,11 @@ export function detectImprovements(i: OptInput): Candidate[] {
         records: [
           {
             type: "missing_information",
-            description: `Goal "${g.title}" has no metric, so progress cannot be measured`.slice(0, 1000),
+            description: `Goal "${g.title}" has no metric, so progress cannot be measured`.slice(
+              0,
+              1000,
+            ),
+            text: { key: "ev.rec.goalNoMetric", vars: { goal: g.title } },
             source_kind: "other",
             source_ref: `goal:${g.id}`,
             goal_id: g.id,

@@ -11,7 +11,13 @@ import { growthDb, type EvidenceItemRow, type ProposalRow } from "@/lib/pending-
 import type { Json } from "@/integrations/supabase/types";
 import type { BiData } from "@/lib/bi/view";
 import { isActual } from "@/lib/performance";
-import { evidenceQuality, fromEvidenceItem, type NormalEvidence, type Quality, type QualityResult } from "@/lib/evidence";
+import {
+  evidenceQuality,
+  fromEvidenceItem,
+  type NormalEvidence,
+  type Quality,
+  type QualityResult,
+} from "@/lib/evidence";
 import { evidenceFreshness, isStale, sourceState, type Freshness } from "@/lib/evidence-freshness";
 import { knownSources } from "@/lib/bi/view";
 import { Button } from "@/components/ui/button";
@@ -49,7 +55,9 @@ export function QualityBadge({
         </span>
       </Badge>
       {showReasons && reasons && (
-        <span className="text-[11px] text-muted-foreground">{t("ev.qBecause", { r: reasons })}</span>
+        <span className="text-[11px] text-muted-foreground">
+          {t("ev.qBecause", { r: reasons })}
+        </span>
       )}
     </span>
   );
@@ -67,25 +75,46 @@ export function linkedFor(d: BiData, proposalId: string): Linked[] {
     .filter((x): x is Linked => !!x)
     .sort((a, b) => a.created_at.localeCompare(b.created_at));
 }
-export const freshnessOf = (e: Linked, d: BiData) => evidenceFreshness({ ...e, source: sourceState(e, knownSources(d)) });
+export const freshnessOf = (e: Linked, d: BiData) =>
+  evidenceFreshness({ ...e, source: sourceState(e, knownSources(d)) });
 export const normalLinked = (items: readonly Linked[], d: BiData): NormalEvidence[] =>
   items
     .map((e) => fromEvidenceItem(e, e.role, isStale(freshnessOf(e, d).level)))
     .filter((x): x is NormalEvidence => !!x);
-export const qualityOfLinked = (items: readonly Linked[], d: BiData) => evidenceQuality(normalLinked(items, d));
+export const qualityOfLinked = (items: readonly Linked[], d: BiData) =>
+  evidenceQuality(normalLinked(items, d));
 
-const FRESH_TONE: Record<Freshness, string> = { current: "high", updated: "medium", outdated: "low", expired: "low", unavailable: "low", verify: "low" };
+const FRESH_TONE: Record<Freshness, string> = {
+  current: "high",
+  updated: "medium",
+  outdated: "low",
+  expired: "low",
+  unavailable: "low",
+  verify: "low",
+};
 export function FreshnessBadge({ e, d }: { e: Linked; d: BiData }) {
   const { t } = useI18n();
   const r = freshnessOf(e, d);
   return (
     <Badge kind={FRESH_TONE[r.level]}>
-      <span title={t("ev.fr.help")}>{r.historical && r.level === "current" ? t("ev.fr.historical") : t(tk(`ev.fr.${r.level}`))}</span>
+      <span title={t("ev.fr.help")}>
+        {r.historical && r.level === "current" ? t("ev.fr.historical") : t(tk(`ev.fr.${r.level}`))}
+      </span>
     </Badge>
   );
 }
 
-export function EvidenceList({ items, canAdd, p, d }: { items: Linked[]; canAdd: boolean; p: ProposalRow; d: BiData }) {
+export function EvidenceList({
+  items,
+  canAdd,
+  p,
+  d,
+}: {
+  items: Linked[];
+  canAdd: boolean;
+  p: ProposalRow;
+  d: BiData;
+}) {
   const { t } = useI18n();
   const f = useFmt();
   const o = useOrg();
@@ -95,13 +124,21 @@ export function EvidenceList({ items, canAdd, p, d }: { items: Linked[]; canAdd:
   const [adding, setAdding] = useState(false);
   async function decide(id: string, action: "accept" | "reject") {
     setBusy(id);
-    const r = await growthDb.rpc("advance_evidence", { _evidence: id, _action: action, _data: {} as Json });
+    const r = await growthDb.rpc("advance_evidence", {
+      _evidence: id,
+      _action: action,
+      _data: {} as Json,
+    });
     setBusy(null);
     if (r.error) {
       toast.error(t("bi.failed", { e: r.error.message }));
       return;
     }
-    toast.success(t("ev.decided", { s: t(tk(`ev.status.${action === "accept" ? "accepted" : "rejected"}`)).toLowerCase() }));
+    toast.success(
+      t("ev.decided", {
+        s: t(tk(`ev.status.${action === "accept" ? "accepted" : "rejected"}`)).toLowerCase(),
+      }),
+    );
     void qc.invalidateQueries({ queryKey: biKey(o.org?.id, o.workspace?.id) });
   }
   return (
@@ -109,7 +146,12 @@ export function EvidenceList({ items, canAdd, p, d }: { items: Linked[]; canAdd:
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-[11px] font-semibold">{t("ev.panel")}</span>
         {canAdd && !adding && (
-          <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => setAdding(true)}>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 text-[11px]"
+            onClick={() => setAdding(true)}
+          >
             {t("ev.add")}
           </Button>
         )}
@@ -121,28 +163,66 @@ export function EvidenceList({ items, canAdd, p, d }: { items: Linked[]; canAdd:
           {items.map((e) => (
             <li key={e.id} className="min-w-0 rounded border border-border bg-card p-2 text-[11px]">
               <div className="flex flex-wrap items-center gap-1">
-                {e.evidence_type && <Badge kind={e.evidence_type === "verified_fact" || e.evidence_type === "measured_observation" ? "actual" : e.evidence_type === "estimate" ? "estimated" : "none"}>{t(tk(`ev.type.${e.evidence_type}`))}</Badge>}
+                {e.evidence_type && (
+                  <Badge
+                    kind={
+                      e.evidence_type === "verified_fact" ||
+                      e.evidence_type === "measured_observation"
+                        ? "actual"
+                        : e.evidence_type === "estimate"
+                          ? "estimated"
+                          : "none"
+                    }
+                  >
+                    {t(tk(`ev.type.${e.evidence_type}`))}
+                  </Badge>
+                )}
                 {e.role === "contradicts" && <Badge kind="low">{t("ev.contradicts")}</Badge>}
-                <Badge kind={e.status === "accepted" || e.status === "used_in_decision" ? "high" : e.status === "rejected" ? "low" : "none"}>
+                <Badge
+                  kind={
+                    e.status === "accepted" || e.status === "used_in_decision"
+                      ? "high"
+                      : e.status === "rejected"
+                        ? "low"
+                        : "none"
+                  }
+                >
                   {t(tk(`ev.status.${e.status}`))}
                 </Badge>
-                <Badge kind={e.origin === "ai" ? "low" : "none"}>{t(tk(`ev.origin.${e.origin}`))}</Badge>
-                {e.version_no > 1 && <Badge kind="none">{t("ev.version", { n: e.version_no })}</Badge>}
+                <Badge kind={e.origin === "ai" ? "low" : "none"}>
+                  {t(tk(`ev.origin.${e.origin}`))}
+                </Badge>
+                {e.version_no > 1 && (
+                  <Badge kind="none">{t("ev.version", { n: e.version_no })}</Badge>
+                )}
                 <FreshnessBadge e={e} d={d} />
               </div>
               <p className="mt-1 break-words">{e.description}</p>
               <p className="mt-0.5 text-muted-foreground">
                 {t(tk(`ev.src.${e.source_kind}`))}
-                {e.period_start && e.period_end ? ` · ${t("ev.period", { a: f.date(e.period_start), b: f.date(e.period_end) })}` : ""}
+                {e.period_start && e.period_end
+                  ? ` · ${t("ev.period", { a: f.date(e.period_start), b: f.date(e.period_end) })}`
+                  : ""}
                 {e.reliability ? ` · ${t("ev.rel", { r: t(tk(`ev.rel.${e.reliability}`)) })}` : ""}
                 {e.source_ref && !/^[0-9a-f-]{36}$/.test(e.source_ref) ? ` · ${e.source_ref}` : ""}
               </p>
               {editor && (e.status === "classified" || e.status === "reviewed") && (
                 <div className="mt-1.5 flex gap-1.5">
-                  <Button size="sm" className="h-7 text-[11px]" disabled={busy === e.id} onClick={() => decide(e.id, "accept")}>
+                  <Button
+                    size="sm"
+                    className="h-7 text-[11px]"
+                    disabled={busy === e.id}
+                    onClick={() => decide(e.id, "accept")}
+                  >
                     {t("ev.accept")}
                   </Button>
-                  <Button size="sm" variant="outline" className="h-7 text-[11px]" disabled={busy === e.id} onClick={() => decide(e.id, "reject")}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-[11px]"
+                    disabled={busy === e.id}
+                    onClick={() => decide(e.id, "reject")}
+                  >
                     {t("ev.reject")}
                   </Button>
                 </div>
@@ -167,7 +247,12 @@ function useRecordOptions(d: BiData): RecordOption[] {
         out.push({
           value: `fact:${x.id}`,
           label: t("ev.rec.fact", { k: x.key, v: x.value.slice(0, 60) }),
-          payload: { type: "verified_fact", source_kind: "business_fact", source_ref: x.id, description: `${x.key}: ${x.value}`.slice(0, 1000) },
+          payload: {
+            type: "verified_fact",
+            source_kind: "business_fact",
+            source_ref: x.id,
+            description: `${x.key}: ${x.value}`.slice(0, 1000),
+          },
         });
     const label = new Map(d.metrics.map((m) => [m.id, m]));
     for (const m of d.measurements.filter((r) => isActual(r.kind)).slice(0, 60)) {
@@ -176,7 +261,13 @@ function useRecordOptions(d: BiData): RecordOption[] {
       const strong = m.kind === "verified_actual" || m.kind === "imported_actual";
       out.push({
         value: `m:${m.id}`,
-        label: t("ev.rec.measurement", { m: def.label, v: f.num(Number(m.value), def.unit, def.currency), a: m.period_start, b: m.period_end, k: m.kind }),
+        label: t("ev.rec.measurement", {
+          m: def.label,
+          v: f.num(Number(m.value), def.unit, def.currency),
+          a: m.period_start,
+          b: m.period_end,
+          k: m.kind,
+        }),
         payload: {
           type: strong ? "verified_fact" : "measured_observation",
           source_kind: "measurement",
@@ -191,7 +282,12 @@ function useRecordOptions(d: BiData): RecordOption[] {
       const day = r.occurred_at.slice(0, 10);
       out.push({
         value: `r:${r.id}`,
-        label: t("ev.rec.revenue", { kind: r.kind, amount: f.money(Number(r.amount), r.currency), d: f.date(r.occurred_at), cls: r.data_class }),
+        label: t("ev.rec.revenue", {
+          kind: r.kind,
+          amount: f.money(Number(r.amount), r.currency),
+          d: f.date(r.occurred_at),
+          cls: r.data_class,
+        }),
         payload: {
           type: r.data_class === "imported" ? "verified_fact" : "measured_observation",
           source_kind: "revenue_event",
@@ -228,12 +324,29 @@ function AddEvidence({ p, d, onDone }: { p: ProposalRow; d: BiData; onDone: () =
         ? opt
           ? { ...opt.payload, origin: "user" }
           : null
-        : { type, description, source_kind: "user_statement", source_ref: sourceRef, origin: "user" };
+        : {
+            type,
+            description,
+            source_kind: "user_statement",
+            source_ref: sourceRef,
+            origin: "user",
+          };
     if (!payload) return;
     setBusy(true);
-    const r = await growthDb.rpc("record_evidence", { _workspace: o.workspace.id, _request: key, _p: payload as Json });
+    const r = await growthDb.rpc("record_evidence", {
+      _workspace: o.workspace.id,
+      _request: key,
+      _p: payload as Json,
+    });
     const id = (r.data as { evidence_id?: string } | null)?.evidence_id;
-    const l = !r.error && id ? await growthDb.rpc("link_proposal_evidence", { _proposal: p.id, _evidence: id, _role: role }) : null;
+    const l =
+      !r.error && id
+        ? await growthDb.rpc("link_proposal_evidence", {
+            _proposal: p.id,
+            _evidence: id,
+            _role: role,
+          })
+        : null;
     setBusy(false);
     const err = r.error ?? l?.error;
     if (err) {
@@ -245,7 +358,11 @@ function AddEvidence({ p, d, onDone }: { p: ProposalRow; d: BiData; onDone: () =
     onDone();
   }
   return (
-    <form onSubmit={submit} aria-label={t("ev.addTitle")} className="mt-2 space-y-2 rounded border border-border bg-card p-2.5 text-[11px]">
+    <form
+      onSubmit={submit}
+      aria-label={t("ev.addTitle")}
+      className="mt-2 space-y-2 rounded border border-border bg-card p-2.5 text-[11px]"
+    >
       <p className="font-medium">{t("ev.addTitle")}</p>
       <div role="radiogroup" className="flex flex-wrap gap-1">
         {(["record", "statement"] as const).map((m) => (
@@ -255,7 +372,10 @@ function AddEvidence({ p, d, onDone }: { p: ProposalRow; d: BiData; onDone: () =
             role="radio"
             aria-checked={mode === m}
             onClick={() => setMode(m)}
-            className={cn("rounded-md px-2.5 py-1", mode === m ? "bg-muted font-medium" : "text-muted-foreground hover:bg-muted/50")}
+            className={cn(
+              "rounded-md px-2.5 py-1",
+              mode === m ? "bg-muted font-medium" : "text-muted-foreground hover:bg-muted/50",
+            )}
           >
             {t(tk(`ev.mode.${m}`))}
           </button>
@@ -265,7 +385,12 @@ function AddEvidence({ p, d, onDone }: { p: ProposalRow; d: BiData; onDone: () =
         options.length ? (
           <label className="block">
             <span className="mb-1 block font-medium">{t("ev.record")}</span>
-            <select className={sel} value={record} onChange={(e) => setRecord(e.target.value)} required>
+            <select
+              className={sel}
+              value={record}
+              onChange={(e) => setRecord(e.target.value)}
+              required
+            >
               <option value="">{t("ev.recordPh")}</option>
               {options.map((x) => (
                 <option key={x.value} value={x.value}>
@@ -281,7 +406,11 @@ function AddEvidence({ p, d, onDone }: { p: ProposalRow; d: BiData; onDone: () =
         <div className="grid gap-2 sm:grid-cols-2">
           <label>
             <span className="mb-1 block font-medium">{t("ev.type")}</span>
-            <select className={sel} value={type} onChange={(e) => setType(e.target.value as typeof type)}>
+            <select
+              className={sel}
+              value={type}
+              onChange={(e) => setType(e.target.value as typeof type)}
+            >
               {STATEMENT_TYPES.map((x) => (
                 <option key={x} value={x}>
                   {t(tk(`ev.type.${x}`))}
@@ -291,17 +420,32 @@ function AddEvidence({ p, d, onDone }: { p: ProposalRow; d: BiData; onDone: () =
           </label>
           <label>
             <span className="mb-1 block font-medium">{t("ev.sourceRef")}</span>
-            <Input value={sourceRef} onChange={(e) => setSourceRef(e.target.value)} maxLength={500} className="h-8" />
+            <Input
+              value={sourceRef}
+              onChange={(e) => setSourceRef(e.target.value)}
+              maxLength={500}
+              className="h-8"
+            />
           </label>
           <label className="sm:col-span-2">
             <span className="mb-1 block font-medium">{t("ev.description")} *</span>
-            <Textarea rows={2} value={description} onChange={(e) => setDescription(e.target.value)} maxLength={1000} required />
+            <Textarea
+              rows={2}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              maxLength={1000}
+              required
+            />
           </label>
         </div>
       )}
       <label className="block">
         <span className="mb-1 block font-medium">{t("ev.role")}</span>
-        <select className={sel} value={role} onChange={(e) => setRole(e.target.value as typeof role)}>
+        <select
+          className={sel}
+          value={role}
+          onChange={(e) => setRole(e.target.value as typeof role)}
+        >
           <option value="supports">{t("ev.role.supports")}</option>
           <option value="contradicts">{t("ev.role.contradicts")}</option>
         </select>

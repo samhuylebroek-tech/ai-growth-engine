@@ -27,21 +27,36 @@ export type FactConflict = {
 
 /** Mirrors public.fact_topic in SQL: case, punctuation and spacing do not make a different topic. */
 export const factTopic = (key: string) =>
-  key.replace(/[\p{P}\p{S}]+/gu, " ").replace(/\s+/g, " ").trim().toLowerCase();
+  key
+    // Same rule as SQL fact_topic ([[:punct:]] = ASCII punctuation), so the screen never groups facts the database refuses.
+    .replace(/[!-/:-@[-`{-~]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
 
 /** Values that only differ in case, spacing or a currency sign/thousands separator are the same value. */
 export function sameValue(a: string, b: string): boolean {
   const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").trim();
   if (norm(a) === norm(b)) return true;
   const num = (s: string) => {
-    const m = s.replace(/[€$£\s]|eur|usd|gbp/gi, "").replace(/(\d)[.,](\d{3})(?!\d)/g, "$1$2").replace(",", ".");
+    const m = s
+      .replace(/[€$£\s]|eur|usd|gbp/gi, "")
+      .replace(/(\d)[.,](\d{3})(?!\d)/g, "$1$2")
+      .replace(",", ".");
     return /^-?\d+(\.\d+)?$/.test(m) ? Number(m) : null;
   };
-  const x = num(a), y = num(b);
+  const x = num(a),
+    y = num(b);
   return x !== null && y !== null && x === y;
 }
 
-const SOURCE_RANK: Record<string, number> = { user: 3, document: 3, external: 2, website: 2, ai_assumption: 0 };
+const SOURCE_RANK: Record<string, number> = {
+  user: 3,
+  document: 3,
+  external: 2,
+  website: 2,
+  ai_assumption: 0,
+};
 const rank = (f: FactRow) => (f.verified ? 10 : 0) + (SOURCE_RANK[f.source_type] ?? 1);
 
 /** Discovery stores opportunity suggestions as facts with an "Opportunity:" key; those are not claims to compare. */
@@ -63,12 +78,16 @@ export function detectFactConflicts(facts: readonly FactRow[]): FactConflict[] {
     const confirmedValues: FactRow[] = [];
     for (const f of list.filter((x) => x.verified))
       if (!confirmedValues.some((d) => sameValue(d.value, f.value))) confirmedValues.push(f);
-    const sorted = [...list].sort((a, b) => rank(b) - rank(a) || (b.created_at ?? "").localeCompare(a.created_at ?? ""));
+    const sorted = [...list].sort(
+      (a, b) => rank(b) - rank(a) || (b.created_at ?? "").localeCompare(a.created_at ?? ""),
+    );
     const top = sorted[0]!;
     // the best-ranked value must outrank every fact that states a different value
     const rival = sorted.find((f) => !sameValue(f.value, top.value));
     const clear = rival !== undefined && rank(top) > rank(rival);
-    const newest = [...list].sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""))[0]!;
+    const newest = [...list].sort((a, b) =>
+      (b.created_at ?? "").localeCompare(a.created_at ?? ""),
+    )[0]!;
     out.push({
       topic,
       key: newest.key,
@@ -79,5 +98,8 @@ export function detectFactConflicts(facts: readonly FactRow[]): FactConflict[] {
       basis: !clear ? "undetermined" : top.verified && !rival!.verified ? "confirmed" : "source",
     });
   }
-  return out.sort((a, b) => Number(b.confirmedConflict) - Number(a.confirmedConflict) || a.topic.localeCompare(b.topic));
+  return out.sort(
+    (a, b) =>
+      Number(b.confirmedConflict) - Number(a.confirmedConflict) || a.topic.localeCompare(b.topic),
+  );
 }

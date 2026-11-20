@@ -12,7 +12,15 @@ import type { Json } from "@/integrations/supabase/types";
 import { effectiveMeasurements, isActual } from "@/lib/performance";
 import { buildView, NO_FILTERS, type BiData } from "@/lib/bi/view";
 import { observedOutcome, type Candidate } from "@/lib/bi/optimization";
-import { approvalGates, evidenceQuality, fromDrafts, isUnverifiedHypothesis, proposalStage, type ProposalLevel } from "@/lib/evidence";
+import {
+  approvalGates,
+  evidenceQuality,
+  fromDrafts,
+  isUnverifiedHypothesis,
+  proposalStage,
+  type ProposalLevel,
+  type EvidenceDraft,
+} from "@/lib/evidence";
 import { EvidenceList, QualityBadge, linkedFor, qualityOfLinked } from "./evidence";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,7 +41,12 @@ type Filter = keyof typeof FILTERS;
 const LEVELS = ["none", "read", "draft", "modify", "execute", "publish", "budget"] as const;
 const CATS = ["immediate", "strategic", "opportunity", "problem", "experiment"] as const;
 // Field limits mirror the database checks (0066 / 0073).
-const MAXLEN: Record<string, number> = { title: 160, objective: 500, method: 400, approvalReq: 300 };
+const MAXLEN: Record<string, number> = {
+  title: 160,
+  objective: 500,
+  method: 400,
+  approvalReq: 300,
+};
 
 export function Improvements() {
   const q = useBi();
@@ -106,6 +119,8 @@ function FindingCard({ c, governed }: { c: Candidate; governed: boolean }) {
   const [evKeys] = useState(() => c.records.map(() => crypto.randomUUID()));
   const quality = evidenceQuality(fromDrafts(c.records));
   const T = (part: string) => t(tk(`bi.cand.${c.code}.${part}`), c.vars);
+  const desc = (r: EvidenceDraft) =>
+    (r.text ? t(tk(r.text.key), r.text.vars) : r.description).slice(0, 1000);
   async function save() {
     if (!o.workspace) return;
     setBusy(true);
@@ -115,7 +130,7 @@ function FindingCard({ c, governed }: { c: Candidate; governed: boolean }) {
         const e = await growthDb.rpc("record_evidence", {
           _workspace: o.workspace.id,
           _request: evKeys[i]!,
-          _p: { ...r, origin: "rule" } as Json,
+          _p: { ...withoutText(r), description: desc(r), origin: "rule" } as Json,
         });
         if (e.error) {
           setBusy(false);
@@ -178,7 +193,7 @@ function FindingCard({ c, governed }: { c: Candidate; governed: boolean }) {
           <ul className="mt-0.5 list-disc pl-4">
             {c.records.map((r, i) => (
               <li key={i} className="break-words">
-                {t(tk(`ev.type.${r.type}`))} · {r.description}
+                {t(tk(`ev.type.${r.type}`))} · {desc(r)}
               </li>
             ))}
           </ul>
@@ -318,7 +333,9 @@ function TeamProposal({ governed }: { governed: boolean }) {
                       onChange={() => setPlevel(l)}
                     />
                     <span className="font-medium">{t(tk(`ev.level.${l}`))}</span>
-                    <span className="mt-0.5 block text-muted-foreground">{t(tk(`ev.levelHelp.${l}`))}</span>
+                    <span className="mt-0.5 block text-muted-foreground">
+                      {t(tk(`ev.levelHelp.${l}`))}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -428,7 +445,13 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
     status: p.status,
     reviewed: !!p.reviewed_at,
     gapReason: p.evidence_gap_reason ?? "",
-    linked: linked.map((e) => ({ type: e.evidence_type, origin: e.origin, status: e.status, role: e.role, source_ref: e.source_ref })),
+    linked: linked.map((e) => ({
+      type: e.evidence_type,
+      origin: e.origin,
+      status: e.status,
+      role: e.role,
+      source_ref: e.source_ref,
+    })),
   };
   const gates = governed ? approvalGates(gateInput) : [];
   // The approver states exactly what they inspected; the database refuses if the list changed meanwhile.
@@ -465,7 +488,11 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
       return;
     }
     toast.success(
-      action === "review" ? t("ev.reviewDone") : action === "promote" ? t("ev.promoted") : t(tk(`bi.imp.done.${action}`)),
+      action === "review"
+        ? t("ev.reviewDone")
+        : action === "promote"
+          ? t("ev.promoted")
+          : t(tk(`bi.imp.done.${action}`)),
     );
     setNote("");
     void qc.invalidateQueries({ queryKey: biKey(o.org?.id, o.workspace?.id) });
@@ -494,7 +521,11 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
             {t(tk(`bi.pstatus.${p.status}`))}
           </Badge>
           <Badge kind="none">{t(tk(`bi.origin.${p.origin}`))}</Badge>
-          {governed && <Badge kind={level === "observation" ? "none" : "medium"}>{t(tk(`ev.level.${level}`))}</Badge>}
+          {governed && (
+            <Badge kind={level === "observation" ? "none" : "medium"}>
+              {t(tk(`ev.level.${level}`))}
+            </Badge>
+          )}
           {governed && (
             <Badge kind="none">{t("ev.stage", { s: t(tk(`ev.stage.${proposalStage(p)}`)) })}</Badge>
           )}
@@ -503,9 +534,9 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
       {governed && (
         <div className="mt-1.5 flex flex-wrap items-center gap-1">
           <QualityBadge q={quality} showReasons />
-          {level !== "observation" && ["approved", "converted", "measured"].includes(p.status) && isUnverifiedHypothesis(gateInput) && (
-            <Badge kind="low">{t("ev.unverified")}</Badge>
-          )}
+          {level !== "observation" &&
+            ["approved", "converted", "measured"].includes(p.status) &&
+            isUnverifiedHypothesis(gateInput) && <Badge kind="low">{t("ev.unverified")}</Badge>}
         </div>
       )}
       <dl className="mt-2 grid gap-x-4 gap-y-1.5 sm:grid-cols-2">
@@ -568,7 +599,9 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
         )}
       </dl>
       {governed && p.evidence_gap_reason && (
-        <p className="mt-2 text-[11px] text-muted-foreground">{t("ev.gapShown", { r: p.evidence_gap_reason })}</p>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          {t("ev.gapShown", { r: p.evidence_gap_reason })}
+        </p>
       )}
       {governed && (
         <EvidenceList items={linked} canAdd={member && p.status === "proposed"} p={p} d={d} />
@@ -620,20 +653,36 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
                 className="h-8 w-56"
                 aria-label={t("ev.gapReason")}
               />
-              <Button size="sm" variant="outline" disabled={busy} onClick={() => act("promote", gap ? { evidence_gap_reason: gap } : {})}>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy}
+                onClick={() => act("promote", gap ? { evidence_gap_reason: gap } : {})}
+              >
                 {t("ev.promote")}
               </Button>
             </>
           )}
-          {governed && p.status === "proposed" && level !== "observation" && editor && !p.reviewed_at && (
-            <Button size="sm" variant="outline" disabled={busy} onClick={() => act("review", { note })}>
-              {t("ev.markReviewed")}
-            </Button>
-          )}
+          {governed &&
+            p.status === "proposed" &&
+            level !== "observation" &&
+            editor &&
+            !p.reviewed_at && (
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy}
+                onClick={() => act("review", { note })}
+              >
+                {t("ev.markReviewed")}
+              </Button>
+            )}
           {p.status === "proposed" && admin && (
             <>
               {governed && level !== "observation" && (
-                <p className="w-full text-[11px] text-muted-foreground">{t("ev.inspect", { n: seen.length })}</p>
+                <p className="w-full text-[11px] text-muted-foreground">
+                  {t("ev.inspect", { n: seen.length })}
+                </p>
               )}
               <Input
                 value={note}
@@ -647,7 +696,9 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
                 <Button
                   size="sm"
                   disabled={busy || gates.length > 0}
-                  onClick={() => act("approve", governed ? { note, seen_evidence: seen } : { note })}
+                  onClick={() =>
+                    act("approve", governed ? { note, seen_evidence: seen } : { note })
+                  }
                 >
                   {t("bi.imp.approve")}
                 </Button>
@@ -723,3 +774,5 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
     </li>
   );
 }
+
+const withoutText = ({ text: _text, ...rest }: EvidenceDraft) => rest;

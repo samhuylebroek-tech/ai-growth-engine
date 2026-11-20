@@ -1,15 +1,31 @@
 import { describe, expect, it } from "vitest";
 import { dedupeActions, sameIdea, type GrowthAction } from "@/lib/bi/growth-actions";
 
-const act = (id: string, kind: GrowthAction["kind"], title: string, score: number): GrowthAction => ({
-  id, kind, category: "opportunity", code: kind, vars: { title },
+const act = (
+  id: string,
+  kind: GrowthAction["kind"],
+  title: string,
+  score: number,
+): GrowthAction => ({
+  id,
+  kind,
+  category: "opportunity",
+  code: kind,
+  vars: { title },
   components: { value: 3, importance: 3, urgency: 3, confidence: 3, feasibility: 3, risk: 1 },
-  score, delay: "work_waits", to: "/app/opportunities", blockers: [], quality: "some", uncertain: false,
+  score,
+  delay: "work_waits",
+  to: "/app/opportunities",
+  blockers: [],
+  quality: "some",
+  uncertain: false,
 });
 
 describe("duplicate recommendations", () => {
   it("recognises the same idea despite case, accents and filler words", () => {
-    expect(sameIdea("Launch a loyalty programme for regulars", "launch loyalty programme regulars")).toBe(true);
+    expect(
+      sameIdea("Launch a loyalty programme for regulars", "launch loyalty programme regulars"),
+    ).toBe(true);
     expect(sameIdea("Lancer un programme de fidélité", "lancer programme fidelite")).toBe(true);
     expect(sameIdea("Launch a loyalty programme", "Raise prices for catering")).toBe(false);
   });
@@ -27,5 +43,15 @@ describe("duplicate recommendations", () => {
       act("experiment_due:3", "close_experiment", "Test new homepage headline", 60),
     ]);
     expect(out).toHaveLength(2);
+  });
+});
+
+import { connectionErrorText } from "@/lib/integrations/error-text";
+describe("stored connection errors in the reader's language", () => {
+  const t = ((k: string, v?: Record<string, string | number>) => `${k}|${v?.["p"] ?? ""}|${v?.["s"] ?? ""}`) as never;
+  it("maps known provider messages and keeps unknown text as stored", () => {
+    expect(connectionErrorText("Stripe no longer accepts the saved access. Reconnect it.", t)).toBe("xa.err.expired|Stripe|");
+    expect(connectionErrorText("HubSpot responded with status 503.", t)).toBe("xa.err.status|HubSpot|503");
+    expect(connectionErrorText("Something new happened", t)).toBe("Something new happened");
   });
 });

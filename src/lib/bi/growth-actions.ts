@@ -11,7 +11,13 @@ import {
 } from "@/lib/evidence";
 
 /** Evidence quality caps the confidence component, so a weakly supported item never ranks as if it were proven. */
-export const QUALITY_CONFIDENCE: Record<Quality, number> = { strong: 5, some: 4, limited: 3, hypothesis: 2, missing: 1 };
+export const QUALITY_CONFIDENCE: Record<Quality, number> = {
+  strong: 5,
+  some: 4,
+  limited: 3,
+  hypothesis: 2,
+  missing: 1,
+};
 
 export type Components = {
   value: number;
@@ -183,7 +189,10 @@ export function nextGrowthActions(i: ActionInput, limit = 8): GrowthAction[] {
     }
     return { f: clamp(f), b };
   };
-  const q = (quality: Quality) => ({ quality, uncertain: quality !== "strong" && quality !== "some" });
+  const q = (quality: Quality) => ({
+    quality,
+    uncertain: quality !== "strong" && quality !== "some",
+  });
   for (const c of i.candidates) {
     const fe = feas(c.requiredLevel === "budget", false, true);
     const quality = evidenceQuality(fromDrafts(c.records)).level;
@@ -328,7 +337,10 @@ export function nextGrowthActions(i: ActionInput, limit = 8): GrowthAction[] {
       value: clamp(o.impact),
       importance: o.status === "shortlisted" ? 4 : 2,
       urgency: clamp(o.time_to_value),
-      confidence: Math.min(o.confidence === "high" ? 4 : o.confidence === "medium" ? 3 : 2, QUALITY_CONFIDENCE[oq]),
+      confidence: Math.min(
+        o.confidence === "high" ? 4 : o.confidence === "medium" ? 3 : 2,
+        QUALITY_CONFIDENCE[oq],
+      ),
       feasibility: clamp((o.feasibility + fe.f) / 2),
       risk: clamp(o.risk),
     };
@@ -346,19 +358,61 @@ export function nextGrowthActions(i: ActionInput, limit = 8): GrowthAction[] {
       ...q(oq),
     });
   }
-  return dedupeActions(out.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id))).slice(0, limit);
+  return dedupeActions(out.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id))).slice(
+    0,
+    limit,
+  );
 }
 
 // Same recommendation from two places (an AI opportunity and a team proposal, or the same idea saved twice):
 // titles are compared on their meaningful words; the highest-ranked copy stays and lists the others.
-const STOP = new Set(["the","a","an","and","or","of","for","to","in","on","with","de","het","een","en","of","voor","van","naar","met","op","le","la","les","un","une","des","et","du","pour","avec","sur"]);
+const STOP = new Set([
+  "the",
+  "a",
+  "an",
+  "and",
+  "or",
+  "of",
+  "for",
+  "to",
+  "in",
+  "on",
+  "with",
+  "de",
+  "het",
+  "een",
+  "en",
+  "of",
+  "voor",
+  "van",
+  "naar",
+  "met",
+  "op",
+  "le",
+  "la",
+  "les",
+  "un",
+  "une",
+  "des",
+  "et",
+  "du",
+  "pour",
+  "avec",
+  "sur",
+]);
 export function titleWords(t: string): Set<string> {
   return new Set(
-    t.toLowerCase().normalize("NFKD").replace(/\p{M}/gu, "").split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 1 && !STOP.has(w)),
+    t
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/\p{M}/gu, "")
+      .split(/[^\p{L}\p{N}]+/u)
+      .filter((w) => w.length > 1 && !STOP.has(w)),
   );
 }
 export function sameIdea(a: string, b: string): boolean {
-  const x = titleWords(a), y = titleWords(b);
+  const x = titleWords(a),
+    y = titleWords(b);
   if (!x.size || !y.size) return false;
   let shared = 0;
   for (const w of x) if (y.has(w)) shared++;
@@ -369,9 +423,17 @@ const FOLDABLE: readonly ActionKind[] = ["opportunity", "decide_proposal"];
 export function dedupeActions(sorted: readonly GrowthAction[]): GrowthAction[] {
   const kept: GrowthAction[] = [];
   for (const a of sorted) {
-    const title = FOLDABLE.includes(a.kind) && typeof a.vars["title"] === "string" ? (a.vars["title"] as string) : null;
+    const title =
+      FOLDABLE.includes(a.kind) && typeof a.vars["title"] === "string"
+        ? (a.vars["title"] as string)
+        : null;
     const twin = title
-      ? kept.find((k) => FOLDABLE.includes(k.kind) && typeof k.vars["title"] === "string" && sameIdea(k.vars["title"] as string, title))
+      ? kept.find(
+          (k) =>
+            FOLDABLE.includes(k.kind) &&
+            typeof k.vars["title"] === "string" &&
+            sameIdea(k.vars["title"] as string, title),
+        )
       : undefined;
     if (twin) twin.alsoSuggested = [...(twin.alsoSuggested ?? []), a.id];
     else kept.push({ ...a });
@@ -380,7 +442,10 @@ export function dedupeActions(sorted: readonly GrowthAction[]): GrowthAction[] {
 }
 
 /** AI-discovered opportunity evidence ([{class|kind|type, text}]) normalized; AI "facts" become unverified claims. */
-export function opportunityQuality(evidence: unknown, origin: "ai" | "rule" | "user" = "ai"): Quality {
+export function opportunityQuality(
+  evidence: unknown,
+  origin: "ai" | "rule" | "user" = "ai",
+): Quality {
   if (!Array.isArray(evidence)) return "missing";
   const items = evidence
     .map((e) => (e && typeof e === "object" ? (e as Record<string, unknown>) : null))
