@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+import { useI18n } from "@/lib/i18n";
+import { MESSAGES } from "@/lib/i18n/messages";
 
 const STYLES: Record<string, string> = {
   implemented: "border-success/30 bg-success/10 text-success",
@@ -27,9 +29,12 @@ const LABELS: Record<string, string> = { not_configured: "Not configured", plann
 const sentence = (s: string) => { const t = s.replace(/_/g, " "); return t.charAt(0).toUpperCase() + t.slice(1); };
 
 export function StatusChip({ status, children }: { status: string; children?: ReactNode }) {
+  const { t, locale } = useI18n();
+  const key = `status.${status}` as keyof typeof MESSAGES.en;
+  const label = children ?? (locale !== "en" && key in MESSAGES.en ? t(key) : LABELS[status] ?? (key in MESSAGES.en ? t(key) : sentence(status)));
   return (
     <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium", STYLES[status] ?? "border-border bg-muted text-muted-foreground")}>
-      {children ?? LABELS[status] ?? sentence(status)}
+      {label}
     </span>
   );
 }

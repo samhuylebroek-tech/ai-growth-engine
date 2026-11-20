@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { I18nProvider, readLocale } from "@/lib/i18n";
 
 function NotFoundComponent() {
   return (
@@ -77,6 +78,8 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  // Interface language: cookie choice, else the browser language; read identically on server and client.
+  beforeLoad: () => ({ locale: readLocale() }),
   head: () => ({
     // Replace these placeholders with the app's name and description when first building the app.
     // Each content route, / included, must still set its own head(). Never add og:image or
@@ -91,6 +94,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#f8fafb" },
+      // Staging builds are never indexed (the server also sends X-Robots-Tag).
+      ...(import.meta.env["VITE_APP_ENVIRONMENT"] === "staging" ? [{ name: "robots", content: "noindex, nofollow" }] : []),
     ],
     links: [
       {
@@ -111,8 +116,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const { locale } = Route.useRouteContext();
   return (
-    <html lang="en">
+    <html lang={locale}>
       <head>
         <HeadContent />
       </head>
@@ -125,7 +131,7 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
+  const { queryClient, locale } = Route.useRouteContext();
   const router = useRouter();
   useEffect(() => {
     const theme = localStorage.getItem("ago.theme") ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
@@ -141,9 +147,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-      <Toaster />
+      <I18nProvider locale={locale}>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+        <Toaster />
+      </I18nProvider>
     </QueryClientProvider>
   );
 }

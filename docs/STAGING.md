@@ -151,16 +151,40 @@ the reason, the run was saved as failed and nothing was imported. The key was th
 goal and its metric archived. Insert-only history (plan versions, initiatives, measurements, audit
 rows, import runs) stays by design; it is staging test data in the staging organizations only.
 
+## Environment guard — 2026-11-20
+
+Every request runs `checkRuntimeEnvironment` (`src/lib/environment.ts`). With `APP_ENVIRONMENT=staging`
+it refuses to serve (HTTP 503, names only in the server log) when: the backend URL or project id is not
+`tvfbvzytjpizqwixkecx`, any setting mentions the production project, a service-role key is present, the
+publishable key or accounting secret is missing, or the browser and server labels differ. With
+`APP_ENVIRONMENT=production` any reference to the staging project is refused. When no environment is
+declared (the platform preview and live app) nothing changes. `scripts/staging/app.ts` runs the same
+check before starting. Staging pages carry `X-Robots-Tag: noindex, nofollow`, a robots meta tag and a
+visible "Staging" label in the header.
+
+## Reachable staging URL — prepared, needs one Cloudflare token
+
+Plan: a dedicated Worker (e.g. `ai-growth-staging`) on `*.workers.dev` or a staging hostname, built with
+the allowlisted environment from `app-env.ts`, behind a Cloudflare Access application that allows only
+named email addresses. Minimum token permissions:
+
+| Permission | Why |
+| --- | --- |
+| Account · Workers Scripts · Edit | upload the staging Worker and its environment |
+| Account · Access: Apps and Policies · Edit | create the Access application and the allow-list policy |
+| Zone · Workers Routes · Edit (only for a custom staging hostname on your zone) | bind the hostname to the Worker |
+
+Also needed: the Cloudflare account ID and the email addresses that may open staging. Not needed: DNS
+edit for other records, billing, or any production Worker permission.
+
 ## Not done / blocked
 
-- **Reachable staging URL** — needs a Cloudflare account API token (Workers deploy + Access) for a
-  dedicated staging Worker protected by Cloudflare Access; the app would be built with the allowlisted
-  staging environment from `app-env.ts`. Until then the staging app runs only inside the build sandbox.
+- **Reachable staging URL** — needs the token above. Until then staging runs only inside the build sandbox.
 - **Live database** — 11 committed migrations (0043b, 0046–0052, 0054–0056) and proposals 0057–0059 need
   explicit approval. Until then the live app shows "not switched on" for Performance, Growth Plans and
   read-only connections.
 - **Real integrations** — the owner's own read-only credentials (Stripe restricted key, HubSpot private
-  app token) and, for Google, an OAuth client; connecting them needs separate permission.
+  app token) and, for Google, an OAuth client plus `APP_PUBLIC_ORIGINS`; connecting them needs separate permission.
 
 ## Recovery
 

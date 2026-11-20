@@ -1,4 +1,13 @@
 # AI Growth OS — Task Queue
+## Master development directive — 2026-11-20
+- [x] A: branch/commits/staging verified; runtime environment guard (staging refuses mixed/production config, noindex, staging label); Cloudflare plan with minimal token rights.
+- [x] B: security review — OAuth redirect allowlist, PKCE, constant-time state check; regression tests; open risks in docs/SECURITY.md.
+- [x] C/D: rule-based signals shared by Growth Officer context and Command Center next best actions; verified on staging in NL/FR/EN.
+- [x] I: central NL/EN/FR language for navigation, header/menu, statuses, Command Center frame and signals.
+- [x] J: unit 290/290, staging SQL 23/23, browser phone/tablet/desktop light/dark, docs.
+- [ ] Next: translate remaining screens (Goals, Performance, Growth Officer, Integrations, Settings); DB-backed rate limit for token connects (proposal); Command Center health/budget/plan tiles from signals.
+- [B] Backup branch on GitHub: cannot be created from here (no push); platform snapshots exist.
+- [B] Staging URL: Cloudflare token. Live migrations/proposals: owner approval. Real integrations: owner credentials + permission.
 ## Afronding staging en verdere ontwikkeling — 2026-11-19
 - [x] Staging reference confirmed by owner; branch and commits 045b82a/9facd9f verified on GitHub.
 - [x] Platform Owner: direct staging insert investigated, retired with audit, re-initialized via the one-time procedure (proposal 0058, append-only audit).

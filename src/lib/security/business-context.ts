@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { quoteUntrusted } from "./upload";
+import { detectSignals } from "@/lib/signals";
+import { translate } from "@/lib/i18n/messages";
 import { summarizeMetric, monthlySeries, forecastDeviations, metricStatus, STATUS_LABEL, type Measurement, type MeasurementKind } from "@/lib/performance";
 
 const EVIDENCE_LABEL: Record<MeasurementKind, string> = { planned: "plan", forecast: "estimate", manual_actual: "entered by the team, not verified", imported_actual: "imported from a connected source", verified_actual: "verified measurement" };
@@ -32,6 +34,7 @@ export const EVIDENCE = {
   workflow_state: "internal workflow state",
   ai_hypothesis: "earlier AI recommendation — hypothesis, never a fact",
   connection_status: "integration connection status",
+  rule_signal: "deterministic check across the records in this context — points to a conflict, gap or stale record, never to a cause",
 } as const;
 export type Evidence = keyof typeof EVIDENCE;
 
@@ -393,6 +396,11 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
     }
   }
   sections.push({ key: "tracked-metrics", title: "TEAM-TRACKED METRICS", evidence: ["manual_entry"], budget: 1400, priority: 4, lines: metricLines });
+
+  // Proactive signals: the same rule-based checks the Command Center shows, so AI and Home agree.
+  const signalLines = detectSignals(d, now).slice(0, 12).map(sig => `- [${sig.kind}; impact ${sig.impact}; urgency ${sig.urgency}] ${translate("en", `signal.${sig.code}.title`, sig.vars)}`);
+  if (signalLines.length) signalLines.push("- raise the most important of these when relevant even if the user did not ask; name conflicting figures side by side and ask which is correct instead of choosing one");
+  sections.push({ key: "detected-signals", title: "DETECTED SIGNALS (CONFLICTS, GAPS, STALE DATA, RISKS, OPPORTUNITIES)", evidence: ["rule_signal"], budget: 900, priority: 2, lines: signalLines });
 
   sections.push({ key: "recommendations", title: "PREVIOUS RECOMMENDATIONS", evidence: ["ai_hypothesis"], budget: 450, priority: 10,
     lines: d.recommendations.map(r => `- [${r.status}] ${clip(r.title, 120)}`) });
