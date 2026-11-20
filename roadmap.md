@@ -1,4 +1,14 @@
 # AI Growth OS — Task Queue
+## Phase 8.1 — finalization & operational readiness — 2026-11-20
+- [x] Org Growth Officer: real business names in stored drafts (display-only, original kept), refs stored for new drafts, similar names distinguishable.
+- [x] Organization AI credit overview (proposal 0071): pool balance, reserved/consumed/released, month, per business/specialist/Org Growth Officer, drill-down.
+- [x] Financial consolidation audit + tests (rate dates, weekends/holidays, missing rates, ECB outage, credits ≠ money, ad vs AI costs, unattributed revenue).
+- [x] Integration-audit fixes: atomic budget transfer (0072), single-currency move suggestions, improvement→task origin shown, revenue label made explicit.
+- [ ] Open: require evidence on new improvement proposals (changes the 0066 proposal model; needs a decision).
+- [x] Staging test-data inventory + cleanup proposal (no deletion).
+- [x] Security matrix test across businesses/brands/roles.
+- [x] Localization gaps (onboarding, profile, billing).
+- [x] Full regression: Vitest, SQL suites, browser EN/NL/FR desktop/tablet/phone; report.
 ## Phase 8 — organization growth intelligence — 2026-11-20
 - [x] Audit: branch, staging identity, hierarchy, Growth Officer, org reporting, specialists, budgets/credits/goals/strategies/performance.
 - [x] Proposal 0070 (staging only): org strategies, cross-business opportunities, shared initiatives with per-business commitments, allocation proposals, org AI request accounting; SQL assertions.
@@ -7,7 +17,7 @@
 - [x] Organization Command Center upgrade: objectives, officer summary, comparison, opportunities, initiatives, budgets, specialists, actions, risks, pending decisions, history.
 - [x] Context switcher: organization / business / brand-unit; single-business stays simple.
 - [x] EN/NL/FR; Vitest + SQL suites + staging browser checks (desktop/tablet/phone).
-- [ ] Open: organization-level AI credit total on the Resources tab; staging draft strategy v1 still shows B1/B2 codes (new answers are named).
+- [x] Organization-level AI credit total on the Resources tab; stored drafts show business names (8.1).
 ## Phase 6 — business intelligence, revenue & attribution — 2026-11-20
 - [x] Proposal 0066 on staging only (88 SQL checks): brands/units, metric links, permanent revenue ledger, verified imports needing read permission, touchpoints, experiments, improvement proposals.
 - [x] Business performance overview: per-currency figures with source/period/class, standard KPIs per business model, strategy/campaign/channel comparisons, six attribution models, next best actions, business knowledge map.

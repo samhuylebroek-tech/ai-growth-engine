@@ -943,6 +943,8 @@ type PendingFunctions = {
   set_org_initiative_status: { Args: { _id: string; _status: string }; Returns: Json };
   propose_org_allocation: { Args: { _org: string; _request: string; _kind: string; _title: string; _reasoning: string; _payload: Json }; Returns: Json };
   decide_org_allocation: { Args: { _id: string; _decision: "apply" | "reject" | "withdraw"; _note: string }; Returns: Json };
+  org_credit_overview: { Args: { _org: string; _month: string }; Returns: Json };
+  move_budget: { Args: { _from: string; _to: string; _amount: number; _seen_from: number; _seen_to: number }; Returns: Json };
   decide_org_strategy: { Args: { _id: string; _decision: "approve" | "reject" | "retire"; _note: string }; Returns: Json };
   begin_org_ai_request_verified: { Args: { _org: string; _workspace: string; _request: string; _input: Json; _proof: string }; Returns: Json };
   finish_org_strategy_verified: { Args: { _id: string; _reply: string; _strategy: Json; _proof: string }; Returns: Json };

@@ -24,29 +24,29 @@ begin
   insert into public.growth_strategies(org_id,workspace_id,goal_id,request_key,summary,body,created_by) values(o,w,g,gen_random_uuid(),'S1',body,um) returning id into s1;
   insert into public.growth_strategies(org_id,workspace_id,goal_id,request_key,summary,body,created_by) values(o,w,g,gen_random_uuid(),'S2',body,um) returning id into s2;
   p1 := (public.create_growth_plan_draft(s1)->>'plan_id')::uuid; p2 := (public.create_growth_plan_draft(s2)->>'plan_id')::uuid;
-  begin perform public.decide_growth_plan(p1,'approved',''); fail:=fail+1; failures:=failures||' member_decided'; exception when others then pass:=pass+1; end;
+  begin perform public.decide_growth_plan(p1,'approved',''); fail:=fail+1; failures:=failures||' member_decided'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   begin insert into public.growth_plan_decisions(org_id,workspace_id,plan_version_id,decision,note,decided_by) values(o,w,p1,'approved','',um); fail:=fail+1; failures:=failures||' direct_insert';
-  exception when others then pass:=pass+1; end;
+  exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
   perform set_config('request.jwt.claims', json_build_object('sub',uv,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.decide_growth_plan(p1,'rejected','No thanks'); fail:=fail+1; failures:=failures||' viewer_decided'; exception when others then pass:=pass+1; end;
+  begin perform public.decide_growth_plan(p1,'rejected','No thanks'); fail:=fail+1; failures:=failures||' viewer_decided'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
   perform set_config('request.jwt.claims', json_build_object('sub',ux,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.decide_growth_plan(p1,'rejected','No thanks'); fail:=fail+1; failures:=failures||' outsider_decided'; exception when others then pass:=pass+1; end;
+  begin perform public.decide_growth_plan(p1,'rejected','No thanks'); fail:=fail+1; failures:=failures||' outsider_decided'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
 
   -- the owner (workspace admin) decides
   perform set_config('request.jwt.claims', json_build_object('sub',uo,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.decide_growth_plan(p1,'rejected','  '); fail:=fail+1; failures:=failures||' reject_without_reason'; exception when others then pass:=pass+1; end;
-  begin perform public.decide_growth_plan(p1,'archive','x'); fail:=fail+1; failures:=failures||' bad_decision'; exception when others then pass:=pass+1; end;
+  begin perform public.decide_growth_plan(p1,'rejected','  '); fail:=fail+1; failures:=failures||' reject_without_reason'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.decide_growth_plan(p1,'archive','x'); fail:=fail+1; failures:=failures||' bad_decision'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   r := public.decide_growth_plan(p1,'changes_requested','Lower the ad budget in week 2');
   select status into st from public.growth_plan_versions where id=p1; if r->>'status'='draft' and st='draft' then pass:=pass+1; else fail:=fail+1; failures:=failures||' changes_kept_draft'; end if;
   r := public.decide_growth_plan(p1,'approved','');
   select status into st from public.growth_plan_versions where id=p1; if st='approved' then pass:=pass+1; else fail:=fail+1; failures:=failures||' approved'; end if;
-  begin perform public.decide_growth_plan(p1,'rejected','Too late'); fail:=fail+1; failures:=failures||' decided_approved'; exception when others then pass:=pass+1; end;
+  begin perform public.decide_growth_plan(p1,'rejected','Too late'); fail:=fail+1; failures:=failures||' decided_approved'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   r := public.decide_growth_plan(p2,'rejected','Duplicates the first version');
   select status into st from public.growth_plan_versions where id=p2; if st='rejected' then pass:=pass+1; else fail:=fail+1; failures:=failures||' rejected'; end if;
-  begin perform public.decide_growth_plan(p2,'approved',''); fail:=fail+1; failures:=failures||' approved_rejected'; exception when others then pass:=pass+1; end;
+  begin perform public.decide_growth_plan(p2,'approved',''); fail:=fail+1; failures:=failures||' approved_rejected'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   select status into st from public.growth_plan_versions where id=p1; if st='approved' then pass:=pass+1; else fail:=fail+1; failures:=failures||' approved_kept'; end if;
   execute 'reset role';
 
@@ -54,8 +54,8 @@ begin
   select count(*) into n from public.growth_plan_decisions where plan_version_id=p2 and decision='rejected' and note='Duplicates the first version'; if n=1 then pass:=pass+1; else fail:=fail+1; failures:=failures||' p2_reason'; end if;
   select count(*) into n from public.activity_events where workspace_id=w and entity_type='growth_plan'; if n=3 then pass:=pass+1; else fail:=fail+1; failures:=failures||' activity='||n; end if;
   select count(*) into n from public.audit_logs where org_id=o and action like 'growth_plan.%'; if n=3 then pass:=pass+1; else fail:=fail+1; failures:=failures||' audit='||n; end if;
-  begin update public.growth_plan_decisions set note='changed' where plan_version_id=p2; fail:=fail+1; failures:=failures||' updated'; exception when others then pass:=pass+1; end;
-  begin delete from public.growth_plan_decisions where plan_version_id=p2; fail:=fail+1; failures:=failures||' deleted'; exception when others then pass:=pass+1; end;
+  begin update public.growth_plan_decisions set note='changed' where plan_version_id=p2; fail:=fail+1; failures:=failures||' updated'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin delete from public.growth_plan_decisions where plan_version_id=p2; fail:=fail+1; failures:=failures||' deleted'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
 
   perform set_config('request.jwt.claims', json_build_object('sub',uv,'role','authenticated')::text, true); execute 'set local role authenticated';
   select count(*) into n from public.growth_plan_decisions where workspace_id=w; if n=3 then pass:=pass+1; else fail:=fail+1; failures:=failures||' viewer_reads='||n; end if;

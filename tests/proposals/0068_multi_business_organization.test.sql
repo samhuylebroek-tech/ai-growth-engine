@@ -33,13 +33,13 @@ begin
   insert into public.workspace_members(workspace_id,user_id,role) values(w1,ua,'admin'),(w1,ue,'editor'),(w1,um,'member'),(w1,uv,'viewer'),(w2,ue,'viewer');
   -- editor rights: profile confirmation
   perform set_config('request.jwt.claims', json_build_object('sub',um,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.confirm_business_profile(w1,'{"description":"x"}','[{"key":"business_model","value":"B2B catering","source_type":"user","verified":true}]'); fail:=fail+1; failures:=failures||' member_confirm'; exception when others then pass:=pass+1; end;
+  begin perform public.confirm_business_profile(w1,'{"description":"x"}','[{"key":"business_model","value":"B2B catering","source_type":"user","verified":true}]'); fail:=fail+1; failures:=failures||' member_confirm'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   -- members may suggest (unverified) but not verify
   insert into public.business_facts(org_id,workspace_id,key,value,source_type,verified) values(o,w1,'pricing','Fixed menu price','user',false) returning id into f1;
   if f1 is not null then pass:=pass+1; else fail:=fail+1; failures:=failures||' member_suggest'; end if;
-  begin insert into public.business_facts(org_id,workspace_id,key,value,source_type,verified) values(o,w1,'segments','Offices','user',true); fail:=fail+1; failures:=failures||' member_verified_insert'; exception when others then pass:=pass+1; end;
-  begin update public.business_facts set verified=true where id=f1; get diagnostics n = row_count; if n=0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' member_verify'; end if; exception when others then pass:=pass+1; end;
-  begin insert into public.budget_lines(org_id,workspace_id,channel,period_month,planned,currency,created_by) values(o,w1,'search',date_trunc('month',now())::date,100,'EUR',um); fail:=fail+1; failures:=failures||' member_budget'; exception when others then pass:=pass+1; end;
+  begin insert into public.business_facts(org_id,workspace_id,key,value,source_type,verified) values(o,w1,'segments','Offices','user',true); fail:=fail+1; failures:=failures||' member_verified_insert'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin update public.business_facts set verified=true where id=f1; get diagnostics n = row_count; if n=0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' member_verify'; end if; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin insert into public.budget_lines(org_id,workspace_id,channel,period_month,planned,currency,created_by) values(o,w1,'search',date_trunc('month',now())::date,100,'EUR',um); fail:=fail+1; failures:=failures||' member_budget'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   begin perform public.set_business_currency(w1,'USD'); fail:=fail+1; failures:=failures||' member_currency'; exception when others then if sqlerrm ilike '%editors and administrators%' then pass:=pass+1; else fail:=fail+1; failures:=failures||' member_currency_msg '||sqlerrm; end if; end;
   -- editor can
   execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub',ue,'role','authenticated')::text, true); execute 'set local role authenticated';
@@ -52,13 +52,13 @@ begin
   pass:=pass+1;
   cur := public.set_business_currency(w1,'usd');
   if cur='USD' then pass:=pass+1; else fail:=fail+1; failures:=failures||' editor_currency'; end if;
-  begin perform public.set_business_currency(w1,'dollars'); fail:=fail+1; failures:=failures||' bad_currency'; exception when others then pass:=pass+1; end;
+  begin perform public.set_business_currency(w1,'dollars'); fail:=fail+1; failures:=failures||' bad_currency'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   -- editor is only a viewer in business 2
-  begin perform public.set_business_currency(w2,'EUR'); fail:=fail+1; failures:=failures||' editor_other_business'; exception when others then pass:=pass+1; end;
-  begin insert into public.budget_lines(org_id,workspace_id,channel,period_month,planned,currency,created_by) values(o,w2,'search',date_trunc('month',now())::date,100,'EUR',ue); fail:=fail+1; failures:=failures||' editor_budget_other'; exception when others then pass:=pass+1; end;
+  begin perform public.set_business_currency(w2,'EUR'); fail:=fail+1; failures:=failures||' editor_other_business'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin insert into public.budget_lines(org_id,workspace_id,channel,period_month,planned,currency,created_by) values(o,w2,'search',date_trunc('month',now())::date,100,'EUR',ue); fail:=fail+1; failures:=failures||' editor_budget_other'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   -- viewer cannot even suggest
   execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub',uv,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin insert into public.business_facts(org_id,workspace_id,key,value,source_type,verified) values(o,w1,'x','y','user',false); fail:=fail+1; failures:=failures||' viewer_fact'; exception when others then pass:=pass+1; end;
+  begin insert into public.business_facts(org_id,workspace_id,key,value,source_type,verified) values(o,w1,'x','y','user',false); fail:=fail+1; failures:=failures||' viewer_fact'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   -- brand/unit links stay inside one business
   execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub',uo,'role','authenticated')::text, true); execute 'set local role authenticated';
   r := public.create_business_unit(w1,'brand','North',null); un := (r->>'unit_id')::uuid;
@@ -66,29 +66,29 @@ begin
   insert into public.growth_goals(org_id,workspace_id,title,metric,created_by,unit_id) values(o,w1,'North revenue','revenue',uo,un) returning id into g;
   if g is not null then pass:=pass+1; else fail:=fail+1; failures:=failures||' goal_unit'; end if;
   begin insert into public.growth_goals(org_id,workspace_id,title,metric,created_by,unit_id) values(o,w2,'Cross','revenue',uo,un); fail:=fail+1; failures:=failures||' goal_cross_unit'; exception when others then if sqlerrm ilike '%foreign key%' then pass:=pass+1; else fail:=fail+1; failures:=failures||' goal_cross_unit_msg '||sqlerrm; end if; end;
-  begin insert into public.campaigns(org_id,workspace_id,title,created_by,unit_id) values(o,w1,'Cross campaign',uo,un2); fail:=fail+1; failures:=failures||' campaign_cross_unit'; exception when others then pass:=pass+1; end;
-  begin update public.growth_goals set unit_id=un2 where id=g; fail:=fail+1; failures:=failures||' goal_move_unit'; exception when others then pass:=pass+1; end;
+  begin insert into public.campaigns(org_id,workspace_id,title,created_by,unit_id) values(o,w1,'Cross campaign',uo,un2); fail:=fail+1; failures:=failures||' campaign_cross_unit'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin update public.growth_goals set unit_id=un2 where id=g; fail:=fail+1; failures:=failures||' goal_move_unit'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   -- exchange rates: org admins only, dated, permanent, invisible to other organizations
   execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub',ue,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.record_exchange_rate(o,'USD','EUR',0.92,current_date,'ECB'); fail:=fail+1; failures:=failures||' editor_rate'; exception when others then pass:=pass+1; end;
+  begin perform public.record_exchange_rate(o,'USD','EUR',0.92,current_date,'ECB'); fail:=fail+1; failures:=failures||' editor_rate'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub',ua,'role','authenticated')::text, true); execute 'set local role authenticated';
   rid := public.record_exchange_rate(o,'usd','eur',0.92,current_date - 1,'ECB reference rate');
   if rid is not null then pass:=pass+1; else fail:=fail+1; failures:=failures||' admin_rate'; end if;
-  begin perform public.record_exchange_rate(o,'USD','EUR',0.92,current_date + 1,'ECB'); fail:=fail+1; failures:=failures||' future_rate'; exception when others then pass:=pass+1; end;
-  begin perform public.record_exchange_rate(o,'EUR','EUR',1,current_date,'x'); fail:=fail+1; failures:=failures||' same_currency_rate'; exception when others then pass:=pass+1; end;
-  begin perform public.record_exchange_rate(o,'USD','EUR',-1,current_date,'x'); fail:=fail+1; failures:=failures||' negative_rate'; exception when others then pass:=pass+1; end;
+  begin perform public.record_exchange_rate(o,'USD','EUR',0.92,current_date + 1,'ECB'); fail:=fail+1; failures:=failures||' future_rate'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.record_exchange_rate(o,'EUR','EUR',1,current_date,'x'); fail:=fail+1; failures:=failures||' same_currency_rate'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.record_exchange_rate(o,'USD','EUR',-1,current_date,'x'); fail:=fail+1; failures:=failures||' negative_rate'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
-  begin update public.exchange_rates set rate=1 where id=rid; fail:=fail+1; failures:=failures||' rate_permanent'; exception when others then pass:=pass+1; end;
+  begin update public.exchange_rates set rate=1 where id=rid; fail:=fail+1; failures:=failures||' rate_permanent'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   perform set_config('request.jwt.claims', json_build_object('sub',ux,'role','authenticated')::text, true); execute 'set local role authenticated';
   select count(*) into n from public.exchange_rates where org_id=o;
   if n=0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' outsider_rates'; end if;
-  begin perform public.record_exchange_rate(o,'GBP','EUR',1.1,current_date,'x'); fail:=fail+1; failures:=failures||' outsider_rate'; exception when others then pass:=pass+1; end;
+  begin perform public.record_exchange_rate(o,'GBP','EUR',1.1,current_date,'x'); fail:=fail+1; failures:=failures||' outsider_rate'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   -- specialist allocation per business
   execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub',um,'role','authenticated')::text, true); execute 'set local role authenticated';
   begin perform public.set_specialist_allocation(w1,'seo',false,3,null); fail:=fail+1; failures:=failures||' member_allocation'; exception when others then if sqlerrm ilike '%business administrators%' then pass:=pass+1; else fail:=fail+1; failures:=failures||' member_allocation_msg '||sqlerrm; end if; end;
   execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub',ua,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.set_specialist_allocation(w1,'astrologer',true,3,null); fail:=fail+1; failures:=failures||' unknown_specialist'; exception when others then pass:=pass+1; end;
-  begin perform public.set_specialist_allocation(w2,'seo',false,3,null); fail:=fail+1; failures:=failures||' admin_other_business'; exception when others then pass:=pass+1; end;
+  begin perform public.set_specialist_allocation(w1,'astrologer',true,3,null); fail:=fail+1; failures:=failures||' unknown_specialist'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.set_specialist_allocation(w2,'seo',false,3,null); fail:=fail+1; failures:=failures||' admin_other_business'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   insert into public.tasks(org_id,workspace_id,title,created_by) values(o,w1,'SEO check North',ua) returning id into tk;
   perform public.assign_task_specialist(tk,'seo','analysis',false);
   execute 'reset role';

@@ -109,17 +109,16 @@ function Planner({ orgId, wsId, canEdit, canBudget, canApprove, userId }: { orgI
   const proposals = reallocationProposals(lines.data ?? [], elapsed);
   const applyMove = async (m: (typeof proposals)[number]) => {
     const from = lines.data?.find(l => l.id === m.fromId), to = lines.data?.find(l => l.id === m.toId); if (!from || !to) return;
-    const a = await supabase.from("budget_lines").update({ planned: Number(from.planned) - m.amount }).eq("id", from.id);
-    if (a.error) return void toast.error(tr("goals.moveFailed"));
-    const b = await supabase.from("budget_lines").update({ planned: Number(to.planned) + m.amount }).eq("id", to.id);
-    if (b.error) { await supabase.from("budget_lines").update({ planned: Number(from.planned) }).eq("id", from.id); return void toast.error(tr("goals.moveRolledBack")); }
-    toast.success(tr("goals.moved", { amount: fmt(m.amount), from: m.from, to: m.to })); await refresh();
+    // One locked database step: both lines change together, only if they still hold the amounts shown here.
+    const r = await supabase.rpc("move_budget", { _from: from.id, _to: to.id, _amount: m.amount, _seen_from: Number(from.planned), _seen_to: Number(to.planned) });
+    if (r.error) { await refresh(); return void toast.error(tr(r.error.code === "40001" ? "goals.moveStale" : "goals.moveFailed")); }
+    toast.success(tr("goals.moved", { amount: fmt(m.amount, from.currency), from: m.from, to: m.to })); await refresh();
   };
-  const fmt = (n: number) => new Intl.NumberFormat(tag, { style: "currency", currency: "EUR" }).format(n);
+  const fmt = (n: number, currency = "EUR") => new Intl.NumberFormat(tag, { style: "currency", currency }).format(n);
   const moveReason = (m: (typeof proposals)[number]) => {
     const from = lines.data?.find(l => l.id === m.fromId), to = lines.data?.find(l => l.id === m.toId);
     if (!from || !to || !Number(from.planned)) return m.reason;
-    return tr("goals.moveReason", { from: m.from, to: m.to, pct: Math.round((Number(from.actual) / Number(from.planned)) * 100), over: fmt(Number(to.actual) - Number(to.planned)) });
+    return tr("goals.moveReason", { from: m.from, to: m.to, pct: Math.round((Number(from.actual) / Number(from.planned)) * 100), over: fmt(Number(to.actual) - Number(to.planned), to.currency) });
   };
 
   return (

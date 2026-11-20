@@ -27,19 +27,19 @@ begin
 
   -- connecting: admin only, simulated keys only, supported levels only
   perform set_config('request.jwt.claims', json_build_object('sub',um,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.connect_simulated_integration(w,'sim.hubspot',array['read'],'healthy'); fail:=fail+1; failures:=failures||' member_connect'; exception when others then pass:=pass+1; end;
+  begin perform public.connect_simulated_integration(w,'sim.hubspot',array['read'],'healthy'); fail:=fail+1; failures:=failures||' member_connect'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
   perform set_config('request.jwt.claims', json_build_object('sub',uo,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.connect_simulated_integration(w,'hubspot',array['read'],'healthy'); fail:=fail+1; failures:=failures||' real_key_via_sim'; exception when others then pass:=pass+1; end;
-  begin perform public.connect_simulated_integration(w,'sim.hubspot',array['publish'],'healthy'); fail:=fail+1; failures:=failures||' unsupported_level'; exception when others then pass:=pass+1; end;
-  begin perform public.connect_simulated_integration(w,'sim.google_analytics',array['draft'],'healthy'); fail:=fail+1; failures:=failures||' analytics_write'; exception when others then pass:=pass+1; end;
-  begin perform public.connect_simulated_integration(w,'sim.unknown',array['read'],'healthy'); fail:=fail+1; failures:=failures||' unknown_provider'; exception when others then pass:=pass+1; end;
+  begin perform public.connect_simulated_integration(w,'hubspot',array['read'],'healthy'); fail:=fail+1; failures:=failures||' real_key_via_sim'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.connect_simulated_integration(w,'sim.hubspot',array['publish'],'healthy'); fail:=fail+1; failures:=failures||' unsupported_level'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.connect_simulated_integration(w,'sim.google_analytics',array['draft'],'healthy'); fail:=fail+1; failures:=failures||' analytics_write'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.connect_simulated_integration(w,'sim.unknown',array['read'],'healthy'); fail:=fail+1; failures:=failures||' unknown_provider'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   c := public.connect_simulated_integration(w,'sim.hubspot',array['draft','execute'],'healthy'); hub := (c->>'connection_id')::uuid;
   select status||':'||array_to_string(granted_levels,',')||':'||simulated::text into st from public.connector_connections where id=hub;
   if st='connected:draft,execute,read:true' then pass:=pass+1; else fail:=fail+1; failures:=failures||' hub_state '||coalesce(st,'?'); end if;
   c := public.connect_simulated_integration(w,'sim.wordpress',array['draft','publish'],'healthy'); wp := (c->>'connection_id')::uuid;
   -- browser sessions cannot write connections directly
-  begin update public.connector_connections set granted_levels='{read,draft,modify,execute,publish,budget}' where id=hub; fail:=fail+1; failures:=failures||' direct_update'; exception when others then pass:=pass+1; end;
+  begin update public.connector_connections set granted_levels='{read,draft,modify,execute,publish,budget}' where id=hub; fail:=fail+1; failures:=failures||' direct_update'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   perform public.set_execution_settings(w,2,20,200);
   execute 'reset role';
   -- a real connection with write levels forced in by the database owner, to prove execution still refuses it
@@ -53,15 +53,15 @@ begin
   insert into public.tasks(org_id,workspace_id,title) values(o,w,'Blog draft') returning id into tc;
   perform public.assign_task_specialist(t1,'crm','external',false);
   perform public.assign_task_specialist(tc,'content','preparation',false);
-  begin perform public.connect_simulated_integration(w,'sim.wordpress',array['read'],'healthy'); fail:=fail+1; failures:=failures||' member_reconnect'; exception when others then pass:=pass+1; end;
-  begin perform public.set_integration_levels(hub,array['read','draft','modify','execute']); fail:=fail+1; failures:=failures||' member_levels'; exception when others then pass:=pass+1; end;
+  begin perform public.connect_simulated_integration(w,'sim.wordpress',array['read'],'healthy'); fail:=fail+1; failures:=failures||' member_reconnect'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.set_integration_levels(hub,array['read','draft','modify','execute']); fail:=fail+1; failures:=failures||' member_levels'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   -- preparation rules
-  begin perform public.create_external_action(w,gen_random_uuid(),t1,hub,'sales','crm.create_task','x','', '{"subject":"Call"}',null,null); fail:=fail+1; failures:=failures||' wrong_assigned_specialist'; exception when others then pass:=pass+1; end;
-  begin perform public.create_external_action(w,gen_random_uuid(),tc,hub,'content','crm.create_task','x','', '{"subject":"Call"}',null,null); fail:=fail+1; failures:=failures||' specialist_not_allowed'; exception when others then pass:=pass+1; end;
-  begin perform public.create_external_action(w,gen_random_uuid(),tc,hub,'content','content.save_draft','x','', '{"title":"T","body":"B"}',null,null); fail:=fail+1; failures:=failures||' provider_mismatch'; exception when others then pass:=pass+1; end;
-  begin perform public.create_external_action(w,gen_random_uuid(),t1,hub,'crm','crm.create_task','x','', '{"subject":" "}',null,null); fail:=fail+1; failures:=failures||' missing_field'; exception when others then pass:=pass+1; end;
-  begin perform public.create_external_action(w,gen_random_uuid(),t1,hub,'crm','crm.create_task','x','', '{"subject":"Call"}',10,null); fail:=fail+1; failures:=failures||' cost_without_currency'; exception when others then pass:=pass+1; end;
-  begin perform public.create_external_action(w,gen_random_uuid(),t1,real,'crm','crm.create_task','x','', '{"subject":"Call"}',null,null); fail:=fail+1; failures:=failures||' real_provider_write'; exception when others then pass:=pass+1; end;
+  begin perform public.create_external_action(w,gen_random_uuid(),t1,hub,'sales','crm.create_task','x','', '{"subject":"Call"}',null,null); fail:=fail+1; failures:=failures||' wrong_assigned_specialist'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.create_external_action(w,gen_random_uuid(),tc,hub,'content','crm.create_task','x','', '{"subject":"Call"}',null,null); fail:=fail+1; failures:=failures||' specialist_not_allowed'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.create_external_action(w,gen_random_uuid(),tc,hub,'content','content.save_draft','x','', '{"title":"T","body":"B"}',null,null); fail:=fail+1; failures:=failures||' provider_mismatch'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.create_external_action(w,gen_random_uuid(),t1,hub,'crm','crm.create_task','x','', '{"subject":" "}',null,null); fail:=fail+1; failures:=failures||' missing_field'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.create_external_action(w,gen_random_uuid(),t1,hub,'crm','crm.create_task','x','', '{"subject":"Call"}',10,null); fail:=fail+1; failures:=failures||' cost_without_currency'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.create_external_action(w,gen_random_uuid(),t1,real,'crm','crm.create_task','x','', '{"subject":"Call"}',null,null); fail:=fail+1; failures:=failures||' real_provider_write'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   c := public.create_external_action(w,rq,t1,hub,'crm','crm.create_task','Create follow-up task','Call the three warm leads', '{"subject":"Call warm leads"}',0,'EUR');
   a1 := (c->>'action_id')::uuid;
   c := public.create_external_action(w,rq,t1,hub,'crm','crm.create_task','Create follow-up task','', '{"subject":"Call warm leads"}',0,'EUR');
@@ -70,36 +70,36 @@ begin
   if n=1 then pass:=pass+1; else fail:=fail+1; failures:=failures||' draft_links'; end if;
   -- direct writes are refused
   begin insert into public.external_actions(org_id,workspace_id,request_key,task_id,connection_id,provider,simulated,specialist_key,action_type,required_level,title,created_by)
-    values(o,w,gen_random_uuid(),t1,hub,'sim.hubspot',true,'crm','crm.create_task','execute','x',um); fail:=fail+1; failures:=failures||' direct_insert'; exception when others then pass:=pass+1; end;
-  begin update public.external_actions set stage='approved' where id=a1; fail:=fail+1; failures:=failures||' direct_stage'; exception when others then pass:=pass+1; end;
+    values(o,w,gen_random_uuid(),t1,hub,'sim.hubspot',true,'crm','crm.create_task','execute','x',um); fail:=fail+1; failures:=failures||' direct_insert'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin update public.external_actions set stage='approved' where id=a1; fail:=fail+1; failures:=failures||' direct_stage'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   -- no execution before approval, and none without server proof
   begin perform public.begin_external_action_verified(a1,k1,pf); fail:=fail+1; failures:=failures||' exec_draft'; exception when others then if sqlerrm='gate:not_approved' then pass:=pass+1; else fail:=fail+1; failures:=failures||' exec_draft_msg '||sqlerrm; end if; end;
   perform public.submit_external_action(a1);
   select stage into st from public.external_actions where id=a1;
   if st='in_review' then pass:=pass+1; else fail:=fail+1; failures:=failures||' submit '||st; end if;
-  begin perform public.decide_external_action(a1,true,''); fail:=fail+1; failures:=failures||' member_approve'; exception when others then pass:=pass+1; end;
-  begin perform public.begin_external_action_verified(a1,k1,pf); fail:=fail+1; failures:=failures||' exec_in_review'; exception when others then pass:=pass+1; end;
+  begin perform public.decide_external_action(a1,true,''); fail:=fail+1; failures:=failures||' member_approve'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.begin_external_action_verified(a1,k1,pf); fail:=fail+1; failures:=failures||' exec_in_review'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
 
   perform set_config('request.jwt.claims', json_build_object('sub',uv,'role','authenticated')::text, true); execute 'set local role authenticated';
   select count(*) into n from public.external_actions where workspace_id=w; if n=1 then pass:=pass+1; else fail:=fail+1; failures:=failures||' viewer_reads'; end if;
-  begin perform public.create_external_action(w,gen_random_uuid(),t1,hub,'crm','crm.create_task','x','', '{"subject":"Call"}',null,null); fail:=fail+1; failures:=failures||' viewer_create'; exception when others then pass:=pass+1; end;
-  begin perform public.cancel_external_action(a1); fail:=fail+1; failures:=failures||' viewer_cancel'; exception when others then pass:=pass+1; end;
+  begin perform public.create_external_action(w,gen_random_uuid(),t1,hub,'crm','crm.create_task','x','', '{"subject":"Call"}',null,null); fail:=fail+1; failures:=failures||' viewer_create'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.cancel_external_action(a1); fail:=fail+1; failures:=failures||' viewer_cancel'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
   perform set_config('request.jwt.claims', json_build_object('sub',ux,'role','authenticated')::text, true); execute 'set local role authenticated';
   select count(*) into n from public.external_actions where workspace_id=w; if n=0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' outsider_reads'; end if;
   select count(*) into n from public.connector_connections where workspace_id=w; if n=0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' outsider_connections'; end if;
-  begin perform public.decide_external_action(a1,true,''); fail:=fail+1; failures:=failures||' outsider_decide'; exception when others then pass:=pass+1; end;
-  begin perform public.begin_external_action_verified(a1,k1,pf); fail:=fail+1; failures:=failures||' outsider_exec'; exception when others then pass:=pass+1; end;
+  begin perform public.decide_external_action(a1,true,''); fail:=fail+1; failures:=failures||' outsider_decide'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.begin_external_action_verified(a1,k1,pf); fail:=fail+1; failures:=failures||' outsider_exec'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
 
   perform set_config('request.jwt.claims', json_build_object('sub',uo,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.decide_external_action(a1,false,' '); fail:=fail+1; failures:=failures||' reject_without_reason'; exception when others then pass:=pass+1; end;
+  begin perform public.decide_external_action(a1,false,' '); fail:=fail+1; failures:=failures||' reject_without_reason'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   perform public.decide_external_action(a1,true,'Fine');
   execute 'reset role';
 
   perform set_config('request.jwt.claims', json_build_object('sub',um,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.begin_external_action_verified(a1,k1,'forged'); fail:=fail+1; failures:=failures||' forged_proof'; exception when others then pass:=pass+1; end;
+  begin perform public.begin_external_action_verified(a1,k1,'forged'); fail:=fail+1; failures:=failures||' forged_proof'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
   -- gates: level withdrawn, token expired, workspace paused
   perform set_config('request.jwt.claims', json_build_object('sub',uo,'role','authenticated')::text, true); execute 'set local role authenticated';
@@ -116,21 +116,21 @@ begin
 
   -- success path: one execution, provider idempotency, executed needs a reference, verification by lookup
   perform set_config('request.jwt.claims', json_build_object('sub',um,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.sim_provider_write_verified(hub,gen_random_uuid(),'crm.create_task','open','{}',pf); fail:=fail+1; failures:=failures||' write_without_execution'; exception when others then pass:=pass+1; end;
+  begin perform public.sim_provider_write_verified(hub,gen_random_uuid(),'crm.create_task','open','{}',pf); fail:=fail+1; failures:=failures||' write_without_execution'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   r := public.begin_external_action_verified(a1,k1,pf);
   if r->>'stage'='executing' and (r->>'attempt')::int=1 then pass:=pass+1; else fail:=fail+1; failures:=failures||' begin '||r::text; end if;
   r := public.begin_external_action_verified(a1,k1,pf);
   if (r->>'existing')::boolean then pass:=pass+1; else fail:=fail+1; failures:=failures||' begin_idempotent'; end if;
-  begin perform public.begin_external_action_verified(a1,gen_random_uuid(),pf); fail:=fail+1; failures:=failures||' second_execution'; exception when others then pass:=pass+1; end;
+  begin perform public.begin_external_action_verified(a1,gen_random_uuid(),pf); fail:=fail+1; failures:=failures||' second_execution'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   r := public.sim_provider_write_verified(hub,k1,'crm.create_task','open','{"subject":"Call warm leads"}',pf); ref := r->>'external_ref';
   r := public.sim_provider_write_verified(hub,k1,'crm.create_task','open','{}',pf);
   if (r->>'existing')::boolean and r->>'external_ref'=ref then pass:=pass+1; else fail:=fail+1; failures:=failures||' provider_idempotent'; end if;
   select count(*) into n from public.simulated_provider_records where connection_id=hub; if n=1 then pass:=pass+1; else fail:=fail+1; failures:=failures||' one_record'; end if;
-  begin perform public.finish_external_action_verified(a1,k1,'executed','',null,null,pf); fail:=fail+1; failures:=failures||' executed_without_ref'; exception when others then pass:=pass+1; end;
+  begin perform public.finish_external_action_verified(a1,k1,'executed','',null,null,pf); fail:=fail+1; failures:=failures||' executed_without_ref'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   r := public.finish_external_action_verified(a1,k1,'executed',ref,null,null,pf);
   if r->>'stage'='executed' and r->>'verification'='pending' then pass:=pass+1; else fail:=fail+1; failures:=failures||' finish '||r::text; end if;
-  begin perform public.finish_external_action_verified(a1,k1,'failed','',null,null,pf); fail:=fail+1; failures:=failures||' finish_twice'; exception when others then pass:=pass+1; end;
-  begin perform public.cancel_external_action(a1); fail:=fail+1; failures:=failures||' cancel_executed'; exception when others then pass:=pass+1; end;
+  begin perform public.finish_external_action_verified(a1,k1,'failed','',null,null,pf); fail:=fail+1; failures:=failures||' finish_twice'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.cancel_external_action(a1); fail:=fail+1; failures:=failures||' cancel_executed'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   r := public.sim_provider_lookup_verified(hub,k1,pf);
   r := public.record_external_verification_verified(a1,'verified',true,ref,jsonb_build_object('external_ref',r->>'external_ref','state',r->>'state'),pf);
   if r->>'verification'='verified' then pass:=pass+1; else fail:=fail+1; failures:=failures||' verify '||r::text; end if;
@@ -147,7 +147,7 @@ begin
   perform public.sim_provider_write_verified(hub,k,'crm.update_deal','updated','{}',pf);
   perform public.finish_external_action_verified(a2,k,'uncertain',null,'Timed out',null,pf);
   begin perform public.begin_external_action_verified(a2,gen_random_uuid(),pf); fail:=fail+1; failures:=failures||' retry_uncertain'; exception when others then if sqlerrm='gate:verify_first' then pass:=pass+1; else fail:=fail+1; failures:=failures||' retry_uncertain_msg '||sqlerrm; end if; end;
-  begin perform public.record_external_verification_verified(a2,'unavailable',false,null,'{}',pf); fail:=fail+1; failures:=failures||' uncertain_unavailable'; exception when others then pass:=pass+1; end;
+  begin perform public.record_external_verification_verified(a2,'unavailable',false,null,'{}',pf); fail:=fail+1; failures:=failures||' uncertain_unavailable'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   r := public.sim_provider_lookup_verified(hub,k,pf);
   r := public.record_external_verification_verified(a2,'verified',(r->>'found')::boolean,r->>'external_ref','{}',pf);
   if r->>'stage'='executed' and r->>'verification'='verified' then pass:=pass+1; else fail:=fail+1; failures:=failures||' uncertain_found '||r::text; end if;
@@ -181,7 +181,7 @@ begin
   update public.external_actions set stage='approved', approval_mode='manual' where id=a2;
   perform set_config('request.jwt.claims', json_build_object('sub',um,'role','authenticated')::text, true); execute 'set local role authenticated';
   perform public.begin_external_action_verified(a2,gen_random_uuid(),pf);
-  begin perform public.mark_stalled_external_action(a2); fail:=fail+1; failures:=failures||' stall_too_early'; exception when others then pass:=pass+1; end;
+  begin perform public.mark_stalled_external_action(a2); fail:=fail+1; failures:=failures||' stall_too_early'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
   update public.external_actions set updated_at=now()-interval '11 minutes' where id=a2;
   perform set_config('request.jwt.claims', json_build_object('sub',um,'role','authenticated')::text, true); execute 'set local role authenticated';
@@ -220,7 +220,7 @@ begin
   select status||':'||cardinality(granted_levels) into st from public.connector_connections where id=wp;
   if st='disabled:0' then pass:=pass+1; else fail:=fail+1; failures:=failures||' revoke '||st; end if;
   begin perform public.begin_external_action_verified(a5,gen_random_uuid(),pf); fail:=fail+1; failures:=failures||' revoked_exec'; exception when others then if sqlerrm='gate:disconnected' then pass:=pass+1; else fail:=fail+1; failures:=failures||' revoked_msg '||sqlerrm; end if; end;
-  begin perform public.set_integration_levels(wp,array['read']); fail:=fail+1; failures:=failures||' levels_on_revoked'; exception when others then pass:=pass+1; end;
+  begin perform public.set_integration_levels(wp,array['read']); fail:=fail+1; failures:=failures||' levels_on_revoked'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   perform public.cancel_external_action(a4);
   execute 'reset role';
 

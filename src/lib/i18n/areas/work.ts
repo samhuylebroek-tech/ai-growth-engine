@@ -205,6 +205,10 @@ export const work = defineArea("work", {
     "work.selectApproval": "Select workspace approval",
     "work.linkApproval": "Link approval",
     "work.internalOnly": "Campaign status is internal planning. No external publishing is connected.",
+    "work.origin.improvement": "From improvement proposal: {title}",
+    "work.origin.evidence": "{n} evidence items on the proposal",
+    "work.origin.noEvidence": "The proposal recorded no evidence",
+    "work.origin.open": "Open improvements",
   },
   nl: {
     "work.status.planned": "Gepland",
@@ -409,6 +413,10 @@ export const work = defineArea("work", {
     "work.selectApproval": "Kies een goedkeuring uit de werkruimte",
     "work.linkApproval": "Goedkeuring koppelen",
     "work.internalOnly": "De campagnestatus is interne planning. Er is geen externe publicatie gekoppeld.",
+    "work.origin.improvement": "Uit verbetervoorstel: {title}",
+    "work.origin.evidence": "{n} bewijsstukken bij het voorstel",
+    "work.origin.noEvidence": "Het voorstel bevat geen bewijs",
+    "work.origin.open": "Verbeteringen openen",
   },
   fr: {
     "work.status.planned": "Prévu",
@@ -613,5 +621,9 @@ export const work = defineArea("work", {
     "work.selectApproval": "Choisir une validation de l’espace",
     "work.linkApproval": "Lier la validation",
     "work.internalOnly": "Le statut de campagne est une planification interne. Aucune publication externe n’est connectée.",
+    "work.origin.improvement": "Issu de la proposition d’amélioration : {title}",
+    "work.origin.evidence": "{n} éléments de preuve dans la proposition",
+    "work.origin.noEvidence": "La proposition ne contient aucune preuve",
+    "work.origin.open": "Ouvrir les améliorations",
   },
 });

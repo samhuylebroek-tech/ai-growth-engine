@@ -17,6 +17,7 @@ import { Panel, StatusChip } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { tk, todayIso, newKey, useNames, Empty, type OrgModel } from "@/components/org/org-model";
+import { CreditsSection } from "@/components/org/org-credits";
 
 export function ResourcesTab({ m, orgId, finance }: { m: OrgModel; orgId: string; finance: boolean }) {
   const { t } = useI18n(); const f = useFmt(); const name = useNames();
@@ -24,15 +25,15 @@ export function ResourcesTab({ m, orgId, finance }: { m: OrgModel; orgId: string
   const { view, iq } = m.model;
   const proposals = m.intel.data?.proposals ?? [];
   return <>
+    <CreditsSection orgId={orgId} />
     {finance && <Section title={t("ogo.res.budget")} intro={t("ogo.res.budgetIntro")}>
-      <div className="overflow-x-auto"><table className="w-full min-w-[560px] text-sm">
-        <thead><tr className="border-b border-border text-left text-xs text-muted-foreground"><th className="p-2 font-medium">{t("org.col.business")}</th><th className="p-2 font-medium">{t("ogo.res.col.planned")}</th><th className="p-2 font-medium">{t("ogo.res.col.spent")}</th><th className="p-2 font-medium">{t("ogo.res.col.use")}</th><th className="p-2 font-medium">{t("org.col.credits")}</th></tr></thead>
+      <div className="overflow-x-auto"><table className="w-full min-w-[480px] text-sm">
+        <thead><tr className="border-b border-border text-left text-xs text-muted-foreground"><th className="p-2 font-medium">{t("org.col.business")}</th><th className="p-2 font-medium">{t("ogo.res.col.planned")}</th><th className="p-2 font-medium">{t("ogo.res.col.spent")}</th><th className="p-2 font-medium">{t("ogo.res.col.use")}</th></tr></thead>
         <tbody>{view.rows.map((r) => { const curs = [...new Set([...Object.keys(r.planned), ...Object.keys(r.spent)])].sort();
           return <tr key={r.id} className="border-b border-border align-top"><td className="p-2 font-medium">{r.name}</td>
             <td className="p-2 tabular-nums">{curs.length ? curs.map((c) => <p key={c}>{f.money(r.planned[c] ?? 0, c)}</p>) : "—"}</td>
             <td className="p-2 tabular-nums">{curs.length ? curs.map((c) => <p key={c}>{f.money(r.spent[c] ?? 0, c)}</p>) : "—"}</td>
-            <td className="p-2 text-xs">{curs.length ? curs.map((c) => <p key={c}>{r.utilization[c] == null ? t("org.unplanned", { cur: c }) : `${r.utilization[c]}%`}</p>) : "—"}</td>
-            <td className="p-2 tabular-nums">{r.creditsUsed}{r.creditsReserved > 0 && <span className="text-xs text-muted-foreground"> (+{r.creditsReserved})</span>}</td></tr>; })}</tbody>
+            <td className="p-2 text-xs">{curs.length ? curs.map((c) => <p key={c}>{r.utilization[c] == null ? t("org.unplanned", { cur: c }) : `${r.utilization[c]}%`}</p>) : "—"}</td></tr>; })}</tbody>
       </table></div>
       <p className="mt-2 text-xs text-muted-foreground">{t("ogo.res.budgetNote")}</p>
     </Section>}

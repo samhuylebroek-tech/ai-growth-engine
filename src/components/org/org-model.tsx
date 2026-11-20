@@ -8,6 +8,7 @@ import { useOrg } from "@/lib/org-context";
 import { growthDb } from "@/lib/pending-schema";
 import { buildOrgView } from "@/lib/org/overview";
 import { orgIntelligence } from "@/lib/org/intelligence";
+import { businessLabels, nameRefs, strategyRefs } from "@/lib/org/strategy";
 import { monthStartIso, orgIntelOptions, orgOverviewOptions } from "@/components/org/org-data";
 import { Badge } from "@/components/bi/parts";
 import { Panel } from "@/components/app/status";
@@ -62,7 +63,17 @@ export type OrgModel = ReturnType<typeof useOrgModel>;
 
 export function useNames() {
   const o = useOrg(); const { t } = useI18n();
-  return (id: string) => o.workspaces.find((b) => b.id === id)?.name ?? t("ogo.otherBusiness");
+  const labels = useMemo(() => businessLabels(o.workspaces), [o.workspaces]);
+  return (id: string) => labels.get(id) ?? t("ogo.otherBusiness");
+}
+/** Turns B1/B2 references in a stored organization strategy (or an opportunity it produced) into business labels at display time. */
+export function useRefNamer() {
+  const o = useOrg(); const name = useNames();
+  return (body: unknown, businessIds: readonly string[]) => {
+    const { refs, reconstructed } = strategyRefs(body, businessIds, o.workspaces);
+    const labels = Object.fromEntries(Object.entries(refs).map(([r, id]) => [r, name(id)]));
+    return { named: <T,>(v: T) => nameRefs(v, labels), reconstructed };
+  };
 }
 export function useKnown() {
   const { t } = useI18n();

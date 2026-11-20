@@ -61,6 +61,7 @@ import {
 
 import { pageSlice } from "@/lib/pagination";
 import { TaskAIWork } from "@/components/execution/task-ai-work";
+import { TaskOrigin } from "@/components/execution/task-origin";
 import { ExecutionBar } from "@/components/execution/execution-bar";
 import { NextActions } from "@/components/execution/next-actions";
 import { taskExecutionOptions, runsByTask, runTone } from "@/components/execution/task-runs-data";
@@ -1058,6 +1059,7 @@ function WorkDetails({
           </Button>
         ))}
       </div>
+      {kind === "tasks" && <TaskOrigin taskId={item.id} />}
       {item.source_message_id && (
         <p className="text-xs text-muted-foreground">
           {tx("work.linkedRec", { id: item.source_message_id.slice(0, 8) })}

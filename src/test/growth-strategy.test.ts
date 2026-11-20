@@ -22,6 +22,11 @@ describe("repurpose", () => {
 });
 describe("budget reallocation", () => {
   const lines = [{ id: "a", channel: "Meta", planned: 400, actual: 100, hard_cap: null }, { id: "b", channel: "Google", planned: 300, actual: 380, hard_cap: 350 }];
+  it("never proposes moving money between lines in different currencies", () => {
+    const l = [{ id: "a", channel: "Search", planned: 1000, actual: 100, hard_cap: null, currency: "EUR" }, { id: "b", channel: "Social", planned: 200, actual: 400, hard_cap: null, currency: "USD" }];
+    expect(reallocationProposals(l, 0.8)).toEqual([]);
+    expect(reallocationProposals([l[0]!, { ...l[1]!, currency: "EUR" }], 0.8)).toHaveLength(1);
+  });
   it("proposes nothing in the first half of the month", () => { expect(reallocationProposals(lines, 0.4)).toEqual([]); });
   it("moves at most half the unused budget and never beyond the receiving hard cap", () => {
     const p = reallocationProposals(lines, 0.6);

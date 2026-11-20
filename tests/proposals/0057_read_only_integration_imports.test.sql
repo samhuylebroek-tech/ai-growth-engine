@@ -15,7 +15,7 @@ begin
   oa := public.create_organization('Import fixture A','A'); select id into wa from public.workspaces where org_id = oa;
   r := public.define_metric(wa,'monthly_revenue','Revenue','currency','EUR','increase',null,null); mid := (r->>'metric_id')::uuid;
   -- Browser sessions can no longer mark a connector as connected.
-  begin insert into public.connector_connections(org_id,workspace_id,connector_key,status) values(oa,wa,'stripe','connected'); fail:=fail+1; failures:=failures||' admin_fakes_connection'; exception when others then pass:=pass+1; end;
+  begin insert into public.connector_connections(org_id,workspace_id,connector_key,status) values(oa,wa,'stripe','connected'); fail:=fail+1; failures:=failures||' admin_fakes_connection'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
   perform set_config('request.jwt.claims', json_build_object('sub',ub,'role','authenticated')::text, true); execute 'set local role authenticated';
   ob := public.create_organization('Import fixture B','B'); select id into wb from public.workspaces where org_id = ob;
@@ -26,11 +26,11 @@ begin
   insert into public.connector_connections(org_id,workspace_id,connector_key,status) values(oa,wa,'stripe','connected'),(ob,wb,'google_analytics','connected');
 
   perform set_config('request.jwt.claims', json_build_object('sub',um,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.import_measurement_verified(mid,'stripe','2026-10-01','2026-10-31',100,'',gen_random_uuid(),null); fail:=fail+1; failures:=failures||' no_proof'; exception when others then pass:=pass+1; end;
-  begin perform public.import_measurement_verified(mid,'stripe','2026-10-01','2026-10-31',100,'',gen_random_uuid(),'wrong'); fail:=fail+1; failures:=failures||' wrong_proof'; exception when others then pass:=pass+1; end;
-  begin perform public.import_measurement_verified(mid,'google_analytics','2026-10-01','2026-10-31',100,'',gen_random_uuid(),'rollback-fixture-only'); fail:=fail+1; failures:=failures||' not_connected'; exception when others then pass:=pass+1; end;
-  begin perform public.import_measurement_verified(mid,'mailchimp','2026-10-01','2026-10-31',100,'',gen_random_uuid(),'rollback-fixture-only'); fail:=fail+1; failures:=failures||' unknown_connector'; exception when others then pass:=pass+1; end;
-  begin perform public.import_measurement_verified(mid,'stripe','2026-10-01','2026-10-31',-5,'',gen_random_uuid(),'rollback-fixture-only'); fail:=fail+1; failures:=failures||' negative_money'; exception when others then pass:=pass+1; end;
+  begin perform public.import_measurement_verified(mid,'stripe','2026-10-01','2026-10-31',100,'',gen_random_uuid(),null); fail:=fail+1; failures:=failures||' no_proof'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.import_measurement_verified(mid,'stripe','2026-10-01','2026-10-31',100,'',gen_random_uuid(),'wrong'); fail:=fail+1; failures:=failures||' wrong_proof'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.import_measurement_verified(mid,'google_analytics','2026-10-01','2026-10-31',100,'',gen_random_uuid(),'rollback-fixture-only'); fail:=fail+1; failures:=failures||' not_connected'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.import_measurement_verified(mid,'mailchimp','2026-10-01','2026-10-31',100,'',gen_random_uuid(),'rollback-fixture-only'); fail:=fail+1; failures:=failures||' unknown_connector'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.import_measurement_verified(mid,'stripe','2026-10-01','2026-10-31',-5,'',gen_random_uuid(),'rollback-fixture-only'); fail:=fail+1; failures:=failures||' negative_money'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   r := public.import_measurement_verified(mid,'stripe','2026-10-01','2026-10-31',12500.5,'balance_transactions:2026-10',k,'rollback-fixture-only');
   if r->>'status' = 'created' then pass:=pass+1; else fail:=fail+1; failures:=failures||' created'; end if;
   select count(*) into n from public.performance_measurements where metric_id=mid and kind='imported_actual' and source='stripe';
@@ -45,13 +45,13 @@ begin
   if n = 1 then pass:=pass+1; else fail:=fail+1; failures:=failures||' one_live_import'; end if;
   -- A manual entry for the same month coexists; users cannot write imported values themselves.
   perform public.record_measurement(mid,'manual_actual','2026-10-01','2026-10-31',12000,'','',gen_random_uuid(),null); pass:=pass+1;
-  begin perform public.record_measurement(mid,'imported_actual','2026-11-01','2026-11-30',1,'','',gen_random_uuid(),null); fail:=fail+1; failures:=failures||' user_imports'; exception when others then pass:=pass+1; end;
+  begin perform public.record_measurement(mid,'imported_actual','2026-11-01','2026-11-30',1,'','',gen_random_uuid(),null); fail:=fail+1; failures:=failures||' user_imports'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
   perform set_config('request.jwt.claims', json_build_object('sub',uv,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.import_measurement_verified(mid,'stripe','2026-11-01','2026-11-30',1,'',gen_random_uuid(),'rollback-fixture-only'); fail:=fail+1; failures:=failures||' viewer_imports'; exception when others then pass:=pass+1; end;
+  begin perform public.import_measurement_verified(mid,'stripe','2026-11-01','2026-11-30',1,'',gen_random_uuid(),'rollback-fixture-only'); fail:=fail+1; failures:=failures||' viewer_imports'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
   perform set_config('request.jwt.claims', json_build_object('sub',ub,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.import_measurement_verified(mid,'stripe','2026-11-01','2026-11-30',1,'',gen_random_uuid(),'rollback-fixture-only'); fail:=fail+1; failures:=failures||' outsider_imports'; exception when others then pass:=pass+1; end;
+  begin perform public.import_measurement_verified(mid,'stripe','2026-11-01','2026-11-30',1,'',gen_random_uuid(),'rollback-fixture-only'); fail:=fail+1; failures:=failures||' outsider_imports'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
   if not has_function_privilege('anon','public.import_measurement_verified(uuid,text,date,date,numeric,text,uuid,text)','execute')
      and not has_table_privilege('authenticated','public.connector_connections','insert,update,delete')

@@ -150,6 +150,7 @@ export const run = defineArea("run", {
     "run.sp.partnership": "Partnership Specialist",
     "run.sp.event_marketing": "Event Marketing Specialist",
     "run.sp.revenue_analyst": "Revenue Analyst",
+    "run.sp.marketing_strategy": "Marketing Strategy Specialist",
   },
   nl: {
     "run.tab": "AI-werk",
@@ -299,6 +300,7 @@ export const run = defineArea("run", {
     "run.sp.partnership": "Partnershipspecialist",
     "run.sp.event_marketing": "Eventmarketingspecialist",
     "run.sp.revenue_analyst": "Omzetanalist",
+    "run.sp.marketing_strategy": "Marketingstrategie-specialist",
   },
   fr: {
     "run.tab": "Travail IA",
@@ -448,5 +450,6 @@ export const run = defineArea("run", {
     "run.sp.partnership": "Spécialiste partenariats",
     "run.sp.event_marketing": "Spécialiste marketing événementiel",
     "run.sp.revenue_analyst": "Analyste revenus",
+    "run.sp.marketing_strategy": "Spécialiste stratégie marketing",
   },
 });

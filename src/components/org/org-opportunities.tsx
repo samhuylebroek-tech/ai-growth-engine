@@ -10,14 +10,16 @@ import type { OppDraft } from "@/lib/org/opportunities";
 import { Section, Badge, sel } from "@/components/bi/parts";
 import { Panel, StatusChip } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
-import { tk, useNames, useKnown, EvidenceBadge, Empty, type OrgModel } from "@/components/org/org-model";
+import { tk, useRefNamer, useNames, useKnown, EvidenceBadge, Empty, type OrgModel } from "@/components/org/org-model";
 import { INITIATIVE_DRAFT_KEY, type InitiativeDraft } from "@/components/org/org-strategy";
 
 type Ev = { text: string; class: string };
 const evidenceOf = (x: unknown): Ev[] => (Array.isArray(x) ? x.filter((e): e is Ev => !!e && typeof e === "object" && typeof (e as Ev).text === "string") : []);
 
 export function OpportunitiesTab({ m }: { m: OrgModel }) {
-  const { t } = useI18n(); const o = useOrg();
+  const { t } = useI18n(); const o = useOrg(); const refNamer = useRefNamer();
+  // Opportunities proposed by the Organization Growth Officer use its B1/B2 references; names come from that strategy.
+  const nameFrom = (body: unknown, ids: readonly string[]) => (x: OrgOpportunityRow): OrgOpportunityRow => { const { named } = refNamer(body, ids); return { ...x, title: named(x.title), evidence: named(x.evidence), expected_impact: named(x.expected_impact), estimated_cost: named(x.estimated_cost), dependencies: named(x.dependencies), risks: named(x.risks), next_action: named(x.next_action) }; };
   const [filter, setFilter] = useState<"open" | "all">("open");
   if (!m.model) return null;
   const tracked = (m.intel.data?.opportunities ?? []).filter((x) => filter === "all" || !["dismissed", "converted"].includes(x.status));
@@ -28,7 +30,7 @@ export function OpportunitiesTab({ m }: { m: OrgModel }) {
         : <Empty>{m.businesses.length < 2 ? t("ogo.opp.needTwo") : t("ogo.opp.noneDetected")}</Empty>}
     </Section>
     <Section title={t("ogo.opp.tracked")} intro={t("ogo.opp.trackedIntro")} action={<div className="w-48"><select aria-label={t("ogo.filter")} className={sel} value={filter} onChange={(e) => setFilter(e.target.value as "open" | "all")}><option value="open">{t("ogo.filter.open")}</option><option value="all">{t("ogo.filter.all")}</option></select></div>}>
-      {m.intel.data && !m.intel.data.installed ? <Empty>{t("ogo.off")}</Empty> : tracked.length ? <ul className="grid gap-3 lg:grid-cols-2">{tracked.map((x) => <TrackedCard key={x.id} x={x} />)}</ul> : <Empty>{t("ogo.opp.noneTracked")}</Empty>}
+      {m.intel.data && !m.intel.data.installed ? <Empty>{t("ogo.off")}</Empty> : tracked.length ? <ul className="grid gap-3 lg:grid-cols-2">{tracked.map((x) => { const st = x.strategy_id ? m.intel.data?.strategies.find((y) => y.id === x.strategy_id) : undefined; return <TrackedCard key={x.id} x={st ? nameFrom(st.body, st.business_ids)(x) : x} />; })}</ul> : <Empty>{t("ogo.opp.noneTracked")}</Empty>}
     </Section>
   </>;
 }

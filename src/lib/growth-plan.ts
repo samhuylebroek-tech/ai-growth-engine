@@ -21,7 +21,7 @@ export function budgetAlert(l: BudgetLine): "over_cap" | "over_plan" | "near_pla
 }
 
 export type Reallocation = { fromId: string; toId: string; from: string; to: string; amount: number; reason: string };
-type PlanLine = { id: string; channel: string; planned: number | string; actual: number | string; hard_cap: number | string | null };
+type PlanLine = { id: string; channel: string; planned: number | string; actual: number | string; hard_cap: number | string | null; currency?: string };
 /**
  * Rule-based proposals (no AI): when at least half the month has passed, move unused planned budget
  * from lines that used under 50% of plan to lines already over plan. Never exceeds the receiving
@@ -40,6 +40,7 @@ export function reallocationProposals(lines: PlanLine[], monthElapsed: number): 
     let need = Math.min(t.need, t.room);
     for (const d of donors) {
       if (need <= 0) break;
+      if ((d.l.currency ?? "EUR") !== (t.l.currency ?? "EUR")) continue; // money never moves between currencies
       const amount = Math.min(need, d.spare); if (amount <= 0) continue;
       d.spare -= amount; need -= amount;
       out.push({ fromId: d.l.id, toId: t.l.id, from: d.l.channel, to: t.l.channel, amount, reason: `${d.l.channel} has used ${Math.round((Number(d.l.actual) / Number(d.l.planned)) * 100)}% of plan; ${t.l.channel} is over plan by ${Number(t.l.actual) - Number(t.l.planned)}.` });

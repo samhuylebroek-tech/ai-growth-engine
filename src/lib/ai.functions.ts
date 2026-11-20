@@ -953,11 +953,11 @@ const ORG_INTEL_OFF = "Organization strategy is not switched on in this environm
 type PendingDB = SupabaseClient<PendingDatabase>;
 
 /** Saves a paid organization answer as a draft strategy. An answer that is not valid JSON is kept as an unstructured draft, never dropped. */
-async function saveOrgStrategy(sb: DB, requestId: string, raw: string, refMap: Record<string, string>, refNames: Record<string, string>) {
+async function saveOrgStrategy(sb: DB, requestId: string, raw: string, refMap: Record<string, string>) {
   const { parseOrgStrategy } = await import("@/lib/org/strategy");
   let body: Record<string, unknown>; let structured = true;
-  try { body = parseOrgStrategy(raw, refMap, refNames); }
-  catch { structured = false; body = { title: "Organization strategy (unstructured answer)", summary: raw.trim().slice(0, 3900) || "No answer text.", unstructured: true }; }
+  try { body = parseOrgStrategy(raw, refMap); }
+  catch { structured = false; body = { title: "Organization strategy (unstructured answer)", summary: raw.trim().slice(0, 3900) || "No answer text.", unstructured: true, refs: refMap }; }
   const r = await (sb as unknown as PendingDB).rpc("finish_org_strategy_verified", { _id: requestId, _reply: raw.trim() || "(empty)", _strategy: body as never, _proof: accountingProof() });
   if (r.error) throw new Error("Your paid strategy is preserved. Recover saved work on the organization page; nothing will be sent again.");
   const out = z.object({ strategy_id: z.string().uuid(), version: z.number(), credits: z.number(), opportunities: z.number(), replayed: z.boolean() }).parse(r.data);
@@ -992,8 +992,8 @@ export const planOrganizationStrategy = createServerFn({ method: "POST" })
       if (installed.error) throw new Error(isNotInstalled(installed.error) ? ORG_INTEL_OFF : "Could not read organization strategies.");
       await assertEntitled(sb, data.orgId, "ai_assistant");
       const businesses = (ws.data ?? []).map((w) => ({ id: w.id, name: w.name })).sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
-      const refMap: Record<string, string> = {}; const refNames: Record<string, string> = {}; const refOf = new Map<string, string>();
-      businesses.forEach((b, i) => { refMap[`B${i + 1}`] = b.id; refNames[`B${i + 1}`] = b.name; refOf.set(b.id, `B${i + 1}`); });
+      const refMap: Record<string, string> = {}; const refOf = new Map<string, string>();
+      businesses.forEach((b, i) => { refMap[`B${i + 1}`] = b.id; refOf.set(b.id, `B${i + 1}`); });
 
       const input = { request: `Organization strategy (${ids.length} businesses, ${data.horizonMonths} months)`, businesses: ids, horizonMonths: data.horizonMonths, focus: data.focus, locale: data.locale };
       const claimed = await pending.rpc("begin_org_ai_request_verified", { _org: data.orgId, _workspace: data.anchorWorkspaceId, _request: data.requestKey, _input: input as never, _proof: accountingProof() });
@@ -1042,7 +1042,7 @@ export const planOrganizationStrategy = createServerFn({ method: "POST" })
         input: [{ role: "user", content: `${quoteUntrusted("organization brief", brief, 14000)}\n\n${contexts.join("\n\n")}` }],
         maxOutputTokens: 5000,
       });
-      const saved = await saveOrgStrategy(sb, attempt.id, result.text, refMap, refNames);
+      const saved = await saveOrgStrategy(sb, attempt.id, result.text, refMap);
       return { ok: true, data: { strategyId: saved.strategy_id, version: saved.version, credits: result.credits, opportunities: saved.opportunities, structured: saved.structured } };
     } catch (error) {
       if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId).neq("status", "succeeded");
@@ -1067,8 +1067,8 @@ export const recoverOrgStrategy = createServerFn({ method: "POST" })
         const ws = await sb.from("workspaces").select("id,name").eq("org_id", data.orgId).in("id", ids);
         if (ws.error) throw new Error("Could not read the businesses.");
         const sorted = (ws.data ?? []).sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
-        const refMap: Record<string, string> = {}; const refNames: Record<string, string> = {}; sorted.forEach((b, i) => { refMap[`B${i + 1}`] = b.id; refNames[`B${i + 1}`] = b.name; });
-        await saveOrgStrategy(sb, row.data.id, receipt.data.response_text, refMap, refNames);
+        const refMap: Record<string, string> = {}; sorted.forEach((b, i) => { refMap[`B${i + 1}`] = b.id; });
+        await saveOrgStrategy(sb, row.data.id, receipt.data.response_text, refMap);
         return { ok: true, data: { status: "saved" } };
       }
       if (!receipt.data || receipt.data.state === "not_started") {

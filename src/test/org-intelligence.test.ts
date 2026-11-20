@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { MESSAGES } from "@/lib/i18n/messages";
 import { detectOpportunities, type OppBusiness } from "@/lib/org/opportunities";
 import { allocationRecommendations, type BudgetLineLite } from "@/lib/org/allocation";
-import { parseOrgStrategy, OPP_KINDS, EVIDENCE_CLASSES } from "@/lib/org/strategy";
+import { parseOrgStrategy, OPP_KINDS, EVIDENCE_CLASSES, nameRefs, strategyRefs, businessLabels } from "@/lib/org/strategy";
+import { attribution, creditOverviewSchema, specialistTotals } from "@/lib/org/credits";
 import { score, explain, rankActions, FACTORS, type Factors } from "@/lib/org/priorities";
 import { parseTaskLines, parseMetricLines } from "@/lib/org/initiative-input";
 import type { BusinessRow } from "@/lib/org/consolidation";
@@ -61,9 +62,24 @@ describe("organization strategy answers", () => {
     expect(s.initiatives.map((i) => i.title)).toEqual(["Office bundle"]);
     expect(s.opportunities[0]?.business_ids).toEqual([A, B]);
   });
-  it("names businesses in prose instead of internal references", () => {
-    const s = parseOrgStrategy(JSON.stringify({ title: "Plan", summary: "Protect B1 while B2 builds facts; B9 is unknown." }), { B1: A, B2: B }, { B1: "Bakery", B2: "Catering" });
-    expect(s.summary).toBe("Protect Bakery while Catering builds facts; B9 is unknown.");
+  it("keeps the stored text unchanged and saves the reference map with the strategy", () => {
+    const s = parseOrgStrategy(JSON.stringify({ title: "Plan", summary: "Protect B1 while B2 builds facts." }), { B1: A, B2: B });
+    expect(s.summary).toBe("Protect B1 while B2 builds facts.");
+    expect(s.refs).toEqual({ B1: A, B2: B });
+  });
+  it("fills in business names at display time, leaving unknown references and id fields alone", () => {
+    const named = nameRefs({ summary: "B1 and B2, not B9", business_id: A }, { B1: "Bakery", B2: "Catering" });
+    expect(named).toEqual({ summary: "Bakery and Catering, not B9", business_id: A });
+  });
+  it("reconstructs references of an earlier draft in generation order (name, then id)", () => {
+    const r = strategyRefs({ title: "old" }, [A, B], [{ id: B, name: "Bakery" }, { id: A, name: "Catering" }]);
+    expect(r).toEqual({ refs: { B1: B, B2: A }, reconstructed: true });
+    expect(strategyRefs({ refs: { B1: A } }, [A, B], []).refs).toEqual({ B1: A });
+  });
+  it("keeps businesses with the same name distinguishable", () => {
+    const l = businessLabels([{ id: A, name: "Bakery" }, { id: B, name: " bakery " }, { id: "c".repeat(36), name: "Catering" }]);
+    expect(l.get(A)).not.toBe(l.get(B));
+    expect(l.get("c".repeat(36))).toBe("Catering");
   });
   it("rejects answers that are not valid JSON", () => {
     expect(() => parseOrgStrategy("not json", { B1: A })).toThrow();
@@ -106,5 +122,21 @@ describe("organization interface texts", () => {
   it("has every organization text used by the rules, in all three languages", () => {
     for (const k of need) for (const l of ["en", "nl", "fr"] as const) expect((MESSAGES[l] as Record<string, string>)[k], `${l}:${k}`).toBeTruthy();
     expect(Object.keys(en).filter((k) => k.startsWith("ogo.")).length).toBeGreaterThan(300);
+  });
+});
+
+describe("organization AI credits", () => {
+  const o = creditOverviewSchema.parse({
+    month: "2026-11-01", balance: 300, granted: 400, reserved_pending: 4, consumed: 95, consumed_month: 20, released: 7, direct_used: 1, other_debits: 1, runs: 5, reconciles: true,
+    org_officer: { consumed: 10, consumed_month: 10, reserved_pending: 0, runs: 1 },
+    businesses: [{ workspace_id: A, consumed: 60, consumed_month: 9, reserved_pending: 0, released: 2, runs: 2 }, { workspace_id: B, consumed: 20, consumed_month: 1, reserved_pending: 4, released: 3, runs: 2 }],
+    specialists: [{ workspace_id: A, agent_key: "seo", consumed: 60, consumed_month: 9, reserved_pending: 0, runs: 2 }, { workspace_id: B, agent_key: "seo", consumed: 15, consumed_month: 1, reserved_pending: 0, runs: 1 }, { workspace_id: B, agent_key: "content", consumed: 5, consumed_month: 0, reserved_pending: 4, runs: 1 }],
+    not_visible: { consumed: 4, consumed_month: 0, reserved_pending: 0 },
+  });
+  it("adds businesses, the Organization Growth Officer, hidden businesses and older usage up to the organization total exactly once", () => {
+    expect(attribution(o)).toMatchObject({ total: 95, matches: true });
+  });
+  it("totals one specialist across businesses without counting a run twice", () => {
+    expect(specialistTotals(o)[0]).toMatchObject({ agent_key: "seo", consumed: 75, runs: 3, businesses: 2 });
   });
 });

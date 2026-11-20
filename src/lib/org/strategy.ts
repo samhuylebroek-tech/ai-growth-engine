@@ -30,21 +30,47 @@ export const orgStrategySchema = z.object({
 });
 export type OrgStrategyRaw = z.infer<typeof orgStrategySchema>;
 
-/** Replaces B1/B2 references the model used in prose with business names; ids are never in prose. */
-function nameRefs<T>(v: T, names: Readonly<Record<string, string>>): T {
-  if (typeof v === "string") return v.replace(/\bB(\d{1,2})\b/g, (m) => names[m] ?? m) as T;
-  if (Array.isArray(v)) return v.map((x) => nameRefs(x, names)) as T;
-  if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, k === "business_id" || k === "business_ids" || k === "businesses" ? x : nameRefs(x, names)])) as T;
+/** Replaces B1/B2 references the model used in prose with labels; id fields are left untouched. Stored text is never rewritten: this runs at display time. */
+export function nameRefs<T>(v: T, labels: Readonly<Record<string, string>>): T {
+  if (typeof v === "string") return v.replace(/\bB(\d{1,2})\b/g, (m) => labels[m] ?? m) as T;
+  if (Array.isArray(v)) return v.map((x) => nameRefs(x, labels)) as T;
+  if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, k === "business_id" || k === "business_ids" || k === "businesses" || k === "refs" ? x : nameRefs(x, labels)])) as T;
   return v;
 }
 
+/** Same order as at generation time: businesses sorted by name, then id. */
+export function assignRefs(bs: readonly { id: string; name: string }[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  [...bs].sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id)).forEach((b, i) => { out[`B${i + 1}`] = b.id; });
+  return out;
+}
+
+/** Display labels per business id; businesses whose names look the same get a short id suffix so they stay distinguishable. */
+export function businessLabels(bs: readonly { id: string; name: string }[]): Map<string, string> {
+  const key = (n: string) => n.trim().toLocaleLowerCase().replace(/\s+/g, " ");
+  const count = new Map<string, number>(); for (const b of bs) count.set(key(b.name), (count.get(key(b.name)) ?? 0) + 1);
+  return new Map(bs.map((b) => [b.id, (count.get(key(b.name)) ?? 0) > 1 ? `${b.name} · ${b.id.slice(0, 4)}` : b.name]));
+}
+
+/** The reference map of a stored strategy: saved with the strategy since 8.1; reconstructed for earlier drafts. */
+export function strategyRefs(body: unknown, businessIds: readonly string[], bs: readonly { id: string; name: string }[]): { refs: Record<string, string>; reconstructed: boolean } {
+  const saved = body && typeof body === "object" ? (body as Record<string, unknown>)["refs"] : null;
+  if (saved && typeof saved === "object" && !Array.isArray(saved)) {
+    const refs = Object.fromEntries(Object.entries(saved as Record<string, unknown>).filter((e): e is [string, string] => /^B\d{1,2}$/.test(e[0]) && typeof e[1] === "string"));
+    return { refs, reconstructed: false };
+  }
+  const known = bs.filter((b) => businessIds.includes(b.id));
+  return { refs: known.length === businessIds.length ? assignRefs(known) : {}, reconstructed: true };
+}
+
 /** Validates the model's JSON and maps business references to ids; unknown references are removed. */
-export function parseOrgStrategy(raw: string, refMap: Readonly<Record<string, string>>, refNames: Readonly<Record<string, string>> = {}) {
+export function parseOrgStrategy(raw: string, refMap: Readonly<Record<string, string>>) {
   const text = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
   const parsed = orgStrategySchema.parse(JSON.parse(text));
   const id = (r: string) => refMap[r] ?? null;
   const ids = (rs: readonly string[]) => [...new Set(rs.map(id).filter((x): x is string => !!x))];
-  return nameRefs({
+  return {
+    refs: { ...refMap },
     title: parsed.title, summary: parsed.summary, objectives: parsed.objectives,
     business_priorities: parsed.business_priorities.flatMap((p) => (id(p.business) ? [{ business_id: id(p.business)!, priority: p.priority, focus: p.focus, rationale: p.rationale }] : [])),
     collaboration: parsed.collaboration,
@@ -57,7 +83,7 @@ export function parseOrgStrategy(raw: string, refMap: Readonly<Record<string, st
     data_gaps: parsed.data_gaps,
     opportunities: parsed.opportunities.map((o) => ({ kind: o.kind, title: o.title, business_ids: ids(o.businesses), evidence: o.evidence, expected_impact: o.expected_impact,
       estimated_cost: o.estimated_cost, dependencies: o.dependencies, risks: o.risks, confidence: o.confidence, next_action: o.next_action })).filter((o) => o.business_ids.length >= 2),
-  }, refNames);
+  };
 }
 export type OrgStrategy = ReturnType<typeof parseOrgStrategy>;
 /** The saved strategy body (opportunities are stored as separate records). */

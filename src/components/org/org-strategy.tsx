@@ -16,7 +16,7 @@ import { Section, sel, useFmt } from "@/components/bi/parts";
 import { Panel, StatusChip } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { tk, newKey, useNames, EvidenceBadge, Empty, type OrgModel } from "@/components/org/org-model";
+import { tk, useRefNamer, newKey, useNames, EvidenceBadge, Empty, type OrgModel } from "@/components/org/org-model";
 
 export const INITIATIVE_DRAFT_KEY = (org: string) => `ogo-initiative-draft:${org}`;
 export type InitiativeDraft = { title: string; shared: string; businesses: string[]; objectives: Record<string, string>; opportunityId?: string; strategyId?: string };
@@ -121,7 +121,9 @@ function StrategyCard({ s }: { s: OrgStrategyRow }) {
   const o = useOrg(); const { t } = useI18n(); const f = useFmt(); const qc = useQueryClient(); const name = useNames(); const navigate = useNavigate();
   const [openBody, setOpenBody] = useState(s.status === "draft" || s.status === "approved");
   const [note, setNote] = useState(""); const [busy, setBusy] = useState(false);
-  const parsed = orgStrategyBodySchema.safeParse(s.body); const b = parsed.success ? parsed.data : null;
+  const { named, reconstructed } = useRefNamer()(s.body, s.business_ids);
+  // Stored text keeps the model's B1/B2 references; names are filled in here, so renames and every language show current names.
+  const parsed = orgStrategyBodySchema.safeParse(s.body); const b = parsed.success ? named(parsed.data) : null;
   const unstructured = !!(s.body && typeof s.body === "object" && (s.body as Record<string, unknown>)["unstructured"]);
   const admin = can(o.role, "org.strategy");
   async function decide(d: "approve" | "reject" | "retire") {
@@ -142,10 +144,11 @@ function StrategyCard({ s }: { s: OrgStrategyRow }) {
   return <Panel>
     <div className="flex flex-wrap items-start justify-between gap-2">
       <div className="min-w-0"><p className="text-xs text-muted-foreground">{t("ogo.strat.meta", { v: String(s.version), date: f.date(s.created_at), months: String(s.horizon_months), n: String(s.business_ids.length) })}</p>
-        <p className="mt-1 font-medium">{s.title}</p></div>
+        <p className="mt-1 font-medium">{named(s.title)}</p></div>
       <StatusChip status={s.status}>{t(tk(`ogo.strat.status.${s.status}`))}</StatusChip>
     </div>
-    <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{s.summary}</p>
+    <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{named(s.summary)}</p>
+    {reconstructed && /\bB\d{1,2}\b/.test(JSON.stringify(s.body ?? "") + s.summary) && <p className="mt-1 text-[11px] text-muted-foreground">{t("ogo.strat.namesReconstructed")}</p>}
     <p className="mt-2 text-xs text-muted-foreground">{t("ogo.strat.covers", { names: s.business_ids.map(name).join(" · ") })}</p>
     {unstructured && <p className="mt-2 text-xs text-warning">{t("ogo.strat.unstructured")}</p>}
     {b && !unstructured && <Button size="sm" variant="ghost" className="mt-2 px-0" onClick={() => setOpenBody((x) => !x)}>{openBody ? t("ogo.strat.hide") : t("ogo.strat.show")}</Button>}

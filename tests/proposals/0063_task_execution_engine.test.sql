@@ -24,48 +24,48 @@ begin
   insert into public.tasks(org_id,workspace_id,title) values(o,w,'Analyse lunch demand') returning id into t1;
   insert into public.tasks(org_id,workspace_id,title) values(o,w,'Write the offer page') returning id into t2;
   insert into public.tasks(org_id,workspace_id,title) values(o,w,'Launch LinkedIn ads') returning id into t3;
-  begin perform public.queue_task_run(t1,k1,8); fail:=fail+1; failures:=failures||' queued_without_specialist'; exception when others then pass:=pass+1; end;
+  begin perform public.queue_task_run(t1,k1,8); fail:=fail+1; failures:=failures||' queued_without_specialist'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   perform public.assign_task_specialist(t1,'market_research','analysis',false);
   perform public.assign_task_specialist(t2,'copywriter','preparation',false);
   perform public.assign_task_specialist(t3,'advertising','external',false);
-  begin perform public.assign_task_specialist(t1,'wizard','analysis',false); fail:=fail+1; failures:=failures||' unknown_specialist'; exception when others then pass:=pass+1; end;
-  begin perform public.queue_task_run(t3,gen_random_uuid(),8); fail:=fail+1; failures:=failures||' external_queued'; exception when others then pass:=pass+1; end;
-  begin perform public.queue_task_run(t1,gen_random_uuid(),21); fail:=fail+1; failures:=failures||' over_run_cap'; exception when others then pass:=pass+1; end;
+  begin perform public.assign_task_specialist(t1,'wizard','analysis',false); fail:=fail+1; failures:=failures||' unknown_specialist'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.queue_task_run(t3,gen_random_uuid(),8); fail:=fail+1; failures:=failures||' external_queued'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.queue_task_run(t1,gen_random_uuid(),21); fail:=fail+1; failures:=failures||' over_run_cap'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   -- dependency: t2 depends on t1, so it is blocked until t1 is done
   insert into public.execution_notes(org_id,workspace_id,entity_type,entity_id,kind,related_id) values(o,w,'tasks',t2,'dependency',t1);
-  begin perform public.queue_task_run(t2,gen_random_uuid(),8); fail:=fail+1; failures:=failures||' dependency_ignored'; exception when others then pass:=pass+1; end;
+  begin perform public.queue_task_run(t2,gen_random_uuid(),8); fail:=fail+1; failures:=failures||' dependency_ignored'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   r := public.queue_task_run(t1,k1,8); run := (r->>'id')::uuid;
   if r->>'status'='queued' and (r->>'attempt')::int=1 then pass:=pass+1; else fail:=fail+1; failures:=failures||' queued'; end if;
   r2 := public.queue_task_run(t1,k1,8);
   if r2->>'id'=r->>'id' then pass:=pass+1; else fail:=fail+1; failures:=failures||' idempotent'; end if;
-  begin perform public.queue_task_run(t1,gen_random_uuid(),8); fail:=fail+1; failures:=failures||' second_active_run'; exception when others then pass:=pass+1; end;
+  begin perform public.queue_task_run(t1,gen_random_uuid(),8); fail:=fail+1; failures:=failures||' second_active_run'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   select status into st from public.tasks where id=t1; if st='in_progress' then pass:=pass+1; else fail:=fail+1; failures:=failures||' task_in_progress'; end if;
   begin insert into public.task_runs(org_id,workspace_id,task_id,request_key,specialist_key,task_type,mode,attempt,status,estimated_credits,requested_by) values(o,w,t1,gen_random_uuid(),'seo','analysis',2,1,'queued',1,um); fail:=fail+1; failures:=failures||' direct_insert';
-  exception when others then pass:=pass+1; end;
+  exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   begin update public.task_runs set status='succeeded' where id=run; get diagnostics n = row_count; if n=0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' direct_update'; end if;
-  exception when others then pass:=pass+1; end;
+  exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   -- pause / resume
   r := public.control_task_run(run,'pause'); if r->>'status'='paused' then pass:=pass+1; else fail:=fail+1; failures:=failures||' paused'; end if;
-  begin perform public.start_task_run_verified(run,'rollback-fixture-only'); fail:=fail+1; failures:=failures||' started_paused'; exception when others then pass:=pass+1; end;
+  begin perform public.start_task_run_verified(run,'rollback-fixture-only'); fail:=fail+1; failures:=failures||' started_paused'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   r := public.control_task_run(run,'resume'); if r->>'status'='queued' then pass:=pass+1; else fail:=fail+1; failures:=failures||' resumed'; end if;
   -- server-only start
-  begin perform public.start_task_run_verified(run,'forged'); fail:=fail+1; failures:=failures||' start_without_proof'; exception when others then pass:=pass+1; end;
+  begin perform public.start_task_run_verified(run,'forged'); fail:=fail+1; failures:=failures||' start_without_proof'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   r := public.start_task_run_verified(run,'rollback-fixture-only'); if r->>'status'='running' then pass:=pass+1; else fail:=fail+1; failures:=failures||' running'; end if;
-  begin perform public.control_task_run(run,'cancel'); fail:=fail+1; failures:=failures||' cancelled_running'; exception when others then pass:=pass+1; end;
+  begin perform public.control_task_run(run,'cancel'); fail:=fail+1; failures:=failures||' cancelled_running'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
 
   -- viewer and outsider
   perform set_config('request.jwt.claims', json_build_object('sub',uv,'role','authenticated')::text, true); execute 'set local role authenticated';
   select count(*) into c from public.task_runs where id=run; if c=1 then pass:=pass+1; else fail:=fail+1; failures:=failures||' viewer_reads'; end if;
-  begin perform public.queue_task_run(t2,gen_random_uuid(),8); fail:=fail+1; failures:=failures||' viewer_queued'; exception when others then pass:=pass+1; end;
-  begin perform public.assign_task_specialist(t2,'seo','analysis',false); fail:=fail+1; failures:=failures||' viewer_assigned'; exception when others then pass:=pass+1; end;
-  begin perform public.reconcile_task_runs(w); fail:=fail+1; failures:=failures||' viewer_reconciled'; exception when others then pass:=pass+1; end;
+  begin perform public.queue_task_run(t2,gen_random_uuid(),8); fail:=fail+1; failures:=failures||' viewer_queued'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.assign_task_specialist(t2,'seo','analysis',false); fail:=fail+1; failures:=failures||' viewer_assigned'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.reconcile_task_runs(w); fail:=fail+1; failures:=failures||' viewer_reconciled'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
   perform set_config('request.jwt.claims', json_build_object('sub',ux,'role','authenticated')::text, true); execute 'set local role authenticated';
   select count(*) into c from public.task_runs where workspace_id=w; if c=0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' outsider_reads_runs'; end if;
   select count(*) into c from public.task_execution_profiles where workspace_id=w; if c=0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' outsider_reads_profiles'; end if;
-  begin perform public.control_task_run(run,'pause'); fail:=fail+1; failures:=failures||' outsider_controlled'; exception when others then pass:=pass+1; end;
-  begin perform public.set_execution_settings(w,4,50,1000); fail:=fail+1; failures:=failures||' outsider_settings'; exception when others then pass:=pass+1; end;
+  begin perform public.control_task_run(run,'pause'); fail:=fail+1; failures:=failures||' outsider_controlled'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.set_execution_settings(w,4,50,1000); fail:=fail+1; failures:=failures||' outsider_settings'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
 
   -- the outcome follows the recorded AI request (simulated as the accounting functions would leave it)
@@ -73,12 +73,12 @@ begin
   insert into public.single_ai_requests(org_id,workspace_id,user_id,request_key,kind,input,run_id,status,reply,credits)
     values(o,w,um,k1,'research','{"request":"x"}',ar,'succeeded','# Result',6) returning id into sr;
   perform set_config('request.jwt.claims', json_build_object('sub',um,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.link_task_run_request_verified(run,gen_random_uuid(),'rollback-fixture-only'); fail:=fail+1; failures:=failures||' linked_foreign'; exception when others then pass:=pass+1; end;
+  begin perform public.link_task_run_request_verified(run,gen_random_uuid(),'rollback-fixture-only'); fail:=fail+1; failures:=failures||' linked_foreign'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   perform public.link_task_run_request_verified(run,sr,'rollback-fixture-only');
   r := public.finish_task_run_verified(run,'{"title":"Lunch demand"}','', 'rollback-fixture-only');
   if r->>'status'='succeeded' and (r->>'credits_charged')::int=6 then pass:=pass+1; else fail:=fail+1; failures:=failures||' finished '||coalesce(r->>'status','?'); end if;
   select status into st from public.tasks where id=t1; if st='review' then pass:=pass+1; else fail:=fail+1; failures:=failures||' task_review'; end if;
-  begin perform public.finish_task_run_verified(run,'{"title":"again"}','','rollback-fixture-only'); fail:=fail+1; failures:=failures||' finished_twice'; exception when others then pass:=pass+1; end;
+  begin perform public.finish_task_run_verified(run,'{"title":"again"}','','rollback-fixture-only'); fail:=fail+1; failures:=failures||' finished_twice'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   select count(*) into c from public.activity_events where entity_type='tasks' and entity_id=t1 and action like 'run_%'; if c>=5 then pass:=pass+1; else fail:=fail+1; failures:=failures||' history '||c; end if;
 
   -- timed-out run before dispatch is settled as failed with nothing charged; a retry is then possible
@@ -105,29 +105,29 @@ begin
   perform set_config('request.jwt.claims', json_build_object('sub',um,'role','authenticated')::text, true); execute 'set local role authenticated';
   perform public.reconcile_task_runs(w);
   select status into st from public.task_runs where id=run; if st='uncertain' then pass:=pass+1; else fail:=fail+1; failures:=failures||' uncertain '||st; end if;
-  begin perform public.queue_task_run(t2,gen_random_uuid(),8); fail:=fail+1; failures:=failures||' retried_uncertain'; exception when others then pass:=pass+1; end;
+  begin perform public.queue_task_run(t2,gen_random_uuid(),8); fail:=fail+1; failures:=failures||' retried_uncertain'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
   update public.single_ai_requests set status='failed' where id=sr;
   perform set_config('request.jwt.claims', json_build_object('sub',um,'role','authenticated')::text, true); execute 'set local role authenticated';
   perform public.reconcile_task_runs(w);
   select status into st from public.task_runs where id=run; if st='failed' then pass:=pass+1; else fail:=fail+1; failures:=failures||' uncertain_resolved '||st; end if;
-  begin perform public.set_execution_settings(w,4,50,1000); fail:=fail+1; failures:=failures||' member_settings'; exception when others then pass:=pass+1; end;
+  begin perform public.set_execution_settings(w,4,50,1000); fail:=fail+1; failures:=failures||' member_settings'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
 
   if public.task_run_ai_state(null) = 'none' then pass:=pass+1; else fail:=fail+1; failures:=failures||' state_none'; end if;
   -- mode 3: every run needs an admin decision; rejection needs a reason
   perform set_config('request.jwt.claims', json_build_object('sub',uo,'role','authenticated')::text, true); execute 'set local role authenticated';
   perform public.set_execution_settings(w,3,20,200);
-  begin perform public.set_execution_settings(w,5,20,200); fail:=fail+1; failures:=failures||' bad_mode'; exception when others then pass:=pass+1; end;
+  begin perform public.set_execution_settings(w,5,20,200); fail:=fail+1; failures:=failures||' bad_mode'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
   perform set_config('request.jwt.claims', json_build_object('sub',um,'role','authenticated')::text, true); execute 'set local role authenticated';
   r := public.queue_task_run(t2,gen_random_uuid(),8); run := (r->>'id')::uuid;
   if r->>'status'='awaiting_approval' then pass:=pass+1; else fail:=fail+1; failures:=failures||' awaiting'; end if;
-  begin perform public.start_task_run_verified(run,'rollback-fixture-only'); fail:=fail+1; failures:=failures||' started_unapproved'; exception when others then pass:=pass+1; end;
-  begin perform public.decide_task_run(run,'approved',''); fail:=fail+1; failures:=failures||' member_approved'; exception when others then pass:=pass+1; end;
+  begin perform public.start_task_run_verified(run,'rollback-fixture-only'); fail:=fail+1; failures:=failures||' started_unapproved'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.decide_task_run(run,'approved',''); fail:=fail+1; failures:=failures||' member_approved'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
   perform set_config('request.jwt.claims', json_build_object('sub',uo,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.decide_task_run(run,'rejected',' '); fail:=fail+1; failures:=failures||' reject_no_reason'; exception when others then pass:=pass+1; end;
+  begin perform public.decide_task_run(run,'rejected',' '); fail:=fail+1; failures:=failures||' reject_no_reason'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   r := public.decide_task_run(run,'approved','Fine within budget');
   if r->>'status'='queued' then pass:=pass+1; else fail:=fail+1; failures:=failures||' approved'; end if;
   r := public.start_task_run_verified(run,'rollback-fixture-only'); if r->>'status'='running' then pass:=pass+1; else fail:=fail+1; failures:=failures||' approved_started'; end if;
@@ -137,9 +137,9 @@ begin
   update public.task_runs set lease_until=now()-interval '1 minute' where id=run;
   perform set_config('request.jwt.claims', json_build_object('sub',uo,'role','authenticated')::text, true); execute 'set local role authenticated';
   perform public.reconcile_task_runs(w);
-  begin perform public.queue_task_run(t2,gen_random_uuid(),8); fail:=fail+1; failures:=failures||' fourth_attempt'; exception when others then pass:=pass+1; end;
+  begin perform public.queue_task_run(t2,gen_random_uuid(),8); fail:=fail+1; failures:=failures||' fourth_attempt'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
-  begin delete from public.task_runs where id=run; fail:=fail+1; failures:=failures||' deleted'; exception when others then pass:=pass+1; end;
+  begin delete from public.task_runs where id=run; fail:=fail+1; failures:=failures||' deleted'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   if not has_table_privilege('authenticated','public.task_runs','insert') and not has_table_privilege('authenticated','public.task_runs','update') then pass:=pass+1; else fail:=fail+1; failures:=failures||' grants'; end if;
   raise exception 'TASK_EXECUTION_RESULT pass=% fail=% failures=[%]', pass, fail, trim(failures);
 end $$;

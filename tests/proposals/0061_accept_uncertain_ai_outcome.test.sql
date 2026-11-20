@@ -27,14 +27,14 @@ begin
   perform public.record_ai_outcome_verified(rid,k,false,'{}'::jsonb,P);
   begin perform public.begin_single_ai_request_verified(o,w,gen_random_uuid(),'strategy',inp,P); fail:=fail+1; failures:=failures||' not_blocked';
   exception when others then if sqlerrm like 'Recover pending AI work%' then pass:=pass+1; else fail:=fail+1; failures:=failures||' block_msg:'||left(sqlerrm,40); end if; end;
-  begin perform public.accept_unknown_ai_outcome_verified(rid,'forged'); fail:=fail+1; failures:=failures||' no_proof'; exception when others then pass:=pass+1; end;
+  begin perform public.accept_unknown_ai_outcome_verified(rid,'forged'); fail:=fail+1; failures:=failures||' no_proof'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
 
   perform set_config('request.jwt.claims', json_build_object('sub',ux,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.accept_unknown_ai_outcome_verified(rid,P); fail:=fail+1; failures:=failures||' outsider'; exception when others then pass:=pass+1; end;
+  begin perform public.accept_unknown_ai_outcome_verified(rid,P); fail:=fail+1; failures:=failures||' outsider'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
   perform set_config('request.jwt.claims', json_build_object('sub',uv,'role','authenticated')::text, true); execute 'set local role authenticated';
-  begin perform public.accept_unknown_ai_outcome_verified(rid,P); fail:=fail+1; failures:=failures||' viewer'; exception when others then pass:=pass+1; end;
+  begin perform public.accept_unknown_ai_outcome_verified(rid,P); fail:=fail+1; failures:=failures||' viewer'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
 
   -- org owner accepts on the member's behalf; balance does not move (already reserved)
@@ -43,7 +43,7 @@ begin
   ch := public.accept_unknown_ai_outcome_verified(rid,P);
   bal_after := public.credit_balance(o);
   if ch = 50 and bal_before = bal_after then pass:=pass+1; else fail:=fail+1; failures:=failures||' charge_or_balance('||ch||','||bal_before||','||bal_after||')'; end if;
-  begin perform public.accept_unknown_ai_outcome_verified(rid,P); fail:=fail+1; failures:=failures||' accepted_twice'; exception when others then pass:=pass+1; end;
+  begin perform public.accept_unknown_ai_outcome_verified(rid,P); fail:=fail+1; failures:=failures||' accepted_twice'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
 
   select count(*) into n from public.ai_usage_events where run_id=rid and credits_charged=50 and user_id=um; if n=1 then pass:=pass+1; else fail:=fail+1; failures:=failures||' usage_event'; end if;
@@ -58,7 +58,7 @@ begin
   if (a->>'claimed')::boolean then pass:=pass+1; else fail:=fail+1; failures:=failures||' still_blocked'; end if;
   perform public.reserve_ai_credits(rid2,50);
   k := public.claim_ai_dispatch_verified(rid2,P);
-  begin perform public.accept_unknown_ai_outcome_verified(rid2,P); fail:=fail+1; failures:=failures||' inflight_accepted'; exception when others then pass:=pass+1; end;
+  begin perform public.accept_unknown_ai_outcome_verified(rid2,P); fail:=fail+1; failures:=failures||' inflight_accepted'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
 
   if not has_function_privilege('anon','public.accept_unknown_ai_outcome_verified(uuid,text)','execute') then pass:=pass+1; else fail:=fail+1; failures:=failures||' anon_exec'; end if;

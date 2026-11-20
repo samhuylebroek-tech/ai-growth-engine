@@ -30,33 +30,33 @@ begin
   begin insert into public.growth_opportunities(org_id,workspace_id,request_key,position,domain,title,summary,impact,feasibility,cost,time_to_value,risk,horizon_days,confidence,created_by)
     values(oa,wa,k,1,'sales','Duplicate position','x',3,3,3,3,3,60,'low',um); fail:=fail+1; failures:=failures||' duplicate_position'; exception when unique_violation then pass:=pass+1; end;
   begin insert into public.growth_opportunities(org_id,workspace_id,request_key,position,domain,title,summary,impact,feasibility,cost,time_to_value,risk,horizon_days,confidence,created_by,status)
-    values(oa,wa,gen_random_uuid(),1,'sales','Pre-shortlisted','x',3,3,3,3,3,60,'low',um,'shortlisted'); fail:=fail+1; failures:=failures||' insert_with_status'; exception when others then pass:=pass+1; end;
+    values(oa,wa,gen_random_uuid(),1,'sales','Pre-shortlisted','x',3,3,3,3,3,60,'low',um,'shortlisted'); fail:=fail+1; failures:=failures||' insert_with_status'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   begin insert into public.growth_opportunities(org_id,workspace_id,request_key,position,domain,title,summary,impact,feasibility,cost,time_to_value,risk,horizon_days,confidence,created_by)
-    values(oa,wa,gen_random_uuid(),1,'sales','Bad score','x',9,3,3,3,3,60,'low',um); fail:=fail+1; failures:=failures||' score_range'; exception when others then pass:=pass+1; end;
+    values(oa,wa,gen_random_uuid(),1,'sales','Bad score','x',9,3,3,3,3,60,'low',um); fail:=fail+1; failures:=failures||' score_range'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   begin insert into public.growth_opportunities(org_id,workspace_id,request_key,position,domain,title,summary,impact,feasibility,cost,time_to_value,risk,horizon_days,confidence,created_by)
-    values(oa,wa,gen_random_uuid(),1,'sales','Other creator','x',3,3,3,3,3,60,'low',ua); fail:=fail+1; failures:=failures||' impersonated_creator'; exception when others then pass:=pass+1; end;
+    values(oa,wa,gen_random_uuid(),1,'sales','Other creator','x',3,3,3,3,3,60,'low',ua); fail:=fail+1; failures:=failures||' impersonated_creator'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   begin insert into public.growth_opportunities(org_id,workspace_id,request_key,position,domain,title,summary,impact,feasibility,cost,time_to_value,risk,horizon_days,confidence,created_by)
-    values(oa,wb,gen_random_uuid(),1,'sales','Foreign workspace','x',3,3,3,3,3,60,'low',um); fail:=fail+1; failures:=failures||' foreign_workspace_insert'; exception when others then pass:=pass+1; end;
-  begin update public.growth_opportunities set title='Changed' where id=op; get diagnostics n = row_count; if n=0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' direct_update'; end if; exception when others then pass:=pass+1; end;
-  begin delete from public.growth_opportunities where id=op; get diagnostics n = row_count; if n=0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' direct_delete'; end if; exception when others then pass:=pass+1; end;
+    values(oa,wb,gen_random_uuid(),1,'sales','Foreign workspace','x',3,3,3,3,3,60,'low',um); fail:=fail+1; failures:=failures||' foreign_workspace_insert'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin update public.growth_opportunities set title='Changed' where id=op; get diagnostics n = row_count; if n=0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' direct_update'; end if; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin delete from public.growth_opportunities where id=op; get diagnostics n = row_count; if n=0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' direct_delete'; end if; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   if public.set_growth_opportunity_status(op2,'shortlisted')='shortlisted' then pass:=pass+1; else fail:=fail+1; failures:=failures||' shortlist'; end if;
-  begin perform public.set_growth_opportunity_status(op2,'converted'); fail:=fail+1; failures:=failures||' status_converted_direct'; exception when others then pass:=pass+1; end;
+  begin perform public.set_growth_opportunity_status(op2,'converted'); fail:=fail+1; failures:=failures||' status_converted_direct'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
 
   -- viewer reads, cannot decide or insert
   perform set_config('request.jwt.claims', json_build_object('sub',uv,'role','authenticated')::text, true); execute 'set local role authenticated';
   select count(*) into n from public.growth_opportunities where workspace_id=wa; if n=2 then pass:=pass+1; else fail:=fail+1; failures:=failures||' viewer_read'; end if;
-  begin perform public.set_growth_opportunity_status(op,'dismissed'); fail:=fail+1; failures:=failures||' viewer_decide'; exception when others then pass:=pass+1; end;
-  begin perform public.convert_growth_opportunity(op); fail:=fail+1; failures:=failures||' viewer_convert'; exception when others then pass:=pass+1; end;
+  begin perform public.set_growth_opportunity_status(op,'dismissed'); fail:=fail+1; failures:=failures||' viewer_decide'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.convert_growth_opportunity(op); fail:=fail+1; failures:=failures||' viewer_convert'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   begin insert into public.growth_opportunities(org_id,workspace_id,request_key,position,domain,title,summary,impact,feasibility,cost,time_to_value,risk,horizon_days,confidence,created_by)
-    values(oa,wa,gen_random_uuid(),1,'sales','Viewer insert','x',3,3,3,3,3,60,'low',uv); fail:=fail+1; failures:=failures||' viewer_insert'; exception when others then pass:=pass+1; end;
+    values(oa,wa,gen_random_uuid(),1,'sales','Viewer insert','x',3,3,3,3,3,60,'low',uv); fail:=fail+1; failures:=failures||' viewer_insert'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
 
   -- outsider sees nothing and cannot act
   perform set_config('request.jwt.claims', json_build_object('sub',ub,'role','authenticated')::text, true); execute 'set local role authenticated';
   select count(*) into n from public.growth_opportunities where workspace_id=wa; if n=0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' outsider_read'; end if;
-  begin perform public.convert_growth_opportunity(op); fail:=fail+1; failures:=failures||' outsider_convert'; exception when others then pass:=pass+1; end;
-  begin perform public.set_growth_opportunity_status(op,'dismissed'); fail:=fail+1; failures:=failures||' outsider_decide'; exception when others then pass:=pass+1; end;
+  begin perform public.convert_growth_opportunity(op); fail:=fail+1; failures:=failures||' outsider_convert'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.set_growth_opportunity_status(op,'dismissed'); fail:=fail+1; failures:=failures||' outsider_decide'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
 
   -- member converts once; repeat returns the same goal
@@ -64,9 +64,9 @@ begin
   r := public.convert_growth_opportunity(op); r2 := public.convert_growth_opportunity(op);
   if (r->>'created')::boolean and not (r2->>'created')::boolean and r->>'goal_id' = r2->>'goal_id' then pass:=pass+1; else fail:=fail+1; failures:=failures||' convert_idempotent'; end if;
   select count(*) into n from public.growth_goals where id=(r->>'goal_id')::uuid and workspace_id=wa and objective='retention' and metric='Referred customers' and status='active'; if n=1 then pass:=pass+1; else fail:=fail+1; failures:=failures||' goal_fields'; end if;
-  begin perform public.set_growth_opportunity_status(op,'open'); fail:=fail+1; failures:=failures||' converted_reopen'; exception when others then pass:=pass+1; end;
+  begin perform public.set_growth_opportunity_status(op,'open'); fail:=fail+1; failures:=failures||' converted_reopen'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   perform public.set_growth_opportunity_status(op2,'dismissed');
-  begin perform public.convert_growth_opportunity(op2); fail:=fail+1; failures:=failures||' convert_dismissed'; exception when others then pass:=pass+1; end;
+  begin perform public.convert_growth_opportunity(op2); fail:=fail+1; failures:=failures||' convert_dismissed'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
 
   -- privileges

@@ -10,7 +10,7 @@ import { Section, sel, useFmt } from "@/components/bi/parts";
 import { PageHeader, Panel, EmptyState } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { tk, todayIso, useOrgModel, Tile, Empty, type Period, type OrgModel } from "@/components/org/org-model";
+import { tk, todayIso, useOrgModel, useRefNamer, Tile, Empty, type Period, type OrgModel } from "@/components/org/org-model";
 import { StrategyTab } from "@/components/org/org-strategy";
 import { OpportunitiesTab } from "@/components/org/org-opportunities";
 import { InitiativesTab } from "@/components/org/org-initiatives";
@@ -87,7 +87,7 @@ function SingleBusiness({ name }: { name: string }) {
 }
 
 function OverviewTab({ m, finance, cur, open, select, onTab, single }: { m: OrgModel; select: (id: string) => void; finance: boolean; cur: string; open: (id: string, to?: "/app" | "/app/goals" | "/app/campaigns" | "/app/tasks" | "/app/costs" | "/app/approvals") => void; onTab: (t: OrgTab) => void; single: boolean }) {
-  const { t } = useI18n(); const f = useFmt();
+  const { t } = useI18n(); const f = useFmt(); const refNamer = useRefNamer();
   const { view, iq } = m.model!;
   const rates = m.q.data?.rates ?? [];
   const conv = (x: Money) => convertMoney(x, cur, rates, todayIso());
@@ -110,8 +110,8 @@ function OverviewTab({ m, finance, cur, open, select, onTab, single }: { m: OrgM
     {!single && <Section title={t("ogo.officer.title")} intro={t("ogo.officer.intro")} action={<Button size="sm" variant="outline" onClick={() => onTab("strategy")}>{t("ogo.officer.open")}</Button>}>
       {m.intel.data && !m.intel.data.installed ? <Empty>{t("ogo.off")}</Empty> : iq.approved ? <Panel>
         <p className="text-xs text-muted-foreground">{t("ogo.officer.approved", { v: String(iq.approved.version), date: f.date(iq.approved.decided_at ?? iq.approved.created_at) })}</p>
-        <p className="mt-1 font-medium">{iq.approved.title}</p>
-        <p className="mt-1 text-sm text-muted-foreground">{iq.approved.summary}</p>
+        <p className="mt-1 font-medium">{refNamer(iq.approved.body, iq.approved.business_ids).named(iq.approved.title)}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{refNamer(iq.approved.body, iq.approved.business_ids).named(iq.approved.summary)}</p>
         {iq.approvedBody && iq.approvedBody.objectives.length > 0 && <ul className="mt-3 space-y-1 text-sm">{iq.approvedBody.objectives.slice(0, 4).map((x, i) => <li key={i}>• {x.objective}{x.target ? ` — ${x.target}` : ""}</li>)}</ul>}
       </Panel> : <Empty>{iq.pending.strategyDrafts ? t("ogo.officer.draftWaiting") : t("ogo.officer.none")}</Empty>}
     </Section>}
