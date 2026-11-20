@@ -22,13 +22,16 @@ import { Route as AuthenticatedAppActivityRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAppAgentsRouteImport } from './routes/_authenticated/app.agents'
 import { Route as AuthenticatedAppApprovalsRouteImport } from './routes/_authenticated/app.approvals'
 import { Route as AuthenticatedAppBillingRouteImport } from './routes/_authenticated/app.billing'
+import { Route as AuthenticatedAppBusinessRouteImport } from './routes/_authenticated/app.business'
 import { Route as AuthenticatedAppCampaignsRouteImport } from './routes/_authenticated/app.campaigns'
 import { Route as AuthenticatedAppCompetitorsRouteImport } from './routes/_authenticated/app.competitors'
 import { Route as AuthenticatedAppContentRouteImport } from './routes/_authenticated/app.content'
 import { Route as AuthenticatedAppCostsRouteImport } from './routes/_authenticated/app.costs'
 import { Route as AuthenticatedAppDocumentsRouteImport } from './routes/_authenticated/app.documents'
+import { Route as AuthenticatedAppExperimentsRouteImport } from './routes/_authenticated/app.experiments'
 import { Route as AuthenticatedAppGoalsRouteImport } from './routes/_authenticated/app.goals'
 import { Route as AuthenticatedAppGrowthOfficerRouteImport } from './routes/_authenticated/app.growth-officer'
+import { Route as AuthenticatedAppImprovementsRouteImport } from './routes/_authenticated/app.improvements'
 import { Route as AuthenticatedAppIntegrationsRouteImport } from './routes/_authenticated/app.integrations'
 import { Route as AuthenticatedAppIntelligenceRouteImport } from './routes/_authenticated/app.intelligence'
 import { Route as AuthenticatedAppModulesRouteImport } from './routes/_authenticated/app.modules'
@@ -39,6 +42,7 @@ import { Route as AuthenticatedAppPerformanceRouteImport } from './routes/_authe
 import { Route as AuthenticatedAppPipelineRouteImport } from './routes/_authenticated/app.pipeline'
 import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/app.profile'
 import { Route as AuthenticatedAppProjectsRouteImport } from './routes/_authenticated/app.projects'
+import { Route as AuthenticatedAppRevenueRouteImport } from './routes/_authenticated/app.revenue'
 import { Route as AuthenticatedAppSeoRouteImport } from './routes/_authenticated/app.seo'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
 import { Route as AuthenticatedAppTasksRouteImport } from './routes/_authenticated/app.tasks'
@@ -112,6 +116,12 @@ const AuthenticatedAppBillingRoute = AuthenticatedAppBillingRouteImport.update({
   path: '/billing',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppBusinessRoute =
+  AuthenticatedAppBusinessRouteImport.update({
+    id: '/business',
+    path: '/business',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppCampaignsRoute =
   AuthenticatedAppCampaignsRouteImport.update({
     id: '/campaigns',
@@ -140,6 +150,12 @@ const AuthenticatedAppDocumentsRoute =
     path: '/documents',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppExperimentsRoute =
+  AuthenticatedAppExperimentsRouteImport.update({
+    id: '/experiments',
+    path: '/experiments',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppGoalsRoute = AuthenticatedAppGoalsRouteImport.update({
   id: '/goals',
   path: '/goals',
@@ -149,6 +165,12 @@ const AuthenticatedAppGrowthOfficerRoute =
   AuthenticatedAppGrowthOfficerRouteImport.update({
     id: '/growth-officer',
     path: '/growth-officer',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppImprovementsRoute =
+  AuthenticatedAppImprovementsRouteImport.update({
+    id: '/improvements',
+    path: '/improvements',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
 const AuthenticatedAppIntegrationsRoute =
@@ -209,6 +231,11 @@ const AuthenticatedAppProjectsRoute =
     path: '/projects',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppRevenueRoute = AuthenticatedAppRevenueRouteImport.update({
+  id: '/revenue',
+  path: '/revenue',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppSeoRoute = AuthenticatedAppSeoRouteImport.update({
   id: '/seo',
   path: '/seo',
@@ -256,13 +283,16 @@ export interface FileRoutesByFullPath {
   '/app/agents': typeof AuthenticatedAppAgentsRoute
   '/app/approvals': typeof AuthenticatedAppApprovalsRoute
   '/app/billing': typeof AuthenticatedAppBillingRoute
+  '/app/business': typeof AuthenticatedAppBusinessRoute
   '/app/campaigns': typeof AuthenticatedAppCampaignsRoute
   '/app/competitors': typeof AuthenticatedAppCompetitorsRoute
   '/app/content': typeof AuthenticatedAppContentRoute
   '/app/costs': typeof AuthenticatedAppCostsRoute
   '/app/documents': typeof AuthenticatedAppDocumentsRoute
+  '/app/experiments': typeof AuthenticatedAppExperimentsRoute
   '/app/goals': typeof AuthenticatedAppGoalsRoute
   '/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
+  '/app/improvements': typeof AuthenticatedAppImprovementsRoute
   '/app/integrations': typeof AuthenticatedAppIntegrationsRoute
   '/app/intelligence': typeof AuthenticatedAppIntelligenceRoute
   '/app/modules': typeof AuthenticatedAppModulesRoute
@@ -273,6 +303,7 @@ export interface FileRoutesByFullPath {
   '/app/pipeline': typeof AuthenticatedAppPipelineRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/projects': typeof AuthenticatedAppProjectsRoute
+  '/app/revenue': typeof AuthenticatedAppRevenueRoute
   '/app/seo': typeof AuthenticatedAppSeoRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app/tasks': typeof AuthenticatedAppTasksRoute
@@ -292,13 +323,16 @@ export interface FileRoutesByTo {
   '/app/agents': typeof AuthenticatedAppAgentsRoute
   '/app/approvals': typeof AuthenticatedAppApprovalsRoute
   '/app/billing': typeof AuthenticatedAppBillingRoute
+  '/app/business': typeof AuthenticatedAppBusinessRoute
   '/app/campaigns': typeof AuthenticatedAppCampaignsRoute
   '/app/competitors': typeof AuthenticatedAppCompetitorsRoute
   '/app/content': typeof AuthenticatedAppContentRoute
   '/app/costs': typeof AuthenticatedAppCostsRoute
   '/app/documents': typeof AuthenticatedAppDocumentsRoute
+  '/app/experiments': typeof AuthenticatedAppExperimentsRoute
   '/app/goals': typeof AuthenticatedAppGoalsRoute
   '/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
+  '/app/improvements': typeof AuthenticatedAppImprovementsRoute
   '/app/integrations': typeof AuthenticatedAppIntegrationsRoute
   '/app/intelligence': typeof AuthenticatedAppIntelligenceRoute
   '/app/modules': typeof AuthenticatedAppModulesRoute
@@ -309,6 +343,7 @@ export interface FileRoutesByTo {
   '/app/pipeline': typeof AuthenticatedAppPipelineRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/projects': typeof AuthenticatedAppProjectsRoute
+  '/app/revenue': typeof AuthenticatedAppRevenueRoute
   '/app/seo': typeof AuthenticatedAppSeoRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app/tasks': typeof AuthenticatedAppTasksRoute
@@ -331,13 +366,16 @@ export interface FileRoutesById {
   '/_authenticated/app/agents': typeof AuthenticatedAppAgentsRoute
   '/_authenticated/app/approvals': typeof AuthenticatedAppApprovalsRoute
   '/_authenticated/app/billing': typeof AuthenticatedAppBillingRoute
+  '/_authenticated/app/business': typeof AuthenticatedAppBusinessRoute
   '/_authenticated/app/campaigns': typeof AuthenticatedAppCampaignsRoute
   '/_authenticated/app/competitors': typeof AuthenticatedAppCompetitorsRoute
   '/_authenticated/app/content': typeof AuthenticatedAppContentRoute
   '/_authenticated/app/costs': typeof AuthenticatedAppCostsRoute
   '/_authenticated/app/documents': typeof AuthenticatedAppDocumentsRoute
+  '/_authenticated/app/experiments': typeof AuthenticatedAppExperimentsRoute
   '/_authenticated/app/goals': typeof AuthenticatedAppGoalsRoute
   '/_authenticated/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
+  '/_authenticated/app/improvements': typeof AuthenticatedAppImprovementsRoute
   '/_authenticated/app/integrations': typeof AuthenticatedAppIntegrationsRoute
   '/_authenticated/app/intelligence': typeof AuthenticatedAppIntelligenceRoute
   '/_authenticated/app/modules': typeof AuthenticatedAppModulesRoute
@@ -348,6 +386,7 @@ export interface FileRoutesById {
   '/_authenticated/app/pipeline': typeof AuthenticatedAppPipelineRoute
   '/_authenticated/app/profile': typeof AuthenticatedAppProfileRoute
   '/_authenticated/app/projects': typeof AuthenticatedAppProjectsRoute
+  '/_authenticated/app/revenue': typeof AuthenticatedAppRevenueRoute
   '/_authenticated/app/seo': typeof AuthenticatedAppSeoRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/app/tasks': typeof AuthenticatedAppTasksRoute
@@ -370,13 +409,16 @@ export interface FileRouteTypes {
     | '/app/agents'
     | '/app/approvals'
     | '/app/billing'
+    | '/app/business'
     | '/app/campaigns'
     | '/app/competitors'
     | '/app/content'
     | '/app/costs'
     | '/app/documents'
+    | '/app/experiments'
     | '/app/goals'
     | '/app/growth-officer'
+    | '/app/improvements'
     | '/app/integrations'
     | '/app/intelligence'
     | '/app/modules'
@@ -387,6 +429,7 @@ export interface FileRouteTypes {
     | '/app/pipeline'
     | '/app/profile'
     | '/app/projects'
+    | '/app/revenue'
     | '/app/seo'
     | '/app/settings'
     | '/app/tasks'
@@ -406,13 +449,16 @@ export interface FileRouteTypes {
     | '/app/agents'
     | '/app/approvals'
     | '/app/billing'
+    | '/app/business'
     | '/app/campaigns'
     | '/app/competitors'
     | '/app/content'
     | '/app/costs'
     | '/app/documents'
+    | '/app/experiments'
     | '/app/goals'
     | '/app/growth-officer'
+    | '/app/improvements'
     | '/app/integrations'
     | '/app/intelligence'
     | '/app/modules'
@@ -423,6 +469,7 @@ export interface FileRouteTypes {
     | '/app/pipeline'
     | '/app/profile'
     | '/app/projects'
+    | '/app/revenue'
     | '/app/seo'
     | '/app/settings'
     | '/app/tasks'
@@ -444,13 +491,16 @@ export interface FileRouteTypes {
     | '/_authenticated/app/agents'
     | '/_authenticated/app/approvals'
     | '/_authenticated/app/billing'
+    | '/_authenticated/app/business'
     | '/_authenticated/app/campaigns'
     | '/_authenticated/app/competitors'
     | '/_authenticated/app/content'
     | '/_authenticated/app/costs'
     | '/_authenticated/app/documents'
+    | '/_authenticated/app/experiments'
     | '/_authenticated/app/goals'
     | '/_authenticated/app/growth-officer'
+    | '/_authenticated/app/improvements'
     | '/_authenticated/app/integrations'
     | '/_authenticated/app/intelligence'
     | '/_authenticated/app/modules'
@@ -461,6 +511,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/pipeline'
     | '/_authenticated/app/profile'
     | '/_authenticated/app/projects'
+    | '/_authenticated/app/revenue'
     | '/_authenticated/app/seo'
     | '/_authenticated/app/settings'
     | '/_authenticated/app/tasks'
@@ -571,6 +622,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBillingRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/business': {
+      id: '/_authenticated/app/business'
+      path: '/business'
+      fullPath: '/app/business'
+      preLoaderRoute: typeof AuthenticatedAppBusinessRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/campaigns': {
       id: '/_authenticated/app/campaigns'
       path: '/campaigns'
@@ -606,6 +664,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppDocumentsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/experiments': {
+      id: '/_authenticated/app/experiments'
+      path: '/experiments'
+      fullPath: '/app/experiments'
+      preLoaderRoute: typeof AuthenticatedAppExperimentsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/goals': {
       id: '/_authenticated/app/goals'
       path: '/goals'
@@ -618,6 +683,13 @@ declare module '@tanstack/react-router' {
       path: '/growth-officer'
       fullPath: '/app/growth-officer'
       preLoaderRoute: typeof AuthenticatedAppGrowthOfficerRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/improvements': {
+      id: '/_authenticated/app/improvements'
+      path: '/improvements'
+      fullPath: '/app/improvements'
+      preLoaderRoute: typeof AuthenticatedAppImprovementsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/integrations': {
@@ -690,6 +762,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProjectsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/revenue': {
+      id: '/_authenticated/app/revenue'
+      path: '/revenue'
+      fullPath: '/app/revenue'
+      preLoaderRoute: typeof AuthenticatedAppRevenueRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/seo': {
       id: '/_authenticated/app/seo'
       path: '/seo'
@@ -741,13 +820,16 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAgentsRoute: typeof AuthenticatedAppAgentsRoute
   AuthenticatedAppApprovalsRoute: typeof AuthenticatedAppApprovalsRoute
   AuthenticatedAppBillingRoute: typeof AuthenticatedAppBillingRoute
+  AuthenticatedAppBusinessRoute: typeof AuthenticatedAppBusinessRoute
   AuthenticatedAppCampaignsRoute: typeof AuthenticatedAppCampaignsRoute
   AuthenticatedAppCompetitorsRoute: typeof AuthenticatedAppCompetitorsRoute
   AuthenticatedAppContentRoute: typeof AuthenticatedAppContentRoute
   AuthenticatedAppCostsRoute: typeof AuthenticatedAppCostsRoute
   AuthenticatedAppDocumentsRoute: typeof AuthenticatedAppDocumentsRoute
+  AuthenticatedAppExperimentsRoute: typeof AuthenticatedAppExperimentsRoute
   AuthenticatedAppGoalsRoute: typeof AuthenticatedAppGoalsRoute
   AuthenticatedAppGrowthOfficerRoute: typeof AuthenticatedAppGrowthOfficerRoute
+  AuthenticatedAppImprovementsRoute: typeof AuthenticatedAppImprovementsRoute
   AuthenticatedAppIntegrationsRoute: typeof AuthenticatedAppIntegrationsRoute
   AuthenticatedAppIntelligenceRoute: typeof AuthenticatedAppIntelligenceRoute
   AuthenticatedAppModulesRoute: typeof AuthenticatedAppModulesRoute
@@ -758,6 +840,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppPipelineRoute: typeof AuthenticatedAppPipelineRoute
   AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
   AuthenticatedAppProjectsRoute: typeof AuthenticatedAppProjectsRoute
+  AuthenticatedAppRevenueRoute: typeof AuthenticatedAppRevenueRoute
   AuthenticatedAppSeoRoute: typeof AuthenticatedAppSeoRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
   AuthenticatedAppTasksRoute: typeof AuthenticatedAppTasksRoute
@@ -772,13 +855,16 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAgentsRoute: AuthenticatedAppAgentsRoute,
   AuthenticatedAppApprovalsRoute: AuthenticatedAppApprovalsRoute,
   AuthenticatedAppBillingRoute: AuthenticatedAppBillingRoute,
+  AuthenticatedAppBusinessRoute: AuthenticatedAppBusinessRoute,
   AuthenticatedAppCampaignsRoute: AuthenticatedAppCampaignsRoute,
   AuthenticatedAppCompetitorsRoute: AuthenticatedAppCompetitorsRoute,
   AuthenticatedAppContentRoute: AuthenticatedAppContentRoute,
   AuthenticatedAppCostsRoute: AuthenticatedAppCostsRoute,
   AuthenticatedAppDocumentsRoute: AuthenticatedAppDocumentsRoute,
+  AuthenticatedAppExperimentsRoute: AuthenticatedAppExperimentsRoute,
   AuthenticatedAppGoalsRoute: AuthenticatedAppGoalsRoute,
   AuthenticatedAppGrowthOfficerRoute: AuthenticatedAppGrowthOfficerRoute,
+  AuthenticatedAppImprovementsRoute: AuthenticatedAppImprovementsRoute,
   AuthenticatedAppIntegrationsRoute: AuthenticatedAppIntegrationsRoute,
   AuthenticatedAppIntelligenceRoute: AuthenticatedAppIntelligenceRoute,
   AuthenticatedAppModulesRoute: AuthenticatedAppModulesRoute,
@@ -789,6 +875,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppPipelineRoute: AuthenticatedAppPipelineRoute,
   AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,
   AuthenticatedAppProjectsRoute: AuthenticatedAppProjectsRoute,
+  AuthenticatedAppRevenueRoute: AuthenticatedAppRevenueRoute,
   AuthenticatedAppSeoRoute: AuthenticatedAppSeoRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
   AuthenticatedAppTasksRoute: AuthenticatedAppTasksRoute,

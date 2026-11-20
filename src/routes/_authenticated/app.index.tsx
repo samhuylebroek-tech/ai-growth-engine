@@ -26,6 +26,7 @@ import { HomeOpportunities } from "@/components/app/home-opportunities";
 import { BusinessTiles } from "@/components/app/business-tiles";
 import { ExecutionTiles } from "@/components/app/execution-tiles";
 import { ExternalTiles } from "@/components/integrations/external-tiles";
+import { HomeBusinessSummary } from "@/components/bi/home-summary";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/app/")({ head: () => pageHead("Business command center", "Your workspace activity, active AI assignments, decisions and growth opportunities in one place."), component: Overview });
@@ -76,6 +77,7 @@ function Overview() {
     {q.isLoading && <p role="status" className="py-8 text-sm text-muted-foreground">{t("home.loading")}</p>}
     {q.isError && <div role="alert" className="mb-6 flex flex-wrap items-center gap-3 border-l-2 border-destructive pl-4 text-sm">{t("home.loadError")}<Button variant="outline" size="sm" onClick={() => q.refetch()}>{t("home.retry")}</Button></div>}
     {d && <><div className="mb-7 border-y border-border py-4"><div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-xs"><Link to="/app/activity" className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-primary" /><strong className="text-foreground">{w ? w.activeCount : "—"}</strong> {t("home.aiActive")}</Link><Link to="/app/approvals" className="flex items-center gap-2"><CheckSquare className="h-3.5 w-3.5 text-warning" /><strong>{d.approvalCount}</strong> {t("home.awaiting")}</Link><Link to="/app/profile" className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /><strong>{confirmed.length}</strong> {t("home.facts")}</Link><Link to="/app/billing" className="text-muted-foreground sm:ml-auto">{d.balance?.toLocaleString(tag) ?? "—"} {t("home.credits")}</Link></div></div>
+    {numbers && <HomeBusinessSummary />}
     {numbers && <BusinessTiles />}
     {numbers && <ExecutionTiles />}
     {numbers && <ExternalTiles />}

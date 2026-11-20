@@ -1,4 +1,12 @@
 # AI Growth OS — Task Queue
+## Phase 6 — business intelligence, revenue & attribution — 2026-11-20
+- [x] Proposal 0066 on staging only (88 SQL checks): brands/units, metric links, permanent revenue ledger, verified imports needing read permission, touchpoints, experiments, improvement proposals.
+- [x] Business performance overview: per-currency figures with source/period/class, standard KPIs per business model, strategy/campaign/channel comparisons, six attribution models, next best actions, business knowledge map.
+- [x] Revenue & attribution page, Improvements (admin approval → task), Experiments (significance-checked evidence), Home summary; EN/NL/FR.
+- [x] Growth Officer context: revenue by class, attribution, experiment learnings, proposals and unverified business areas.
+- [x] Staging walkthrough: owner/member/viewer/outsider roles, NL phone and FR tablet layouts.
+- [B] Real revenue/attribution imports need real connector credentials and your approval; production migration needs separate approval.
+
 ## Phase 5 — autonomous growth orchestration — 2026-11-20
 - [x] Scheduler: bounded, traceable execution cycles ranked by priority/deadline/goal/plan; dependency-, credit-, cap-, window-, approval- and parallel-aware; idempotent; one open cycle; history with a reason per task (staging proposal 0064, 49 SQL checks).
 - [x] Governance: emergency pause, daily cap, parallel limit, retry limit, allowed specialists, execution hours, schedule; audit-logged.
