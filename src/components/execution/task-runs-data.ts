@@ -1,8 +1,11 @@
 import { growthDb, isNotInstalled, retryUnlessNotInstalled, type ExecutionSettingsRow, type TaskProfileRow, type TaskRunRow } from "@/lib/pending-schema";
 
-export const DEFAULT_SETTINGS = { mode: 2, max_credits_per_run: 20, monthly_credit_cap: 200 } as const;
+export type EffectiveSettings = Omit<ExecutionSettingsRow, "workspace_id" | "org_id" | "updated_by" | "updated_at">;
+/** Same defaults as public.task_execution_settings for workspaces that never saved settings. */
+export const DEFAULT_SETTINGS: EffectiveSettings = { mode: 2, max_credits_per_run: 20, monthly_credit_cap: 200, paused: false, pause_reason: null, paused_by: null, paused_at: null,
+  daily_credit_cap: null, max_parallel: 3, max_attempts: 3, allowed_specialists: [], window_start: null, window_end: null, timezone: "Europe/Brussels", schedule: "off", schedule_hour: 9 };
 export type ExecutionData = {
-  settings: Pick<ExecutionSettingsRow, "mode" | "max_credits_per_run" | "monthly_credit_cap">;
+  settings: EffectiveSettings;
   profiles: TaskProfileRow[];
   runs: TaskRunRow[];
   monthUsed: number;
@@ -21,7 +24,7 @@ export function taskExecutionOptions(orgId: string | undefined, wsId: string | u
         if (rec.error && isNotInstalled(rec.error)) throw rec.error;
       }
       const [s, p, r] = await Promise.all([
-        growthDb.from("execution_settings").select("mode,max_credits_per_run,monthly_credit_cap").eq("workspace_id", wsId).maybeSingle(),
+        growthDb.from("execution_settings").select("*").eq("workspace_id", wsId).maybeSingle(),
         growthDb.from("task_execution_profiles").select("*").eq("org_id", orgId).eq("workspace_id", wsId).limit(2000),
         growthDb.from("task_runs").select("*").eq("org_id", orgId).eq("workspace_id", wsId).order("created_at", { ascending: false }).limit(1000),
       ]);
@@ -30,7 +33,7 @@ export function taskExecutionOptions(orgId: string | undefined, wsId: string | u
       const month = new Date(); month.setUTCDate(1); month.setUTCHours(0, 0, 0, 0);
       const monthUsed = runs.filter((x) => new Date(x.created_at) >= month)
         .reduce((n, x) => n + (x.credits_charged ?? (["failed", "cancelled", "rejected"].includes(x.status) ? 0 : x.estimated_credits)), 0);
-      return { settings: s.data ?? DEFAULT_SETTINGS, profiles: p.data ?? [], runs, monthUsed };
+      return { settings: { ...DEFAULT_SETTINGS, ...(s.data ?? {}) }, profiles: p.data ?? [], runs, monthUsed };
     },
   };
 }

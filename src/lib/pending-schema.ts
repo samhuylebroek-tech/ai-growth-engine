@@ -15,12 +15,17 @@ type GeneratedTables = Public["Tables"];
 type GeneratedFunctions = Public["Functions"];
 
 type PlanRow = { approved_at: string | null; approved_by: string | null; created_at: string; created_by: string; goal_id: string; id: string; org_id: string; plan_snapshot: Json; strategic_thesis: string; status: string; strategy_id: string; summary: string; title: string; version: number; workspace_id: string };
-export type ExecutionSettingsRow = { workspace_id: string; org_id: string; mode: number; max_credits_per_run: number; monthly_credit_cap: number; updated_by: string | null; updated_at: string };
+export type ExecutionSettingsRow = { workspace_id: string; org_id: string; mode: number; max_credits_per_run: number; monthly_credit_cap: number; updated_by: string | null; updated_at: string;
+  paused: boolean; pause_reason: string | null; paused_by: string | null; paused_at: string | null; daily_credit_cap: number | null; max_parallel: number; max_attempts: number;
+  allowed_specialists: string[]; window_start: number | null; window_end: number | null; timezone: string; schedule: "off" | "daily" | "weekdays"; schedule_hour: number };
+export type ExecutionCycleRow = { id: string; org_id: string; workspace_id: string; request_key: string; trigger: "manual" | "scheduled"; reason: string; status: "open" | "completed" | "stopped";
+  stop_reason: "paused" | "expired" | "finished_early" | null; limits: Json; queued: number; awaiting: number; skipped: number; summary: Json | null; started_by: string; created_at: string; finished_at: string | null };
+export type ExecutionCycleItemRow = { cycle_id: string; org_id: string; workspace_id: string; task_id: string; rank: number; score: number; decision: "queued" | "awaiting_approval" | "skipped"; reason: string; run_id: string | null };
 export type TaskProfileRow = { task_id: string; org_id: string; workspace_id: string; specialist_key: string; task_type: "analysis" | "preparation" | "external"; requires_approval: boolean; assigned_by: string; assigned_at: string };
 export type TaskRunRow = { id: string; org_id: string; workspace_id: string; task_id: string; request_key: string; specialist_key: string; task_type: "analysis" | "preparation"; mode: number; attempt: number;
   status: "awaiting_approval" | "queued" | "paused" | "running" | "succeeded" | "failed" | "uncertain" | "cancelled" | "rejected"; estimated_credits: number; credits_charged: number | null;
   single_request_id: string | null; agent_run_id: string | null; output: Json | null; error: string | null; decision_note: string | null; decided_by: string | null; lease_until: string | null;
-  requested_by: string; created_at: string; started_at: string | null; finished_at: string | null; updated_at: string };
+  requested_by: string; created_at: string; started_at: string | null; finished_at: string | null; updated_at: string; cycle_id: string | null };
 export type PlanDecisionRow = { id: string; org_id: string; workspace_id: string; plan_version_id: string; decision: "approved" | "rejected" | "changes_requested"; note: string; decided_by: string; decided_at: string };
 type InitiativeRow = { project_id: string | null; channel: string; created_at: string; detail: string; effort: string; goal_id: string; id: string; org_id: string; plan_version_id: string; sort_order: number; status: string; target_week: number; title: string; workspace_id: string };
 type OperationRow = { initiative_id: string; org_id: string; workspace_id: string; owner_id: string | null; due_date: string | null; success_metric: string; baseline_value: number | null; target_value: number | null; current_value: number | null; blocker_note: string; updated_by: string; updated_at: string };
@@ -74,6 +79,8 @@ type PendingTables = {
   execution_settings: { Row: ExecutionSettingsRow; Insert: never; Update: never; Relationships: [] };
   task_execution_profiles: { Row: TaskProfileRow; Insert: never; Update: never; Relationships: [] };
   task_runs: { Row: TaskRunRow; Insert: never; Update: never; Relationships: [] };
+  execution_cycles: { Row: ExecutionCycleRow; Insert: never; Update: never; Relationships: [] };
+  execution_cycle_items: { Row: ExecutionCycleItemRow; Insert: never; Update: never; Relationships: [] };
   growth_initiative_operations: {
     Row: OperationRow;
     Insert: Partial<OperationRow> & Pick<OperationRow, "initiative_id" | "org_id" | "workspace_id">;
@@ -107,6 +114,12 @@ type PendingFunctions = {
   decide_task_run: { Args: { _run: string; _decision: "approved" | "rejected"; _note: string }; Returns: Json };
   control_task_run: { Args: { _run: string; _action: "pause" | "resume" | "cancel" }; Returns: Json };
   reconcile_task_runs: { Args: { _workspace: string }; Returns: number };
+  set_execution_governance: { Args: { _workspace: string; _g: Json }; Returns: Json };
+  set_execution_paused: { Args: { _workspace: string; _paused: boolean; _reason: string }; Returns: Json };
+  plan_execution_cycle: { Args: { _workspace: string; _request: string; _trigger: "manual" | "scheduled"; _estimate: number }; Returns: Json };
+  finish_execution_cycle: { Args: { _cycle: string }; Returns: Json };
+  execution_cycle_due: { Args: { _workspace: string }; Returns: Json };
+  task_priority_score: { Args: { _task: string }; Returns: number };
   task_open_dependencies: { Args: { _task: string }; Returns: number };
   start_task_run_verified: { Args: { _run: string; _proof: string }; Returns: Json };
   link_task_run_request_verified: { Args: { _run: string; _request: string; _proof: string }; Returns: undefined };

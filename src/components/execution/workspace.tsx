@@ -61,6 +61,7 @@ import {
 import { pageSlice } from "@/lib/pagination";
 import { TaskAIWork } from "@/components/execution/task-ai-work";
 import { ExecutionBar } from "@/components/execution/execution-bar";
+import { NextActions } from "@/components/execution/next-actions";
 import { taskExecutionOptions, runsByTask, runTone } from "@/components/execution/task-runs-data";
 import { useI18n } from "@/lib/i18n";
 import { MESSAGES, type MessageKey } from "@/lib/i18n/messages";
@@ -227,7 +228,8 @@ export function ExecutionWorkspace({
           </Button>
         ))}
       </div>
-      {kind === "tasks" && <ExecutionBar tasks={q.data?.tasks ?? []} blockedIds={blockedIds} />}
+      {kind === "tasks" && <ExecutionBar />}
+      {kind === "tasks" && q.data && <NextActions data={q.data} runs={exec.data?.runs ?? []} profiles={execProfiles} onOpen={(id) => { const x = q.data?.tasks.find((y) => y.id === id); if (x) open(x); }} />}
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <div className="relative min-w-36 flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />

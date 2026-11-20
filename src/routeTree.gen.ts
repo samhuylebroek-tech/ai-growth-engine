@@ -24,6 +24,7 @@ import { Route as AuthenticatedAppBillingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppCampaignsRouteImport } from './routes/_authenticated/app.campaigns'
 import { Route as AuthenticatedAppCompetitorsRouteImport } from './routes/_authenticated/app.competitors'
 import { Route as AuthenticatedAppContentRouteImport } from './routes/_authenticated/app.content'
+import { Route as AuthenticatedAppCostsRouteImport } from './routes/_authenticated/app.costs'
 import { Route as AuthenticatedAppDocumentsRouteImport } from './routes/_authenticated/app.documents'
 import { Route as AuthenticatedAppGoalsRouteImport } from './routes/_authenticated/app.goals'
 import { Route as AuthenticatedAppGrowthOfficerRouteImport } from './routes/_authenticated/app.growth-officer'
@@ -120,6 +121,11 @@ const AuthenticatedAppCompetitorsRoute =
 const AuthenticatedAppContentRoute = AuthenticatedAppContentRouteImport.update({
   id: '/content',
   path: '/content',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppCostsRoute = AuthenticatedAppCostsRouteImport.update({
+  id: '/costs',
+  path: '/costs',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppDocumentsRoute =
@@ -246,6 +252,7 @@ export interface FileRoutesByFullPath {
   '/app/campaigns': typeof AuthenticatedAppCampaignsRoute
   '/app/competitors': typeof AuthenticatedAppCompetitorsRoute
   '/app/content': typeof AuthenticatedAppContentRoute
+  '/app/costs': typeof AuthenticatedAppCostsRoute
   '/app/documents': typeof AuthenticatedAppDocumentsRoute
   '/app/goals': typeof AuthenticatedAppGoalsRoute
   '/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
@@ -280,6 +287,7 @@ export interface FileRoutesByTo {
   '/app/campaigns': typeof AuthenticatedAppCampaignsRoute
   '/app/competitors': typeof AuthenticatedAppCompetitorsRoute
   '/app/content': typeof AuthenticatedAppContentRoute
+  '/app/costs': typeof AuthenticatedAppCostsRoute
   '/app/documents': typeof AuthenticatedAppDocumentsRoute
   '/app/goals': typeof AuthenticatedAppGoalsRoute
   '/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
@@ -317,6 +325,7 @@ export interface FileRoutesById {
   '/_authenticated/app/campaigns': typeof AuthenticatedAppCampaignsRoute
   '/_authenticated/app/competitors': typeof AuthenticatedAppCompetitorsRoute
   '/_authenticated/app/content': typeof AuthenticatedAppContentRoute
+  '/_authenticated/app/costs': typeof AuthenticatedAppCostsRoute
   '/_authenticated/app/documents': typeof AuthenticatedAppDocumentsRoute
   '/_authenticated/app/goals': typeof AuthenticatedAppGoalsRoute
   '/_authenticated/app/growth-officer': typeof AuthenticatedAppGrowthOfficerRoute
@@ -354,6 +363,7 @@ export interface FileRouteTypes {
     | '/app/campaigns'
     | '/app/competitors'
     | '/app/content'
+    | '/app/costs'
     | '/app/documents'
     | '/app/goals'
     | '/app/growth-officer'
@@ -388,6 +398,7 @@ export interface FileRouteTypes {
     | '/app/campaigns'
     | '/app/competitors'
     | '/app/content'
+    | '/app/costs'
     | '/app/documents'
     | '/app/goals'
     | '/app/growth-officer'
@@ -424,6 +435,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/campaigns'
     | '/_authenticated/app/competitors'
     | '/_authenticated/app/content'
+    | '/_authenticated/app/costs'
     | '/_authenticated/app/documents'
     | '/_authenticated/app/goals'
     | '/_authenticated/app/growth-officer'
@@ -559,6 +571,13 @@ declare module '@tanstack/react-router' {
       path: '/content'
       fullPath: '/app/content'
       preLoaderRoute: typeof AuthenticatedAppContentRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/costs': {
+      id: '/_authenticated/app/costs'
+      path: '/costs'
+      fullPath: '/app/costs'
+      preLoaderRoute: typeof AuthenticatedAppCostsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/documents': {
@@ -705,6 +724,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppCampaignsRoute: typeof AuthenticatedAppCampaignsRoute
   AuthenticatedAppCompetitorsRoute: typeof AuthenticatedAppCompetitorsRoute
   AuthenticatedAppContentRoute: typeof AuthenticatedAppContentRoute
+  AuthenticatedAppCostsRoute: typeof AuthenticatedAppCostsRoute
   AuthenticatedAppDocumentsRoute: typeof AuthenticatedAppDocumentsRoute
   AuthenticatedAppGoalsRoute: typeof AuthenticatedAppGoalsRoute
   AuthenticatedAppGrowthOfficerRoute: typeof AuthenticatedAppGrowthOfficerRoute
@@ -734,6 +754,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppCampaignsRoute: AuthenticatedAppCampaignsRoute,
   AuthenticatedAppCompetitorsRoute: AuthenticatedAppCompetitorsRoute,
   AuthenticatedAppContentRoute: AuthenticatedAppContentRoute,
+  AuthenticatedAppCostsRoute: AuthenticatedAppCostsRoute,
   AuthenticatedAppDocumentsRoute: AuthenticatedAppDocumentsRoute,
   AuthenticatedAppGoalsRoute: AuthenticatedAppGoalsRoute,
   AuthenticatedAppGrowthOfficerRoute: AuthenticatedAppGrowthOfficerRoute,

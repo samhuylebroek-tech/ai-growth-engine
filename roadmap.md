@@ -1,4 +1,16 @@
 # AI Growth OS — Task Queue
+## Phase 5 — autonomous growth orchestration — 2026-11-20
+- [x] Scheduler: bounded, traceable execution cycles ranked by priority/deadline/goal/plan; dependency-, credit-, cap-, window-, approval- and parallel-aware; idempotent; one open cycle; history with a reason per task (staging proposal 0064, 49 SQL checks).
+- [x] Governance: emergency pause, daily cap, parallel limit, retry limit, allowed specialists, execution hours, schedule; audit-logged.
+- [x] Scheduled cycles become due and an admin starts them (user decision: no unattended system account).
+- [x] Growth Officer next best actions, duplicates, bottlenecks (deterministic, no credits).
+- [x] Costs & ROI page: credits per goal, plan, initiative, campaign, project, task, specialist; budgets per currency; revenue/ROI not attributed without a source.
+- [ ] Integration framework: connection health/scopes/read-vs-write per platform, with mock adapters only.
+- [ ] Controlled external actions: recommendation → draft → approved → executed → verified, with mock verification.
+- [ ] Continuous optimisation loop and strategy version comparison.
+- [ ] Multi-business / brand units within an organisation.
+- [ ] Command Center: add budget deviations, spend and opportunities to Home tiles.
+- [B] Proposals 0063–0064 into the live database: owner approval.
 ## Master build directive Phase 4 (execution engine) — 2026-11-20
 - [x] B1 Task data model: specialist assignment, task type, per-run records with stable keys, one open run per task, max 3 attempts (staging proposal 0063, 47 SQL checks).
 - [x] B2 15 AI specialists with structured results through the existing metered single-request accounting; verified with 4 real staging runs.

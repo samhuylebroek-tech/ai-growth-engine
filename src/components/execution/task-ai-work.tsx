@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { gateCode } from "@/lib/scheduler";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import ReactMarkdown from "react-markdown";
@@ -51,15 +52,20 @@ export function TaskAIWork({ task, blocked }: { task: { id: string; title: strin
   const types = TASK_SPECIALISTS[spec].types;
   const capLeft = s.monthly_credit_cap - q.data.monthUsed;
 
-  const act = async (fn: () => PromiseLike<{ error: { message: string } | null }>, ok?: string) => {
+  // Database refusals carry a stable code (gate:<code>); show those in the user's language.
+  const explain = (err: { message: string; details?: string | null } | string) => {
+    const e = typeof err === "string" ? { message: err, details: err } : err;
+    const c = gateCode(e); return c ? t(`orch.reason.${c}` as MessageKey) : e.message;
+  };
+  const act = async (fn: () => PromiseLike<{ error: { message: string; details?: string | null } | null }>, ok?: string) => {
     if (busy) return; setBusy(true);
-    try { const r = await fn(); if (r.error) throw new Error(r.error.message); if (ok) toast.success(ok); await refresh(); }
+    try { const r = await fn(); if (r.error) throw new Error(explain(r.error)); if (ok) toast.success(ok); await refresh(); }
     catch (e) { toast.error(e instanceof Error ? e.message : t("run.failedAction")); }
     finally { setBusy(false); }
   };
   async function startRun(runId: string) {
     const r = await execute({ data: { orgId: o.org!.id, workspaceId: o.workspace!.id, runId } });
-    if (!r.ok) throw new Error(r.error);
+    if (!r.ok) throw new Error(explain(r.error));
     toast[r.data.status === "succeeded" ? "success" : "error"](t(`run.done.${r.data.status}` as MessageKey, { n: r.data.credits ?? 0 }));
   }
   async function run() {
@@ -68,7 +74,7 @@ export function TaskAIWork({ task, blocked }: { task: { id: string; title: strin
     pendingKey.current ??= crypto.randomUUID();
     try {
       const r = await growthDb.rpc("queue_task_run", { _task: task.id, _request: pendingKey.current, _estimate: RUN_ESTIMATE });
-      if (r.error) throw new Error(r.error.message);
+      if (r.error) throw new Error(explain(r.error));
       pendingKey.current = null;
       const row = r.data as { id: string; status: string };
       await refresh();

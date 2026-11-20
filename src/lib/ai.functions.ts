@@ -875,7 +875,8 @@ export const executeTaskRun = createServerFn({ method: "POST" })
       await requireWorkspace(sb, data);
       await assertEntitled(sb, data.orgId, "ai_assistant");
       const claim = await pending.rpc("start_task_run_verified", { _run: data.runId, _proof: accountingProof() });
-      if (claim.error) throw new Error(claim.error.message);
+      // Keep the database's refusal code (gate:<code>) so the screen can explain it in the user's language.
+      if (claim.error) throw new Error(/^gate:[a-z_]+$/.test(claim.error.details ?? "") ? claim.error.details : claim.error.message);
       started = true;
       const run = claim.data as { task_id: string; request_key: string; specialist_key: string; task_type: string; workspace_id: string; org_id: string };
       if (run.workspace_id !== data.workspaceId || run.org_id !== data.orgId) throw new Error("This run belongs to another workspace.");
