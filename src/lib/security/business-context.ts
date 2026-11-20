@@ -279,6 +279,11 @@ export type BusinessDomains = {
   opportunities?: DomainRead<OpportunityLine>;
   /** Overdue open tasks across all work, not only initiative tasks; optional for older callers. */
   overdueTasks?: DomainRead<Task>;
+  /** Campaign spend ledger for the listed campaigns (proposal 0077); optional for older callers. */
+  campaignSpend?: DomainRead<SpendLine>;
+  /** Newest re-planning proposals and their decisions (proposal 0077); optional for older callers. */
+  replans?: DomainRead<ReplanLine>;
+  replanDecisions?: { proposal_id: string; decision: string }[];
   /** AI task runs (proposal 0063); optional for the same reason. */
   taskRuns?: DomainRead<TaskRunLine>;
   /** Revenue ledger, touchpoints, experiments and improvement proposals (proposal 0066); optional for the same reason. */
@@ -287,6 +292,8 @@ export type BusinessDomains = {
   experiments?: DomainRead<ExperimentLine>;
   proposals?: DomainRead<ProposalLine>;
 };
+export type SpendLine = { campaign_id: string; kind: "spend" | "commitment" | "release" | "correction"; amount: number; currency: string; data_class: "manual" | "simulated" };
+export type ReplanLine = { id: string; task_id: string; created_at: string };
 export type ExperimentLine = {
   title: string;
   status: string;
@@ -345,6 +352,9 @@ type ScopedTable =
   | "performance_measurements"
   | "growth_opportunities"
   | "task_runs"
+  | "campaign_spend_entries"
+  | "task_replan_proposals"
+  | "task_replan_decisions"
   | "revenue_events"
   | "attribution_touchpoints"
   | "growth_experiments"
@@ -362,6 +372,8 @@ type ScopedQuery = PromiseLike<Res> & {
 
 const LIMITS = {
   overdue: 50,
+  spend: 2000,
+  replans: 50,
   facts: 60,
   goals: 12,
   recs: 8,
@@ -640,6 +652,32 @@ export async function readBusinessDomains(
       .limit(LIMITS.overdue),
     LIMITS.overdue,
   );
+  // Spend for the campaigns read above, and open re-planning work. A truncated spend read gives no budget warning.
+  const campaignIds = rowsOf(campaigns).map((c) => c.id).filter((id): id is string => !!id);
+  const [campaignSpend, replans] = await Promise.all([
+    campaignIds.length
+      ? optional<SpendLine>(
+          "campaign spend",
+          t("campaign_spend_entries", "campaign_id,kind,amount,currency,data_class").in("campaign_id", campaignIds).limit(LIMITS.spend),
+          LIMITS.spend,
+        )
+      : ok<SpendLine>(),
+    optional<ReplanLine>(
+      "re-planning proposals",
+      t("task_replan_proposals", "id,task_id,created_at").order("created_at", { ascending: false }).limit(LIMITS.replans),
+      LIMITS.replans,
+    ),
+  ]);
+  const replanIds = rowsOf(replans).map((r) => r.id);
+  const replanDecisions = replanIds.length
+    ? rowsOf(
+        await optional<{ proposal_id: string; decision: string }>(
+          "re-planning decisions",
+          t("task_replan_decisions", "proposal_id,decision").in("proposal_id", replanIds).limit(500),
+          500,
+        ),
+      )
+    : [];
   const [operations, projects, tasks, observations, versions, measurements] = await Promise.all([
     initiativeIds.length
       ? optional<Operation>(
@@ -748,6 +786,9 @@ export async function readBusinessDomains(
     measurements: rowsOf(measurements),
     opportunities,
     taskRuns,
+    campaignSpend,
+    replans,
+    replanDecisions,
     revenue,
     touches: rowsOf(touches),
     experiments,
@@ -1159,7 +1200,7 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
   else
     for (const c of d.campaigns.rows)
       performanceLines.push(
-        `- ${clip(c.title, 70)} [${c.status}, ${c.category}] planned budget EUR ${c.budget_eur}${c.results ? `; team-noted results: ${clip(c.results, 120)}` : ""}`,
+        `- ${clip(c.title, 70)} [${c.status}, ${c.category}] planned budget EUR ${c.budget_eur}${spendNote(d, c)}${c.results ? `; team-noted results: ${clip(c.results, 120)}` : ""}`,
       );
   const connected =
     d.connections.status === "ok"
@@ -1437,4 +1478,20 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
   }
   rendered = rendered.filter(Boolean);
   return [header, ...rendered].join("\n\n");
+}
+
+/** Recorded campaign spend for the AI context: per currency, simulated entries labelled; nothing when unread or truncated. */
+function spendNote(d: BusinessDomains, c: Campaign): string {
+  const r = d.campaignSpend;
+  if (!r || r.status !== "ok" || r.truncated || !c.id) return "";
+  const rows = r.rows.filter((x) => x.campaign_id === c.id);
+  if (!rows.length) return "; recorded spend: none";
+  const cur = new Map<string, { spent: number; reserved: number; sim: number }>();
+  for (const x of rows) {
+    const e = cur.get(x.currency) ?? { spent: 0, reserved: 0, sim: 0 };
+    if (x.kind === "spend" || x.kind === "correction") e.spent += Number(x.amount); else e.reserved += Number(x.amount);
+    if (x.data_class === "simulated") e.sim += 1;
+    cur.set(x.currency, e);
+  }
+  return `; recorded spend ${[...cur].map(([k, v]) => `${k} ${v.spent.toFixed(2)} spent, ${v.reserved.toFixed(2)} reserved${v.sim ? ` (${v.sim} simulated test entries)` : ""}`).join("; ")}`;
 }

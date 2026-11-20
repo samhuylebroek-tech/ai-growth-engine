@@ -22,6 +22,22 @@ describe("execution signals from real records", () => {
     expect(s?.vars).toEqual({ n: 1, task: "Price sheet" });
     expect(s?.to).toBe("/app/tasks");
   });
+  it("warns when recorded campaign spend passes the budget, and not when the spend read was truncated", () => {
+    const camp = { id: "c1", title: "Autumn", status: "active", category: "advertising", budget_eur: 500, results: "", start_date: null, end_date: null };
+    const spend = [{ campaign_id: "c1", kind: "spend" as const, amount: 520, currency: "EUR", data_class: "simulated" as const }];
+    const s = detectSignals({ ...base(), campaigns: ok([camp]), campaignSpend: ok(spend) }, NOW).find((x) => x.code === "campaign_budget_over");
+    expect(s?.vars).toEqual({ campaign: "Autumn", p: 104 });
+    expect(s?.to).toBe("/app/campaigns");
+    const near = [{ ...spend[0]!, amount: 410 }];
+    expect(codes({ ...base(), campaigns: ok([camp]), campaignSpend: ok(near) })).toContain("campaign_budget_near");
+    expect(codes({ ...base(), campaigns: ok([camp]), campaignSpend: { status: "ok", rows: spend, truncated: true } })).not.toContain("campaign_budget_over");
+    expect(codes({ ...base(), campaigns: ok([camp]), campaignSpend: ok([{ ...spend[0]!, currency: "USD" }]) })).not.toContain("campaign_budget_over");
+  });
+  it("counts re-planning proposals without a final decision; postponed ones still wait", () => {
+    const replans = ok([{ id: "p1", task_id: "t1", created_at: "x" }, { id: "p2", task_id: "t2", created_at: "x" }, { id: "p3", task_id: "t3", created_at: "x" }]);
+    const d = { ...base(), replans, replanDecisions: [{ proposal_id: "p1", decision: "approved" }, { proposal_id: "p2", decision: "postponed" }] };
+    expect(detectSignals(d, NOW).find((x) => x.code === "replan_pending")?.vars).toEqual({ n: 2 });
+  });
   it("also counts overdue tasks outside growth initiatives, each task once", () => {
     const late = { id: "t1", project_id: "p", title: "Price sheet", status: "todo", priority: "high", due_date: "2026-11-18", owner_id: null };
     const loose = { id: "t9", project_id: null, title: "Call supplier", status: "in_progress", priority: "low", due_date: "2026-11-02", owner_id: null };

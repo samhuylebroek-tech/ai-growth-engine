@@ -398,6 +398,30 @@ export type BusinessCheckRow = {
   summary: { findings?: number; new?: number; still_open?: number; resolved?: number; first?: boolean } | Json;
   previous_id: string | null; actor_id: string; created_at: string;
 };
+/** Proposal 0077: re-planning proposals (insert-only) and their decisions; campaign spend ledger (insert-only). */
+export type ReplanReason = "overdue" | "blocked" | "failed" | "dependency_late" | "awaiting_approval" | "no_owner" | "less_relevant" | "over_budget";
+export type ReplanOption = {
+  key: "a" | "b" | "c"; kind: "new_deadline" | "shift_chain" | "raise_priority" | "lower_priority";
+  due_date?: string | null; priority?: "low" | "medium" | "high" | "urgent" | null; shifts?: { task_id: string; due_date: string }[];
+};
+export type TaskReplanProposalRow = {
+  id: string; org_id: string; workspace_id: string; task_id: string; request_key: string; origin: "rule" | "team";
+  reasons: ReplanReason[]; options: ReplanOption[];
+  snapshot: { due_date: string | null; priority: string; status: string; updated_at: string };
+  impact: { affected?: string[]; campaign_end?: string | null; campaign_end_exceeded?: boolean; invalid_order?: string[] };
+  risk: "low" | "medium" | "high"; credit_impact: number; rationale: string; created_by: string; created_at: string;
+};
+export type TaskReplanDecisionRow = {
+  id: string; org_id: string; workspace_id: string; proposal_id: string; decision: "approved" | "rejected" | "postponed";
+  option_key: "a" | "b" | "c" | null;
+  applied: { before?: { due_date: string | null; priority: string }; after?: { due_date: string | null; priority: string }; adjusted?: boolean; shifted?: { task_id: string; from: string | null; to: string }[] };
+  note: string; actor_id: string; created_at: string;
+};
+export type CampaignSpendRow = {
+  id: string; org_id: string; workspace_id: string; campaign_id: string; kind: "spend" | "commitment" | "release" | "correction";
+  amount: number | string; currency: string; occurred_on: string; data_class: "manual" | "simulated"; source_ref: string;
+  relates_to: string | null; note: string; request_key: string; created_by: string; created_at: string;
+};
 export type BusinessCheckSettingsRow = {
   workspace_id: string; org_id: string; frequency: "off" | "daily" | "weekly" | "monthly"; updated_by: string; updated_at: string;
 };
@@ -723,6 +747,9 @@ type PendingTables = {
   recommendation_decisions: { Row: RecommendationDecisionRow; Insert: never; Update: never; Relationships: [] };
   business_checks: { Row: BusinessCheckRow; Insert: never; Update: never; Relationships: [] };
   business_check_settings: { Row: BusinessCheckSettingsRow; Insert: never; Update: never; Relationships: [] };
+  task_replan_proposals: { Row: TaskReplanProposalRow; Insert: never; Update: never; Relationships: [] };
+  task_replan_decisions: { Row: TaskReplanDecisionRow; Insert: never; Update: never; Relationships: [] };
+  campaign_spend_entries: { Row: CampaignSpendRow; Insert: never; Update: never; Relationships: [] };
   proposal_evidence: { Row: ProposalEvidenceRow; Insert: never; Update: never; Relationships: [] };
   simulated_provider_records: {
     Row: SimRecordRow;
@@ -1049,6 +1076,12 @@ type PendingFunctions = {
     Args: { _workspace: string; _kind: BusinessCheckRow["kind"]; _subject: string | null; _inspected: Json; _findings: Json };
     Returns: Json;
   };
+  propose_task_replan: { Args: { _workspace: string; _request: string; _task: string; _p: Json }; Returns: Json };
+  decide_task_replan: {
+    Args: { _proposal: string; _decision: TaskReplanDecisionRow["decision"]; _option: string | null; _due: string | null; _note: string };
+    Returns: Json;
+  };
+  record_campaign_spend: { Args: { _workspace: string; _request: string; _campaign: string; _p: Json }; Returns: Json };
   set_business_check_frequency: { Args: { _workspace: string; _frequency: BusinessCheckSettingsRow["frequency"] }; Returns: undefined };
   decide_org_strategy: { Args: { _id: string; _decision: "approve" | "reject" | "retire"; _note: string }; Returns: Json };
   begin_org_ai_request_verified: { Args: { _org: string; _workspace: string; _request: string; _input: Json; _proof: string }; Returns: Json };

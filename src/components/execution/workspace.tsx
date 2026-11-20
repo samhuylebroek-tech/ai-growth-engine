@@ -63,6 +63,10 @@ import {
 import { pageSlice } from "@/lib/pagination";
 import { TaskAIWork } from "@/components/execution/task-ai-work";
 import { TaskOrigin } from "@/components/execution/task-origin";
+import { TaskReplan } from "@/components/execution/task-replan";
+import { CampaignSpend } from "@/components/execution/campaign-spend";
+import { campaignSpendOptions } from "@/components/execution/replan-data";
+import { spendSummary } from "@/lib/campaign-spend";
 import { ExecutionBar } from "@/components/execution/execution-bar";
 import { NextActions } from "@/components/execution/next-actions";
 import { taskExecutionOptions, runsByTask, runTone } from "@/components/execution/task-runs-data";
@@ -1043,7 +1047,7 @@ function WorkDetails({
     "team",
     "comments",
     "files",
-    ...(kind === "tasks" ? ["dependencies", "ai"] : []),
+    ...(kind === "tasks" ? ["dependencies", "replan", "ai"] : []),
     ...(kind === "campaigns" ? ["content", "approvals"] : []),
     "history",
   ];
@@ -1057,7 +1061,7 @@ function WorkDetails({
             variant={tab === t ? "secondary" : "ghost"}
             onClick={() => setTab(t)}
           >
-            {t === "ai" ? tx("run.tab") : lbl(t)}
+            {t === "ai" ? tx("run.tab") : t === "replan" ? tx("rp.tab") : lbl(t)}
           </Button>
         ))}
       </div>
@@ -1070,6 +1074,7 @@ function WorkDetails({
       {tab === "overview" && (
         <>
           {kind === "campaigns" && <CampaignHealthLine item={item} tasks={q.data?.tasks ?? []} today={localDay()} detailed />}
+          {kind === "campaigns" && "budget_eur" in item && <CampaignSpend campaignId={item.id} budgetEur={Number(item.budget_eur)} />}
           <WorkForm item={item} kind={kind} onSaved={() => refresh()} />
           {kind === "tasks" && "agent_key" in item && item.agent_key && editable && (
             <Button variant="outline" onClick={runAgent}>
@@ -1099,6 +1104,7 @@ function WorkDetails({
             )}
         </>
       )}
+      {tab === "replan" && kind === "tasks" && <TaskReplan taskId={item.id} />}
       {tab === "ai" && kind === "tasks" && (
         <TaskAIWork task={item as { id: string; title: string; description: string; status: string }} blocked={blockedTasks(q.data?.notes ?? [], q.data?.tasks ?? []).has(item.id)} />
       )}
@@ -1513,11 +1519,16 @@ function WorkDetails({
 /** Progress state and warnings for one campaign, from its own record and tasks (no spend per campaign is recorded). */
 function CampaignHealthLine({ item, tasks, today, detailed = false }: { item: WorkItem; tasks: { campaign_id: string | null; status: string; due_date: string | null }[]; today: string; detailed?: boolean }) {
   const { t: tx } = useI18n();
+  const o = useOrg();
+  const spend = useQuery({ ...campaignSpendOptions(o.org?.id, o.workspace?.id), enabled: !!o.org && !!o.workspace && "results" in item });
   if (!("results" in item)) return null;
+  // Budget warnings only when the spend ledger was read completely; otherwise none are claimed.
+  const money = spend.data ? spendSummary(Number(item.budget_eur), spend.data.filter((r) => r.campaign_id === item.id)) : undefined;
   const h = campaignHealth(
     { status: item.status, start_date: item.start_date, end_date: item.end_date, goal_id: item.goal_id, results: item.results },
     tasks.filter((t) => t.campaign_id === item.id),
     today,
+    money,
   );
   const tone = h.state === "at_risk" ? "border-destructive/40 text-destructive" : h.state === "needs_attention" ? "border-warning/50 text-warning" : h.state === "on_track" || h.state === "evaluated" ? "border-success/40 text-success" : "text-muted-foreground";
   return (

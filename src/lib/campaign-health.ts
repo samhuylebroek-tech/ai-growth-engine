@@ -1,9 +1,11 @@
-// Campaign progress and warnings (pure). Uses only the campaign record and its tasks; spend per campaign is not
-// recorded, so no budget overrun is claimed here (channel budgets are checked in Goals & budget).
+// Campaign progress and warnings (pure). Uses the campaign record, its tasks and, when given, its spend summary from
+// the campaign spend ledger (proposal 0077); without that ledger no budget overrun is claimed.
+import type { SpendSummary } from "@/lib/campaign-spend";
 export type HealthState =
   | "not_started" | "planning" | "active" | "on_track" | "needs_attention" | "at_risk" | "paused" | "completed" | "evaluated";
 export type HealthWarning =
-  | "no_goal" | "no_tasks" | "overdue_tasks" | "behind_schedule" | "past_end_open" | "ended_without_results" | "no_end_date" | "start_passed";
+  | "no_goal" | "no_tasks" | "overdue_tasks" | "behind_schedule" | "past_end_open" | "ended_without_results" | "no_end_date" | "start_passed"
+  | "budget_near" | "budget_over" | "committed_over" | "spend_without_budget";
 export type CampaignLike = {
   status: string; start_date: string | null; end_date: string | null; goal_id?: string | null; results: string;
 };
@@ -13,7 +15,8 @@ export type Health = { state: HealthState; warnings: HealthWarning[]; overdue: n
 const DAY = 86_400_000;
 const closed = (s: string) => s === "done" || s === "cancelled";
 
-export function campaignHealth(c: CampaignLike, tasks: readonly TaskLike[], today: string): Health {
+export function campaignHealth(c: CampaignLike, tasks: readonly TaskLike[], today: string, spend?: SpendSummary): Health {
+  const money = (spend?.warnings ?? []).filter((x): x is Extract<HealthWarning, typeof x> => x !== "other_currency");
   const live = tasks.filter((t) => t.status !== "cancelled");
   const done = live.filter((t) => t.status === "done").length;
   const overdue = live.filter((t) => !closed(t.status) && t.due_date !== null && t.due_date < today).length;
@@ -26,9 +29,10 @@ export function campaignHealth(c: CampaignLike, tasks: readonly TaskLike[], toda
   }
   const hasResults = c.results.trim().length > 0;
   if (c.status === "completed" || c.status === "archived") {
-    return { state: hasResults ? "evaluated" : "completed", warnings: hasResults ? [] : ["ended_without_results"], overdue, done, total: live.length, elapsed };
+    const cw: HealthWarning[] = [...(hasResults ? [] : (["ended_without_results"] as const)), ...money.filter((x) => x === "budget_over")];
+    return { state: hasResults ? "evaluated" : "completed", warnings: cw, overdue, done, total: live.length, elapsed };
   }
-  if (c.status === "paused") return { state: "paused", warnings: [], overdue, done, total: live.length, elapsed };
+  if (c.status === "paused") return { state: "paused", warnings: money, overdue, done, total: live.length, elapsed };
   const w: HealthWarning[] = [];
   if (!c.goal_id) w.push("no_goal");
   if (live.length === 0) w.push("no_tasks");
@@ -37,11 +41,12 @@ export function campaignHealth(c: CampaignLike, tasks: readonly TaskLike[], toda
   if (elapsed !== null && live.length > 0 && elapsed - done / live.length > 0.25) w.push("behind_schedule");
   if (c.status === "active" && ended) w.push(hasResults ? "past_end_open" : "ended_without_results");
   if (c.status === "active" && !c.end_date) w.push("no_end_date");
+  w.push(...money);
   if (c.status === "planned") {
-    const pw: HealthWarning[] = [...(c.goal_id ? [] : (["no_goal"] as const)), ...(started ? (["start_passed"] as const) : [])];
+    const pw: HealthWarning[] = [...(c.goal_id ? [] : (["no_goal"] as const)), ...(started ? (["start_passed"] as const) : []), ...money];
     return { state: started ? "needs_attention" : live.length ? "planning" : "not_started", warnings: pw, overdue, done, total: live.length, elapsed };
   }
-  const serious = w.filter((x) => x === "overdue_tasks" || x === "behind_schedule" || x === "ended_without_results").length;
+  const serious = w.filter((x) => x === "overdue_tasks" || x === "behind_schedule" || x === "ended_without_results" || x === "budget_over").length;
   const state: HealthState = serious >= 2 ? "at_risk" : w.length ? "needs_attention" : "on_track";
   return { state, warnings: w, overdue, done, total: live.length, elapsed };
 }

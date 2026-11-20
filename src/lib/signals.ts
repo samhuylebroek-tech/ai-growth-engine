@@ -15,6 +15,7 @@ import {
   type Measurement,
 } from "@/lib/performance";
 import { budgetAlert } from "@/lib/growth-plan";
+import { spendSummary } from "@/lib/campaign-spend";
 
 import { detectFactConflicts } from "@/lib/fact-conflicts";
 export type SignalKind = "conflict" | "stale" | "missing" | "risk" | "opportunity";
@@ -37,7 +38,10 @@ export type SignalCode =
   | "runs_failing"
   | "runs_waiting"
   | "runs_uncertain"
-  | "facts_conflict";
+  | "facts_conflict"
+  | "campaign_budget_over"
+  | "campaign_budget_near"
+  | "replan_pending";
 export type SignalBasis =
   | "planning_vs_metric"
   | "team_records"
@@ -47,7 +51,7 @@ export type SignalBasis =
   | "ai_work"
   | "business_profile";
 export type SignalDestination =
-  "/app/performance" | "/app/goals" | "/app/pipeline" | "/app/seo" | "/app/tasks" | "/app/profile";
+  "/app/performance" | "/app/goals" | "/app/pipeline" | "/app/seo" | "/app/tasks" | "/app/profile" | "/app/campaigns";
 export type Signal = {
   id: string;
   code: SignalCode;
@@ -355,6 +359,29 @@ export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signa
       "/app/tasks",
       { n: overdue.length, task: short(overdue[0]!.title) },
     );
+  // Campaign budgets against the recorded spend ledger (EUR only); a truncated read gives no warning.
+  if (d.campaignSpend?.status === "ok" && !d.campaignSpend.truncated)
+    for (const c of rowsOf(d.campaigns).filter((x) => x.id && !["archived"].includes(x.status))) {
+      const sum = spendSummary(Number(c.budget_eur), d.campaignSpend.rows.filter((x) => x.campaign_id === c.id));
+      const over = sum.warnings.includes("budget_over") || sum.warnings.includes("committed_over");
+      if (over || sum.warnings.includes("budget_near"))
+        add(
+          `campaign_budget:${c.id}`,
+          over ? "campaign_budget_over" : "campaign_budget_near",
+          "risk",
+          over ? "high" : "medium",
+          over ? "high" : "medium",
+          "high",
+          "budget",
+          "/app/campaigns",
+          { campaign: short(c.title, 60), p: sum.usedPct === null ? 0 : Math.round(sum.usedPct * 100) },
+        );
+    }
+  // Re-planning proposals waiting for an editor's decision.
+  const decided = new Set((d.replanDecisions ?? []).filter((x) => x.decision !== "postponed").map((x) => x.proposal_id));
+  const waitingReplans = rowsOf(d.replans).filter((r) => !decided.has(r.id)).length;
+  if (waitingReplans)
+    add("replan:pending", "replan_pending", "missing", "medium", "high", "high", "team_records", "/app/tasks", { n: waitingReplans });
   const approvedAt = new Map(rowsOf(d.plans).map((p) => [p.id, p.approved_at]));
   for (const i of d.initiatives
     .filter((x) => x.target_week != null && !["completed", "cancelled"].includes(x.status))
