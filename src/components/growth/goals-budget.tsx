@@ -83,7 +83,7 @@ function Planner({ orgId, wsId, canEdit, canBudget, canApprove, userId }: { orgI
     if (r.error) return void toast.error(tr("goals.saveGoalFailed"));
     setG({ title: "", objective: "leads", metric: "", baseline: "", target: "", due: "", unit: "" }); await refresh();
   };
-  const updateGoal = async (id: string, patch: { current_value?: number | null; priority?: string; status?: string }) => {
+  const updateGoal = async (id: string, patch: { current_value?: number | null; priority?: string; status?: string; metric?: string; baseline?: number; target?: number }) => {
     const r = await supabase.from("growth_goals").update(patch).eq("id", id);
     if (r.error) toast.error(tr("goals.updateGoalFailed")); await refresh();
   };
@@ -130,7 +130,7 @@ function Planner({ orgId, wsId, canEdit, canBudget, canApprove, userId }: { orgI
       <section className="space-y-3">
         <h2 className="flex items-center gap-2 text-lg font-medium"><Target className="h-5 w-5" /> {tr("goals.businessGoals")}</h2>
         {goals.isLoading ? <p className="text-sm text-muted-foreground">{tr("goals.loading")}</p> : (goals.data ?? []).length === 0 && <p className="text-sm text-muted-foreground">{tr("goals.noGoals")}</p>}
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2 md:items-start">
           {(goals.data ?? []).map(x => { const p = goalProgress(x.baseline, x.target, x.current_value); return (
             <div key={x.id} className="min-w-0 space-y-2 rounded-lg border bg-card p-4">
               <div className="flex flex-wrap items-center gap-2"><span className="font-medium">{x.title}</span>
@@ -149,6 +149,9 @@ function Planner({ orgId, wsId, canEdit, canBudget, canApprove, userId }: { orgI
               <LinkedWork goalId={x.id} data={links.data} canEdit={canEdit} onLink={link} />
               {canEdit && x.status === "active" && <StrategyPanel orgId={orgId} wsId={wsId} goalId={x.id} goalTitle={x.title} userId={userId} />}
               {canEdit && <div className="flex flex-wrap items-center gap-2">
+                {!x.metric.trim() && <Input aria-label={tr("goals.metric")} className="h-8 w-40" placeholder={tr("goals.metricPh")} defaultValue="" onBlur={e => { const v = e.target.value.trim(); if (v) void updateGoal(x.id, { metric: v }); }} />}
+                {x.baseline === null && <Input aria-label={tr("goals.baseline")} className="h-8 w-32" type="number" min={0} placeholder={tr("goals.baseline")} defaultValue="" onBlur={e => { const n = num(e.target.value); if (n !== null) void updateGoal(x.id, { baseline: n }); }} />}
+                {x.target === null && <Input aria-label={tr("goals.target")} className="h-8 w-32" type="number" min={0} placeholder={tr("goals.target")} defaultValue="" onBlur={e => { const n = num(e.target.value); if (n !== null) void updateGoal(x.id, { target: n }); }} />}
                 <Input aria-label={tr("goals.currentValue")} className="h-8 w-32" type="number" min={0} placeholder={tr("goals.currentValue")} defaultValue={x.current_value ?? ""} onBlur={e => { const n = num(e.target.value); if (n !== x.current_value) void updateGoal(x.id, { current_value: n }); }} />
                 {x.priority !== "primary" && <Button size="sm" variant="ghost" onClick={() => updateGoal(x.id, { priority: "primary" })}>{tr("goals.makePrimary")}</Button>}
                 {x.status === "active" ? <Button size="sm" variant="ghost" onClick={() => updateGoal(x.id, { status: "achieved" })}>{tr("goals.markAchieved")}</Button> : <Button size="sm" variant="ghost" onClick={() => updateGoal(x.id, { status: "active" })}>{tr("goals.reactivate")}</Button>}

@@ -88,6 +88,16 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
 - **Phase 8.7 campaign advice (2026-11-21)** — QA Member requested one Growth Officer advice for "QA office breakfast
   boxes" (5 credits, private request record with purpose `campaign_advice`). The campaign itself was not changed. *Keep.*
 
+- **Campaign operating system, proposal 0083 (2026-11-22)** — "QA office breakfast boxes"
+  (`5ceb24e7-277e-4a5e-b2fc-9427a792c58e`) is linked to goal "QA: Grow qualified leads", strategy "QA: Lead plan", a
+  qualified-leads KPI (start 4, target 10) and a hypothesis; it has EUR limits of 150 per week and 300 in total (reason
+  "QA 8.7 limit test (staging)"), one refused simulated spend attempt in the audit log, and status history
+  active → needs attention → active with QA reasons. A second campaign "QA 8.7 lifecycle campaign" was created by QA Member,
+  submitted for approval and approved by QA Admin. *Keep (history is insert-only).*
+
+- **Goal measurement (2026-11-22)** — goal "QA: Grow qualified leads" was given the metric "gekwalificeerde leads",
+  starting value 4, target 10 and current value 6 through the goals screen (entered values, not a connected source). *Keep.*
+
 ## Cleanup proposal (needs separate approval)
 
 1. Archive (status change, not delete) the five QA-named goals/campaigns/tasks through the normal app screens.
