@@ -76,6 +76,7 @@ import { spendSummary } from "@/lib/campaign-spend";
 import { ExecutionBar } from "@/components/execution/execution-bar";
 import { NextActions } from "@/components/execution/next-actions";
 import { taskExecutionOptions, runsByTask, runTone } from "@/components/execution/task-runs-data";
+import { BlockedExplanation } from "@/components/execution/blocked-explanation";
 import { useI18n } from "@/lib/i18n";
 import { MESSAGES, type MessageKey } from "@/lib/i18n/messages";
 
@@ -652,6 +653,10 @@ export function ExecutionWorkspace({
               key={active.id}
               item={active}
               kind={kind}
+              onOpenTask={(id) => {
+                const x = q.data?.tasks.find((y) => y.id === id);
+                if (x) open(x);
+              }}
               onTask={(parent) => {
                 close();
                 setNewParent(parent);
@@ -988,9 +993,11 @@ export function WorkForm({
 function WorkDetails({
   item,
   kind,
+  onOpenTask,
 }: {
   item: WorkItem;
   kind: WorkKind;
+  onOpenTask?: (id: string) => void;
   onTask: (p: { project_id?: string; campaign_id?: string; parent_task_id?: string }) => void;
 }) {
   const o = useOrg();
@@ -1140,6 +1147,16 @@ function WorkDetails({
         ))}
       </div>
       {kind === "tasks" && <TaskOrigin taskId={item.id} />}
+      {kind === "tasks" && q.data && onOpenTask && (
+        <BlockedExplanation
+          taskId={item.id}
+          tasks={q.data.tasks}
+          notes={q.data.notes}
+          campaigns={q.data.campaigns}
+          onOpen={onOpenTask}
+          onReplan={() => setTab("replan")}
+        />
+      )}
       {item.source_message_id && (
         <p className="text-xs text-muted-foreground">
           {tx("work.linkedRec", { id: item.source_message_id.slice(0, 8) })}

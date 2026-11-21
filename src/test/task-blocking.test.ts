@@ -42,3 +42,32 @@ describe("Growth Officer blocked work", () => {
     expect(lines[0]).not.toContain("waits on");
   });
 });
+
+import { diagnoseBlock } from "@/lib/task-blocking";
+describe("block diagnosis", () => {
+  const D = (id: string, over: Record<string, unknown> = {}) => ({ id, title: id, status: "todo", due_date: "2026-06-20", owner_id: "u", campaign_id: null, ...over });
+  it("names why the prerequisite holds the task up and suggests matching steps", () => {
+    const r = diagnoseBlock("a", {
+      tasks: [D("a", { due_date: "2026-06-25" }), D("p", { due_date: "2026-06-01", owner_id: null })],
+      deps: [{ task_id: "a", depends_on: "p" }], runState: new Map([["p", "failed"]]), today: "2026-06-10",
+    })!;
+    expect(r.prerequisites[0]?.causes).toEqual(["overdue", "failed", "unassigned"]);
+    expect(r.actions).toEqual(["retry_or_replan", "assign_owner", "finish_prerequisite", "replan"]);
+  });
+  it("lists later tasks that wait in turn and flags the campaign end date", () => {
+    const r = diagnoseBlock("a", {
+      tasks: [D("a", { campaign_id: "c" }), D("p", { due_date: "2026-07-05", status: "in_progress" }), D("z"), D("y", { status: "done" })],
+      deps: [{ task_id: "a", depends_on: "p" }, { task_id: "z", depends_on: "a" }, { task_id: "y", depends_on: "a" }],
+      campaignEnd: new Map([["c", "2026-06-30"]]), today: "2026-06-10",
+    })!;
+    expect(r.downstream.map((t) => t.id)).toEqual(["z"]);
+    expect(r.campaignAtRisk).toBe(true);
+  });
+  it("a prerequisite awaiting approval asks for the approval decision", () => {
+    const r = diagnoseBlock("a", { tasks: [D("a"), D("p", { status: "in_progress" })], deps: [{ task_id: "a", depends_on: "p" }], runState: new Map([["p", "awaiting_approval"]]), today: "2026-06-10" })!;
+    expect(r.actions[0]).toBe("decide_approval");
+  });
+  it("no diagnosis when nothing unfinished holds the task up", () => {
+    expect(diagnoseBlock("a", { tasks: [D("a"), D("p", { status: "done" })], deps: [{ task_id: "a", depends_on: "p" }], today: "2026-06-10" })).toBeNull();
+  });
+});
