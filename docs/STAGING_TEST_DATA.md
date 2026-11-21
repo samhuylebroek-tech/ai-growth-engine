@@ -82,6 +82,9 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
 - **Phase 8.6 campaign diagnosis (2026-11-21)** — QA Member created one task from the diagnosis of "QA office
   breakfast boxes" ("Review the remaining budget…", labels `campaign-advice`, `advice:review_budget`). *Keep.*
 
+- **Phase 8.7 situation explanation (2026-11-21)** — QA Admin requested one Growth Officer explanation of the growth
+  situation (5 credits, private request record with purpose `situation_narrative`). *Keep.*
+
 ## Cleanup proposal (needs separate approval)
 
 1. Archive (status change, not delete) the five QA-named goals/campaigns/tasks through the normal app screens.

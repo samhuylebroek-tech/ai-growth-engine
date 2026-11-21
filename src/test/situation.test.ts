@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { growthSituation, type SituationInput } from "@/lib/situation";
 
-const empty: SituationInput = { today: "2026-11-21", facts: [], factsComplete: true, conflicts: 0, opportunities: [], revenue: [], spend: null, deals: [], tasks: [], runs: [], campaigns: [], experiments: [], reviews: null, budget: [], metrics: 0, measuredRecently: 0, purchaseCostsRecorded: false };
+const empty: SituationInput = { today: "2026-11-21", facts: [], factsComplete: true, conflicts: { open: 0, inReview: 0, resolved: 0, redisputed: 0 }, opportunities: [], revenue: [], spend: null, deals: [], tasks: [], runs: [], campaigns: [], experiments: [], reviews: null, budget: [], metrics: 0, measuredRecently: 0, purchaseCostsRecorded: false };
 const sec = (s: ReturnType<typeof growthSituation>, k: string) => s.sections.find((x) => x.key === k)!;
 
 describe("growth situation analysis", () => {
@@ -38,5 +38,26 @@ describe("growth situation analysis", () => {
     const sale = (ref: string) => ({ kind: "sale", amount: 10, currency: "EUR", occurred_at: "2026-11-10T00:00:00Z", data_class: "manual", customer_ref: ref });
     const s = growthSituation({ ...empty, revenue: [sale("a"), sale("a"), sale("b"), sale("")] });
     expect(sec(s, "customers").findings[0]?.params).toEqual({ n: 2, r: 1 });
+  });
+  it("open or disputed-again fact conflicts make business health conflicting; resolved ones do not", () => {
+    const base = { ...empty, facts: [{ verified: true }] };
+    expect(sec(growthSituation({ ...base, conflicts: { open: 1, inReview: 0, resolved: 0, redisputed: 0 } }), "health").status).toBe("conflicting");
+    expect(sec(growthSituation({ ...base, conflicts: { open: 0, inReview: 0, resolved: 2, redisputed: 0 } }), "health").status).toBe("good");
+    expect(sec(growthSituation({ ...base, conflicts: null }), "health").missing).toContain("conflict_history");
+  });
+  it("metrics whose latest measurement is older than 60 days make marketing outdated", () => {
+    const base = { ...empty, metrics: 2, campaigns: [{ status: "active", state: "on_track", overBudget: false }] };
+    expect(sec(growthSituation({ ...base, lastMeasurement: "2026-08-01" }), "marketing").status).toBe("outdated");
+    expect(sec(growthSituation({ ...base, lastMeasurement: "2026-11-01", measuredRecently: 1 }), "marketing").status).toBe("good");
+  });
+  it("a healthy status says no problem was found and is never high confidence with missing data", () => {
+    const s = growthSituation({ ...empty, facts: [{ verified: true }] });
+    expect(sec(s, "health").reason).toBeNull();
+    expect(sec(s, "financial").confidence).toBe("low");
+  });
+  it("priorities carry impact, urgency, confidence, owner, measure and a next action", () => {
+    const s = growthSituation({ ...empty, facts: [{ verified: true }], tasks: [1, 2, 3].map(() => ({ status: "todo", due_date: "2026-11-01", updated_at: "2026-11-01T00:00:00Z" })) });
+    const p = s.priorities.find((x) => x.code === "overdue");
+    expect(p).toMatchObject({ urgency: "high", confidence: "high", owner: "workspace_editor", measure: "overdue_tasks", action: { to: "/app/tasks" } });
   });
 });

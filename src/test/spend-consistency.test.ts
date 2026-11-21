@@ -21,7 +21,7 @@ function judge(ledger: ReturnType<typeof row>[]) {
   const health = campaignHealth(camp, tasks, TODAY, s);
   const intel = campaignIntel({ campaign: camp, tasks, spend: s, metrics: [], measurements: [], attributed: null, experiments: [], others: [], today: TODAY } as IntelInput);
   const line = campaignLines([camp], tasks.map((t) => ({ ...t, id: "t" })) as never, ledger, TODAY)[0]!;
-  const situation = growthSituation({ today: TODAY, facts: [{ verified: true }], factsComplete: true, conflicts: 0, opportunities: [], revenue: [], spend: ledger, deals: [], tasks: [], runs: [],
+  const situation = growthSituation({ today: TODAY, facts: [{ verified: true }], factsComplete: true, conflicts: { open: 0, inReview: 0, resolved: 0, redisputed: 0 }, opportunities: [], revenue: [], spend: ledger, deals: [], tasks: [], runs: [],
     campaigns: [{ status: camp.status, state: health.state, overBudget: isRealOverrun(s), simulatedOverBudget: s.simulatedWarnings.includes("budget_over") }],
     experiments: [], reviews: null, budget: [], metrics: 0, measuredRecently: 0, purchaseCostsRecorded: false });
   const ok = <T,>(rows: T[]) => ({ status: "ok" as const, rows, truncated: false });

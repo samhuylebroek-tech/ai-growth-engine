@@ -368,8 +368,8 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 
 ## Phase 8.6 completion / 8.7 (master directive)
 - [x] P1 One classification of campaign money (actual vs simulated, reservations, releases, missing ≠ zero) used by campaign page, diagnosis, situation, reports, signals and Growth Officer context; cross-component regression test
-- [ ] P1 Situation: conflicts, freshness, conflicting/outdated statuses, reasons, next step
-- [ ] P1 AI-written situation explanation (metered, traceable, uncertainty shown)
-- [ ] P1 Priorities with impact/confidence/urgency/effort/owner/measurement
+- [x] P1 Situation: conflicts, freshness, conflicting/outdated statuses, reasons, confidence, next step
+- [x] P1 AI-written situation explanation (metered, cites findings, fact downgrade, stale marker)
+- [x] P1 Priorities with impact/urgency/confidence/effort/time/owner/measure/dependency/next action (goal link not yet in records)
 - [ ] P2 AI campaign advisory; campaign ↔ strategy/initiative links
 - [ ] P3–P9 budgets/goals, strategy versions, initiative/org reporting, financial data (COGS, customers), commercial foundations, security/scale regression

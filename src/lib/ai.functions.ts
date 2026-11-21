@@ -26,6 +26,7 @@ import { parseRepurpose, REPURPOSE_INSTRUCTIONS } from "@/lib/content-repurpose"
 import { parseOpportunities, opportunityBrief, opportunityRequestSchema, OPPORTUNITY_INSTRUCTIONS, type Opportunity } from "@/lib/opportunities";
 import { CHANNELS } from "@/lib/content";
 import { analysisRequestSchema, parseAnalysis, ANALYSIS_INSTRUCTIONS, type ReplanAnalysis } from "@/lib/replan-analysis";
+import { narrativeRequestSchema, parseNarrative, NARRATIVE_INSTRUCTIONS, PURPOSE as NARRATIVE_PURPOSE, type Narrative } from "@/lib/situation-narrative";
 import { reviewRequestSchema, parseReview as parseSpecialistReview, reviewInstructions, type Review as SpecialistReview } from "@/lib/specialist-review";
 import { designRequestSchema, parseDesigns, designPayload, designKey, DESIGN_INSTRUCTIONS, type Design } from "@/lib/experiment-design-ai";
 
@@ -1303,3 +1304,53 @@ export const recoverOrgStrategy = createServerFn({ method: "POST" })
       return { ok: true, data: { status: "uncertain" } };
     } catch (error) { return { ok: false, error: friendly(error) }; }
   });
+
+/**
+ * AI-written Growth Situation explanation: one metered Growth Officer call over the scoped business context and the
+ * caller's own rule-based findings (quoted as data). The reply is stored with the private single request, so it can
+ * be read back without paying again; nothing else is changed.
+ */
+export const explainSituation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => narrativeRequestSchema.parse(input))
+  .handler(async ({ data, context }): Promise<Result<{ narrative: Narrative; credits: number }>> => {
+    const sb = context.supabase as DB;
+    let runId: string | null = null;
+    const force = data.unknownSections >= 5;
+    const parse = (reply: string) => {
+      try { return parseNarrative(reply, data.findings, force); }
+      catch { throw new Error("The explanation came back in an unexpected format. Usage is recorded; no automatic retry was made."); }
+    };
+    try {
+      await requireRole(sb, data.orgId, "member");
+      await requireWorkspace(sb, data);
+      const role = await sb.rpc("has_workspace_role", { _workspace: data.workspaceId, _min: "member" });
+      if (role.error || !role.data) throw new Error("You need workspace member access.");
+      await assertEntitled(sb, data.orgId, "ai_assistant");
+      const findings = JSON.stringify(data.findings);
+      if (findings.length > 14000) throw new Error("Too many findings for one explanation. No AI request was sent.");
+      const claimed = await sb.rpc("begin_single_ai_request_verified", { _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _kind: "growth_officer",
+        _input: { request: "Growth situation explanation", purpose: NARRATIVE_PURPOSE, unknownSections: data.unknownSections, findings: data.findings } as never, _proof: accountingProof() });
+      if (claimed.error) throw new Error(claimed.error.message);
+      const attempt = singleRequestSchema.parse(claimed.data);
+      if (!attempt.claimed) {
+        if (attempt.status !== "succeeded" || !attempt.reply) throw new Error("This request already exists. Recover saved work; it will not be sent again.");
+        return { ok: true, data: { narrative: parse(attempt.reply), credits: 0 } };
+      }
+      runId = attempt.run_id;
+      const business = await workspaceContext(sb, data);
+      const lang = { en: "English", nl: "Dutch", fr: "French" }[data.locale];
+      const result = await meteredGenerate(sb, context.userId, data.orgId, runId, CREDIT_RULES.reserveGrowthOfficer, {
+        instructions: NARRATIVE_INSTRUCTIONS,
+        input: [{ role: "user", content: `${business}\n\nAnswer in ${lang}.${force ? "\nMost areas have no data: do not give a confident diagnosis." : ""}\n\n${quoteUntrusted("rule-based findings (id, area, reliability, text)", data.findings.map((f) => `${f.id} | ${f.section} | ${f.reliability} | ${f.text}`).join("\n"), 9000)}` }],
+        maxOutputTokens: 2500,
+      });
+      const fin = await sb.rpc("finish_single_ai_request_verified", { _id: attempt.id, _reply: result.text.trim(), _proof: accountingProof() });
+      if (fin.error) throw new Error("Your paid explanation is preserved. Recover saved work before another request.");
+      return { ok: true, data: { narrative: parse(result.text), credits: result.credits } };
+    } catch (error) {
+      if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId).neq("status", "succeeded");
+      return { ok: false, error: friendly(error) };
+    }
+  });
+
