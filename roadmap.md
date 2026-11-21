@@ -464,6 +464,6 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] KPI starting points, targets, progress, trend and missing months (0089), EN/NL/FR, browser-verified
 - [x] Real staging Growth Officer conversation using blocked work and KPI progress (6 credits)
 - [x] Blocked-task detail: cause, downstream tasks, campaign risk and suggested steps in the task panel (EN/NL/FR, browser-verified)
-- [ ] Command Center warnings: what happened / why it matters / what to do
+- [x] Command Center warnings: what happened, why it matters, what to do, if nothing is done (all 37 warning types, EN/NL/FR) + new blocked-work warning
 - [ ] Rate limiting — waits on owner decision (earlier decision: document only)
 - [ ] Zod 4 — documented risk and staged migration plan

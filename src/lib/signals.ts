@@ -19,6 +19,7 @@ import { spendSummary } from "@/lib/campaign-spend";
 import { limitMaxima, limitUsage, spendForecast } from "@/lib/campaign-budget";
 
 import { detectFactConflicts } from "@/lib/fact-conflicts";
+import { blockedTasks } from "@/lib/task-blocking";
 import { economicsSummary, type EconAlertCode } from "@/lib/econ/summary";
 export type SignalKind = "conflict" | "stale" | "missing" | "risk" | "opportunity";
 export type Level = "high" | "medium" | "low";
@@ -36,6 +37,7 @@ export type SignalCode =
   | "metric_ahead"
   | "no_measurement"
   | "tasks_overdue"
+  | "tasks_blocked"
   | "initiative_behind"
   | "runs_failing"
   | "runs_waiting"
@@ -381,6 +383,23 @@ export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signa
       "/app/tasks",
       { n: overdue.length, task: short(overdue[0]!.title) },
     );
+  // Tasks waiting on unfinished earlier tasks (shared rule in task-blocking.ts); none claimed when dependencies were not read.
+  if (d.dependencies?.status === "ok") {
+    const known = [...new Map([...d.tasks, ...(d.overdueTasks?.status === "ok" ? d.overdueTasks.rows : []), ...(d.prerequisites ?? [])].map((x) => [x.id, x])).values()];
+    const blocked = blockedTasks(known, d.dependencies.rows, today);
+    if (blocked.length)
+      add(
+        "tasks:blocked",
+        "tasks_blocked",
+        "risk",
+        "medium",
+        blocked.some((b) => b.late) ? "high" : "medium",
+        "medium",
+        "team_records",
+        "/app/tasks",
+        { n: blocked.length, task: short(blocked[0]!.task.title), pre: short(blocked[0]!.waitsOn[0]!.title ?? "") },
+      );
+  }
   // Campaign budgets against the recorded spend ledger (EUR only); a truncated read gives no warning.
   if (d.campaignSpend?.status === "ok" && !d.campaignSpend.truncated)
     for (const c of rowsOf(d.campaigns).filter((x) => x.id && !["archived"].includes(x.status))) {

@@ -120,6 +120,26 @@ export function GrowthSignals() {
                 <p className="mt-1 text-[11px] text-muted-foreground">
                   {t(`signal.basis.${s.basis}` as MessageKey)}
                 </p>
+                <p className="mt-1 text-xs">
+                  <span className="font-medium">{t("sx.do")} </span>
+                  {t(`sx.${s.code}.do` as MessageKey)}
+                </p>
+                <details className="mt-1 text-xs">
+                  <summary className="cursor-pointer text-muted-foreground underline-offset-2 hover:underline">
+                    {t("sx.more")}
+                  </summary>
+                  <dl className="mt-1.5 space-y-1">
+                    <div>
+                      <dt className="inline font-medium">{t("sx.why")} </dt>
+                      <dd className="inline">{t(`sx.${s.code}.why` as MessageKey)}</dd>
+                    </div>
+                    <div>
+                      <dt className="inline font-medium">{t("sx.ifNothing")} </dt>
+                      <dd className="inline">{t(`sx.${s.code}.if` as MessageKey)}</dd>
+                    </div>
+                    {ai && <p className="text-muted-foreground">{t("sx.ai")}</p>}
+                  </dl>
+                </details>
               </div>
               <div className="flex shrink-0 flex-wrap gap-1">
                 {ai && (
