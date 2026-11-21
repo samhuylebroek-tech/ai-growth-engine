@@ -338,14 +338,27 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] Report types: daily summary and specialist performance (runs, credits, second-review scores, decisions).
 - [ ] Report types: initiative and organization growth — not started.
 - [ ] Financial KPIs needing cost of goods and customer data (gross margin, CAC, CLV, ROAS) — need cost/customer records that do not exist yet.
-- [ ] AI-written re-planning analysis (the current proposals come from planning rules, no AI call).
+- [x] AI-written re-planning analysis on top of the planning rules (staging proposal 0082).
 - [ ] Production rollout of proposals 0063–0078 — needs the owner's separate approval.
 
 ## Phase 8.5 (overnight mission)
 - [x] Experiment management 2.0 (0079–0080)
 - [x] Specialist quality control with independent second review (0081): free checks, 10-dimension review by a different specialist, explainable score, editor decision
-- [ ] AI-written re-planning analysis on top of the planning rules
+- [x] AI-written re-planning analysis on top of the planning rules (0082)
 - [x] Daily summary and specialist performance reports
 - [ ] Initiative and organization growth reports
 - [ ] Campaign diagnostics 2.0 and financial KPIs where source data exists
 - [ ] Command Center and end-to-end journeys across roles, languages and screens
+
+## Phase 8.6 (unified growth department, 2026-11-21)
+- [x] A Re-planning 2.0: Growth Officer analysis (cause, consequences, affected tasks, option assessment, recommendation, further ideas, risks, cost, approval, verification), stale detection, editor still decides (0082)
+- [x] E/J Second-review credits in the specialist report; all reviews/decisions read page by page (no 500 cap); reviews bound to their own paid request (0082)
+- [ ] B Campaign Intelligence 2.0: diagnostics from recorded data, problem detection, AI advice
+- [ ] C Growth Situation Analysis (sources, dates, reliability per section)
+- [ ] D Strategy Engine 2.0: versions/statuses, strategy vs. reality
+- [ ] F Experiment portfolio and learning from finished experiments
+- [ ] G Financial KPIs where source data exists (purchase costs/customer data missing → shown as not computable)
+- [ ] H Initiative health overview; J initiative, organization, campaign diagnostic, Growth Officer activity, specialist quality reports
+- [ ] K Monitoring 2.0 (compare checks, resolved/recurring findings, unchecked areas)
+- [ ] L Command Center 2.0; M evidence links on recommendations; N execution-state distinctions
+- [ ] O Scalability review (task_runs read capped at 3000 in BI data); Q end-to-end scenarios 1–9; R regression/security sweep

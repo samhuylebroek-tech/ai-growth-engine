@@ -74,6 +74,11 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
   75/100, acceptable, five findings) and an admin decision "accepted with corrections". *Keep; reviews and decisions are
   insert-only.*
 
+- **Phase 8.6 re-planning analysis (2026-11-21)** — staging proposal 0082. Main workspace task "Analyseer de vraag naar
+  zakelijke lunches in de buurt" (overdue): a rule-based re-planning proposal prepared by QA Member and one real Growth
+  Officer analysis (5 credits, recommends option A). The proposal is intentionally left undecided so no task dates
+  changed. Test-account passwords were rotated by `seed-users.ts` after a sandbox restart (no other change). *Keep.*
+
 ## Cleanup proposal (needs separate approval)
 
 1. Archive (status change, not delete) the five QA-named goals/campaigns/tasks through the normal app screens.

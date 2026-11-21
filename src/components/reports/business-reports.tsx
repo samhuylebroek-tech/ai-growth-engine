@@ -10,27 +10,41 @@ import { executionOptions, localDay } from "@/lib/execution";
 import { campaignSpendOptions, replanOptions } from "@/components/execution/replan-data";
 import { replanStatus } from "@/lib/task-replan";
 import { growthDb, isNotInstalled } from "@/lib/pending-schema";
+import { collectPages } from "@/lib/pagination";
 import { buildReport, DEFAULT_PERIOD, PERIOD_KEYS, REPORT_TYPES, type Delta, type PeriodKey, type Quality, type ReportType } from "@/lib/reports";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const QUALITY_LIMIT = 500;
 const tk = (k: string) => k as MessageKey;
+type QReview = Quality["reviews"][number] & { id: string };
+type QDecision = Quality["decisions"][number] & { id: string };
 
-/** Second reviews and decisions for the specialist report; "not installed" means unavailable, other errors fail closed. */
+/** Every second review and decision of the business (ID keyset pages under a creation watermark, so nothing is
+ * silently cut off); "not installed" means unavailable, any other error fails closed. */
 function useQuality(org?: string, ws?: string) {
   return useQuery({
     queryKey: ["report-quality", org ?? "", ws ?? ""],
     enabled: !!org && !!ws,
     queryFn: async (): Promise<Quality | null> => {
-      const [r, d] = await Promise.all([
-        growthDb.from("specialist_reviews").select("task_run_id,original_specialist,score,verdict,independence_warning,created_at").eq("org_id", org!).eq("workspace_id", ws!).order("created_at", { ascending: false }).limit(QUALITY_LIMIT),
-        growthDb.from("specialist_result_decisions").select("task_run_id,decision,created_at").eq("org_id", org!).eq("workspace_id", ws!).order("created_at", { ascending: false }).limit(QUALITY_LIMIT),
-      ]);
-      if ((r.error && isNotInstalled(r.error)) || (d.error && isNotInstalled(d.error))) return null;
-      if (r.error) throw r.error;
-      if (d.error) throw d.error;
-      return { reviews: r.data ?? [], decisions: d.data ?? [] };
+      const watermark = new Date().toISOString();
+      try {
+        const [reviews, decisions] = await Promise.all([
+          collectPages<QReview>(async (cursor, size) => {
+            let q = growthDb.from("specialist_reviews").select("id,task_run_id,original_specialist,score,verdict,independence_warning,created_at,credits").eq("org_id", org!).eq("workspace_id", ws!).lte("created_at", watermark).order("id").limit(size);
+            if (cursor) q = q.gt("id", cursor);
+            return q;
+          }),
+          collectPages<QDecision>(async (cursor, size) => {
+            let q = growthDb.from("specialist_result_decisions").select("id,task_run_id,decision,created_at").eq("org_id", org!).eq("workspace_id", ws!).lte("created_at", watermark).order("id").limit(size);
+            if (cursor) q = q.gt("id", cursor);
+            return q;
+          }),
+        ]);
+        return { reviews, decisions };
+      } catch (e) {
+        if (isNotInstalled(e)) return null;
+        throw e;
+      }
     },
   });
 }
@@ -189,13 +203,13 @@ export function BusinessReports() {
             <h3 className="text-sm font-semibold">{t("rep.performance")}</h3>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px] text-xs">
-                <thead className="text-left text-muted-foreground"><tr>{["rep.specialist", "rep.runs", "rep.succeeded", "rep.failedRuns", "rep.credits", "rep.perSuccess", "rep.reviews", "rep.avgScore", "rep.unreliable", "rep.accepted", "rep.corrected", "rep.rework", "rep.rejected"].map((h) => <th key={h} className="py-1 pr-3 font-normal">{t(tk(h))}</th>)}</tr></thead>
+                <thead className="text-left text-muted-foreground"><tr>{["rep.specialist", "rep.runs", "rep.succeeded", "rep.failedRuns", "rep.credits", "rep.perSuccess", "rep.reviews", "rep.reviewCredits", "rep.avgScore", "rep.unreliable", "rep.accepted", "rep.corrected", "rep.rework", "rep.rejected"].map((h) => <th key={h} className="py-1 pr-3 font-normal">{t(tk(h))}</th>)}</tr></thead>
                 <tbody>{r.specialists.map((l) => (
                   <tr key={l.specialist} className="border-t border-border tabular-nums">
                     <td className="py-1 pr-3">{l.specialist === "growth_officer" ? "Growth Officer" : t(tk(`run.sp.${l.specialist}`))}</td>
                     <td className="py-1 pr-3">{l.runs}</td><td className="py-1 pr-3">{l.succeeded}</td><td className="py-1 pr-3">{l.failed}</td><td className="py-1 pr-3">{l.credits}</td>
                     <td className="py-1 pr-3">{l.creditsPerSuccess === null ? t("rep.none") : `${l.creditsPerSuccess.toLocaleString(tag)} · ${t("rep.k.computed")}`}</td>
-                    <td className="py-1 pr-3">{l.reviews}</td><td className="py-1 pr-3">{l.avgScore === null ? t("rep.none") : `${l.avgScore}/100`}</td>
+                    <td className="py-1 pr-3">{l.reviews}</td><td className="py-1 pr-3">{l.reviews === 0 ? t("rep.none") : `${l.reviewCredits}${l.reviewCreditsUnknown ? ` · ${t("rep.unknownCost", { n: l.reviewCreditsUnknown })}` : ""}`}</td><td className="py-1 pr-3">{l.avgScore === null ? t("rep.none") : `${l.avgScore}/100`}</td>
                     <td className={cn("py-1 pr-3", l.unreliable > 0 && "text-destructive")}>{l.unreliable}</td>
                     <td className="py-1 pr-3">{l.accepted}</td><td className="py-1 pr-3">{l.corrected}</td><td className="py-1 pr-3">{l.rework}</td><td className="py-1 pr-3">{l.rejected}</td>
                   </tr>
@@ -203,7 +217,7 @@ export function BusinessReports() {
               </table>
             </div>
             <p className="text-muted-foreground">{t("rep.qualityNote")}</p>
-            <p className="text-muted-foreground">{t("rep.qualityLimit", { n: QUALITY_LIMIT })}</p>
+            <p className="text-muted-foreground">{t("rep.qualityAll", { r: quality.data?.reviews.length ?? 0, d: quality.data?.decisions.length ?? 0 })}</p>
           </section>
         )}
 

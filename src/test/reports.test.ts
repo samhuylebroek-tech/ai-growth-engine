@@ -63,7 +63,7 @@ describe("daily and specialist reports", () => {
       runs: [run("a", "seo", "succeeded", 6), run("b", "seo", "succeeded", 4), run("c", "seo", "failed", 0), run("d", "content", "succeeded", 5, "2026-08-01T00:00:00Z")],
       quality: {
         reviews: [
-          { task_run_id: "a", original_specialist: "seo", score: 75, verdict: "acceptable", independence_warning: false, created_at: "2026-11-19T00:00:00Z" },
+          { task_run_id: "a", original_specialist: "seo", score: 75, verdict: "acceptable", independence_warning: false, created_at: "2026-11-19T00:00:00Z", credits: 7 },
           { task_run_id: "b", original_specialist: "seo", score: 40, verdict: "unreliable", independence_warning: false, created_at: "2026-11-19T00:00:00Z" },
         ],
         decisions: [
@@ -73,7 +73,7 @@ describe("daily and specialist reports", () => {
         ],
       },
     }, today);
-    expect(r.specialists).toEqual([{ specialist: "seo", runs: 3, succeeded: 2, failed: 1, credits: 10, creditsPerSuccess: 5, reviews: 2, avgScore: 58, unreliable: 1, accepted: 0, corrected: 1, rework: 1, rejected: 0 }]);
+    expect(r.specialists).toEqual([{ specialist: "seo", runs: 3, succeeded: 2, failed: 1, credits: 10, creditsPerSuccess: 5, reviews: 2, avgScore: 58, unreliable: 1, accepted: 0, corrected: 1, rework: 1, rejected: 0, reviewCredits: 7, reviewCreditsUnknown: 1 }]);
     expect(r.missing).not.toContain("quality_unavailable");
   });
 

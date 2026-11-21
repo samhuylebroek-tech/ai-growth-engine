@@ -12,6 +12,7 @@ import type { Json } from "@/integrations/supabase/types";
 import { buildReplan, replanStatus, type Dependency, type ReplanTask } from "@/lib/task-replan";
 import { localDay, executionOptions } from "@/lib/execution";
 import { replanOptions } from "@/components/execution/replan-data";
+import { ReplanAnalysisPanel } from "@/components/execution/replan-analysis-panel";
 import { taskExecutionOptions, runsByTask } from "@/components/execution/task-runs-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +40,7 @@ export function TaskReplan({ taskId }: { taskId: string }) {
 
   const tasks: ReplanTask[] = (work.data?.tasks ?? []).map((t) => ({ id: t.id, title: t.title, status: t.status, priority: t.priority, due_date: t.due_date, start_date: t.start_date, owner_id: t.owner_id, campaign_id: t.campaign_id }));
   const task = tasks.find((t) => t.id === taskId);
+  const taskUpdatedAt = (work.data?.tasks ?? []).find((t) => t.id === taskId)?.updated_at ?? "";
   const title = (id: string) => tasks.find((t) => t.id === id)?.title ?? id.slice(0, 8);
   const deps: Dependency[] = (work.data?.notes ?? []).filter((n) => n.kind === "dependency" && n.entity_type === "tasks" && n.related_id).map((n) => ({ task: n.entity_id, on: n.related_id! }));
   const assigned = new Set((work.data?.notes ?? []).filter((n) => n.kind === "member" && n.entity_type === "tasks").map((n) => n.entity_id));
@@ -118,6 +120,7 @@ export function TaskReplan({ taskId }: { taskId: string }) {
             ))}
           </fieldset>
           <ImpactLines tx={tx} fmt={fmt} title={title} affected={openOne.impact.affected ?? []} invalid={openOne.impact.invalid_order ?? []} end={openOne.impact.campaign_end_exceeded ? (openOne.impact.campaign_end ?? null) : null} risk={openOne.risk} />
+          <ReplanAnalysisPanel proposalId={openOne.id} taskUpdatedAt={taskUpdatedAt} title={title} />
           {editor ? (
             <div className="grid gap-2 sm:grid-cols-2">
               <label className="text-xs">{tx("rp.adjust")}<Input type="date" min={today} value={adjust} onChange={(e) => setAdjust(e.target.value)} /></label>

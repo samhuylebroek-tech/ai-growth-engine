@@ -91,12 +91,14 @@ export function runFigures(runs: readonly RunRow[], p: Period) {
     credits: mine.reduce((n, r) => n + (r.credits_charged ?? 0), 0), perSpecialist };
 }
 
-export type ReviewRow = { task_run_id: string; original_specialist: string; score: number; verdict: string; independence_warning: boolean; created_at: string };
+export type ReviewRow = { task_run_id: string; original_specialist: string; score: number; verdict: string; independence_warning: boolean; created_at: string; credits?: number | null };
 export type DecisionRow = { task_run_id: string; decision: string; created_at: string };
 export type Quality = { reviews: readonly ReviewRow[]; decisions: readonly DecisionRow[] };
 export type SpecialistLine = {
   specialist: string; runs: number; succeeded: number; failed: number; credits: number; creditsPerSuccess: number | null;
   reviews: number; avgScore: number | null; unreliable: number; accepted: number; corrected: number; rework: number; rejected: number;
+  /** Credits of second reviews of this specialist's results; reviews whose cost is not recorded are counted apart. */
+  reviewCredits: number; reviewCreditsUnknown: number;
 };
 /**
  * Specialist performance for a period: runs and credits from task runs, quality from second reviews and the
@@ -111,7 +113,7 @@ export function specialistLines(runs: readonly RunRow[], quality: Quality | null
     let l = lines.get(k);
     if (!l) {
       const b = base[k] ?? { runs: 0, succeeded: 0, failed: 0, credits: 0 };
-      l = { specialist: k, ...b, creditsPerSuccess: b.succeeded ? r2(b.credits / b.succeeded) : null, reviews: 0, avgScore: null, unreliable: 0, accepted: 0, corrected: 0, rework: 0, rejected: 0 };
+      l = { specialist: k, ...b, creditsPerSuccess: b.succeeded ? r2(b.credits / b.succeeded) : null, reviews: 0, avgScore: null, unreliable: 0, accepted: 0, corrected: 0, rework: 0, rejected: 0, reviewCredits: 0, reviewCreditsUnknown: 0 };
       lines.set(k, l);
     }
     return l;
@@ -123,6 +125,7 @@ export function specialistLines(runs: readonly RunRow[], quality: Quality | null
     const l = line(r.original_specialist);
     l.reviews += 1;
     if (r.verdict === "unreliable") l.unreliable += 1;
+    if (r.credits == null) l.reviewCreditsUnknown += 1; else l.reviewCredits += r.credits;
     scores.set(l.specialist, [...(scores.get(l.specialist) ?? []), r.score]);
   }
   for (const [k, v] of scores) line(k).avgScore = Math.round(v.reduce((a, b) => a + b, 0) / v.length);
