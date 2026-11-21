@@ -5,10 +5,16 @@
 - [x] Budget allocation screens (business budget per currency, per-line split, requests, history, goal drill-down) and spend line selection, EN/NL/FR.
 - [x] Campaign specialists and AI costs panel (recorded credits only, no invented money value).
 - [x] KPI measurement periods: comparable before/after with confidence, measurement quality per metric.
-- [ ] Recommendation outcome learning across proposals (patterns per lever/channel) — next.
-- [ ] Integrated campaign/initiative/organization economics report — next.
-- [B] Campaign profit, ROAS, CAC: need cost of goods and customer references, and an agreed credit price.
-- [B] Proposals 0063–0084 into the live database: owner approval.
+- [x] Second stage: proposal 0085 (staging only; rollback 40/40, SQL suites 49/49): budget-decision hardening, spend categories, insert-only business costs and versioned cost models, Platform-Owner credit price history, recommendation learnings.
+- [x] Growth economics page (/app/economics): business money, campaign table, initiative/strategy/goal rollups counted once, cost model and cost ledger with corrections, AI credits priced only by a set price; EN/NL/FR, roles, phone.
+- [x] Possible duplicate budget lines flagged (never merged or deleted); a lookalike line needs "separate budget" plus a note.
+- [x] Campaign spend cost category selection.
+- [x] Recommendation learning on Improvements: stages, lessons checked against the recorded measurement, patterns only from 3+ actual learnings over 2+ campaigns.
+- [ ] Credit price editor for the Platform Owner (database function exists; no screen yet).
+- [ ] Growth Officer context, Command Center tiles and reports using the economics figures.
+- [ ] Organization-level economics across businesses.
+- [B] Campaign profit, ROAS, CAC with real figures: need recorded cost of goods, customer references and a credit price (inputs now exist; staging has only QA data).
+- [B] Proposals 0063–0085 into the live database: owner approval.
 ## Phase 8.2 extended sprint — 2026-11-20
 - [x] Environment verified (branch, HEAD a53b2d6, staging marker, ledger 57, proposals to 0073).
 - [x] Evidence freshness (type-aware; historical records never expire; source unavailable / verification required).

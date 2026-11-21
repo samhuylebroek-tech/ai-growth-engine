@@ -107,6 +107,11 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
   `paid_social` line on "QA 8.7 lifecycle campaign" and one refused EUR 3,600 attempt. Allocation events and spend are
   insert-only. *Keep.*
 
+- **Phase 8.8 second stage (Staging Bakery / Main workspace, 2026-11-21).** One cost model "cost per month" valid from
+  2026-11-01 set by QA Admin; one recorded cost-of-goods entry EUR 300 for 2026-11-01 – 2026-11-30 (note "QA 8.8 November
+  cost of goods") with corrections −50 and +20 (effective EUR 270); one refused over-correction (−9,999). Cost entries and
+  cost models are insert-only. *Keep.*
+
 ## Cleanup proposal (needs separate approval)
 
 1. Archive (status change, not delete) the five QA-named goals/campaigns/tasks through the normal app screens.
