@@ -593,8 +593,9 @@ describe("unified business context — scope and isolation", () => {
     for (const read of domainReads) {
       expect(read.filters).toContainEqual({ op: "eq", column: "org_id", value: "org-a" });
       // Two scoped exceptions: AI usage has no workspace column and is scoped through its run's workspace;
-      // the subscription is organization-level and only its plan key is read (to pick the applicable credit price).
-      if (read.table === "subscriptions") continue;
+      // the subscription is organization-level and only its plan key is read (to pick the applicable credit price);
+      // exchange rates are organization-level reference data (no workspace column) used only for converted totals.
+      if (read.table === "subscriptions" || read.table === "exchange_rates") continue;
       const wsColumn = read.table === "ai_usage_events" ? "agent_runs.workspace_id" : "workspace_id";
       expect(read.filters).toContainEqual({ op: "eq", column: wsColumn, value: "ws-a" });
     }

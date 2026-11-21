@@ -437,3 +437,16 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [ ] Rate limits — documented only (owner decision)
 - [ ] Nested build-tool zod advisory — waits on TanStack tooling update
 - [ ] Re-run deep scan after these changes are saved; live rollout of 0063–0088 needs approval
+
+## Phase 9 — growth lifecycle, reports, canonical financials (staging)
+- [x] Initiative, strategy and recommendation-learning reports on the canonical economics rollup (counted once, classes and currencies apart)
+- [x] Strategy version comparison (previous vs current/draft), read-only for viewers
+- [x] Reports count approved task re-plans per period (was always 0)
+- [x] Home: figures converted to the reporting currency at monthly ECB closing rates when several currencies occur
+- [x] Growth Officer context: same converted totals, labelled as a reporting view
+- [ ] Organization report type in the report selector (organization page has the figures; report type not yet added)
+- [ ] KPI catalogue: formula/definition and baseline per KPI
+- [ ] Reports and BI still compute revenue/spend separately; consolidate on econ/read + econ/summary
+- [ ] Campaign status sets differ between database and app code; align in a reviewed proposal
+- [ ] Task completion date: reports use the last update time; needs a recorded completion time (schema proposal)
+- [ ] Live rollout of staging proposals 0063–0088 needs separate approval

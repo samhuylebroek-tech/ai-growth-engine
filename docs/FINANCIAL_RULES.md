@@ -32,3 +32,6 @@ official ECB before manual on the same day, ECB cross rate via the euro when bot
 month without a rate keeps its original amount and the converted total is withheld with the reason. A converted
 figure is shown only when the business's months add up to its period figure. ECB rates are stored by the server only
 (daily, or the 90-day history on request) and are permanent.
+The same conversion is reused, never re-implemented, on Home (only when the period has more than one currency or a
+currency other than the business's reporting currency) and in the Growth Officer's context (current month; labelled as
+a reporting view, gross profit not converted, withheld with the reason when a rate is missing).

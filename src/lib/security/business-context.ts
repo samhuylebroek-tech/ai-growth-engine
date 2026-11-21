@@ -10,6 +10,9 @@ import { quoteUntrusted } from "./upload";
 import { detectSignals } from "@/lib/signals";
 import { econNotInstalled, readEconData, type EconData } from "@/lib/econ/read";
 import { economicsSummary } from "@/lib/econ/summary";
+import { convertedEconomicsLine } from "@/lib/econ/converted";
+import type { Rate } from "@/lib/org/consolidation";
+import { MAX_RATE_AGE_DAYS } from "@/lib/org/period-conversion";
 import { learningPatterns } from "@/lib/econ/learning";
 import { translate } from "@/lib/i18n/messages";
 import { attribute, revenueTotals, type RevenueEvent, type Touch } from "@/lib/bi/attribution";
@@ -304,6 +307,8 @@ export type BusinessDomains = {
   proposals?: DomainRead<ProposalLine>;
   /** Growth economics ledgers (proposals 0084–0086), read through the shared reader; optional for older callers. */
   economics?: { status: "ok"; data: EconData } | { status: "unavailable" };
+  /** Reporting currency and recent exchange rates, for the labelled converted totals; optional for older callers. */
+  conversion?: { status: "ok"; target: string; rates: Rate[] } | { status: "unavailable" };
 };
 export type SpendLine = {
   campaign_id: string; kind: "spend" | "commitment" | "release" | "correction"; amount: number; currency: string; data_class: "manual" | "simulated";
@@ -445,6 +450,20 @@ export async function readBusinessDomains(
     (e: unknown) => { if (econNotInstalled(e)) return { status: "unavailable" as const }; throw new ContextReadError("growth economics"); },
   );
   economicsRead.catch(() => undefined); // awaited below; avoids an unhandled rejection if an earlier read fails first
+  // Reporting currency and this month's rates (plus the fallback window) for the converted totals; fails closed.
+  const rateSince = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1) - (MAX_RATE_AGE_DAYS + 3) * DAY).toISOString().slice(0, 10);
+  const conversionRead: Promise<NonNullable<BusinessDomains["conversion"]>> = Promise.all([
+    (sb as unknown as SupabaseClient).from("business_profiles").select("reporting_currency").eq("org_id", orgId).eq("workspace_id", workspaceId).maybeSingle(),
+    (sb as unknown as SupabaseClient).from("exchange_rates").select("id,base_currency,quote_currency,rate,rate_date,source,kind").eq("org_id", orgId).gte("rate_date", rateSince).order("rate_date", { ascending: false }).limit(2000),
+  ]).then(([p, r]) => {
+    if (p.error || r.error) {
+      if (isMissingSchema(p.error ?? r.error)) return { status: "unavailable" as const };
+      throw new ContextReadError("exchange rates");
+    }
+    const target = (p.data as { reporting_currency?: string } | null)?.reporting_currency;
+    return target ? { status: "ok" as const, target, rates: (r.data ?? []) as Rate[] } : { status: "unavailable" as const };
+  });
+  conversionRead.catch(() => undefined);
   const [
     profile,
     facts,
@@ -833,6 +852,7 @@ export async function readBusinessDomains(
     experiments,
     proposals,
     economics: await economicsRead,
+    conversion: await conversionRead,
   };
 }
 
@@ -1566,7 +1586,11 @@ export function economicsLines(d: BusinessDomains, now: Date): string[] {
   const y = now.getUTCFullYear(), m = now.getUTCMonth();
   const from = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10), to = new Date(Date.UTC(y, m + 1, 0)).toISOString().slice(0, 10);
   const s = economicsSummary(e, from, to, "last_touch", now.toISOString().slice(0, 10));
-  const out: string[] = [`period ${from} – ${to}; amounts per currency, never converted`];
+  const out: string[] = [`period ${from} – ${to}; amounts per currency; any converted total is labelled as a reporting view`];
+  if (d.conversion?.status === "ok" && !s.incomplete.length) {
+    const line = convertedEconomicsLine(e, s, from, to, now.toISOString().slice(0, 10), d.conversion.target, d.conversion.rates);
+    if (line) out.push(line);
+  }
   if (s.incomplete.length) out.push(`incomplete reads (totals may be too low): ${s.incomplete.join(", ")}`);
   for (const b of s.budget) out.push(`budget ${b.currency}: planned ${b.total} on ${b.lines} line(s); allocated to campaigns ${b.allocated}; not allocated ${b.unallocated}; actual spent ${b.spent}; reserved (not spent) ${b.reserved}`);
   if (!s.budget.length) out.push("budget: no budget lines this month");

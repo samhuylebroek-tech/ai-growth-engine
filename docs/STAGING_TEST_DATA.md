@@ -129,3 +129,8 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
 - ECB history imported for the QA organization through the app: 65 publication days (24 Aug – 20 Nov 2026), 1,885 official rates in total; official rates are permanent by design. *Keep.*
 - Staging Catering (second business): two USD sales recorded through the app (USD 116 on 15 Oct, USD 220 on 5 Nov, customer reference STG-FX-1) and one USD 50 refund on 18 Nov belonging to the October sale. Revenue records are permanent. *Keep.*
 - Task "QA office breakfast boxes: Review the remaining budget…" got the Growth Strategist (analysis, no approval) and one successful AI run: 6 credits at 12:51, valued EUR 0.30 at the staging price. *Keep.*
+
+## Phase 9 (21 Nov 2026)
+- Main workspace: one USD 250 sale on 15 Oct 2026 recorded through the app's revenue call (customer reference qa-phase9-usd, note "QA Phase 9: USD test sale for converted Home figures") to check converted Home figures. Revenue records are permanent. *Keep.*
+- Draft strategy version 2 created for goal "QA Journey: more online bookings" (archived goal) and for "QA: Grow qualified leads", to check version comparison (adds "QA Phase 9: booking reminder test", risk "QA Phase 9: reminder fatigue"). *Keep.*
+- No schema changes; staging ledger unchanged.
