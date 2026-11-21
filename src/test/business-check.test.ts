@@ -44,10 +44,12 @@ describe("inspected records", () => {
   it("counts overdue and blocked open tasks and reports unreadable areas as unknown, not zero", () => {
     const d = {
       tasks: [
-        { status: "todo", due_date: "2026-11-01" },
-        { status: "blocked", due_date: null },
-        { status: "done", due_date: "2026-11-01" },
+        { id: "t1", title: "Late", status: "todo", due_date: "2026-11-01" },
+        { id: "t2", title: "Waiting", status: "in_progress", due_date: null },
+        { id: "t3", title: "Done", status: "done", due_date: "2026-11-01" },
       ],
+      // t2 waits on the open t1 (blocked); t1 waits on the finished t3 (not blocked).
+      dependencies: { status: "ok", rows: [{ task_id: "t2", depends_on: "t1" }, { task_id: "t1", depends_on: "t3" }], truncated: false },
       revenue: { status: "unavailable" },
       budget: { status: "ok", rows: [{}, {}], truncated: false },
       campaigns: { status: "ok", rows: [], truncated: false },
@@ -58,5 +60,7 @@ describe("inspected records", () => {
     expect(i.operations).toMatchObject({ initiative_tasks_open: 2, overdue_tasks: 1, blocked_tasks: 1 });
     expect(i.financial).toEqual({ revenue_entries: null, budget_lines: 2 });
     expect(i.customers["retention_metrics"]).toBeNull();
+    // Without a dependency read the blocked count is unknown, never zero.
+    expect(inspectedRecords({ ...d, dependencies: { status: "unavailable" } } as BusinessDomains).operations["blocked_tasks"]).toBeNull();
   });
 });

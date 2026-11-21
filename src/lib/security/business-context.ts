@@ -12,6 +12,7 @@ import { econNotInstalled, readEconData, type EconData } from "@/lib/econ/read";
 import { economicsSummary } from "@/lib/econ/summary";
 import { convertedEconomicsLine } from "@/lib/econ/converted";
 import { kpiContextLines } from "@/lib/bi/kpi-context";
+import { blockedTasks, unknownTaskIds, type Dep } from "@/lib/task-blocking";
 import type { Rate } from "@/lib/org/consolidation";
 import { MAX_RATE_AGE_DAYS } from "@/lib/org/period-conversion";
 import { learningPatterns } from "@/lib/econ/learning";
@@ -297,6 +298,9 @@ export type BusinessDomains = {
   opportunities?: DomainRead<OpportunityLine>;
   /** Overdue open tasks across all work, not only initiative tasks; optional for older callers. */
   overdueTasks?: DomainRead<Task>;
+  /** Task dependencies ("waits on") of this business, plus the tasks on either side that were not otherwise read. */
+  dependencies?: DomainRead<Dep>;
+  prerequisites?: Task[];
   /** Campaign spend ledger for the listed campaigns (proposal 0077); optional for older callers. */
   campaignSpend?: DomainRead<SpendLine>;
   /** Spending limits of the listed campaigns (proposal 0083); optional for older callers. */
@@ -394,7 +398,8 @@ type ScopedTable =
   | "revenue_events"
   | "attribution_touchpoints"
   | "growth_experiments"
-  | "optimization_proposals";
+  | "optimization_proposals"
+  | "execution_notes";
 type ScopedQuery = PromiseLike<Res> & {
   eq(column: string, value: unknown): ScopedQuery;
   neq(column: string, value: unknown): ScopedQuery;
@@ -408,6 +413,8 @@ type ScopedQuery = PromiseLike<Res> & {
 
 const LIMITS = {
   overdue: 50,
+  dependencies: 500,
+  dependencyTasks: 200,
   spend: 2000,
   replans: 50,
   facts: 60,
@@ -819,6 +826,33 @@ export async function readBusinessDomains(
       )
     : ok<ContentDecision>();
 
+  // Every task dependency of this business (bounded, newest first), like the Command Center, plus the state of the
+  // tasks on either side that were not otherwise read.
+  const knownTasks = [...rowsOf(tasks), ...rowsOf(overdueTasks)];
+  const depRead = await optional<{ entity_id: string; related_id: string | null }>(
+    "task dependencies",
+    t("execution_notes", "entity_id,related_id")
+      .eq("entity_type", "tasks")
+      .eq("kind", "dependency")
+      .order("created_at", { ascending: false })
+      .limit(LIMITS.dependencies),
+    LIMITS.dependencies,
+  );
+  const dependencies: DomainRead<Dep> =
+    depRead.status === "ok"
+      ? { ...depRead, rows: depRead.rows.flatMap((r) => (r.related_id ? [{ task_id: r.entity_id, depends_on: r.related_id }] : [])) }
+      : depRead;
+  const missingPre = unknownTaskIds(knownTasks, rowsOf(dependencies)).slice(0, LIMITS.dependencyTasks);
+  const prerequisites = missingPre.length
+    ? rowsOf(
+        await optional<Task>(
+          "prerequisite tasks",
+          t("tasks", "id,project_id,title,status,priority,due_date,owner_id").in("id", missingPre),
+          LIMITS.dependencyTasks,
+        ),
+      )
+    : [];
+
   const profileRow = rowsOf(profile)[0];
   return {
     workspace,
@@ -835,6 +869,8 @@ export async function readBusinessDomains(
     projects: rowsOf(projects),
     tasks: rowsOf(tasks),
     overdueTasks,
+    dependencies,
+    prerequisites,
     budget,
     deals,
     competitors,
@@ -1531,6 +1567,15 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
   });
 
   sections.push({
+    key: "blocked-work",
+    title: "BLOCKED WORK (TASKS WAITING ON UNFINISHED TASKS)",
+    evidence: ["workflow_state"],
+    budget: 900,
+    priority: 4,
+    lines: blockedWorkLines(d, now),
+  });
+
+  sections.push({
     key: "growth-indicators",
     title: "GROWTH INDICATORS (LAST FULL MONTH, CANONICAL FORMULAS)",
     evidence: ["growth_indicator"],
@@ -1591,6 +1636,30 @@ function limitNote(d: BusinessDomains, c: Campaign, rows: SpendLine[]): string {
   const usage = dated ? limitUsage(l, rows.map((x) => ({ id: x.id!, kind: x.kind, amount: x.amount, currency: x.currency, occurred_on: x.occurred_on!, data_class: x.data_class, relates_to: x.relates_to ?? null })), new Date().toISOString().slice(0, 10)) : [];
   const parts = usage.map((u) => `${u.key} ${u.used.toFixed(2)}/${u.max.toFixed(2)} ${l.currency}`);
   return `; hard spending limits (actual entries, enforced in this app only, not at ad platforms): ${parts.length ? parts.join(", ") : "set"}`;
+}
+
+/** Blocked work for the AI: the shared rule in src/lib/task-blocking.ts over the tasks and dependencies read. */
+export function blockedWorkLines(d: BusinessDomains, now: Date): string[] {
+  if (!d.dependencies) return [];
+  if (d.dependencies.status === "unavailable") return [UNAVAILABLE];
+  const blocked = blockedTasks(allKnownTasks(d), d.dependencies.rows, now.toISOString().slice(0, 10));
+  const lines = blocked.slice(0, 12).map(
+    (b) =>
+      `- ${b.late ? "[late] " : ""}“${clip(b.task.title, 80)}” (due ${b.task.due_date ?? "no date"}) waits on ${b.waitsOn
+        .map((p) => `“${clip(p.title ?? "unnamed task", 60)}” (${p.status}, due ${p.due_date ?? "no date"})`)
+        .join(", ")}`,
+  );
+  if (blocked.length > 12) lines.push(`… and ${blocked.length - 12} more blocked task(s)`);
+  if (d.dependencies.truncated) lines.push("some dependencies were not read (limit reached): more tasks may be blocked");
+  if (blocked.length) lines.push("[late] = the prerequisite is overdue or due on/after the waiting task; finish or re-plan the prerequisite first");
+  return lines;
+}
+
+/** Every task this context read (initiative tasks, overdue tasks, prerequisites), once. */
+export function allKnownTasks(d: BusinessDomains): Task[] {
+  const seen = new Map<string, Task>();
+  for (const x of [...d.tasks, ...(d.overdueTasks?.status === "ok" ? d.overdueTasks.rows : []), ...(d.prerequisites ?? [])]) seen.set(x.id, x);
+  return [...seen.values()];
 }
 
 /** Growth indicators for the AI: same inputs and formulas as the Business performance page (src/lib/bi/kpi-context.ts). */

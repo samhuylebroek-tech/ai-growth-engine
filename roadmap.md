@@ -445,8 +445,17 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] Home: figures converted to the reporting currency at monthly ECB closing rates when several currencies occur
 - [x] Growth Officer context: same converted totals, labelled as a reporting view
 - [ ] Organization report type in the report selector (organization page has the figures; report type not yet added)
-- [ ] KPI catalogue: formula/definition and baseline per KPI
+- [x] KPI catalogue: formula, better direction and counting rule per KPI (EN/NL/FR), tested against the calculation; Growth Officer reads the same indicators
+- [ ] KPI baselines per KPI (needs a recorded baseline per metric; not invented)
 - [ ] Reports and BI still compute revenue/spend separately; consolidate on econ/read + econ/summary
 - [ ] Campaign status sets differ between database and app code; align in a reviewed proposal
 - [ ] Task completion date: reports use the last update time; needs a recorded completion time (schema proposal)
 - [ ] Live rollout of staging proposals 0063–0088 needs separate approval
+
+## Additional master mission (staging only)
+- [x] Request body limit (1 MB) on server calls; static security boundary tests
+- [x] CI: full-history secret scan and production dependency audit
+- [x] Dependency fixes within allowed versions (19 advisories); Zod 3 advisory mitigated by the body limit, documented
+- [x] KPI definitions shown per KPI and shared with the Growth Officer
+- [x] Blocked work: Growth Officer sees tasks waiting on unfinished tasks; business check counts them (was always 0)
+- [ ] Zod 4 upgrade (major) — needs a reviewed migration of all validators

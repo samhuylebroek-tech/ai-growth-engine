@@ -1,7 +1,8 @@
 // Recorded business checks (proposal 0076), pure part. A check snapshots which records were inspected per area
 // and which deterministic findings (src/lib/signals.ts) were produced; the database computes what changed since
 // the previous check. No AI is called. Frequencies only mark a check as due: nothing runs in the background.
-import type { BusinessDomains, DomainRead } from "@/lib/security/business-context";
+import { allKnownTasks, type BusinessDomains, type DomainRead } from "@/lib/security/business-context";
+import { blockedTasks } from "@/lib/task-blocking";
 import type { Signal } from "@/lib/signals";
 
 export type Frequency = "off" | "daily" | "weekly" | "monthly";
@@ -30,7 +31,8 @@ export function inspectedRecords(d: BusinessDomains, now: Date = new Date()): In
     operations: {
       initiative_tasks_open: open.length,
       overdue_tasks: d.overdueTasks && d.overdueTasks.status !== "ok" ? null : late.size,
-      blocked_tasks: open.filter((t) => t.status === "blocked").length,
+      // Blocked = waits on an unfinished task (there is no "blocked" status); unknown when dependencies were not read.
+      blocked_tasks: !d.dependencies ? null : d.dependencies.status !== "ok" ? null : blockedTasks(allKnownTasks(d), d.dependencies.rows, today).length,
       ai_runs: runs ? runs.length : null,
       experiments: count(d.experiments),
     },
