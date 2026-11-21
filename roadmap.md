@@ -1,15 +1,15 @@
 # AI Growth OS — Task Queue
 ## Phase 8.8 third stage — unified growth intelligence — 2026-11-21
 - [x] Environment verified (branch, HEAD 5d2de9e, clean, staging marker, ledger 57/57, 0084/0085 hashes match, RLS on all 103 tables).
-- [ ] A Platform Owner credit pricing screen (history, future prices, currencies, reasons; credits only until a price exists).
-- [ ] B Economics: formulas and exact missing-input explanations on every figure; channel economics.
-- [ ] C Organization economics across businesses (original currency, converted only with recorded rates).
-- [ ] D Growth Officer reads the economics summary (budget, allocation, spend, costs, AI cost, learning outcomes).
-- [ ] E Home financial alerts from the same figures.
-- [ ] F Monthly report financial section reconciled with Growth economics.
-- [ ] G Measurement follow-up for recommendations (shown when the app is opened; no background monitoring).
-- [ ] H Campaign specialist/AI cost overview at campaign and initiative level.
-- [ ] Tests, browser checks (roles, EN/NL/FR, phone/tablet), report.
+- [x] A Platform Owner credit pricing screen (history, future prices, currencies, reasons; credits only until a price exists). Proposal 0086 (staging) limits history to the Platform Owner.
+- [x] B Economics: formulas and exact missing-input explanations; channel spending; shared summary.
+- [x] C Organization economics across businesses (original currency; no conversion shown yet).
+- [x] D Growth Officer reads the economics summary (budget, allocation, spend, costs, AI cost, learning outcomes).
+- [x] E Home financial alerts from the same figures.
+- [x] F Report economics section reconciled with Growth economics (tests).
+- [x] G Measurement follow-up for recommendations (Home alert when the app is opened; no background monitoring).
+- [ ] H Campaign/initiative AI cost: credits shown per campaign and level; money value per campaign not yet shown.
+- [x] Tests (727), browser checks owner/admin/member/viewer, EN/NL/FR, phone width.
 ## Phase 8.8 — unified campaign economics — 2026-11-22
 - [x] Environment verified (branch, HEAD 9567347, staging marker, ledger 57/57, RLS on all tables).
 - [x] Proposal 0084 (staging only): shared budget-line allocations, insert-only allocation events, member requests with editor decisions, spend linked to a line and refused above the allocation; rollback 40/40, SQL suites 48/48, real two-session concurrency check.
@@ -21,9 +21,9 @@
 - [x] Possible duplicate budget lines flagged (never merged or deleted); a lookalike line needs "separate budget" plus a note.
 - [x] Campaign spend cost category selection.
 - [x] Recommendation learning on Improvements: stages, lessons checked against the recorded measurement, patterns only from 3+ actual learnings over 2+ campaigns.
-- [ ] Credit price editor for the Platform Owner (database function exists; no screen yet).
-- [ ] Growth Officer context, Command Center tiles and reports using the economics figures.
-- [ ] Organization-level economics across businesses.
+- [x] Credit price editor for the Platform Owner.
+- [x] Growth Officer context, Home alerts and reports using the economics figures.
+- [x] Organization-level economics across businesses.
 - [B] Campaign profit, ROAS, CAC with real figures: need recorded cost of goods, customer references and a credit price (inputs now exist; staging has only QA data).
 - [B] Proposals 0063–0085 into the live database: owner approval.
 ## Phase 8.2 extended sprint — 2026-11-20
@@ -412,3 +412,5 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [ ] F Outcome measurement and learning cycle per accepted recommendation
 - [ ] Production rollout of proposals 0063–0083 (needs separate approval)
 - [ ] P3–P9 budgets/goals, strategy versions, initiative/org reporting, financial data (COGS, customers), commercial foundations, security/scale regression
+
+- [x] Refunds count in the period of their sale everywhere (user decision 21 Nov): reports and situation analysis use the same rule as economics/Home.

@@ -183,15 +183,15 @@ describe("reports and growth economics agree", () => {
     expect(eur.spent).toBe(120);
     expect(eur.simulated).toBe(999);
   });
-  it("differ only in when a refund of an earlier period's sale is counted (documented, not hidden)", async () => {
+  it("count a refund of an earlier sale in the month of that sale (user decision)", async () => {
     const { revenueFigures } = await import("@/lib/reports");
     const oct = sale(500, "2026-10-20");
     const refund = { ...sale(-100, "2026-11-03"), kind: "refund", relates_to: oct.id } as RevenueEvent;
-    const p = { from: "2026-11-01", to: "2026-11-30" };
-    // the report books the refund in November, when it happened
-    expect(revenueFigures([oct, refund], p).recorded["EUR"]!.net).toBe(-100);
-    // growth economics books it against the October sale it belongs to, so November has no recorded revenue
+    const nov = { from: "2026-11-01", to: "2026-11-30" }, octP = { from: "2026-10-01", to: "2026-10-31" };
+    expect(revenueFigures([oct, refund], nov).recorded["EUR"]).toBeUndefined();
+    expect(revenueFigures([oct, refund], octP).recorded["EUR"]!.net).toBe(400);
     const d = base(); d.revenue = [oct, refund];
-    expect(economicsSummary(d, p.from, p.to, "last_touch", "2026-11-25").currencies.find((c) => c.currency === "EUR")?.rev ?? null).toBeNull();
+    expect(economicsSummary(d, octP.from, octP.to, "last_touch", "2026-11-25").currencies.find((c) => c.currency === "EUR")?.rev?.net).toBe(400);
+    expect(economicsSummary(d, nov.from, nov.to, "last_touch", "2026-11-25").currencies.find((c) => c.currency === "EUR")?.rev ?? null).toBeNull();
   });
 });

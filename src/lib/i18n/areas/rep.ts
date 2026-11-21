@@ -113,7 +113,7 @@ export const rep = defineArea("rep", {
     "rep.econ.aiCost": "Cost at the price valid when used: {a}.",
     "rep.econ.aiNoPrice": "No credit price applied, so shown in credits only.",
     "rep.econ.outcomes": "Recommendation outcomes measured: {i} better, {w} worse, {n} unchanged, {x} inconclusive; {d} waiting to be measured.",
-    "rep.econ.note": "Same calculation as the Growth economics page. Attribution: last touch. Gross profit counts a refund against the sale it belongs to, while the revenue table above counts it when it happened. Simulated and reserved amounts are never counted as spending.",
+    "rep.econ.note": "Same calculation as the Growth economics page. Attribution: last touch. Refunds count in the month of the sale they belong to, here and in the revenue table above. Simulated and reserved amounts are never counted as spending.",
   },
   nl: {
     "rep.title": "Bedrijfsrapporten",
@@ -226,7 +226,7 @@ export const rep = defineArea("rep", {
     "rep.econ.aiCost": "Kost tegen de prijs die gold bij gebruik: {a}.",
     "rep.econ.aiNoPrice": "Er gold geen creditprijs, dus alleen in credits getoond.",
     "rep.econ.outcomes": "Gemeten uitkomsten van aanbevelingen: {i} beter, {w} slechter, {n} ongewijzigd, {x} onbeslist; {d} wachten op meting.",
-    "rep.econ.note": "Zelfde berekening als de pagina Groei-economie. Toewijzing: laatste contact. Brutowinst rekent een terugbetaling bij de verkoop waartoe ze hoort; de omzettabel hierboven telt ze wanneer ze gebeurde. Gesimuleerde en gereserveerde bedragen tellen nooit als uitgaven.",
+    "rep.econ.note": "Zelfde berekening als de pagina Groei-economie. Toewijzing: laatste contact. Terugbetalingen tellen in de maand van de verkoop waartoe ze horen, hier en in de omzettabel hierboven. Gesimuleerde en gereserveerde bedragen tellen nooit als uitgaven.",
   },
   fr: {
     "rep.title": "Rapports d’activité",
@@ -339,6 +339,6 @@ export const rep = defineArea("rep", {
     "rep.econ.aiCost": "Coût au prix en vigueur lors de l’utilisation : {a}.",
     "rep.econ.aiNoPrice": "Aucun prix du crédit applicable : affiché en crédits uniquement.",
     "rep.econ.outcomes": "Résultats mesurés des recommandations : {i} meilleurs, {w} moins bons, {n} inchangés, {x} non concluants ; {d} en attente de mesure.",
-    "rep.econ.note": "Même calcul que la page Économie de la croissance. Attribution : dernier contact. La marge brute rattache un remboursement à sa vente, alors que le tableau du CA ci-dessus le compte à sa date. Les montants simulés et réservés ne comptent jamais comme dépenses.",
+    "rep.econ.note": "Même calcul que la page Économie de la croissance. Attribution : dernier contact. Les remboursements comptent dans le mois de la vente concernée, ici comme dans le tableau du CA ci-dessus. Les montants simulés et réservés ne comptent jamais comme dépenses.",
   },
 });

@@ -20,7 +20,7 @@ export function ReportEconomics({ orgId, wsId, from, to, today }: { orgId: strin
     <section aria-label={t("rep.econ.title")} className="space-y-2 text-xs">
       <h3 className="text-sm font-semibold">{t("rep.econ.title")}</h3>
       {s.incomplete.length > 0 && <p role="alert" className="text-warning">{t("rep.econ.incomplete")}</p>}
-      <div className="overflow-x-auto">
+      {s.currencies.length > 0 && <div className="overflow-x-auto">
         <table className="w-full min-w-[560px]">
           <thead className="text-left text-muted-foreground"><tr>{["rep.currency", "rep.econ.costs", "rep.econ.gp", "rep.econ.margin", "rep.econ.cac", "rep.econ.rpc"].map((h) => <th key={h} className="py-1 pr-3 font-normal">{t(h as MessageKey)}</th>)}</tr></thead>
           <tbody>
@@ -36,7 +36,7 @@ export function ReportEconomics({ orgId, wsId, from, to, today }: { orgId: strin
             ))}
           </tbody>
         </table>
-      </div>
+      </div>}
       {s.currencies.length === 0 && <p className="text-muted-foreground">{t("rep.econ.none")}</p>}
       {s.budget.map((b) => <p key={b.currency}>{t("rep.econ.budget", { p: money(b.total, b.currency), a: money(b.allocated, b.currency), u: money(b.unallocated, b.currency), s: money(b.spent, b.currency) })}</p>)}
       <p>{t("rep.econ.ai", { n: s.ai.total, c: s.ai.onCampaigns, o: s.ai.otherWork })} {s.ai.cost.priced > 0 ? t("rep.econ.aiCost", { a: money(s.ai.cost.amount, s.ai.cost.currency) }) : t("rep.econ.aiNoPrice")}</p>

@@ -31,16 +31,20 @@ export function periods(key: PeriodKey, today: string): { current: Period; previ
   return { current: { from, to: today }, previous: { from: add(from, -n), to: add(from, -1) } };
 }
 
-export type RevenueRow = { kind: string; amount: number | string; currency: string; occurred_at: string; data_class: string };
+export type RevenueRow = { kind: string; amount: number | string; currency: string; occurred_at: string; data_class: string; id?: string; relates_to?: string | null };
 export type Money = { sales: number; refunds: number; corrections: number; net: number; entries: number };
-/** Recorded (imported or entered) revenue per currency; estimated rows are kept apart and never added to net revenue. */
+/** Recorded (imported or entered) revenue per currency, refunds counted with their sale; estimated rows are kept apart and never added to net revenue. */
 export function revenueFigures(rows: readonly RevenueRow[], p: Period) {
   const recorded: Record<string, Money> = {};
   const estimated: Record<string, number> = {};
+  // A refund, cancellation or correction belongs to the period (and evidence class) of the sale it relates to,
+  // the same rule as growth economics and Home; a later refund lowers the month of the sale.
+  const sales = new Map(rows.filter((r) => r.kind === "sale" && r.id).map((r) => [r.id!, r]));
   for (const r of rows) {
-    if (!inP(r.occurred_at, p)) continue;
+    const sale = r.kind !== "sale" && r.relates_to ? sales.get(r.relates_to) : undefined;
+    if (!inP((sale ?? r).occurred_at, p)) continue;
     const a = Number(r.amount);
-    if (r.data_class === "estimated") { estimated[r.currency] = r2((estimated[r.currency] ?? 0) + a); continue; }
+    if ((sale ?? r).data_class === "estimated") { estimated[r.currency] = r2((estimated[r.currency] ?? 0) + a); continue; }
     const m = (recorded[r.currency] ??= { sales: 0, refunds: 0, corrections: 0, net: 0, entries: 0 });
     if (r.kind === "sale") m.sales = r2(m.sales + a);
     else if (r.kind === "refund" || r.kind === "cancellation") m.refunds = r2(m.refunds + a);

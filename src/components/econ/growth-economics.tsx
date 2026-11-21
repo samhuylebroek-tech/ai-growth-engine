@@ -98,7 +98,7 @@ function Economics({ orgId, wsId, canRecord, canModel }: { orgId: string; wsId: 
         <p className="text-xs text-muted-foreground">{t("ge.campaignsNote")}</p>
         <div className="overflow-x-auto rounded-lg border bg-card">
           <table className="w-full min-w-[56rem] text-sm">
-            <thead><tr className="border-b text-left text-xs text-muted-foreground">{["ge.col.campaign", "ge.col.allocated", "ge.col.spent", "ge.col.reserved", "ge.col.simulated", "ge.col.credits", "ge.col.revenue", "ge.col.roas", "ge.col.inputs"].map((k) => <th key={k} className="p-2 font-normal">{t(k as MessageKey)}</th>)}</tr></thead>
+            <thead><tr className="border-b text-left text-xs text-muted-foreground">{["ge.col.campaign", "ge.col.allocated", "ge.col.spent", "ge.col.reserved", "ge.col.simulated", "ge.col.credits", "ge.col.revenue", "ge.col.roas", "ge.col.inputs"].map((k) => <th key={k} className="whitespace-nowrap p-2 font-normal">{t(k as MessageKey)}</th>)}</tr></thead>
             <tbody>{view.campaigns.map((c) => (
               <tr key={c.id} className="border-b last:border-0 align-top">
                 <td className="p-2 font-medium">{c.title}</td><td className="p-2">{many(c.t.allocated)}</td><td className="p-2">{many(c.t.spent)}</td><td className="p-2">{many(c.t.reserved)}</td>
@@ -197,7 +197,7 @@ function Rollups({ d, many }: { d: EconData; many: (m: Money) => string }) {
       </div>
       <div className="overflow-x-auto rounded-lg border bg-card">
         <table className="w-full min-w-[44rem] text-sm">
-          <thead><tr className="border-b text-left text-xs text-muted-foreground">{["ge.col.name", "ge.col.campaignsN", "ge.col.allocated", "ge.col.spent", "ge.col.direct", "ge.col.simulated", "ge.col.credits"].map((k) => <th key={k} className="p-2 font-normal">{t(k as MessageKey)}</th>)}</tr></thead>
+          <thead><tr className="border-b text-left text-xs text-muted-foreground">{["ge.col.name", "ge.col.campaignsN", "ge.col.allocated", "ge.col.spent", "ge.col.direct", "ge.col.simulated", "ge.col.credits"].map((k) => <th key={k} className="whitespace-nowrap p-2 font-normal">{t(k as MessageKey)}</th>)}</tr></thead>
           <tbody>{used.map((x) => { const r = rollup(level, x.id, input); return (
             <tr key={x.id} className="border-b last:border-0"><td className="p-2 font-medium">{x.name}</td><td className="p-2">{r.campaigns}</td><td className="p-2">{many(r.allocated)}</td><td className="p-2">{many(r.spent)}</td>
               <td className="p-2">{level === "initiative" ? many(r.directCosts) : "—"}</td><td className="p-2 text-muted-foreground">{many(r.simulatedSpent)}</td><td className="p-2">{r.credits}</td></tr>); })}

@@ -21,8 +21,12 @@ export function OrgEconomics({ orgId, businesses, period, open }: { orgId: strin
   if (qs.some((q) => q.isLoading)) return <Section title={title}><p role="status" className="text-sm text-muted-foreground">{t(tk("ogo.ec.loading"))}</p></Section>;
   if (qs.some((q) => q.error && !econNotInstalled(q.error))) return <Section title={title}><p role="alert" className="text-sm text-destructive">{t(tk("ogo.ec.failed"))}</p></Section>;
   if (qs.every((q) => q.error)) return <Section title={title}><p className="text-sm text-muted-foreground">{t(tk("ogo.ec.off"))}</p></Section>;
-  const from = periodFrom(period), to = todayIso();
-  const rows: BusinessEcon[] = list.flatMap((b, i) => { const d = qs[i]?.data; return d ? [{ id: b.id, name: b.name, summary: economicsSummary(d, from, to, "last_touch", to) }] : []; });
+  // The period runs to the end of the current month, so monthly costs of this month stay inside it (as on each
+  // business's own page); later days simply have no records yet.
+  const today = todayIso();
+  const [y, mo] = today.split("-").map(Number) as [number, number];
+  const from = periodFrom(period), to = new Date(Date.UTC(y, mo, 0)).toISOString().slice(0, 10);
+  const rows: BusinessEcon[] = list.flatMap((b, i) => { const d = qs[i]?.data; return d ? [{ id: b.id, name: b.name, summary: economicsSummary(d, from, to, "last_touch", today) }] : []; });
   const o = orgEconomics(rows);
   const name = (id: string) => rows.find((r) => r.id === id)?.name ?? "";
   return (

@@ -118,3 +118,8 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
 2. Leave every accounting, audit, AI-receipt and simulated-action record untouched.
 3. If a clean demo business is wanted, create a new staging organization instead of deleting history.
 4. Production: nothing to clean; none of this data exists there.
+
+## Phase 8.8 third stage (21 Nov 2026)
+- One platform credit price version: EUR 0.05 per credit, starting 21 Nov 2026 12:10 (local), methodology "Staging QA: average provider cost per credit". Price versions are insert-only by design and cannot be removed; a later version replaces it.
+- Proposal 0086 applied to staging only (credit price history visible to the Platform Owner only).
+
