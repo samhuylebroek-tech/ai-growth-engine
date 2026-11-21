@@ -1,8 +1,9 @@
 export type BudgetLine = { planned: number; actual: number; hard_cap: number | null };
-/** Progress from baseline toward target, 0–100, or null when not measurable. */
+/** Progress from the measured baseline toward the target, 0–100, or null when not measurable. */
 export function goalProgress(baseline: number | null, target: number | null, current: number | null): number | null {
-  if (target == null || current == null) return null;
-  const b = baseline ?? 0;
+  // A missing baseline is unknown, never zero: without it progress cannot be measured.
+  if (target == null || current == null || baseline == null) return null;
+  const b = baseline;
   if (target === b) return current >= target ? 100 : 0;
   const p = ((current - b) / (target - b)) * 100;
   return Math.max(0, Math.min(100, Math.round(p)));

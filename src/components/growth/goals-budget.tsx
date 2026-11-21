@@ -8,6 +8,7 @@ import { useOrg } from "@/lib/org-context";
 import { hasRole } from "@/lib/permissions";
 import { growthDb as supabase, GROWTH_PLANS_NOT_INSTALLED, isNotInstalled, retryUnlessNotInstalled } from "@/lib/pending-schema";
 import { goalProgress, budgetTotals, budgetAlert, reallocationProposals } from "@/lib/growth-plan";
+import { goalMeasurement, type GoalLike } from "@/lib/goal-measurement";
 import { StrategyPanel } from "@/components/growth/strategy-panel";
 import { InitiativeOperations } from "@/components/growth/initiative-operations";
 import { PlanDetails } from "@/components/growth/plan-details";
@@ -136,6 +137,7 @@ function Planner({ orgId, wsId, canEdit, canBudget, canApprove, userId }: { orgI
                 {unitName(x.unit_id) && <Badge variant="outline">{unitName(x.unit_id)}</Badge>}{x.priority === "primary" && <Badge>{tr("goals.primary")}</Badge>}<Badge variant="outline">{tr(objKey(x.objective))}</Badge>{x.status !== "active" && <Badge variant="secondary">{tr(statusKey(x.status))}</Badge>}</div>
               <p className="text-sm text-muted-foreground">{tr("goals.goalLine", { metric: x.metric || tr("goals.noMetric"), baseline: x.baseline ?? "—", target: x.target ?? "—" })}{x.due_date ? tr("goals.by", { date: new Date(`${x.due_date}T00:00:00`).toLocaleDateString(tag) }) : ""}</p>
               {p != null ? <div className="space-y-1"><Progress value={p} /><p className="text-xs text-muted-foreground">{tr("goals.progress", { p })}</p></div> : <p className="text-xs text-muted-foreground">{tr("goals.noProgress")}</p>}
+              <GoalMeasurementLine goal={x} />
               <GrowthChain orgId={orgId} wsId={wsId} goalId={x.id} />
               <GrowthPlanPanel goalId={x.id} orgId={orgId} wsId={wsId} userId={userId} canEdit={canEdit} canApprove={canApprove} />
               <GoalPlanSnapshot
@@ -430,4 +432,26 @@ function LinkedWork({ goalId, data, canEdit, onLink }: { goalId: string; data: {
       {canEdit && free.length > 0 && <select aria-label={tr("goals.linkSelect")} className={`${sel} w-full max-w-full`} value="" onChange={e => { const w = free.find(f => f.id === e.target.value); if (w) onLink(w.t, w.id, goalId); }}>
         <option value="">{tr("goals.linkSelectPh")}</option>{free.map(w => <option key={w.id} value={w.id}>{w.t === "projects" ? tr("goals.project") : tr("goals.campaign")}: {w.title}</option>)}</select>}
     </div>);
+}
+
+/** Whether a goal can be measured, what is missing, the remaining gap, time left and pace (entered values only). */
+function GoalMeasurementLine({ goal }: { goal: GoalLike }) {
+  const { t: tr } = useI18n();
+  const m = goalMeasurement(goal, new Date().toISOString().slice(0, 10));
+  if (!m.measurable) {
+    const list = m.missing.filter((k) => k !== "current" && k !== "deadline").map((k) => tr(`goals.m.missing.${k}` as MessageKey)).join(", ");
+    return <p className="rounded border border-warning/50 px-2 py-1 text-xs text-warning">{tr("goals.m.notMeasurable", { list })}</p>;
+  }
+  const parts = [
+    m.gap !== null && m.gap > 0 ? tr("goals.m.gap", { gap: m.gap }) : null,
+    m.daysLeft !== null ? (m.daysLeft >= 0 ? tr("goals.m.daysLeft", { n: m.daysLeft }) : tr("goals.m.daysOver", { n: -m.daysLeft })) : null,
+    m.pace ? tr(`goals.m.pace.${m.pace}` as MessageKey) : null,
+  ].filter(Boolean);
+  return (
+    <div className="text-xs">
+      <p>{tr("goals.m.measurable")}{parts.length ? ` ${parts.join(" · ")}.` : ""}</p>
+      {m.missing.length > 0 && <p className="text-muted-foreground">{tr("goals.m.alsoMissing", { list: m.missing.map((k) => tr(`goals.m.missing.${k}` as MessageKey)).join(", ") })}</p>}
+      <p className="text-muted-foreground">{tr("goals.m.source")}</p>
+    </div>
+  );
 }
