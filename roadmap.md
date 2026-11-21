@@ -372,5 +372,16 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] P1 AI-written situation explanation (metered, cites findings, fact downgrade, stale marker)
 - [x] P1 Priorities with impact/urgency/confidence/effort/time/owner/measure/dependency/next action (goal link not yet in records)
 - [x] P2 AI campaign advisory (metered, cites diagnosis findings, approval stated, nothing changed)
-- [ ] P2 Campaign ↔ strategy/initiative links, lifecycle and structure
+- [x] P2 Campaign ↔ strategy/initiative links, lifecycle and structure (staging proposal 0083)
+
+## Four-hour deep development (campaign OS, budgets, goals)
+- [x] A Walkthrough of all 31 app pages: admin NL phone + viewer FR desktop, no errors/overflow
+- [x] B Campaign links to goal/strategy/initiative (must match goal), KPI and hypothesis; 14-status lifecycle with role checks, reasons and insert-only history; completion needs result + outcome; filters and phase board
+- [x] C Hard daily/weekly/monthly/lifetime limits, reserve, emergency stop, audited refusals, forecast from actual spend only, limit signals and AI context
+- [x] D Goals measurable only with metric + measured baseline + target; gap, days left, pace; editors fill missing values
+- [ ] C Channel allocation across campaigns; a shared business budget split over campaigns (no duplicate allocation check yet)
+- [ ] D Measurement periods per KPI and business-specific KPI catalogue
+- [ ] E Specialist assignment per campaign; campaign-level credit totals
+- [ ] F Outcome measurement and learning cycle per accepted recommendation
+- [ ] Production rollout of proposals 0063–0083 (needs separate approval)
 - [ ] P3–P9 budgets/goals, strategy versions, initiative/org reporting, financial data (COGS, customers), commercial foundations, security/scale regression
