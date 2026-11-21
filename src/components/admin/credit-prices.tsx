@@ -124,7 +124,7 @@ export function CreditPrices() {
           {history.length === 0 ? <p className="text-sm text-muted-foreground">{t("own.cp.none")}</p> : (
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
-                <thead className="text-left text-muted-foreground">
+                <thead className="whitespace-nowrap text-left text-muted-foreground">
                   <tr><th className="py-1 pr-2">{t("own.cp.col.scope")}</th><th className="py-1 pr-2">{t("own.cp.col.price")}</th><th className="py-1 pr-2">{t("own.cp.col.from")}</th><th className="py-1 pr-2">{t("own.cp.col.to")}</th><th className="py-1 pr-2">{t("own.cp.col.status")}</th><th className="py-1">{t("own.cp.col.method")}</th></tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -134,7 +134,7 @@ export function CreditPrices() {
                       <td className="py-1.5 pr-2 whitespace-nowrap">{money(Number(h.price_per_credit), h.currency)}</td>
                       <td className="py-1.5 pr-2 whitespace-nowrap">{new Date(h.effective_from).toLocaleString(tag)}</td>
                       <td className="py-1.5 pr-2 whitespace-nowrap">{h.effective_to ? new Date(h.effective_to).toLocaleString(tag) : "—"}</td>
-                      <td className="py-1.5 pr-2">{t(`own.cp.status.${h.status}` as MessageKey)}</td>
+                      <td className="py-1.5 pr-2 whitespace-nowrap">{t(`own.cp.status.${h.status}` as MessageKey)}</td>
                       <td className="py-1.5 text-muted-foreground">{h.methodology}</td>
                     </tr>
                   ))}

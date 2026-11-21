@@ -130,7 +130,8 @@ export function economicsSummary(d: EconData, from: string, to: string, model: M
     if (c.gp?.status === "fully_measurable" && c.gpPrev?.status === "fully_measurable" && c.gp.grossMargin !== null && c.gpPrev.grossMargin !== null && c.gpPrev.grossMargin - c.gp.grossMargin >= 5)
       add(`margin:${c.currency}`, "econ_margin_declining", "high", { now: c.gp.grossMargin, before: c.gpPrev.grossMargin, cur: c.currency });
   }
-  if (ai.total > 0 && !ai.priceSet) add("price", "econ_price_missing", "low", { n: ai.total });
+  // Credits used when no price applied stay credits; a price set later never reprices them.
+  if (ai.cost.unpriced > 0) add("price", "econ_price_missing", "low", { n: ai.cost.unpriced });
   if (measurementDue.length) add("measure", "recommendation_measure_due", "medium", { n: measurementDue.length, t: measurementDue[0]!.title.slice(0, 80) });
 
   return { from, to, prev, model, currencies, ai, budget, duplicates, campaigns, channels, outcomes, measurementDue, alerts, incomplete: d.incomplete };

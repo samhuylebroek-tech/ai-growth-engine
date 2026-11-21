@@ -109,7 +109,10 @@ describe("AI credits and cost", () => {
     expect(economicsSummary(d, "2026-11-01", "2026-11-30", "last_touch", "2026-11-21").ai.cost.amount).toBe(1.5);
     // a price that starts in the future does not price usage that happened before it
     d.prices = [{ scope: "platform", plan_key: null, currency: "EUR", price_per_credit: 0.05, effective_from: "2026-12-01T00:00:00Z" }];
-    expect(economicsSummary(d, "2026-11-01", "2026-11-30", "last_touch", "2026-11-21").ai.cost).toMatchObject({ priced: 0, unpriced: 20 });
+    const future = economicsSummary(d, "2026-11-01", "2026-11-30", "last_touch", "2026-11-21");
+    expect(future.ai.cost).toMatchObject({ priced: 0, unpriced: 20 });
+    // a price exists but did not apply when the credits were used, so the "credits only" alert still shows
+    expect(future.alerts.find((a) => a.code === "econ_price_missing")?.vars).toMatchObject({ n: 20 });
   });
   it("marks totals as not reconciled when campaign work exceeds the readable usage", () => {
     const d = base();
