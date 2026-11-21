@@ -52,7 +52,39 @@ export const planSchema = z
   });
 export type ExecutionPlan = z.infer<typeof planSchema>;
 /** Extract only explicit bullet/numbered steps. This is a local editable draft, not a second AI call. */
+const clip = (v: unknown, n: number) => (typeof v === "string" ? v.replace(/\*\*/g, "").trim().slice(0, n) : "");
+/** Saved structured answers (strategies, specialist analyses) are JSON; draft from their fields instead of raw braces. */
+function draftFromStructured(content: string): ExecutionPlan | null {
+  if (!content.trimStart().startsWith("{")) return null;
+  let d: unknown;
+  try { d = JSON.parse(content); } catch { return null; }
+  if (!d || typeof d !== "object" || Array.isArray(d)) return null;
+  const o = d as Record<string, unknown>;
+  const summary = clip(o["summary"], 12000);
+  const title = clip(o["title"], 200) || clip(summary.split(/(?<=[.!?])\s/)[0], 200) || "Growth action plan";
+  const list = ["next_steps", "actions", "steps", "tasks"].map((k) => o[k]).find(Array.isArray) as unknown[] | undefined;
+  const steps = (list ?? []).map((x) => {
+    if (typeof x === "string") return { title: clip(x, 200), description: "" };
+    const r = (x && typeof x === "object" ? x : {}) as Record<string, unknown>;
+    return { title: clip(r["title"] ?? r["action"] ?? r["step"] ?? r["name"], 200), description: clip(r["detail"] ?? r["description"], 12000) };
+  }).filter((t) => t.title);
+  const unique = [...new Map(steps.map((t) => [t.title.toLowerCase(), t])).values()].slice(0, 40);
+  return {
+    title,
+    description: summary,
+    objective: "",
+    category: "marketing",
+    tasks: (unique.length ? unique : [{ title, description: "" }]).map((t) => ({
+      ...t,
+      due_date: "",
+      priority: "medium",
+      owner_id: "",
+    })),
+  };
+}
 export function draftExecutionPlan(content: string): ExecutionPlan {
+  const structured = draftFromStructured(content);
+  if (structured) return structured;
   const lines = content.split("\n");
   const steps = lines
     .filter((l) => /^\s*(?:[-*]|\d+[.)])\s+/.test(l))
