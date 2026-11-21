@@ -11,6 +11,7 @@ import { detectSignals } from "@/lib/signals";
 import { econNotInstalled, readEconData, type EconData } from "@/lib/econ/read";
 import { economicsSummary } from "@/lib/econ/summary";
 import { convertedEconomicsLine } from "@/lib/econ/converted";
+import { kpiContextLines } from "@/lib/bi/kpi-context";
 import type { Rate } from "@/lib/org/consolidation";
 import { MAX_RATE_AGE_DAYS } from "@/lib/org/period-conversion";
 import { learningPatterns } from "@/lib/econ/learning";
@@ -79,6 +80,8 @@ export const EVIDENCE = {
   knowledge_gap: "business areas with no verified fact — ask the customer, never assume",
   economics_ledger:
     "growth economics computed by fixed rules from this business's own ledgers (sales, campaign spending, business costs, budget allocations, AI usage) — actual, reserved, simulated and estimated amounts are labelled; a figure marked not calculable must not be estimated or recomputed",
+  growth_indicator:
+    "growth indicators computed by the published formula shown on each line from recorded actual measurements, deals and attributed revenue; the data class is stated per line; a missing input means not calculable, never zero",
   rule_signal:
     "deterministic check across the records in this context — points to a conflict, gap or stale record, never to a cause",
 } as const;
@@ -214,6 +217,7 @@ export type Deal = {
   closed_at: string | null;
   updated_at: string | null;
   goal_id: string | null;
+  created_at?: string | null;
 };
 export type Competitor = { id: string; name: string; website: string };
 export type Observation = {
@@ -255,6 +259,8 @@ export type Connection = { connector_key: string; status: string };
 export type Recommendation = { title: string; status: string; created_at?: string | null };
 export type MetricRow = {
   id: string;
+  /** Standard metric key used by the KPI formulas; optional for callers that predate it. */
+  key?: string;
   label: string;
   unit: string;
   currency: string | null;
@@ -541,7 +547,7 @@ export async function readBusinessDomains(
     ),
     optional<Deal>(
       "sales pipeline",
-      t("crm_deals", "stage,value,currency,expected_close,closed_at,updated_at,goal_id")
+      t("crm_deals", "stage,value,currency,expected_close,closed_at,updated_at,goal_id,created_at")
         .order("updated_at", { ascending: false })
         .limit(LIMITS.deals),
       LIMITS.deals,
@@ -584,7 +590,7 @@ export async function readBusinessDomains(
     ),
     optional<MetricRow>(
       "performance metrics",
-      t("metric_definitions", "id,label,unit,currency,direction,goal_id,initiative_id")
+      t("metric_definitions", "id,key,label,unit,currency,direction,goal_id,initiative_id")
         .eq("archived", false)
         .order("created_at")
         .limit(LIMITS.metrics),
@@ -1525,6 +1531,15 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
   });
 
   sections.push({
+    key: "growth-indicators",
+    title: "GROWTH INDICATORS (LAST FULL MONTH, CANONICAL FORMULAS)",
+    evidence: ["growth_indicator"],
+    budget: 900,
+    priority: 8,
+    lines: growthIndicatorLines(d, now),
+  });
+
+  sections.push({
     key: "recommendations",
     title: "PREVIOUS RECOMMENDATIONS",
     evidence: ["ai_hypothesis"],
@@ -1576,6 +1591,17 @@ function limitNote(d: BusinessDomains, c: Campaign, rows: SpendLine[]): string {
   const usage = dated ? limitUsage(l, rows.map((x) => ({ id: x.id!, kind: x.kind, amount: x.amount, currency: x.currency, occurred_on: x.occurred_on!, data_class: x.data_class, relates_to: x.relates_to ?? null })), new Date().toISOString().slice(0, 10)) : [];
   const parts = usage.map((u) => `${u.key} ${u.used.toFixed(2)}/${u.max.toFixed(2)} ${l.currency}`);
   return `; hard spending limits (actual entries, enforced in this app only, not at ad platforms): ${parts.length ? parts.join(", ") : "set"}`;
+}
+
+/** Growth indicators for the AI: same inputs and formulas as the Business performance page (src/lib/bi/kpi-context.ts). */
+export function growthIndicatorLines(d: BusinessDomains, now: Date): string[] {
+  if (!d.metrics || !d.revenue) return [];
+  if (d.metrics.status === "unavailable" || d.revenue.status === "unavailable" || d.deals.status === "unavailable") return [UNAVAILABLE];
+  // Without any tracked metric or deal the performance section already says "not configured"; stay silent here.
+  if (!d.metrics.rows.length && !d.deals.rows.length && !d.revenue.rows.length) return [];
+  const lines = kpiContextLines({ metrics: d.metrics.rows, measurements: d.measurements ?? [], revenue: d.revenue.rows, touches: d.touches ?? [], deals: d.deals.rows }, now);
+  if (d.metrics.truncated || d.revenue.truncated || d.deals.truncated) lines.push("some records were not read (limit reached): indicators may be incomplete");
+  return lines;
 }
 
 /** Growth economics for the AI: the same summary as the Growth economics page and Home alerts, stated with labels. */

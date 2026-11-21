@@ -18,7 +18,8 @@ import {
   compare,
   type Dimension,
 } from "@/lib/bi/comparison";
-import { KPI_CATEGORY, periodRange, type Kpi } from "@/lib/bi/kpis";
+import { KPI_CATEGORY, periodRange, type Kpi, type KpiKey } from "@/lib/bi/kpis";
+import { formulaText, KPI_DEFINITIONS } from "@/lib/bi/kpi-definitions";
 import type { GrowthAction } from "@/lib/bi/growth-actions";
 import { fingerprintOf } from "@/lib/recommendation-memory";
 import { leverCoverage } from "@/lib/growth-levers";
@@ -301,6 +302,24 @@ function ExecutiveFigures({ d, v, model }: { d: BiData; v: View; model: Model })
   );
 }
 
+/** KPI name with its canonical definition (formula, better direction, counting rule) one click away. */
+export function KpiLabel({ k }: { k: KpiKey }) {
+  const { t } = useI18n();
+  const d = KPI_DEFINITIONS[k];
+  return (
+    <details className="min-w-0 max-w-full">
+      <summary className="cursor-pointer list-none">
+        {t(tk(`bi.kpi.${k}`))}{" "}
+        <span className="text-[10px] text-muted-foreground underline decoration-dotted">{t("bi.kdef.show")}</span>
+      </summary>
+      <p className="mt-1 text-[11px] text-foreground">
+        {formulaText(d, (x) => t(tk("in" in x ? `bi.input.${x.in}` : `bi.kterm.${x.term}`)))}
+      </p>
+      <p className="text-[10px] text-muted-foreground">{t(d.better === "higher" ? "bi.kdef.higher" : "bi.kdef.lower")} · {t("bi.kdef.rule")}</p>
+    </details>
+  );
+}
+
 export function kpiValue(x: Kpi, f: ReturnType<typeof useFmt>) {
   if (x.value === null) return "";
   if (x.unit === "currency")
@@ -342,7 +361,7 @@ function Indicators({ v }: { v: View }) {
                     key={k.key}
                     className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 py-1.5 text-xs"
                   >
-                    <span className="min-w-0">{t(tk(`bi.kpi.${k.key}`))}</span>
+                    <KpiLabel k={k.key} />
                     {k.value !== null ? (
                       <span className="flex items-center gap-2 font-medium">
                         {kpiValue(k, f)}
