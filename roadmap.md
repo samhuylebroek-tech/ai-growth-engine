@@ -355,6 +355,8 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] E/J Second-review credits in the specialist report; all reviews/decisions read page by page (no 500 cap); reviews bound to their own paid request (0082)
 - [x] B Campaign Intelligence 2.0: figures with source (spend ledger, linked metrics, linear attribution), CPL/CPA/conversion/ROAS/ROI only when computable, 14 rule-based problems, advice → internal task (no credits)
 - [ ] B AI-written campaign advice (metered) on top of the rule diagnosis
+- [x] C Growth Situation Analysis: ten sections (health, potential, problems, financial, marketing, sales, customers, execution, resources, risks) with status, source, reliability, missing data and top-3 priorities on Intelligence (no credits)
+- [ ] C Situation: include open fact conflicts (needs conflict events read), AI-written narrative on top of the rules
 - [ ] C Growth Situation Analysis (sources, dates, reliability per section)
 - [ ] D Strategy Engine 2.0: versions/statuses, strategy vs. reality
 - [ ] F Experiment portfolio and learning from finished experiments

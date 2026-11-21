@@ -15,3 +15,4 @@
 - Specialist quality control (proposal 0081): a second review is one metered call by a different task specialist; the database recomputes score/verdict and requires a review before an editor accepts important results; reviews are advice, never evidence.
 - AI re-planning analysis (proposal 0082) explains a rule-built proposal in one metered call bound to that proposal; it may recommend only the proposal's own options, is insert-only, goes stale when the task changes, and never applies anything.
 - Campaign diagnosis is pure `src/lib/campaign-intel.ts` over the spend ledger, campaign-linked metrics and linear attribution; ratios exist only when both inputs are recorded, problems follow named thresholds, and advice only creates internal tasks.
+- Growth Situation Analysis is pure `src/lib/situation.ts` over caller-RLS reads: a section without data is "unknown", never "good"; simulated spending is judged separately so test data never becomes a real problem or priority.
