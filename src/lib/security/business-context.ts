@@ -13,6 +13,7 @@ import { economicsSummary } from "@/lib/econ/summary";
 import { convertedEconomicsLine } from "@/lib/econ/converted";
 import { kpiContextLines } from "@/lib/bi/kpi-context";
 import { blockedTasks, unknownTaskIds, type Dep } from "@/lib/task-blocking";
+import { kpiProgress, type BaselineRow, type TargetRow } from "@/lib/kpi-progress";
 import type { Rate } from "@/lib/org/consolidation";
 import { MAX_RATE_AGE_DAYS } from "@/lib/org/period-conversion";
 import { learningPatterns } from "@/lib/econ/learning";
@@ -301,6 +302,9 @@ export type BusinessDomains = {
   /** Task dependencies ("waits on") of this business, plus the tasks on either side that were not otherwise read. */
   dependencies?: DomainRead<Dep>;
   prerequisites?: Task[];
+  /** KPI starting points and targets (proposal 0089); optional, "unavailable" where not installed. */
+  kpiBaselines?: DomainRead<BaselineRow>;
+  kpiTargets?: DomainRead<TargetRow>;
   /** Campaign spend ledger for the listed campaigns (proposal 0077); optional for older callers. */
   campaignSpend?: DomainRead<SpendLine>;
   /** Spending limits of the listed campaigns (proposal 0083); optional for older callers. */
@@ -399,7 +403,9 @@ type ScopedTable =
   | "attribution_touchpoints"
   | "growth_experiments"
   | "optimization_proposals"
-  | "execution_notes";
+  | "execution_notes"
+  | "metric_baselines"
+  | "metric_targets";
 type ScopedQuery = PromiseLike<Res> & {
   eq(column: string, value: unknown): ScopedQuery;
   neq(column: string, value: unknown): ScopedQuery;
@@ -415,6 +421,7 @@ const LIMITS = {
   overdue: 50,
   dependencies: 500,
   dependencyTasks: 200,
+  kpiGoals: 400,
   spend: 2000,
   replans: 50,
   facts: 60,
@@ -853,6 +860,28 @@ export async function readBusinessDomains(
       )
     : [];
 
+  const metricIdsForGoals = rowsOf(metrics).map((m) => m.id);
+  const [kpiBaselines, kpiTargets] = metricIdsForGoals.length
+    ? await Promise.all([
+        optional<BaselineRow>(
+          "KPI starting points",
+          t("metric_baselines", "id,metric_id,basis,measurement_kind,value,period_start,period_end,source,note,supersedes_id,created_by,created_at")
+            .in("metric_id", metricIdsForGoals)
+            .order("created_at", { ascending: false })
+            .limit(LIMITS.kpiGoals),
+          LIMITS.kpiGoals,
+        ),
+        optional<TargetRow>(
+          "KPI targets",
+          t("metric_targets", "id,metric_id,withdrawn,value,target_date,period_kind,owner_id,note,supersedes_id,created_by,created_at")
+            .in("metric_id", metricIdsForGoals)
+            .order("created_at", { ascending: false })
+            .limit(LIMITS.kpiGoals),
+          LIMITS.kpiGoals,
+        ),
+      ])
+    : [ok<BaselineRow>(), ok<TargetRow>()];
+
   const profileRow = rowsOf(profile)[0];
   return {
     workspace,
@@ -871,6 +900,8 @@ export async function readBusinessDomains(
     overdueTasks,
     dependencies,
     prerequisites,
+    kpiBaselines,
+    kpiTargets,
     budget,
     deals,
     competitors,
@@ -1378,6 +1409,8 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
             `${p.month} result ${p.actual ?? "—"}${p.actualKind ? ` (${EVIDENCE_LABEL[p.actualKind]})` : ""} / plan ${p.planned ?? "—"}`,
         );
       if (trend.length > 1) metricLines.push(`  months: ${trend.join("; ")}`);
+      const goalLine = kpiGoalLine(d, m, rows);
+      if (goalLine) metricLines.push(goalLine);
       const dev = forecastDeviations(rows).slice(-3);
       if (dev.length)
         metricLines.push(
@@ -1636,6 +1669,29 @@ function limitNote(d: BusinessDomains, c: Campaign, rows: SpendLine[]): string {
   const usage = dated ? limitUsage(l, rows.map((x) => ({ id: x.id!, kind: x.kind, amount: x.amount, currency: x.currency, occurred_on: x.occurred_on!, data_class: x.data_class, relates_to: x.relates_to ?? null })), new Date().toISOString().slice(0, 10)) : [];
   const parts = usage.map((u) => `${u.key} ${u.used.toFixed(2)}/${u.max.toFixed(2)} ${l.currency}`);
   return `; hard spending limits (actual entries, enforced in this app only, not at ad platforms): ${parts.length ? parts.join(", ") : "set"}`;
+}
+
+/** Starting point, target and progress for one metric, with the same rules as the metric page (kpi-progress). */
+export function kpiGoalLine(d: BusinessDomains, m: MetricRow, rows: Measurement[], now: Date = new Date()): string | null {
+  if (!d.kpiBaselines && !d.kpiTargets) return null;
+  if (d.kpiBaselines?.status === "unavailable" || d.kpiTargets?.status === "unavailable") return "  starting point/target: unavailable";
+  const p = kpiProgress({
+    metricId: m.id, direction: m.direction, unit: m.unit, rows,
+    baselines: d.kpiBaselines?.status === "ok" ? d.kpiBaselines.rows : [],
+    targets: d.kpiTargets?.status === "ok" ? d.kpiTargets.rows : [],
+    today: now.toISOString().slice(0, 10),
+  });
+  const parts = [
+    p.baseline
+      ? `starting point ${Number(p.baseline.value)} for ${p.baseline.period_start}–${p.baseline.period_end} (${p.baseline.basis === "measured" ? `copied from a recorded result: ${EVIDENCE_LABEL[p.baseline.measurement_kind as MeasurementKind] ?? "recorded"}` : `entered by the team, source: ${clip(p.baseline.source, 60)}`})`
+      : "no starting point set (do not assume one)",
+    p.target?.value != null ? `target ${Number(p.target.value)} by ${p.target.target_date} (per ${p.target.period_kind})` : "no target set",
+  ];
+  if (p.change !== null) parts.push(`change since starting point ${p.change > 0 ? "+" : ""}${p.change}${p.changePct !== null ? ` (${p.changePct}%)` : ""}, ${p.improving ? "improving" : p.improving === false ? "worsening" : "unchanged"}`);
+  else if (p.baseline) parts.push(`change not comparable (${p.changeBlocked?.replace("_", " ")})`);
+  if (p.progress !== null) parts.push(`${p.progress}% of the way to the target`);
+  if (p.missingMonths.length) parts.push(`no result recorded for ${p.missingMonths.slice(0, 6).join(", ")}`);
+  return `  ${parts.join("; ")}`;
 }
 
 /** Blocked work for the AI: the shared rule in src/lib/task-blocking.ts over the tasks and dependencies read. */

@@ -1,3 +1,4 @@
+import type { BaselineRow, TargetRow } from "@/lib/kpi-progress";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database, Json } from "@/integrations/supabase/types";
@@ -841,6 +842,8 @@ export type OrgAllocationRow = {
   decided_by: string | null; decided_at: string | null; decision_note: string;
 };
 type PendingTables = {
+  metric_baselines: { Row: BaselineRow & { org_id: string; workspace_id: string }; Insert: never; Update: never; Relationships: [] };
+  metric_targets: { Row: TargetRow & { org_id: string; workspace_id: string }; Insert: never; Update: never; Relationships: [] };
   growth_opportunities: {
     Row: OpportunityRow;
     Insert: Partial<OpportunityRow>;
@@ -1056,6 +1059,14 @@ type PendingBudgetLines = {
 
 type ConvertPlan = GeneratedFunctions["convert_execution_plan"];
 type PendingFunctions = {
+  set_metric_baseline: {
+    Args: { _metric: string; _request: string; _measurement: string | null; _value: number | null; _period_start: string | null; _period_end: string | null; _source: string | null; _note: string };
+    Returns: Json;
+  };
+  set_metric_target: {
+    Args: { _metric: string; _request: string; _value: number | null; _target_date: string | null; _period_kind: string | null; _owner: string | null; _note: string; _withdraw?: boolean };
+    Returns: Json;
+  };
   set_growth_opportunity_status: {
     Args: { _opportunity: string; _status: string };
     Returns: string;

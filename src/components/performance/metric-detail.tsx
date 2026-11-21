@@ -17,18 +17,19 @@ import { Badge } from "@/components/ui/badge";
 import { goalLinksOptions, initiativeLinksOptions, invalidatePerformance, measurementsOptions, metricsOptions, UNITS, type Metric } from "./data";
 import { MetricChart, RecordValueForm, Reliability, sel, statusClass } from "./parts";
 import { PerformanceShell } from "./performance-board";
+import { KpiGoals } from "./kpi-goals";
 
 export function MetricDetail({ metricId }: { metricId: string }) {
   const { workspace, org, workspaceRole, loading } = useOrg();
   const { t } = useI18n();
   if (loading) return <p className="p-6 text-muted-foreground">{t("performance.loading")}</p>;
   if (!workspace || !org) return <p className="p-6 text-muted-foreground">{t("performance.chooseWsShort")}</p>;
-  return <Detail key={`${org.id}:${workspace.id}:${metricId}`} wsId={workspace.id} metricId={metricId} canEdit={hasRole(workspaceRole, "member")} />;
+  return <Detail key={`${org.id}:${workspace.id}:${metricId}`} wsId={workspace.id} metricId={metricId} canEdit={hasRole(workspaceRole, "member")} canDecide={hasRole(workspaceRole, "editor")} />;
 }
 
 type Correcting = { id: string; month: string; kind: MeasurementKind; value: number } | null;
 
-function Detail({ wsId, metricId, canEdit }: { wsId: string; metricId: string; canEdit: boolean }) {
+function Detail({ wsId, metricId, canEdit, canDecide }: { wsId: string; metricId: string; canEdit: boolean; canDecide: boolean }) {
   const qc = useQueryClient();
   const { t, tag } = useI18n();
   const metrics = useQuery(metricsOptions(wsId));
@@ -83,6 +84,7 @@ function Detail({ wsId, metricId, canEdit }: { wsId: string; metricId: string; c
       {editing && <EditMetric metric={metric} goals={goals.data ?? []} initiatives={initiatives.data ?? []} onDone={async saved => { setEditing(false); if (saved) await refresh(); }} />}
       {recording !== false && <RecordValueForm key={recording?.id ?? "new"} metric={metric} correcting={recording} onDone={async saved => { setRecording(false); if (saved) await refresh(); }} />}
 
+      <KpiGoals wsId={wsId} metric={metric} rows={rows} canEdit={canDecide} />
       <MeasurementQuality q={kpiQuality(rows, metric.id, new Date().toISOString().slice(0, 10))} />
       <section className="rounded-lg border bg-card p-4">
         <h2 className="mb-3 font-medium">{t("performance.monthByMonth")}</h2>

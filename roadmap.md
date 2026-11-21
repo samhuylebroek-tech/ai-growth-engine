@@ -446,7 +446,7 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] Growth Officer context: same converted totals, labelled as a reporting view
 - [ ] Organization report type in the report selector (organization page has the figures; report type not yet added)
 - [x] KPI catalogue: formula, better direction and counting rule per KPI (EN/NL/FR), tested against the calculation; Growth Officer reads the same indicators
-- [ ] KPI baselines per KPI (needs a recorded baseline per metric; not invented)
+- [x] KPI starting points and targets (staging proposal 0089): from a recorded result or entered with source, insert-only history, editors only; progress/change/missing months on the KPI page and in the Growth Officer
 - [ ] Reports and BI still compute revenue/spend separately; consolidate on econ/read + econ/summary
 - [ ] Campaign status sets differ between database and app code; align in a reviewed proposal
 - [ ] Task completion date: reports use the last update time; needs a recorded completion time (schema proposal)
@@ -459,3 +459,11 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] KPI definitions shown per KPI and shared with the Growth Officer
 - [x] Blocked work: Growth Officer sees tasks waiting on unfinished tasks; business check counts them (was always 0)
 - [ ] Zod 4 upgrade (major) — needs a reviewed migration of all validators
+
+## Master development mission (staging only)
+- [x] KPI starting points, targets, progress, trend and missing months (0089), EN/NL/FR, browser-verified
+- [x] Real staging Growth Officer conversation using blocked work and KPI progress (6 credits)
+- [ ] Blocked-task detail: cause, downstream tasks and suggested actions in the task panel
+- [ ] Command Center warnings: what happened / why it matters / what to do
+- [ ] Rate limiting — waits on owner decision (earlier decision: document only)
+- [ ] Zod 4 — documented risk and staged migration plan
