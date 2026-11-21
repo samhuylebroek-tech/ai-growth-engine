@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { narrativeFindings, parseNarrative, type NarrativeFinding } from "@/lib/situation-narrative";
+import { narrativeFindings, parseNarrative, questionsFor, type NarrativeFinding } from "@/lib/situation-narrative";
 import { growthSituation, type SituationInput } from "@/lib/situation";
 
 const F: NarrativeFinding[] = [
@@ -30,5 +30,15 @@ describe("AI growth situation explanation", () => {
     expect(ids).toContain("financial.no_data");
     expect(ids).toContain("financial.missing.purchase_costs");
     expect(ids).toContain("health.missing.conflict_history");
+  });
+});
+
+describe("AI campaign advice", () => {
+  it("keeps only campaign questions and drops answers to unknown questions without failing the paid reply", () => {
+    const n = parseNarrative(JSON.stringify({ answers: [
+      { question: "improvements", statements: [{ text: "Link a leads metric", kind: "recommendation", basis: ["execution.overdue.1"] }] },
+      { question: "happening", statements: [{ text: "Business question", kind: "fact", basis: ["execution.overdue.1"] }] },
+    ] }), F, false, questionsFor("campaign"));
+    expect(n.answers.map((a) => a.question)).toEqual(["improvements"]);
   });
 });

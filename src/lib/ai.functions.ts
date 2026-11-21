@@ -26,7 +26,7 @@ import { parseRepurpose, REPURPOSE_INSTRUCTIONS } from "@/lib/content-repurpose"
 import { parseOpportunities, opportunityBrief, opportunityRequestSchema, OPPORTUNITY_INSTRUCTIONS, type Opportunity } from "@/lib/opportunities";
 import { CHANNELS } from "@/lib/content";
 import { analysisRequestSchema, parseAnalysis, ANALYSIS_INSTRUCTIONS, type ReplanAnalysis } from "@/lib/replan-analysis";
-import { narrativeRequestSchema, parseNarrative, NARRATIVE_INSTRUCTIONS, PURPOSE as NARRATIVE_PURPOSE, type Narrative } from "@/lib/situation-narrative";
+import { narrativeRequestSchema, parseNarrative, questionsFor, CAMPAIGN_INSTRUCTIONS, CAMPAIGN_PURPOSE, NARRATIVE_INSTRUCTIONS, PURPOSE as NARRATIVE_PURPOSE, type Narrative } from "@/lib/situation-narrative";
 import { reviewRequestSchema, parseReview as parseSpecialistReview, reviewInstructions, type Review as SpecialistReview } from "@/lib/specialist-review";
 import { designRequestSchema, parseDesigns, designPayload, designKey, DESIGN_INSTRUCTIONS, type Design } from "@/lib/experiment-design-ai";
 
@@ -1316,9 +1316,10 @@ export const explainSituation = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<Result<{ narrative: Narrative; credits: number }>> => {
     const sb = context.supabase as DB;
     let runId: string | null = null;
-    const force = data.unknownSections >= 5;
+    const force = data.scope === "business" && data.unknownSections >= 5;
+    const questions = questionsFor(data.scope);
     const parse = (reply: string) => {
-      try { return parseNarrative(reply, data.findings, force); }
+      try { return parseNarrative(reply, data.findings, force, questions); }
       catch { throw new Error("The explanation came back in an unexpected format. Usage is recorded; no automatic retry was made."); }
     };
     try {
@@ -1327,10 +1328,18 @@ export const explainSituation = createServerFn({ method: "POST" })
       const role = await sb.rpc("has_workspace_role", { _workspace: data.workspaceId, _min: "member" });
       if (role.error || !role.data) throw new Error("You need workspace member access.");
       await assertEntitled(sb, data.orgId, "ai_assistant");
+      // Campaign advice: the campaign record is read here under the caller's RLS, never taken from the browser.
+      let campaignBlock = "";
+      if (data.scope === "campaign") {
+        if (!data.campaignId) throw new Error("Choose a campaign.");
+        const c = await sb.from("campaigns").select("id,title,objective,audience,channels,status,start_date,end_date,budget_eur").eq("id", data.campaignId).eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).maybeSingle();
+        if (c.error || !c.data) throw new Error("Campaign not found. No AI request was sent.");
+        campaignBlock = quoteUntrusted("campaign record", `Title: ${c.data.title}\nStatus: ${c.data.status}\nObjective: ${c.data.objective ?? ""}\nAudience: ${c.data.audience ?? ""}\nChannels: ${(c.data.channels ?? []).join(", ")}\nDates: ${c.data.start_date ?? "not set"} to ${c.data.end_date ?? "not set"}\nBudget EUR: ${c.data.budget_eur}`, 3000);
+      }
       const findings = JSON.stringify(data.findings);
       if (findings.length > 14000) throw new Error("Too many findings for one explanation. No AI request was sent.");
       const claimed = await sb.rpc("begin_single_ai_request_verified", { _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _kind: "growth_officer",
-        _input: { request: "Growth situation explanation", purpose: NARRATIVE_PURPOSE, unknownSections: data.unknownSections, findings: data.findings } as never, _proof: accountingProof() });
+        _input: { request: data.scope === "campaign" ? "Campaign advice" : "Growth situation explanation", purpose: data.scope === "campaign" ? CAMPAIGN_PURPOSE : NARRATIVE_PURPOSE, ...(data.campaignId ? { campaignId: data.campaignId } : {}), unknownSections: data.unknownSections, findings: data.findings } as never, _proof: accountingProof() });
       if (claimed.error) throw new Error(claimed.error.message);
       const attempt = singleRequestSchema.parse(claimed.data);
       if (!attempt.claimed) {
@@ -1341,8 +1350,8 @@ export const explainSituation = createServerFn({ method: "POST" })
       const business = await workspaceContext(sb, data);
       const lang = { en: "English", nl: "Dutch", fr: "French" }[data.locale];
       const result = await meteredGenerate(sb, context.userId, data.orgId, runId, CREDIT_RULES.reserveGrowthOfficer, {
-        instructions: NARRATIVE_INSTRUCTIONS,
-        input: [{ role: "user", content: `${business}\n\nAnswer in ${lang}.${force ? "\nMost areas have no data: do not give a confident diagnosis." : ""}\n\n${quoteUntrusted("rule-based findings (id, area, reliability, text)", data.findings.map((f) => `${f.id} | ${f.section} | ${f.reliability} | ${f.text}`).join("\n"), 9000)}` }],
+        instructions: data.scope === "campaign" ? CAMPAIGN_INSTRUCTIONS : NARRATIVE_INSTRUCTIONS,
+        input: [{ role: "user", content: `${business}\n\nAnswer in ${lang}.${force ? "\nMost areas have no data: do not give a confident diagnosis." : ""}${campaignBlock ? `\n\n${campaignBlock}` : ""}\n\n${quoteUntrusted("rule-based findings (id, area, reliability, text)", data.findings.map((f) => `${f.id} | ${f.section} | ${f.reliability} | ${f.text}`).join("\n"), 9000)}` }],
         maxOutputTokens: 2500,
       });
       const fin = await sb.rpc("finish_single_ai_request_verified", { _id: attempt.id, _reply: result.text.trim(), _proof: accountingProof() });

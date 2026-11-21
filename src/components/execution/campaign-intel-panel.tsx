@@ -14,6 +14,8 @@ import { localDay } from "@/lib/execution";
 import { biOptions } from "@/components/bi/bi-data";
 import { campaignSpendOptions } from "@/components/execution/replan-data";
 import { isExpenditure, isSimulatedSpend, spendSummary } from "@/lib/campaign-spend";
+import { AiExplanation } from "@/components/app/situation-narrative";
+import type { NarrativeFinding } from "@/lib/situation-narrative";
 import { attribute } from "@/lib/bi/attribution";
 import { isNotInstalled } from "@/lib/pending-schema";
 import { campaignIntel, type Advice, type Figure, type FigureKey, type Intel } from "@/lib/campaign-intel";
@@ -53,6 +55,12 @@ export function CampaignIntelPanel({ campaign, tasks, campaigns }: { campaign: C
   });
 
   const money = (n: number) => new Intl.NumberFormat(tag, { style: "currency", currency: "EUR" }).format(n);
+  // Findings the AI advice may cite: every figure (value or missing reason), each rule problem and the simulated note.
+  const aiFindings = (): NarrativeFinding[] => [
+    ...SHOWN.map((k, n) => { const f = intel.figures[k]; return { id: `campaign.${k}.${n}`, section: "campaign", code: k, reliability: (f.value === null ? "rule" : f.source === "computed" ? "computed" : f.source === "metric" || f.source === "spend_ledger" ? "entered" : "recorded") as NarrativeFinding["reliability"], text: `${t(tk(`ci.f.${k}`))}: ${show(f)}`.slice(0, 240) }; }),
+    ...intel.problems.map((p, n) => ({ id: `campaign.${p}.p${n}`, section: "campaign", code: p, reliability: "rule" as const, text: t(tk(`ci.p.${p}`), { list: intel.overlaps.join(", ") }).slice(0, 240) })),
+    ...(intel.simulated ? [{ id: "campaign.simulated.0", section: "campaign", code: "simulated", reliability: "simulated" as const, text: t("ci.simLine", { n: intel.simulated.entries, s: money(intel.simulated.spent), r: money(intel.simulated.committed) }).slice(0, 240) }] : []),
+  ];
   const show = (f: Figure) => {
     if (f.value === null) return t("ci.missing", { r: t(tk(`ci.m.${f.missing ?? "no_actuals"}`)) });
     if (f.key === "conversion_rate") return `${(f.value * 100).toLocaleString(tag, { maximumFractionDigits: 2 })}%`;
@@ -112,6 +120,7 @@ export function CampaignIntelPanel({ campaign, tasks, campaigns }: { campaign: C
         )}
         <p className="mt-1 text-muted-foreground">{t("ci.rulesNote")}</p>
       </div>
+      <AiExplanation scope="campaign" campaignId={campaign.id} prefix="cn" findings={aiFindings()} unknownSections={0} />
       {intel.advice.length > 0 && (
         <div className="space-y-2">
           <p className="font-medium">{t("ci.advice")}</p>

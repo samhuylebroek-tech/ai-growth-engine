@@ -85,6 +85,9 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
 - **Phase 8.7 situation explanation (2026-11-21)** — QA Admin requested one Growth Officer explanation of the growth
   situation (5 credits, private request record with purpose `situation_narrative`). *Keep.*
 
+- **Phase 8.7 campaign advice (2026-11-21)** — QA Member requested one Growth Officer advice for "QA office breakfast
+  boxes" (5 credits, private request record with purpose `campaign_advice`). The campaign itself was not changed. *Keep.*
+
 ## Cleanup proposal (needs separate approval)
 
 1. Archive (status change, not delete) the five QA-named goals/campaigns/tasks through the normal app screens.
