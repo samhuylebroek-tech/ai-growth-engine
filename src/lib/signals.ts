@@ -19,6 +19,7 @@ import { spendSummary } from "@/lib/campaign-spend";
 import { limitMaxima, limitUsage, spendForecast } from "@/lib/campaign-budget";
 
 import { detectFactConflicts } from "@/lib/fact-conflicts";
+import { economicsSummary, type EconAlertCode } from "@/lib/econ/summary";
 export type SignalKind = "conflict" | "stale" | "missing" | "risk" | "opportunity";
 export type Level = "high" | "medium" | "low";
 export type SignalCode =
@@ -45,7 +46,8 @@ export type SignalCode =
   | "campaign_emergency_stop"
   | "campaign_limit_reached"
   | "campaign_spend_forecast"
-  | "replan_pending";
+  | "replan_pending"
+  | EconAlertCode;
 export type SignalBasis =
   | "planning_vs_metric"
   | "team_records"
@@ -53,9 +55,10 @@ export type SignalBasis =
   | "pipeline"
   | "budget"
   | "ai_work"
-  | "business_profile";
+  | "business_profile"
+  | "economics";
 export type SignalDestination =
-  "/app/performance" | "/app/goals" | "/app/pipeline" | "/app/seo" | "/app/tasks" | "/app/profile" | "/app/campaigns";
+  "/app/performance" | "/app/goals" | "/app/pipeline" | "/app/seo" | "/app/tasks" | "/app/profile" | "/app/campaigns" | "/app/economics" | "/app/improvements" | "/app/revenue";
 export type Signal = {
   id: string;
   code: SignalCode;
@@ -87,6 +90,21 @@ const rowsOf = <T>(r: { status: "ok"; rows: T[] } | { status: "unavailable" } | 
 
 /** Codes already shown elsewhere on Home (performance attention); still part of the AI context. */
 export const HOME_DUPLICATES: ReadonlySet<SignalCode> = new Set(["metric_missing_month"]);
+
+const ECON_SIGNAL: Record<EconAlertCode, { kind: SignalKind; urgency: Level; feasibility: Level; to: SignalDestination }> = {
+  econ_allocation_exceeded: { kind: "risk", urgency: "high", feasibility: "medium", to: "/app/economics" },
+  econ_allocation_near: { kind: "risk", urgency: "medium", feasibility: "high", to: "/app/economics" },
+  econ_budget_unallocated: { kind: "opportunity", urgency: "low", feasibility: "high", to: "/app/goals" },
+  econ_budget_duplicates: { kind: "conflict", urgency: "low", feasibility: "high", to: "/app/goals" },
+  econ_request_rejected: { kind: "missing", urgency: "medium", feasibility: "high", to: "/app/goals" },
+  econ_cost_model_missing: { kind: "missing", urgency: "medium", feasibility: "high", to: "/app/economics" },
+  econ_cost_missing: { kind: "missing", urgency: "medium", feasibility: "high", to: "/app/economics" },
+  econ_customer_missing: { kind: "missing", urgency: "low", feasibility: "medium", to: "/app/revenue" },
+  econ_attribution_missing: { kind: "missing", urgency: "low", feasibility: "medium", to: "/app/revenue" },
+  econ_margin_declining: { kind: "risk", urgency: "medium", feasibility: "medium", to: "/app/economics" },
+  econ_price_missing: { kind: "missing", urgency: "low", feasibility: "low", to: "/app/economics" },
+  recommendation_measure_due: { kind: "stale", urgency: "high", feasibility: "high", to: "/app/improvements" },
+};
 
 export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signal[] {
   const out: Signal[] = [];
@@ -466,6 +484,21 @@ export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signa
       "/app/tasks",
       { n: uncertain },
     );
+
+  // Financial alerts: the same summary as the Growth economics page and the Growth Officer (this calendar month).
+  if (d.economics?.status === "ok") {
+    const y = now.getUTCFullYear(), m = now.getUTCMonth();
+    const from = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10);
+    const to = new Date(Date.UTC(y, m + 1, 0)).toISOString().slice(0, 10);
+    const econ = economicsSummary(d.economics.data, from, to, "last_touch", now.toISOString().slice(0, 10));
+    const campaignAlerted = new Set(out.filter((x) => x.id.startsWith("campaign_budget:")).map((x) => x.id.slice(16)));
+    for (const a of econ.alerts) {
+      const [kind, campaignId] = a.id.split(":");
+      if ((kind === "over" || kind === "near") && campaignId && campaignAlerted.has(campaignId)) continue;
+      const spec = ECON_SIGNAL[a.code];
+      add(`econ:${a.id}`, a.code, spec.kind, a.level, spec.urgency, spec.feasibility, "economics", spec.to, a.vars);
+    }
+  }
 
   const seen = new Set<string>();
   return out

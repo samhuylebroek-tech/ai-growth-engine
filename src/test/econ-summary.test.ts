@@ -2,6 +2,33 @@ import { describe, expect, it } from "vitest";
 import { economicsSummary, previousPeriod } from "@/lib/econ/summary";
 import type { EconData } from "@/lib/econ/read";
 import type { RevenueEvent } from "@/lib/bi/attribution";
+import { economicsLines, type BusinessDomains } from "@/lib/security/business-context";
+import { detectSignals } from "@/lib/signals";
+const ok = <T>(rows: T[]) => ({ status: "ok" as const, rows, truncated: false });
+const signalBase = (): BusinessDomains => ({
+  workspace: { id: "w", name: "Main" },
+  objectives: null,
+  facts: [],
+  goals: [],
+  recommendations: [],
+  plans: ok([]),
+  initiatives: [],
+  operations: [],
+  projects: [],
+  tasks: [],
+  budget: ok([]),
+  deals: ok([]),
+  competitors: ok([]),
+  observations: [],
+  seo: ok([]),
+  content: ok([]),
+  versions: [],
+  decisions: [],
+  campaigns: ok([]),
+  connections: ok([]),
+  metrics: ok([]),
+  measurements: [],
+});
 
 let n = 0;
 const sale = (amount: number, at: string, customer_ref = "c1"): RevenueEvent => ({ id: `s${++n}`, kind: "sale", amount, currency: "EUR", occurred_at: `${at}T10:00:00Z`, data_class: "manual", source: "manual", source_ref: "", customer_ref, relates_to: null, unit_id: null } as RevenueEvent);
@@ -99,5 +126,37 @@ describe("previousPeriod", () => {
   });
   it("uses the same number of days for other periods", () => {
     expect(previousPeriod("2026-11-05", "2026-11-14")).toEqual({ from: "2026-10-26", to: "2026-11-04" });
+  });
+});
+
+describe("one source of truth for page, Growth Officer and Home", () => {
+  const withOverrun = () => { const d = base(); d.spend = [spend(450, "2026-11-10")] as never; d.usage = [{ at: "2026-11-02T10:00:00Z", credits: 5, agent_key: "seo" }]; return d; };
+  const NOW = new Date("2026-11-21T09:00:00Z");
+  it("gives the Growth Officer the same figures as the page, with labels and no invented money", () => {
+    const d = withOverrun();
+    const page = economicsSummary(d, "2026-11-01", "2026-11-30", "last_touch", "2026-11-21");
+    const lines = economicsLines({ economics: { status: "ok", data: d } } as unknown as BusinessDomains, NOW).join("\n");
+    expect(lines).toContain(`not allocated ${page.budget[0]!.unallocated}`);
+    expect(lines).toContain("ACTUAL SPENDING ABOVE ALLOCATION");
+    expect(lines).toContain("no credit price set — state AI work in credits only");
+    expect(lines).toMatch(/gross profit: not calculable/);
+  });
+  it("says the module is unavailable instead of empty when it is not installed", () => {
+    expect(economicsLines({ economics: { status: "unavailable" } } as unknown as BusinessDomains, NOW)[0]).toMatch(/unavailable/);
+  });
+  it("turns the same alerts into Home signals, without repeating a campaign that already has a budget alert", () => {
+    const d = withOverrun();
+    const domains = { ...signalBase(), economics: { status: "ok" as const, data: d } };
+    const sig = detectSignals(domains, NOW);
+    expect(sig.find((s) => s.code === "econ_allocation_exceeded")).toMatchObject({ to: "/app/economics", basis: "economics", impact: "high" });
+    expect(sig.map((s) => s.code)).toContain("econ_budget_unallocated");
+    const alerted = {
+      ...domains,
+      campaigns: { status: "ok" as const, rows: [{ id: "A", title: "Spring", status: "active", budget_eur: 100, results: "", channels: [], end_date: null, start_date: null, goal_id: null, objective: "" }], truncated: false },
+      campaignSpend: { status: "ok" as const, rows: d.spend, truncated: false },
+    } as unknown as BusinessDomains;
+    const again = detectSignals(alerted, NOW);
+    expect(again.map((s) => s.id)).toContain("campaign_budget:A");
+    expect(again.map((s) => s.code)).not.toContain("econ_allocation_exceeded");
   });
 });

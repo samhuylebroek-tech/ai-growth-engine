@@ -526,6 +526,10 @@ function client(
       };
       return q;
     },
+    // Remote procedures (e.g. applicable credit prices) return no rows in these fixtures.
+    rpc() {
+      return Promise.resolve({ data: [], error: null });
+    },
   } as unknown as SupabaseClient<Database>;
 }
 const build = (rows?: Record<string, Row[]>, fail?: Failure[], s = scope) =>
@@ -588,7 +592,11 @@ describe("unified business context — scope and isolation", () => {
     expect(domainReads.length).toBeGreaterThanOrEqual(19);
     for (const read of domainReads) {
       expect(read.filters).toContainEqual({ op: "eq", column: "org_id", value: "org-a" });
-      expect(read.filters).toContainEqual({ op: "eq", column: "workspace_id", value: "ws-a" });
+      // Two scoped exceptions: AI usage has no workspace column and is scoped through its run's workspace;
+      // the subscription is organization-level and only its plan key is read (to pick the applicable credit price).
+      if (read.table === "subscriptions") continue;
+      const wsColumn = read.table === "ai_usage_events" ? "agent_runs.workspace_id" : "workspace_id";
+      expect(read.filters).toContainEqual({ op: "eq", column: wsColumn, value: "ws-a" });
     }
   });
   it("never leaks another workspace's plans, budgets, deals, competitors or recommendations", async () => {
@@ -723,6 +731,7 @@ describe("unified business context — missing, empty, denied and oversized data
     let calls = 0;
     const base = client(rows);
     const wrapped = {
+      rpc: base.rpc,
       from(table: string) {
         const q = base.from(table as never);
         if (table !== "budget_lines") return q;

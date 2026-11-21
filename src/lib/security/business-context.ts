@@ -8,6 +8,9 @@ import { leverCoverage, leverLines } from "@/lib/growth-levers";
 import type { Database } from "@/integrations/supabase/types";
 import { quoteUntrusted } from "./upload";
 import { detectSignals } from "@/lib/signals";
+import { econNotInstalled, readEconData, type EconData } from "@/lib/econ/read";
+import { economicsSummary } from "@/lib/econ/summary";
+import { learningPatterns } from "@/lib/econ/learning";
 import { translate } from "@/lib/i18n/messages";
 import { attribute, revenueTotals, type RevenueEvent, type Touch } from "@/lib/bi/attribution";
 import { understand } from "@/lib/bi/understanding";
@@ -71,6 +74,8 @@ export const EVIDENCE = {
   experiment_result:
     "growth experiment records — the evidence strength is stated per line; only controlled tests support a causal claim",
   knowledge_gap: "business areas with no verified fact — ask the customer, never assume",
+  economics_ledger:
+    "growth economics computed by fixed rules from this business's own ledgers (sales, campaign spending, business costs, budget allocations, AI usage) — actual, reserved, simulated and estimated amounts are labelled; a figure marked not calculable must not be estimated or recomputed",
   rule_signal:
     "deterministic check across the records in this context — points to a conflict, gap or stale record, never to a cause",
 } as const;
@@ -297,6 +302,8 @@ export type BusinessDomains = {
   touches?: Touch[];
   experiments?: DomainRead<ExperimentLine>;
   proposals?: DomainRead<ProposalLine>;
+  /** Growth economics ledgers (proposals 0084–0086), read through the shared reader; optional for older callers. */
+  economics?: { status: "ok"; data: EconData } | { status: "unavailable" };
 };
 export type SpendLine = {
   campaign_id: string; kind: "spend" | "commitment" | "release" | "correction"; amount: number; currency: string; data_class: "manual" | "simulated";
@@ -432,6 +439,12 @@ export async function readBusinessDomains(
       .eq("workspace_id", workspaceId);
 
   const since = new Date(Date.now() - 365 * DAY).toISOString();
+  // Same reader as the Growth economics page; a missing module is "unavailable", any other failure fails closed.
+  const economicsRead: Promise<NonNullable<BusinessDomains["economics"]>> = readEconData(sb, orgId, workspaceId).then(
+    (data) => ({ status: "ok" as const, data }),
+    (e: unknown) => { if (econNotInstalled(e)) return { status: "unavailable" as const }; throw new ContextReadError("growth economics"); },
+  );
+  economicsRead.catch(() => undefined); // awaited below; avoids an unhandled rejection if an earlier read fails first
   const [
     profile,
     facts,
@@ -819,6 +832,7 @@ export async function readBusinessDomains(
     touches: rowsOf(touches),
     experiments,
     proposals,
+    economics: await economicsRead,
   };
 }
 
@@ -1482,6 +1496,15 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
   });
 
   sections.push({
+    key: "growth-economics",
+    title: "GROWTH ECONOMICS (THIS MONTH, LAST-TOUCH ATTRIBUTION)",
+    evidence: ["economics_ledger"],
+    budget: 1800,
+    priority: 3,
+    lines: economicsLines(d, now),
+  });
+
+  sections.push({
     key: "recommendations",
     title: "PREVIOUS RECOMMENDATIONS",
     evidence: ["ai_hypothesis"],
@@ -1533,4 +1556,46 @@ function limitNote(d: BusinessDomains, c: Campaign, rows: SpendLine[]): string {
   const usage = dated ? limitUsage(l, rows.map((x) => ({ id: x.id!, kind: x.kind, amount: x.amount, currency: x.currency, occurred_on: x.occurred_on!, data_class: x.data_class, relates_to: x.relates_to ?? null })), new Date().toISOString().slice(0, 10)) : [];
   const parts = usage.map((u) => `${u.key} ${u.used.toFixed(2)}/${u.max.toFixed(2)} ${l.currency}`);
   return `; hard spending limits (actual entries, enforced in this app only, not at ad platforms): ${parts.length ? parts.join(", ") : "set"}`;
+}
+
+/** Growth economics for the AI: the same summary as the Growth economics page and Home alerts, stated with labels. */
+export function economicsLines(d: BusinessDomains, now: Date): string[] {
+  if (!d.economics) return [];
+  if (d.economics.status === "unavailable") return [UNAVAILABLE];
+  const e = d.economics.data;
+  const y = now.getUTCFullYear(), m = now.getUTCMonth();
+  const from = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10), to = new Date(Date.UTC(y, m + 1, 0)).toISOString().slice(0, 10);
+  const s = economicsSummary(e, from, to, "last_touch", now.toISOString().slice(0, 10));
+  const out: string[] = [`period ${from} – ${to}; amounts per currency, never converted`];
+  if (s.incomplete.length) out.push(`incomplete reads (totals may be too low): ${s.incomplete.join(", ")}`);
+  for (const b of s.budget) out.push(`budget ${b.currency}: planned ${b.total} on ${b.lines} line(s); allocated to campaigns ${b.allocated}; not allocated ${b.unallocated}; actual spent ${b.spent}; reserved (not spent) ${b.reserved}`);
+  if (!s.budget.length) out.push("budget: no budget lines this month");
+  for (const c of s.currencies) {
+    const r = c.rev;
+    out.push(`${c.currency} revenue (recorded): ${r ? `net ${r.net} from ${r.sales} sale(s), gross ${r.gross}, refunds/corrections ${Math.abs(r.refunds)}` : "no recorded sales"}${c.att ? `; credited to campaigns ${c.att.attributed}, not attributed ${c.att.unattributed} (${c.att.unattributedSales} sale(s)) — attribution is association, not cause` : ""}`);
+    out.push(`${c.currency} campaign spending: actual ${c.spent}${c.byCat.length ? ` (${c.byCat.map(([k, v]) => `${k} ${v}`).join(", ")})` : ""}; reserved ${c.reserved} (not spent); simulated ${c.simulated} (test data, never real)`);
+    out.push(`${c.currency} business costs: recorded ${c.costs}${c.costCat.length ? ` (${c.costCat.map(([k, v]) => `${k} ${v}`).join(", ")})` : ""}; estimated ${c.estCosts} (kept apart)`);
+    const gp = c.gp;
+    out.push(`${c.currency} gross profit: ${gp && gp.grossProfit !== null ? `${gp.grossProfit}${gp.grossMargin !== null ? ` (margin ${gp.grossMargin}%)` : ""} [${gp.status}]` : `not calculable${gp?.missing.length ? ` — missing: ${gp.missing.join(", ")}` : ""}`}${c.gpPrev?.grossMargin != null && gp?.grossMargin != null ? `; previous period margin ${c.gpPrev.grossMargin}%` : ""}`);
+    out.push(`${c.currency} CAC: ${c.cac && c.cac.value !== null ? `${c.cac.value} (${c.cac.spend} actual acquisition spending / ${c.cac.newCustomers} new customer(s)) [${c.cac.status}]` : `not calculable [${c.cac?.status ?? "unavailable"}]${c.cac?.salesWithoutCustomer ? `; ${c.cac.salesWithoutCustomer} sale(s) without customer reference` : ""}`}`);
+  }
+  const ai = s.ai;
+  out.push(`AI work: ${ai.total} credits charged this month (${ai.onCampaigns} on campaign work, ${ai.otherWork} other); ${ai.pending} credits pending; ${ai.uncertain} run(s) with unknown outcome; ${ai.cost.priced > 0 ? `cost ${ai.cost.amount} ${ai.cost.currency} at the credit price valid when used${ai.cost.unpriced ? ` (${ai.cost.unpriced} credits without a price)` : ""}` : "no credit price set — state AI work in credits only, never as money"}; AI credits are not advertising spend`);
+  for (const c of s.campaigns.slice(0, 10)) {
+    const alloc = Object.entries(c.t.allocated).map(([k, v]) => `${v} ${k}`).join(", ") || "none";
+    const spent = Object.entries(c.t.spent).map(([k, v]) => `${v} ${k}`).join(", ") || "none";
+    const roas = c.roas.map((x) => (x.value !== null ? `${x.value}x ${x.currency}` : x.status)).join(", ") || "unavailable";
+    const missing = Object.entries(c.inputs).filter(([k, v]) => k !== "costs" && v !== "recorded").map(([k, v]) => `${k} ${v}`).join(", ");
+    out.push(`- campaign ${clip(c.title, 60)} [${c.status}]: allocated ${alloc}; actual spent since start ${spent}; AI credits ${c.t.credits}; ROAS ${roas}${missing ? `; not yet evaluable: ${missing}` : ""}${c.over.length ? "; ACTUAL SPENDING ABOVE ALLOCATION" : ""}`);
+  }
+  if (s.campaigns.length > 10) out.push(`(${s.campaigns.length - 10} more campaigns not listed)`);
+  const ch = Object.entries(s.channels).map(([k, v]) => `${k} ${Object.entries(v).map(([c, a]) => `${a} ${c}`).join("/")}`);
+  if (ch.length) out.push(`actual spending by channel: ${ch.join("; ")}`);
+  const o = s.outcomes;
+  out.push(`recommendation outcomes (recorded measurements): improved ${o.improved}, worse ${o.worse}, no change ${o.noChange}, inconclusive ${o.inconclusive}; lessons recorded ${o.lessons}; measurements due now ${s.measurementDue.length}${s.measurementDue.length ? ` (e.g. ${clip(s.measurementDue[0]!.title, 60)})` : ""}`);
+  const patterns = learningPatterns(e.learnings, e.proposals);
+  for (const p of patterns.slice(0, 4))
+    out.push(`- learning pattern (this business only; ${p.confidence === "not_enough" ? "not enough observations — hypothesis" : `${p.confidence} confidence, still a hypothesis`}): lever ${p.lever}${p.channel ? ` / ${p.channel}` : ""}: ${p.observations} measured lesson(s) in ${p.campaigns} campaign(s): ${p.positive} better, ${p.negative} worse, ${p.noChange} unchanged; limits: ${p.limitations.join(", ")}`);
+  out.push("- for money questions use only these figures; when a figure is not calculable, name the missing input and where it is recorded; never derive profit, CAC or ROAS yourself; never apply another business's results to this one");
+  return out;
 }
