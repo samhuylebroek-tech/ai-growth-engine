@@ -113,7 +113,7 @@ export function campaignIntel(i: IntelInput): Intel {
   if (w("behind_schedule")) problems.push("behind_schedule");
   if (w("ended_without_results")) problems.push("ended_without_results");
   const linked = i.metrics.some((m) => !m.archived && m.campaign_id === c.id);
-  const live = c.status === "active" || c.status === "paused";
+  const live = ["active", "needs_attention", "optimizing", "paused"].includes(c.status);
   if (!linked && c.status !== "archived") problems.push("no_kpi");
   const anyResult = [leads, clicks, conv, custom].some((x) => x.value !== null) || !!eurRevenue || c.results.trim().length > 0;
   const late = (health.elapsed ?? 0) >= RULES.resultsExpectedAfter || (!!c.end_date && c.end_date < i.today);

@@ -120,7 +120,7 @@ export function growthSituation(i: SituationInput): Situation {
   add("execution", ef, i.tasks.length ? [] : ["tasks"], i.tasks.length > 0);
 
   // Marketing performance: campaign states from their own records and spending.
-  const live = i.campaigns.filter((c) => c.status === "active" || c.status === "paused" || c.status === "planned");
+  const live = i.campaigns.filter((c) => !["completed", "cancelled", "archived"].includes(c.status));
   const atRisk = live.filter((c) => c.state === "at_risk").length;
   const over = i.campaigns.filter((c) => c.overBudget).length;
   const overSim = i.campaigns.filter((c) => !c.overBudget && c.simulatedOverBudget).length;

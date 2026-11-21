@@ -40,7 +40,7 @@ export function businessTilesOptions(orgId: string | undefined, wsId: string | u
       const [openOpportunities, activeGoals, activeCampaigns, tasksDone, pendingApprovals, deals, budget, runs, revenueDefs] = await Promise.all([
         counted(scope(growthDb.from("growth_opportunities").select("id", { count: "exact", head: true })).in("status", ["open", "shortlisted"])),
         counted(scope(supabase.from("growth_goals").select("id", { count: "exact", head: true })).eq("status", "active")),
-        counted(scope(supabase.from("campaigns").select("id", { count: "exact", head: true })).eq("status", "active")),
+        counted(scope(supabase.from("campaigns").select("id", { count: "exact", head: true })).in("status", ["active", "needs_attention", "optimizing"])),
         counted(scope(supabase.from("tasks").select("id", { count: "exact", head: true })).eq("status", "done")),
         counted(scope(supabase.from("approvals").select("id", { count: "exact", head: true })).eq("status", "pending")),
         settle(scope(supabase.from("crm_deals").select("stage,value,currency,closed_at", { count: "exact" })).or(`stage.in.(lead,qualified,proposal,negotiation),and(stage.eq.won,closed_at.gte.${since})`).limit(DEAL_LIMIT),

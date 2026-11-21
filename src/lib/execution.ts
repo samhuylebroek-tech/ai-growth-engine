@@ -100,7 +100,7 @@ export function executionSummary(
       .filter((t) => t.due_date && t.due_date > today)
       .sort((a, b) => (a.due_date ?? "").localeCompare(b.due_date ?? "")),
     mine: open.filter((t) => t.owner_id === userId),
-    active: [...projects, ...campaigns].filter((p) => p.status === "active"),
+    active: [...projects, ...campaigns].filter((p) => ["active", "needs_attention", "optimizing"].includes(p.status)),
     review: open.filter((t) => t.status === "review"),
   };
 }

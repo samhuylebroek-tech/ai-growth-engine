@@ -58,3 +58,17 @@ describe("campaign lifecycle (mirrors proposal 0083)", () => {
     expect(campaignPhase("cancelled")).toBe("finished");
   });
 });
+
+import { campaignHealth } from "@/lib/campaign-health";
+describe("campaign progress understands the lifecycle statuses", () => {
+  const base = { start_date: "2026-12-01", end_date: "2026-12-31", goal_id: "g", results: "" };
+  it("a campaign awaiting approval is in preparation, not running without tasks", () => {
+    expect(campaignHealth({ ...base, status: "awaiting_approval" }, [], "2026-11-20").state).toBe("not_started");
+  });
+  it("a cancelled campaign is finished and not judged as running", () => {
+    expect(campaignHealth({ ...base, status: "cancelled" }, [], "2026-11-20").state).toBe("completed");
+  });
+  it("a campaign that needs attention is judged like a running one", () => {
+    expect(campaignHealth({ ...base, status: "needs_attention", start_date: "2026-11-01" }, [], "2026-11-20").warnings).toContain("no_tasks");
+  });
+});

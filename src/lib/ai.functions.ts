@@ -696,7 +696,7 @@ export const planGrowthStrategy = createServerFn({ method: "POST" })
       const pending = sb as unknown as SupabaseClient<PendingDatabase>;
       const opp = await pending.from("growth_opportunities").select("title,summary,analysis,audience,expected_impact,budget_min,budget_max,currency,horizon_days,resources,integrations,risks,confidence").eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).eq("goal_id", data.goalId).order("created_at", { ascending: false }).limit(1).maybeSingle();
       if (opp.error && !isNotInstalled(opp.error)) throw new Error("Could not read the growth opportunity.");
-      const campaigns = await sb.from("campaigns").select("title,status,channels").eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).in("status", ["planned", "active", "paused"]).order("created_at", { ascending: false }).limit(15);
+      const campaigns = await sb.from("campaigns").select("title,status,channels").eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).in("status", ["idea", "proposed", "draft", "awaiting_approval", "approved", "planned", "scheduled", "active", "needs_attention", "optimizing", "paused"]).order("created_at", { ascending: false }).limit(15);
       if (campaigns.error) throw new Error("Could not read campaigns.");
       const initiatives = await pending.from("growth_initiatives").select("title,status,growth_plan_versions!inner(status)").eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).eq("growth_plan_versions.status", "approved").neq("status", "cancelled").limit(20);
       if (initiatives.error && !isNotInstalled(initiatives.error)) throw new Error("Could not read initiatives.");

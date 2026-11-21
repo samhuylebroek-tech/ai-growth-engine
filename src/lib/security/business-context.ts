@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isRealOverrun, spendSummary } from "@/lib/campaign-spend";
+import { limitUsage } from "@/lib/campaign-budget";
 import type { CampaignSpendRow } from "@/lib/pending-schema";
 import { detectFactConflicts } from "@/lib/fact-conflicts";
 import { leverCoverage, leverLines } from "@/lib/growth-levers";
@@ -283,6 +284,8 @@ export type BusinessDomains = {
   overdueTasks?: DomainRead<Task>;
   /** Campaign spend ledger for the listed campaigns (proposal 0077); optional for older callers. */
   campaignSpend?: DomainRead<SpendLine>;
+  /** Spending limits of the listed campaigns (proposal 0083); optional for older callers. */
+  campaignLimits?: DomainRead<LimitLine>;
   /** Newest re-planning proposals and their decisions (proposal 0077); optional for older callers. */
   replans?: DomainRead<ReplanLine>;
   replanDecisions?: { proposal_id: string; decision: string }[];
@@ -294,7 +297,16 @@ export type BusinessDomains = {
   experiments?: DomainRead<ExperimentLine>;
   proposals?: DomainRead<ProposalLine>;
 };
-export type SpendLine = { campaign_id: string; kind: "spend" | "commitment" | "release" | "correction"; amount: number; currency: string; data_class: "manual" | "simulated" };
+export type SpendLine = {
+  campaign_id: string; kind: "spend" | "commitment" | "release" | "correction"; amount: number; currency: string; data_class: "manual" | "simulated";
+  /** Present when read with dates (needed for period limits); older callers may omit them. */
+  id?: string; occurred_on?: string; relates_to?: string | null;
+};
+/** Hard spending limits per campaign (proposal 0083). */
+export type LimitLine = {
+  campaign_id: string; currency: string; daily_max: number | string | null; weekly_max: number | string | null; monthly_max: number | string | null;
+  lifetime_max: number | string | null; reserve_amount: number | string | null; alert_thresholds: number[]; emergency_stop: boolean; stop_reason: string;
+};
 export type ReplanLine = { id: string; task_id: string; created_at: string };
 export type ExperimentLine = {
   title: string;
@@ -357,6 +369,7 @@ type ScopedTable =
   | "growth_opportunities"
   | "task_runs"
   | "campaign_spend_entries"
+  | "campaign_spend_limits"
   | "task_replan_proposals"
   | "task_replan_decisions"
   | "revenue_events"
@@ -658,11 +671,11 @@ export async function readBusinessDomains(
   );
   // Spend for the campaigns read above, and open re-planning work. A truncated spend read gives no budget warning.
   const campaignIds = rowsOf(campaigns).map((c) => c.id).filter((id): id is string => !!id);
-  const [campaignSpend, replans] = await Promise.all([
+  const [campaignSpend, replans, campaignLimits] = await Promise.all([
     campaignIds.length
       ? optional<SpendLine>(
           "campaign spend",
-          t("campaign_spend_entries", "campaign_id,kind,amount,currency,data_class").in("campaign_id", campaignIds).limit(LIMITS.spend),
+          t("campaign_spend_entries", "id,campaign_id,kind,amount,currency,data_class,occurred_on,relates_to").in("campaign_id", campaignIds).limit(LIMITS.spend),
           LIMITS.spend,
         )
       : ok<SpendLine>(),
@@ -671,6 +684,13 @@ export async function readBusinessDomains(
       t("task_replan_proposals", "id,task_id,created_at").order("created_at", { ascending: false }).limit(LIMITS.replans),
       LIMITS.replans,
     ),
+    campaignIds.length
+      ? optional<LimitLine>(
+          "campaign spending limits",
+          t("campaign_spend_limits", "campaign_id,currency,daily_max,weekly_max,monthly_max,lifetime_max,reserve_amount,alert_thresholds,emergency_stop,stop_reason").in("campaign_id", campaignIds).limit(200),
+          200,
+        )
+      : ok<LimitLine>(),
   ]);
   const replanIds = rowsOf(replans).map((r) => r.id);
   const replanDecisions = replanIds.length
@@ -791,6 +811,7 @@ export async function readBusinessDomains(
     opportunities,
     taskRuns,
     campaignSpend,
+    campaignLimits,
     replans,
     replanDecisions,
     revenue,
@@ -1495,5 +1516,18 @@ function spendNote(d: BusinessDomains, c: Campaign): string {
   const line = (m: Record<string, { spent: number; committed: number }>) => Object.entries(m).map(([k, v]) => `${k} ${v.spent.toFixed(2)} spent, ${v.committed.toFixed(2)} reserved`).join("; ");
   const actual = Object.keys(sum.byCurrency).length ? `; recorded actual spend ${line(sum.byCurrency)}${isRealOverrun(sum) ? " (EUR budget exceeded by actual entries)" : ""}` : "; recorded actual spend: none";
   const sim = sum.simulatedEntries ? `; simulated test entries (not real spending, never a real overrun): ${line(sum.simulatedByCurrency)}` : "";
-  return actual + sim;
+  return actual + sim + limitNote(d, c, r.rows.filter((x) => x.campaign_id === c.id));
+}
+
+/** Hard spending limits of one campaign for the AI context (enforced inside this application only). */
+function limitNote(d: BusinessDomains, c: Campaign, rows: SpendLine[]): string {
+  const lr = d.campaignLimits;
+  if (!lr || lr.status !== "ok" || !c.id) return "";
+  const l = lr.rows.find((x) => x.campaign_id === c.id);
+  if (!l) return "; spending limits: none set";
+  if (l.emergency_stop) return "; EMERGENCY STOP active: no new spending or reservations can be recorded until an editor lifts it";
+  const dated = rows.every((x) => x.id && x.occurred_on);
+  const usage = dated ? limitUsage(l, rows.map((x) => ({ id: x.id!, kind: x.kind, amount: x.amount, currency: x.currency, occurred_on: x.occurred_on!, data_class: x.data_class, relates_to: x.relates_to ?? null })), new Date().toISOString().slice(0, 10)) : [];
+  const parts = usage.map((u) => `${u.key} ${u.used.toFixed(2)}/${u.max.toFixed(2)} ${l.currency}`);
+  return `; hard spending limits (actual entries, enforced in this app only, not at ad platforms): ${parts.length ? parts.join(", ") : "set"}`;
 }

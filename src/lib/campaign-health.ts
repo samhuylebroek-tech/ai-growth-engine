@@ -15,7 +15,14 @@ export type Health = { state: HealthState; warnings: HealthWarning[]; overdue: n
 const DAY = 86_400_000;
 const closed = (s: string) => s === "done" || s === "cancelled";
 
-export function campaignHealth(c: CampaignLike, tasks: readonly TaskLike[], today: string, spend?: SpendSummary): Health {
+// Lifecycle statuses of proposal 0083 map onto the four progress stages used here: preparation counts as planned,
+// "needs attention" and "under optimization" as running, cancelled as finished.
+const STAGE: Record<string, string> = {
+  idea: "planned", proposed: "planned", draft: "planned", awaiting_approval: "planned", approved: "planned", scheduled: "planned",
+  needs_attention: "active", optimizing: "active", cancelled: "archived",
+};
+export function campaignHealth(input: CampaignLike, tasks: readonly TaskLike[], today: string, spend?: SpendSummary): Health {
+  const c = { ...input, status: STAGE[input.status] ?? input.status };
   const money = (spend?.warnings ?? []).filter((x): x is Extract<HealthWarning, typeof x> => x !== "other_currency");
   const live = tasks.filter((t) => t.status !== "cancelled");
   const done = live.filter((t) => t.status === "done").length;

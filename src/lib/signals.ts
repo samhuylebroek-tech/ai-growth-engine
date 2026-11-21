@@ -16,6 +16,7 @@ import {
 } from "@/lib/performance";
 import { budgetAlert } from "@/lib/growth-plan";
 import { spendSummary } from "@/lib/campaign-spend";
+import { limitMaxima, limitUsage, spendForecast } from "@/lib/campaign-budget";
 
 import { detectFactConflicts } from "@/lib/fact-conflicts";
 export type SignalKind = "conflict" | "stale" | "missing" | "risk" | "opportunity";
@@ -41,6 +42,9 @@ export type SignalCode =
   | "facts_conflict"
   | "campaign_budget_over"
   | "campaign_budget_near"
+  | "campaign_emergency_stop"
+  | "campaign_limit_reached"
+  | "campaign_spend_forecast"
   | "replan_pending";
 export type SignalBasis =
   | "planning_vs_metric"
@@ -377,6 +381,30 @@ export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signa
           { campaign: short(c.title, 60), p: sum.usedPct === null ? 0 : Math.round(sum.usedPct * 100) },
         );
     }
+  // Hard spending limits (proposal 0083): an emergency stop, a limit at 90% or more of its room, or a straight-line
+  // forecast above the campaign total. Actual entries only; needs a complete, dated spend read.
+  if (d.campaignLimits?.status === "ok" && d.campaignSpend?.status === "ok" && !d.campaignSpend.truncated) {
+    const spendRows = d.campaignSpend.rows;
+    const dated = spendRows.every((x) => x.id && x.occurred_on);
+    const today = now.toISOString().slice(0, 10);
+    for (const c of rowsOf(d.campaigns).filter((x) => x.id && !["archived", "completed", "cancelled"].includes(x.status))) {
+      const l = d.campaignLimits.rows.find((x) => x.campaign_id === c.id);
+      if (!l) continue;
+      if (l.emergency_stop) {
+        add(`campaign_stop:${c.id}`, "campaign_emergency_stop", "risk", "high", "high", "high", "budget", "/app/campaigns", { campaign: short(c.title, 60), reason: short(l.stop_reason, 80) });
+        continue;
+      }
+      if (!dated) continue;
+      const rows = spendRows.filter((x) => x.campaign_id === c.id).map((x) => ({ id: x.id!, kind: x.kind, amount: x.amount, currency: x.currency, occurred_on: x.occurred_on!, data_class: x.data_class, relates_to: x.relates_to ?? null }));
+      const top = limitUsage(l, rows, today).filter((u) => u.share >= 0.9).sort((a, b) => b.share - a.share)[0];
+      if (top)
+        add(`campaign_limit:${c.id}`, "campaign_limit_reached", "risk", top.share >= 1 ? "high" : "medium", "high", "high", "budget", "/app/campaigns", { campaign: short(c.title, 60), p: Math.round(top.share * 100) });
+      const total = limitMaxima(l).lifetime;
+      const f = total === undefined ? null : spendForecast({ start_date: c.start_date ?? null, end_date: c.end_date ?? null }, rows, l.currency, total, today);
+      if (f && f.overspend && f.overspend > 0)
+        add(`campaign_forecast:${c.id}`, "campaign_spend_forecast", "risk", "medium", "medium", "low", "budget", "/app/campaigns", { campaign: short(c.title, 60), p: Math.round(f.projected), b: Math.round(total!) });
+    }
+  }
   // Re-planning proposals waiting for an editor's decision.
   const decided = new Set((d.replanDecisions ?? []).filter((x) => x.decision !== "postponed").map((x) => x.proposal_id));
   const waitingReplans = rowsOf(d.replans).filter((r) => !decided.has(r.id)).length;
