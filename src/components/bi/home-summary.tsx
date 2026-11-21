@@ -7,11 +7,14 @@ import { buildView, NO_FILTERS } from "@/lib/bi/view";
 import { SectionHeading } from "@/components/app/section-heading";
 import { GrowthActions, periodText, useBi } from "./business-overview";
 import { Figure, useFmt } from "./parts";
+import { HomeConverted } from "./home-converted";
+import { useOrg } from "@/lib/org-context";
 
 export function HomeBusinessSummary() {
   const { t } = useI18n();
   const f = useFmt();
   const q = useBi();
+  const o = useOrg();
   const v = useMemo(() => (q.data ? buildView(q.data, NO_FILTERS, "last_touch") : null), [q.data]);
   if (q.isError && isNotInstalled(q.error)) return null;
   return (
@@ -65,6 +68,7 @@ export function HomeBusinessSummary() {
               missing={t("bi.miss.noPipeline")}
             />
           </div>
+          {o.org && o.workspace && <HomeConverted orgId={o.org.id} wsId={o.workspace.id} name={o.workspace.name} from={v.range.from} to={v.range.to} />}
           <h3 className="mb-2 mt-4 text-xs font-semibold">{t("bi.actions.title")}</h3>
           <GrowthActions actions={v.actions} compact />
           <Link

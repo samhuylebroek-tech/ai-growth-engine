@@ -11,7 +11,7 @@ import { campaignSpendOptions, replanOptions } from "@/components/execution/repl
 import { replanStatus } from "@/lib/task-replan";
 import { growthDb, isNotInstalled } from "@/lib/pending-schema";
 import { collectPages } from "@/lib/pagination";
-import { buildReport, DEFAULT_PERIOD, PERIOD_KEYS, REPORT_TYPES, type Delta, type PeriodKey, type Quality, type ReportType } from "@/lib/reports";
+import { buildReport, DEFAULT_PERIOD, PERIOD_KEYS, REPORT_TYPES, periods, type Delta, type PeriodKey, type Quality, type ReportType } from "@/lib/reports";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ReportEconomics } from "@/components/reports/report-economics";
@@ -74,12 +74,14 @@ export function BusinessReports() {
   if (!bi.data || !work.data || quality.isLoading || (spend.isLoading && !spend.error)) return <p className="text-sm text-muted-foreground">{t("rep.loading")}</p>;
 
   const decisions = rp.data?.decisions ?? [];
+  const cur = periods(key, today).current;
+  const approvedInPeriod = decisions.filter((d) => d.decision === "approved" && d.created_at.slice(0, 10) >= cur.from && d.created_at.slice(0, 10) <= cur.to).length;
   const r = buildReport(type, key, {
     revenue: bi.data.revenue, spend: spend.data ?? null,
     tasks: work.data.tasks.map((x) => ({ id: x.id, status: x.status, due_date: x.due_date, created_at: x.created_at, updated_at: x.updated_at, campaign_id: x.campaign_id })),
     runs: bi.data.runs, experiments: bi.data.experiments,
     campaigns: work.data.campaigns.map((c) => ({ id: c.id, title: c.title, status: c.status, budget_eur: "budget_eur" in c ? c.budget_eur : 0, start_date: "start_date" in c ? c.start_date : null, end_date: "end_date" in c ? c.end_date : null, goal_id: "goal_id" in c ? c.goal_id : null, results: "results" in c ? c.results : "" })),
-    replans: rp.data ? { pending: rp.data.proposals.filter((p) => ["pending", "postponed"].includes(replanStatus(p, decisions))).length, approvedInPeriod: 0 } : undefined,
+    replans: rp.data ? { pending: rp.data.proposals.filter((p) => ["pending", "postponed"].includes(replanStatus(p, decisions))).length, approvedInPeriod } : undefined,
     quality: quality.data ?? null,
   }, today);
 
@@ -189,6 +191,7 @@ export function BusinessReports() {
               ))}
             </dl>
             {r.replans && r.replans.pending > 0 && <p>{t("rep.replans", { n: r.replans.pending })}</p>}
+            {r.replans && r.replans.approvedInPeriod > 0 && <p>{t("rep.replansApproved", { n: r.replans.approvedInPeriod })}</p>}
           </section>
         )}
 
