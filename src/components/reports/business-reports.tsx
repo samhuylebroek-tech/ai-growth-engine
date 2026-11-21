@@ -14,6 +14,7 @@ import { collectPages } from "@/lib/pagination";
 import { buildReport, DEFAULT_PERIOD, PERIOD_KEYS, REPORT_TYPES, type Delta, type PeriodKey, type Quality, type ReportType } from "@/lib/reports";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ReportEconomics } from "@/components/reports/report-economics";
 
 const tk = (k: string) => k as MessageKey;
 type QReview = Quality["reviews"][number] & { id: string };
@@ -135,6 +136,8 @@ export function BusinessReports() {
             {r.finance.some((f) => f.perSpend !== null) && <p className="text-xs text-muted-foreground">{t("rep.perSpendNote")}</p>}
           </section>
         )}
+
+        {r.show.finance && <ReportEconomics orgId={o.org?.id} wsId={o.workspace?.id} from={r.current.from} to={r.current.to} today={today} />}
 
         {r.show.spend && r.spend && (r.spend.entries > 0 || r.spend.simulated > 0) && (
           <section className="space-y-1 text-xs">

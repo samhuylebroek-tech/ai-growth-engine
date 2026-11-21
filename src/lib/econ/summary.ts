@@ -67,7 +67,7 @@ export function economicsSummary(d: EconData, from: string, to: string, model: M
   const byAgent = Object.entries(usage.reduce<Record<string, number>>((m, u) => ({ ...m, [u.agent_key]: (m[u.agent_key] ?? 0) + u.credits }), {})).sort((a, b) => b[1] - a[1]);
   const cost = creditCost(usage.map((u) => ({ credits: u.credits, at: u.at })), d.prices, d.planKey, PRICE_CURRENCY);
   const ai = {
-    total: usageTotal, onCampaigns, otherWork: Math.max(0, usageTotal - taskWork), byAgent,
+    total: usageTotal, onCampaigns, otherWork: Math.max(0, usageTotal - onCampaigns), byAgent,
     pending: work.filter((c) => c.state === "pending").reduce((t, c) => t + c.credits, 0),
     uncertain: work.filter((c) => c.state === "uncertain").length,
     cost, priceSet: d.prices.length > 0,

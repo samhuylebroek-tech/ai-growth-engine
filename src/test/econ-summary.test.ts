@@ -163,3 +163,35 @@ describe("one source of truth for page, Growth Officer and Home", () => {
     expect(again.map((s) => s.code)).not.toContain("econ_allocation_exceeded");
   });
 });
+
+describe("reports and growth economics agree", () => {
+  it("give the same net revenue and actual spending for the same records and period", async () => {
+    const { revenueFigures, spendFigures } = await import("@/lib/reports");
+    const d = base();
+    const nov = sale(500, "2026-11-05");
+    const refund = { ...sale(-100, "2026-11-21"), kind: "refund", relates_to: nov.id } as RevenueEvent;
+    const correction = { ...sale(-20, "2026-11-22"), kind: "correction", relates_to: nov.id } as RevenueEvent;
+    const estimated = { ...sale(900, "2026-11-23"), data_class: "estimated" } as RevenueEvent;
+    d.revenue = [nov, sale(300, "2026-10-31"), refund, correction, estimated];
+    d.spend = [spend(120, "2026-11-10"), spend(80, "2026-12-01"), spend(999, "2026-11-11", "simulated"), { ...spend(50, "2026-11-12"), kind: "commitment" }] as never;
+    const p = { from: "2026-11-01", to: "2026-11-30" };
+    const s = economicsSummary(d, p.from, p.to, "last_touch", "2026-11-25");
+    const eur = s.currencies.find((c) => c.currency === "EUR")!;
+    expect(eur.rev?.net).toBe(revenueFigures(d.revenue, p).recorded["EUR"]!.net);
+    expect(eur.rev?.net).toBe(380);
+    expect(eur.spent).toBe(spendFigures(d.spend as never, p).spent["EUR"]);
+    expect(eur.spent).toBe(120);
+    expect(eur.simulated).toBe(999);
+  });
+  it("differ only in when a refund of an earlier period's sale is counted (documented, not hidden)", async () => {
+    const { revenueFigures } = await import("@/lib/reports");
+    const oct = sale(500, "2026-10-20");
+    const refund = { ...sale(-100, "2026-11-03"), kind: "refund", relates_to: oct.id } as RevenueEvent;
+    const p = { from: "2026-11-01", to: "2026-11-30" };
+    // the report books the refund in November, when it happened
+    expect(revenueFigures([oct, refund], p).recorded["EUR"]!.net).toBe(-100);
+    // growth economics books it against the October sale it belongs to, so November has no recorded revenue
+    const d = base(); d.revenue = [oct, refund];
+    expect(economicsSummary(d, p.from, p.to, "last_touch", "2026-11-25").currencies.find((c) => c.currency === "EUR")?.rev ?? null).toBeNull();
+  });
+});
