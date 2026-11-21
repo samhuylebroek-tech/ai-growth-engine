@@ -35,7 +35,7 @@ export function campaignLimitsOptions(ws: string | undefined) {
 export function blockText(tx: (k: MessageKey, v?: Record<string, string | number>) => string, b: Block, currency: string, money: (n: number, c?: string) => string) {
   if (b.limit === "emergency_stop") return tx("cos.block.emergency_stop");
   if (b.limit === "currency") return tx("cos.block.currency", { c: currency });
-  return tx("cos.block.limit", { k: tx(`cos.lim.${b.limit}`).toLowerCase(), used: money(b.used ?? 0, currency), max: money(b.max ?? 0, currency) });
+  return tx("cos.block.limit", { k: tx(`cos.lim.${b.limit}`), used: money(b.used ?? 0, currency), max: money(b.max ?? 0, currency) });
 }
 
 export function alertText(tx: (k: MessageKey, v?: Record<string, string | number>) => string, a: BudgetAlert, money: (n: number) => string) {
@@ -141,7 +141,7 @@ export function CampaignLimits({ campaign, rows }: { campaign: { id: string; sta
           ))}
         </ul>
       )}
-      {simUsage.map((u) => <p key={u.key} className="rounded border border-warning/50 px-2 py-1 text-warning">{tx("cos.lim.simUsage", { used: money(u.used), k: tx(`cos.lim.${u.key}`).toLowerCase() })}</p>)}
+      {simUsage.map((u) => <p key={u.key} className="rounded border border-warning/50 px-2 py-1 text-warning">{tx("cos.lim.simUsage", { used: money(u.used), k: tx(`cos.lim.${u.key}`) })}</p>)}
       {alerts.filter((a) => a.kind !== "emergency_stop").length > 0 && (
         <div>
           <p className="font-medium">{tx("cos.alert.title")}</p>

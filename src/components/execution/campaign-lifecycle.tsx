@@ -84,7 +84,7 @@ export function CampaignLifecycle({ campaign, name, statusLabel }: { campaign: C
         <p className="text-muted-foreground">{tx("cos.life.intro")}</p>
       </div>
       <p>
-        <span className="text-muted-foreground">{tx("cos.life.current")}: </span>
+        <span className="text-muted-foreground">{tx("cos.life.current")} </span>
         <span className="rounded border border-border px-1.5 py-0.5 font-medium">{statusLabel(campaign.status)}</span>
       </p>
       {campaign.approved_at && <p className="text-muted-foreground">{tx("cos.life.approvedBy", { who: name(campaign.approved_by ?? null), d: day(campaign.approved_at) })}</p>}
