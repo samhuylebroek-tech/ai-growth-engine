@@ -277,6 +277,22 @@ export type SpecialistReviewRow = {
   critical: number;
   verdict: "acceptable" | "needs_changes" | "unreliable";
   independence_warning: boolean;
+  credits: number | null;
+  created_by: string;
+  created_at: string;
+};
+export type TaskReplanAnalysisRow = {
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  proposal_id: string;
+  task_id: string;
+  request_key: string;
+  single_request_id: string;
+  analysis: Json;
+  recommended: "a" | "b" | "c" | "none";
+  task_updated_at: string;
+  credits: number | null;
   created_by: string;
   created_at: string;
 };
@@ -845,6 +861,7 @@ type PendingTables = {
   experiment_events: { Row: ExperimentEventRow; Insert: never; Update: never; Relationships: [] };
   specialist_reviews: { Row: SpecialistReviewRow; Insert: never; Update: never; Relationships: [] };
   specialist_result_decisions: { Row: SpecialistDecisionRow; Insert: never; Update: never; Relationships: [] };
+  task_replan_analyses: { Row: TaskReplanAnalysisRow; Insert: never; Update: never; Relationships: [] };
   experiment_observations: { Row: ExperimentObservationRow; Insert: never; Update: never; Relationships: [] };
   proposal_evidence: { Row: ProposalEvidenceRow; Insert: never; Update: never; Relationships: [] };
   simulated_provider_records: {
@@ -1244,6 +1261,7 @@ type PendingFunctions = {
   specialist_review_required: { Args: { _run: string }; Returns: boolean };
   record_specialist_review_verified: { Args: { _run: string; _request: string; _reviewer: string; _single: string; _review: Json; _proof: string }; Returns: Json };
   decide_specialist_result: { Args: { _run: string; _decision: string; _note: string; _corrections: string }; Returns: Json };
+  record_replan_analysis_verified: { Args: { _proposal: string; _request: string; _single: string; _analysis: Json; _proof: string }; Returns: Json };
   revise_experiment_design: { Args: { _experiment: string; _version: number; _p: Json }; Returns: Json };
   move_experiment: { Args: { _experiment: string; _action: string; _data: Json }; Returns: Json };
   record_experiment_observation: { Args: { _experiment: string; _request: string; _p: Json }; Returns: Json };

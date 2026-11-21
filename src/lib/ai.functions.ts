@@ -25,6 +25,7 @@ import { parseStrategy, goalBrief, sourceOpportunityBrief, STRATEGY_INSTRUCTIONS
 import { parseRepurpose, REPURPOSE_INSTRUCTIONS } from "@/lib/content-repurpose";
 import { parseOpportunities, opportunityBrief, opportunityRequestSchema, OPPORTUNITY_INSTRUCTIONS, type Opportunity } from "@/lib/opportunities";
 import { CHANNELS } from "@/lib/content";
+import { analysisRequestSchema, parseAnalysis, ANALYSIS_INSTRUCTIONS, type ReplanAnalysis } from "@/lib/replan-analysis";
 import { reviewRequestSchema, parseReview as parseSpecialistReview, reviewInstructions, type Review as SpecialistReview } from "@/lib/specialist-review";
 import { designRequestSchema, parseDesigns, designPayload, designKey, DESIGN_INSTRUCTIONS, type Design } from "@/lib/experiment-design-ai";
 
@@ -950,6 +951,101 @@ export const reviewSpecialistResult = createServerFn({ method: "POST" })
       });
       const fin = await sb.rpc("finish_single_ai_request_verified", { _id: attempt.id, _reply: result.text.trim(), _proof: accountingProof() });
       if (fin.error) throw new Error("Your paid review is preserved. Recover saved work before another request.");
+      return await record(result.text, attempt.id, result.credits);
+    } catch (error) {
+      if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId).neq("status", "succeeded");
+      return { ok: false, error: friendly(error) };
+    }
+  });
+
+/**
+ * AI re-planning analysis (proposal 0082): one metered Growth Officer call that explains an open re-planning
+ * proposal from the task's own records. It never changes a task; an editor still applies an option.
+ */
+export const analyzeReplan = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => analysisRequestSchema.parse(input))
+  .handler(async ({ data, context }): Promise<Result<{ recommended: string; credits: number }>> => {
+    const sb = context.supabase as DB;
+    const pending = sb as unknown as SupabaseClient<PendingDatabase>;
+    let runId: string | null = null;
+    try {
+      await requireRole(sb, data.orgId, "member");
+      await requireWorkspace(sb, data);
+      const role = await sb.rpc("has_workspace_role", { _workspace: data.workspaceId, _min: "member" });
+      if (role.error || !role.data) throw new Error("You need workspace member access.");
+      const installed = await pending.from("task_replan_analyses").select("id").eq("workspace_id", data.workspaceId).limit(1);
+      if (installed.error) throw new Error(isNotInstalled(installed.error) ? "AI re-planning analysis is not available in this environment yet. No AI request was sent." : "Could not read analyses. No AI request was sent.");
+      const prop = await pending.from("task_replan_proposals").select("*").eq("id", data.proposalId).eq("org_id", data.orgId).eq("workspace_id", data.workspaceId).maybeSingle();
+      if (prop.error || !prop.data) throw new Error("Re-planning proposal not found.");
+      const decided = await pending.from("task_replan_decisions").select("decision").eq("proposal_id", data.proposalId).eq("workspace_id", data.workspaceId).neq("decision", "postponed").limit(1);
+      if (decided.error) throw new Error("Could not read decisions. No AI request was sent.");
+      if ((decided.data ?? []).length) throw new Error("This re-planning proposal has already been decided.");
+      const p = prop.data;
+      const task = await sb.from("tasks").select("id,title,description,status,priority,due_date,start_date,project_id,campaign_id,updated_at").eq("id", p.task_id).eq("workspace_id", data.workspaceId).maybeSingle();
+      if (task.error || !task.data) throw new Error("Task not found.");
+      await assertEntitled(sb, data.orgId, "ai_assistant");
+      // Bounded explicit context: the task, its chain (what it waits for and what waits for it), its parents and AI runs.
+      const deps = await sb.from("execution_notes").select("entity_id,related_id").eq("workspace_id", data.workspaceId).eq("entity_type", "tasks").eq("kind", "dependency").or(`entity_id.eq.${p.task_id},related_id.eq.${p.task_id}`).limit(50);
+      if (deps.error) throw new Error("Could not read task dependencies. No AI request was sent.");
+      const affected = Array.isArray(p.impact.affected) ? p.impact.affected : [];
+      const relatedIds = [...new Set([...affected, ...(deps.data ?? []).flatMap((d) => [d.entity_id, d.related_id ?? ""])].filter((x) => x && x !== p.task_id))].slice(0, 30);
+      const related = relatedIds.length ? await sb.from("tasks").select("id,title,status,priority,due_date").eq("workspace_id", data.workspaceId).in("id", relatedIds) : { data: [], error: null };
+      if (related.error) throw new Error("Could not read related tasks. No AI request was sent.");
+      const waitsFor = new Set((deps.data ?? []).filter((d) => d.entity_id === p.task_id).map((d) => d.related_id));
+      const lines: string[] = [
+        `Task: ${task.data.title}`, `Status: ${task.data.status}`, `Priority: ${task.data.priority}`,
+        `Start: ${task.data.start_date ?? "not set"}`, `Deadline: ${task.data.due_date ?? "not set"}`, `Today: ${new Date().toISOString().slice(0, 10)}`,
+        task.data.description ? `Description: ${task.data.description}` : "",
+        `Rule reasons: ${p.reasons.join(", ")}`, `Rule risk: ${p.risk}`,
+        `Options: ${JSON.stringify(p.options)}`,
+        p.impact.campaign_end_exceeded ? `Warning: an option moves work past the campaign end (${p.impact.campaign_end ?? "unknown"})` : "",
+      ];
+      if (task.data.project_id) {
+        const pr = await sb.from("projects").select("title,objective,goal_id").eq("id", task.data.project_id).eq("workspace_id", data.workspaceId).maybeSingle();
+        if (pr.data) lines.push(`Project: ${pr.data.title}${pr.data.objective ? ` — ${pr.data.objective}` : ""}`);
+        const init = await pending.from("growth_initiatives").select("title,status,goal_id").eq("project_id", task.data.project_id).eq("workspace_id", data.workspaceId).limit(1).maybeSingle();
+        if (init.data) lines.push(`Initiative: ${init.data.title} (${init.data.status})`);
+        const goalId = init.data?.goal_id ?? pr.data?.goal_id;
+        if (goalId) {
+          const g = await sb.from("growth_goals").select("title,due_date").eq("id", goalId).eq("workspace_id", data.workspaceId).maybeSingle();
+          if (g.data) lines.push(`Goal: ${g.data.title}${g.data.due_date ? `, due ${g.data.due_date}` : ""}`);
+        }
+      }
+      if (task.data.campaign_id) {
+        const c = await sb.from("campaigns").select("title,status,end_date,budget_eur").eq("id", task.data.campaign_id).eq("workspace_id", data.workspaceId).maybeSingle();
+        if (c.data) lines.push(`Campaign: ${c.data.title} (${c.data.status}), ends ${c.data.end_date ?? "not set"}, budget EUR ${c.data.budget_eur}`);
+      }
+      const runs = await pending.from("task_runs").select("specialist_key,status,credits_charged,created_at").eq("task_id", p.task_id).eq("workspace_id", data.workspaceId).order("created_at", { ascending: false }).limit(5);
+      if ((runs.data ?? []).length) lines.push(`AI runs: ${(runs.data ?? []).map((r) => `${r.specialist_key} ${r.status} ${r.credits_charged ?? 0} credits`).join("; ")}`);
+      const relLines = (related.data ?? []).map((r) => `- id ${r.id}: ${r.title} · ${r.status} · ${r.priority} · due ${r.due_date ?? "not set"}${waitsFor.has(r.id) ? " · this task waits for it" : affected.includes(r.id) ? " · waits for this task" : ""}`);
+      const taskIds = new Set((related.data ?? []).map((r) => r.id));
+      const keys = p.options.map((o) => o.key);
+      const record = async (reply: string, singleId: string, credits: number) => {
+        let analysis: ReplanAnalysis;
+        try { analysis = parseAnalysis(reply, keys, taskIds); }
+        catch { throw new Error("The analysis came back in an unexpected format. Usage is recorded; no automatic retry was made."); }
+        const saved = await pending.rpc("record_replan_analysis_verified", { _proposal: p.id, _request: data.requestKey, _single: singleId, _analysis: analysis as never, _proof: accountingProof() });
+        if (saved.error) throw new Error(/already been decided/.test(saved.error.message) ? "This re-planning proposal was decided meanwhile; your paid analysis is preserved." : "Your paid analysis is preserved, but it could not be saved with the proposal.");
+        return { ok: true as const, data: { recommended: (saved.data as { recommended: string }).recommended, credits } };
+      };
+      const claimed = await sb.rpc("begin_single_ai_request_verified", { _org: data.orgId, _workspace: data.workspaceId, _request: data.requestKey, _kind: "strategy", _input: { request: `Re-planning analysis: ${task.data.title}`.slice(0, 4000), purpose: "replan_analysis", proposalId: p.id }, _proof: accountingProof() });
+      if (claimed.error) throw new Error(claimed.error.message);
+      const attempt = singleRequestSchema.parse(claimed.data);
+      if (!attempt.claimed) {
+        if (attempt.status !== "succeeded" || !attempt.reply) throw new Error("This request already exists. Recover saved work; it will not be sent again.");
+        return await record(attempt.reply, attempt.id, 0);
+      }
+      runId = attempt.run_id;
+      const business = await workspaceContext(sb, data);
+      const lang = { en: "English", nl: "Dutch", fr: "French" }[data.locale];
+      const result = await meteredGenerate(sb, context.userId, data.orgId, runId, CREDIT_RULES.reserveGrowthOfficer, {
+        instructions: ANALYSIS_INSTRUCTIONS,
+        input: [{ role: "user", content: `${business}\n\nAnswer in ${lang}.\n\n${quoteUntrusted("task to re-plan", lines.filter(Boolean).join("\n"), 6000)}${relLines.length ? `\n\n${quoteUntrusted("related tasks", relLines.join("\n"), 4000)}` : ""}` }],
+        maxOutputTokens: 2500,
+      });
+      const fin = await sb.rpc("finish_single_ai_request_verified", { _id: attempt.id, _reply: result.text.trim(), _proof: accountingProof() });
+      if (fin.error) throw new Error("Your paid analysis is preserved. Recover saved work before another request.");
       return await record(result.text, attempt.id, result.credits);
     } catch (error) {
       if (runId) await sb.from("agent_runs").update({ status: "failed", error: friendly(error), finished_at: new Date().toISOString() }).eq("id", runId).neq("status", "succeeded");

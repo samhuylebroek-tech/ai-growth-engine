@@ -5,7 +5,7 @@
 do $$
 declare
   uo uuid := gen_random_uuid(); ue uuid := gen_random_uuid(); um uuid := gen_random_uuid(); uv uuid := gen_random_uuid(); ux uuid := gen_random_uuid();
-  o uuid; o2 uuid; w uuid; t1 uuid; t2 uuid; t3 uuid; r1 uuid; r2 uuid; r3 uuid; r4 uuid; ar uuid; sm uuid; se uuid; k uuid := gen_random_uuid(); j jsonb; n int; b boolean;
+  o uuid; o2 uuid; w uuid; t1 uuid; t2 uuid; t3 uuid; r1 uuid; r2 uuid; r3 uuid; r4 uuid; ar uuid; sm uuid; se uuid; s1 uuid; s2 uuid; s3 uuid; k uuid := gen_random_uuid(); k2 uuid := gen_random_uuid(); k3 uuid := gen_random_uuid(); j jsonb; n int; b boolean;
   pass int := 0; fail int := 0; failures text := '';
   good jsonb := '{"summary":"Solid plan","dimensions":{"completeness":{"score":4,"note":"ok"},"relevance":{"score":4},"evidence":{"score":3,"note":"two claims unsourced"},"calculations":{"score":5},"consistency":{"score":4},"feasibility":{"score":4},"permissions":{"score":null}},"findings":[{"dimension":"evidence","severity":"warning","finding":"Repeat rate is assumed","correction":"Mark it as an assumption"}]}';
   stamp jsonb := '{"dimensions":{"completeness":{"score":5},"relevance":{"score":5},"evidence":{"score":5},"calculations":{"score":5},"consistency":{"score":5},"feasibility":{"score":5}},"findings":[]}';
@@ -44,6 +44,16 @@ begin
   insert into public.agent_runs(org_id,workspace_id,user_id,agent_key,status) values(o,w,ue,'business_analyst','succeeded') returning id into ar;
   insert into public.single_ai_requests(org_id,workspace_id,user_id,request_key,kind,input,run_id,status,reply,credits)
     values(o,w,ue,gen_random_uuid(),'research','{"request":"review"}',ar,'succeeded','{}',4) returning id into se;
+  -- Paid review requests bound to the result, reviewer and request key they were made for (required since 0082).
+  insert into public.agent_runs(org_id,workspace_id,user_id,agent_key,status) values(o,w,um,'business_analyst','succeeded') returning id into ar;
+  insert into public.single_ai_requests(org_id,workspace_id,user_id,request_key,kind,input,run_id,status,reply,credits)
+    values(o,w,um,k,'research',jsonb_build_object('purpose','specialist_review','taskRunId',r1,'reviewer','business_analyst'),ar,'succeeded','{}',4) returning id into s1;
+  insert into public.agent_runs(org_id,workspace_id,user_id,agent_key,status) values(o,w,um,'copywriter','succeeded') returning id into ar;
+  insert into public.single_ai_requests(org_id,workspace_id,user_id,request_key,kind,input,run_id,status,reply,credits)
+    values(o,w,um,k2,'content',jsonb_build_object('purpose','specialist_review','taskRunId',r1,'reviewer','copywriter'),ar,'succeeded','{}',3) returning id into s2;
+  insert into public.agent_runs(org_id,workspace_id,user_id,agent_key,status) values(o,w,um,'business_analyst','succeeded') returning id into ar;
+  insert into public.single_ai_requests(org_id,workspace_id,user_id,request_key,kind,input,run_id,status,reply,credits)
+    values(o,w,um,k3,'research',jsonb_build_object('purpose','specialist_review','taskRunId',r4,'reviewer','business_analyst'),ar,'succeeded','{}',5) returning id into s3;
 
   perform pg_temp.su(um);
   begin perform public.record_specialist_review_verified(r1, gen_random_uuid(), 'business_analyst', sm, good, 'forged'); fail:=fail+1; failures:=failures||' forged'; exception when others then pass:=pass+1; end;
@@ -55,13 +65,13 @@ begin
     exception when others then if sqlstate='22023' then pass:=pass+1; else fail:=fail+1; failures:=failures||' too_few:'||sqlstate; end if; end;
   begin perform public.record_specialist_review_verified(r1, gen_random_uuid(), 'business_analyst', se, good, 'rollback-fixture-only'); fail:=fail+1; failures:=failures||' foreign_request';
     exception when others then if sqlstate='22023' then pass:=pass+1; else fail:=fail+1; failures:=failures||' foreign_req:'||sqlstate; end if; end;
-  j := public.record_specialist_review_verified(r1, k, 'business_analyst', sm, good, 'rollback-fixture-only');
+  j := public.record_specialist_review_verified(r1, k, 'business_analyst', s1, good, 'rollback-fixture-only');
   if (j->>'score')::int = 75 and j->>'verdict' = 'acceptable' and (j->>'assessed')::int = 6 and not (j->>'independence_warning')::boolean then pass:=pass+1; else fail:=fail+1; failures:=failures||' good:'||j::text; end if;
-  j := public.record_specialist_review_verified(r1, k, 'business_analyst', sm, stamp, 'rollback-fixture-only');
+  j := public.record_specialist_review_verified(r1, k, 'business_analyst', s1, stamp, 'rollback-fixture-only');
   if j->>'status' = 'existing' and (j->>'score')::int = 75 then pass:=pass+1; else fail:=fail+1; failures:=failures||' idem'; end if;
-  j := public.record_specialist_review_verified(r1, gen_random_uuid(), 'copywriter', sm, stamp, 'rollback-fixture-only');
+  j := public.record_specialist_review_verified(r1, k2, 'copywriter', s2, stamp, 'rollback-fixture-only');
   if (j->>'independence_warning')::boolean and j->>'verdict' = 'needs_changes' and (j->>'score')::int = 100 then pass:=pass+1; else fail:=fail+1; failures:=failures||' stamp:'||j::text; end if;
-  j := public.record_specialist_review_verified(r4, gen_random_uuid(), 'business_analyst', sm, bad, 'rollback-fixture-only');
+  j := public.record_specialist_review_verified(r4, k3, 'business_analyst', s3, bad, 'rollback-fixture-only');
   if j->>'verdict' = 'unreliable' and (j->>'critical')::int = 2 then pass:=pass+1; else fail:=fail+1; failures:=failures||' bad:'||j::text; end if;
   -- important results
   if not public.specialist_review_required(r1) and public.specialist_review_required(r2) and public.specialist_review_required(r4) then pass:=pass+1; else fail:=fail+1; failures:=failures||' required'; end if;

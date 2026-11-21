@@ -25,9 +25,10 @@ import { rp } from "./rp";
 import { rep } from "./rep";
 import { exp } from "./exp";
 import { qc } from "./qc";
+import { ra } from "./ra";
 
 /** Every screen area; each keeps its own texts so areas can be translated independently. */
-export const AREAS = [account, officer, goals, performance, settings, work, marketing, pages, home, run, orch, cost, xa, bi, org, ogo, ev, head, apv, reg, pg, own, mon, rp, rep, exp, qc] as const;
-export const AREA_EN = { ...account.en, ...officer.en, ...goals.en, ...performance.en, ...settings.en, ...work.en, ...marketing.en, ...pages.en, ...home.en, ...run.en, ...orch.en, ...cost.en, ...xa.en, ...bi.en, ...org.en, ...ogo.en, ...ev.en, ...head.en, ...apv.en, ...reg.en, ...pg.en, ...own.en, ...mon.en, ...rp.en, ...rep.en, ...exp.en, ...qc.en };
-export const AREA_NL = { ...account.nl, ...officer.nl, ...goals.nl, ...performance.nl, ...settings.nl, ...work.nl, ...marketing.nl, ...pages.nl, ...home.nl, ...run.nl, ...orch.nl, ...cost.nl, ...xa.nl, ...bi.nl, ...org.nl, ...ogo.nl, ...ev.nl, ...head.nl, ...apv.nl, ...reg.nl, ...pg.nl, ...own.nl, ...mon.nl, ...rp.nl, ...rep.nl, ...exp.nl, ...qc.nl };
-export const AREA_FR = { ...account.fr, ...officer.fr, ...goals.fr, ...performance.fr, ...settings.fr, ...work.fr, ...marketing.fr, ...pages.fr, ...home.fr, ...run.fr, ...orch.fr, ...cost.fr, ...xa.fr, ...bi.fr, ...org.fr, ...ogo.fr, ...ev.fr, ...head.fr, ...apv.fr, ...reg.fr, ...pg.fr, ...own.fr, ...mon.fr, ...rp.fr, ...rep.fr, ...exp.fr, ...qc.fr };
+export const AREAS = [account, officer, goals, performance, settings, work, marketing, pages, home, run, orch, cost, xa, bi, org, ogo, ev, head, apv, reg, pg, own, mon, rp, rep, exp, qc, ra] as const;
+export const AREA_EN = { ...account.en, ...officer.en, ...goals.en, ...performance.en, ...settings.en, ...work.en, ...marketing.en, ...pages.en, ...home.en, ...run.en, ...orch.en, ...cost.en, ...xa.en, ...bi.en, ...org.en, ...ogo.en, ...ev.en, ...head.en, ...apv.en, ...reg.en, ...pg.en, ...own.en, ...mon.en, ...rp.en, ...rep.en, ...exp.en, ...qc.en, ...ra.en };
+export const AREA_NL = { ...account.nl, ...officer.nl, ...goals.nl, ...performance.nl, ...settings.nl, ...work.nl, ...marketing.nl, ...pages.nl, ...home.nl, ...run.nl, ...orch.nl, ...cost.nl, ...xa.nl, ...bi.nl, ...org.nl, ...ogo.nl, ...ev.nl, ...head.nl, ...apv.nl, ...reg.nl, ...pg.nl, ...own.nl, ...mon.nl, ...rp.nl, ...rep.nl, ...exp.nl, ...qc.nl, ...ra.nl };
+export const AREA_FR = { ...account.fr, ...officer.fr, ...goals.fr, ...performance.fr, ...settings.fr, ...work.fr, ...marketing.fr, ...pages.fr, ...home.fr, ...run.fr, ...orch.fr, ...cost.fr, ...xa.fr, ...bi.fr, ...org.fr, ...ogo.fr, ...ev.fr, ...head.fr, ...apv.fr, ...reg.fr, ...pg.fr, ...own.fr, ...mon.fr, ...rp.fr, ...rep.fr, ...exp.fr, ...qc.fr, ...ra.fr };
