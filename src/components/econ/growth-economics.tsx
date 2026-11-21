@@ -13,7 +13,7 @@ import { growthDb, isNotInstalled } from "@/lib/pending-schema";
 import { MODELS, type Model } from "@/lib/bi/attribution";
 import { PERIODS, periodRange, type PeriodKey } from "@/lib/bi/kpis";
 import { rollup, type Money } from "@/lib/econ/rollup";
-import { economicsSummary, PRICE_CURRENCY, type EconSummary } from "@/lib/econ/summary";
+import { economicsSummary, levelAiCost, PRICE_CURRENCY, type EconSummary } from "@/lib/econ/summary";
 import { econKey, econOptions, type EconData } from "@/components/econ/econ-data";
 import { SectionHeading } from "@/components/app/section-heading";
 import { Button } from "@/components/ui/button";
@@ -102,7 +102,7 @@ function Economics({ orgId, wsId, canRecord, canModel }: { orgId: string; wsId: 
             <tbody>{view.campaigns.map((c) => (
               <tr key={c.id} className="border-b last:border-0 align-top">
                 <td className="p-2 font-medium">{c.title}</td><td className="p-2">{many(c.t.allocated)}</td><td className="p-2">{many(c.t.spent)}</td><td className="p-2">{many(c.t.reserved)}</td>
-                <td className="p-2 text-muted-foreground">{many(c.t.simulatedSpent)}</td><td className="p-2">{c.t.credits}{c.t.uncertainRuns ? ` (+${c.t.uncertainRuns} ?)` : ""}</td>
+                <td className="p-2 text-muted-foreground">{many(c.t.simulatedSpent)}</td><td className="p-2">{c.t.credits}{c.t.uncertainRuns ? ` (+${c.t.uncertainRuns} ?)` : ""}<AiMoney cost={c.aiCost} /></td>
                 <td className="p-2">{c.roas.map((r) => r.revenue ? money(r.revenue, r.currency) : "—").join(" · ") || "—"}</td>
                 <td className="p-2">{c.roas.map((r) => r.value !== null ? `${r.value}×` : st(r.status)).join(" · ") || st("unavailable")}</td>
                 <td className="p-2 text-xs text-muted-foreground">{Object.entries(c.inputs).filter(([k]) => k !== "costs").map(([k, v]) => `${t(`ge.input.${k}` as MessageKey)}: ${t(`ge.state.${v}` as MessageKey)}`).join(" · ")}</td>
@@ -200,7 +200,7 @@ function Rollups({ d, many }: { d: EconData; many: (m: Money) => string }) {
           <thead><tr className="border-b text-left text-xs text-muted-foreground">{["ge.col.name", "ge.col.campaignsN", "ge.col.allocated", "ge.col.spent", "ge.col.direct", "ge.col.simulated", "ge.col.credits"].map((k) => <th key={k} className="whitespace-nowrap p-2 font-normal">{t(k as MessageKey)}</th>)}</tr></thead>
           <tbody>{used.map((x) => { const r = rollup(level, x.id, input); return (
             <tr key={x.id} className="border-b last:border-0"><td className="p-2 font-medium">{x.name}</td><td className="p-2">{r.campaigns}</td><td className="p-2">{many(r.allocated)}</td><td className="p-2">{many(r.spent)}</td>
-              <td className="p-2">{level === "initiative" ? many(r.directCosts) : "—"}</td><td className="p-2 text-muted-foreground">{many(r.simulatedSpent)}</td><td className="p-2">{r.credits}</td></tr>); })}
+              <td className="p-2">{level === "initiative" ? many(r.directCosts) : "—"}</td><td className="p-2 text-muted-foreground">{many(r.simulatedSpent)}</td><td className="p-2">{r.credits}<AiMoney cost={levelAiCost(d, level, x.id)} /></td></tr>); })}
             {used.length === 0 && <tr><td className="p-3 text-muted-foreground" colSpan={7}>{t("ge.noRollup")}</td></tr>}
           </tbody>
         </table>
@@ -282,4 +282,14 @@ function CorrectButton({ onCorrect }: { onCorrect: (amount: number) => void }) {
   const [v, setV] = useState("");
   return <span className="flex items-center gap-1"><Input aria-label={t("ge.correction")} className="h-8 w-28" type="number" step="0.01" placeholder="-10" value={v} onChange={(e) => setV(e.target.value)} />
     <Button size="sm" variant="ghost" disabled={!Number(v)} onClick={() => { onCorrect(Number(v)); setV(""); }}>{t("ge.correct")}</Button></span>;
+}
+
+/** Money value of AI credits at the price in effect when each was used; unpriced credits are named, never valued. */
+function AiMoney({ cost }: { cost: { amount: number; priced: number; unpriced: number; currency: string } }) {
+  const { t, tag } = useI18n();
+  if (cost.priced === 0 && cost.unpriced === 0) return null;
+  return <span className="block text-xs text-muted-foreground">
+    {cost.priced > 0 ? new Intl.NumberFormat(tag, { style: "currency", currency: cost.currency }).format(cost.amount) : ""}
+    {cost.unpriced > 0 ? `${cost.priced > 0 ? " · " : ""}${t("ge.unpricedShort", { n: cost.unpriced })}` : ""}
+  </span>;
 }

@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { syncOfficialRates } from "@/lib/exchange-rates.functions";
+import { syncOfficialRates, syncOfficialRateHistory } from "@/lib/exchange-rates.functions";
 import { useI18n } from "@/lib/i18n";
 import { useOrg } from "@/lib/org-context";
 import { can } from "@/lib/permissions";
@@ -165,6 +165,18 @@ function Rates({ orgId, data }: { orgId: string; data: OrgOverviewData }) {
     queryFn: async () => { const r = await sync({ data: { orgId } }); if (r.ok && r.added > 0) await qc.invalidateQueries({ queryKey: ["org-overview", orgId] }); return r; },
   });
   const [busy, setBusy] = useState(false);
+  const syncHistory = useServerFn(syncOfficialRateHistory);
+  async function importHistory() {
+    if (busy) return; setBusy(true);
+    try {
+      const r = await syncHistory({ data: { orgId } });
+      if (!r.ok) { toast.error(r.error); return; }
+      const v = { n: String(r.added), days: String(r.days), first: f.date(r.first), last: f.date(r.last) };
+      toast.success(r.added ? t("org.rates.historyDone", v) : t("org.rates.historyNone", v));
+      if (r.refused) toast.warning(t("org.rates.historyRefused", { n: String(r.refused) }));
+      await Promise.all([qc.invalidateQueries({ queryKey: ["org-overview", orgId] }), qc.invalidateQueries({ queryKey: ["org-period-rates", orgId] })]);
+    } finally { setBusy(false); }
+  }
   async function refresh() {
     if (busy) return; setBusy(true);
     try {
@@ -178,13 +190,15 @@ function Rates({ orgId, data }: { orgId: string; data: OrgOverviewData }) {
   const shown = latest ? official.filter((r) => r.rate_date === latest) : [];
   const failed = auto.data && !auto.data.ok ? auto.data.error : auto.isError ? t("org.rates.syncFailed") : null;
   return <Section title={t("org.rates.title")} intro={t("org.rates.intro")}
-    action={<Button size="sm" variant="outline" onClick={refresh} disabled={busy || auto.isFetching}>{busy || auto.isFetching ? t("org.rates.fetching") : t("org.rates.refresh")}</Button>}>
+    action={<div className="flex flex-wrap gap-2"><Button size="sm" variant="outline" onClick={refresh} disabled={busy || auto.isFetching}>{busy || auto.isFetching ? t("org.rates.fetching") : t("org.rates.refresh")}</Button>
+      <Button size="sm" variant="ghost" onClick={importHistory} disabled={busy || auto.isFetching}>{t("org.rates.history")}</Button></div>}>
     {failed && <p role="alert" className="mb-2 text-xs text-destructive">{failed}</p>}
     {latest ? <>
       <p className="mb-2 text-xs text-muted-foreground">{t("org.rates.published", { date: f.date(latest) })}</p>
       <ul className="grid gap-x-6 gap-y-1 border-y border-border py-2 text-sm sm:grid-cols-2 lg:grid-cols-3">{shown.filter((r) => (REPORTING_CURRENCIES as readonly string[]).includes(r.quote_currency)).map((r) => <li key={r.id} className="tabular-nums">1 EUR = {Number(r.rate).toFixed(4)} {r.quote_currency}</li>)}</ul>
       <p className="mt-2 text-xs text-muted-foreground">{t("org.rates.more", { n: String(shown.length) })}</p>
     </> : <Empty>{auto.isFetching ? t("org.rates.fetching") : t("org.rates.none")}</Empty>}
-    <p className="mt-3 text-xs text-muted-foreground">{t("org.rates.permanent")} <Link to="/app/revenue" className="underline">{t("org.rates.revenueLink")}</Link></p>
+    <p className="mt-3 text-xs text-muted-foreground">{t("org.rates.historyHint")}</p>
+    <p className="mt-1 text-xs text-muted-foreground">{t("org.rates.permanent")} <Link to="/app/revenue" className="underline">{t("org.rates.revenueLink")}</Link></p>
   </Section>;
 }

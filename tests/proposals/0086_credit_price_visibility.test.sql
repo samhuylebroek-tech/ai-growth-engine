@@ -48,7 +48,7 @@ begin
 
   -- 4. an outsider sees platform prices but not this organization's plan price unless on the same plan
   perform pg_temp.su(ux); o2 := public.create_organization('UCP other','Shop');
-  select count(*) into n from public.credit_prices_in_effect() c where c.scope='platform' and c.price_per_credit in (0.05, 0.07, 0.06);
+  select count(*) into n from public.credit_prices_in_effect() c where c.scope='platform' and c.price_per_credit in (0.05, 0.07, 0.06) and c.effective_from > now(); -- fixture rows only (they start in the future); a real staging price does not count
   if n=3 then pass:=pass+1; else fail:=fail+1; failures:=failures||' outsider_platform:'||n; end if;
 
   -- 5. writing stays Platform Owner only, validated and never back-dated

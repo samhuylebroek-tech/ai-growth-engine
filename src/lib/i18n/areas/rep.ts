@@ -114,6 +114,7 @@ export const rep = defineArea("rep", {
     "rep.econ.aiNoPrice": "No credit price applied, so shown in credits only.",
     "rep.econ.outcomes": "Recommendation outcomes measured: {i} better, {w} worse, {n} unchanged, {x} inconclusive; {d} waiting to be measured.",
     "rep.econ.note": "Same calculation as the Growth economics page. Attribution: last touch. Refunds count in the month of the sale they belong to, here and in the revenue table above. Simulated and reserved amounts are never counted as spending.",
+    "rep.econ.aiCampaigns": "AI credits per campaign since its start (value at the credit price valid when used, where one applied): {list}",
   },
   nl: {
     "rep.title": "Bedrijfsrapporten",
@@ -227,6 +228,7 @@ export const rep = defineArea("rep", {
     "rep.econ.aiNoPrice": "Er gold geen creditprijs, dus alleen in credits getoond.",
     "rep.econ.outcomes": "Gemeten uitkomsten van aanbevelingen: {i} beter, {w} slechter, {n} ongewijzigd, {x} onbeslist; {d} wachten op meting.",
     "rep.econ.note": "Zelfde berekening als de pagina Groei-economie. Toewijzing: laatste contact. Terugbetalingen tellen in de maand van de verkoop waartoe ze horen, hier en in de omzettabel hierboven. Gesimuleerde en gereserveerde bedragen tellen nooit als uitgaven.",
+    "rep.econ.aiCampaigns": "AI-credits per campagne sinds de start (waarde tegen de creditprijs die toen gold, waar er een gold): {list}",
   },
   fr: {
     "rep.title": "Rapports d’activité",
@@ -340,5 +342,6 @@ export const rep = defineArea("rep", {
     "rep.econ.aiNoPrice": "Aucun prix du crédit applicable : affiché en crédits uniquement.",
     "rep.econ.outcomes": "Résultats mesurés des recommandations : {i} meilleurs, {w} moins bons, {n} inchangés, {x} non concluants ; {d} en attente de mesure.",
     "rep.econ.note": "Même calcul que la page Économie de la croissance. Attribution : dernier contact. Les remboursements comptent dans le mois de la vente concernée, ici comme dans le tableau du CA ci-dessus. Les montants simulés et réservés ne comptent jamais comme dépenses.",
+    "rep.econ.aiCampaigns": "Crédits IA par campagne depuis son lancement (valeur au prix du crédit en vigueur lors de l’utilisation, s’il y en avait un) : {list}",
   },
 });

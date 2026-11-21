@@ -67,12 +67,12 @@ function Overview({ orgId, tab, onTab }: { orgId: string; tab: OrgTab; onTab: (t
       </button>)}
     </nav>
     {single && <SingleBusiness name={m.businesses[0]?.name ?? ""} />}
-    {active === "overview" && <OverviewTab m={m} finance={finance} cur={cur} open={open} select={o.setWorkspaceId} onTab={onTab} single={single} />}
+    {active === "overview" && <OverviewTab m={m} finance={finance} cur={cur} monthOnly={period === "month"} open={open} select={o.setWorkspaceId} onTab={onTab} single={single} />}
     {active === "strategy" && <StrategyTab m={m} />}
     {active === "opportunities" && <OpportunitiesTab m={m} />}
     {active === "initiatives" && <InitiativesTab m={m} />}
     {active === "resources" && <ResourcesTab m={m} orgId={orgId} finance={finance} />}
-    {active === "economics" && <OrgEconomics orgId={orgId} businesses={m.businesses} period={period} open={(id) => open(id, "/app/economics")} />}
+    {active === "economics" && <OrgEconomics orgId={orgId} businesses={m.businesses} period={period} cur={cur} open={(id) => open(id, "/app/economics")} />}
     {active === "risks" && <RisksTab m={m} open={open} />}
   </>;
 }
@@ -88,7 +88,7 @@ function SingleBusiness({ name }: { name: string }) {
   </div></Panel>;
 }
 
-function OverviewTab({ m, finance, cur, open, select, onTab, single }: { m: OrgModel; select: (id: string) => void; finance: boolean; cur: string; open: (id: string, to?: "/app" | "/app/goals" | "/app/campaigns" | "/app/tasks" | "/app/costs" | "/app/approvals") => void; onTab: (t: OrgTab) => void; single: boolean }) {
+function OverviewTab({ m, finance, cur, monthOnly, open, select, onTab, single }: { m: OrgModel; select: (id: string) => void; finance: boolean; cur: string; monthOnly: boolean; open: (id: string, to?: "/app" | "/app/goals" | "/app/campaigns" | "/app/tasks" | "/app/costs" | "/app/approvals") => void; onTab: (t: OrgTab) => void; single: boolean }) {
   const { t } = useI18n(); const f = useFmt(); const refNamer = useRefNamer();
   const { view, iq } = m.model!;
   const rates = m.q.data?.rates ?? [];
@@ -97,7 +97,7 @@ function OverviewTab({ m, finance, cur, open, select, onTab, single }: { m: OrgM
   const name = (id: string) => m.name(id) ?? t("ogo.otherBusiness");
   return <>
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-      {finance ? <Tile label={t("org.tile.revenue")} value={money(view.totals.revenue)} note={view.revenueOff ? t("org.revenueOff") : <Converted c={conv(view.totals.revenue)} cur={cur} />} /> : <Tile label={t("org.tile.revenue")} value="—" note={t("org.financeAdminsOnly")} />}
+      {finance ? <Tile label={t("org.tile.revenue")} value={money(view.totals.revenue)} note={view.revenueOff ? t("org.revenueOff") : monthOnly ? <Converted c={conv(view.totals.revenue)} cur={cur} /> : <button type="button" className="text-left underline" onClick={() => onTab("economics")}>{t("org.convByMonth", { cur })}</button>} /> : <Tile label={t("org.tile.revenue")} value="—" note={t("org.financeAdminsOnly")} />}
       {finance ? <Tile label={t("org.tile.budget")} value={money(view.totals.spent)} note={t("org.tile.budgetOf", { planned: money(view.totals.planned) })} /> : <Tile label={t("org.tile.budget")} value="—" note={t("org.financeAdminsOnly")} />}
       <Tile label={t("org.tile.credits")} value={String(view.totals.creditsUsed)} note={t("org.tile.creditsReserved", { n: String(view.totals.creditsReserved) })} />
       <Tile label={t("org.tile.goals")} value={t("org.tile.goalsValue", { on: String(view.totals.goals.onTrack), active: String(view.totals.goals.active) })}

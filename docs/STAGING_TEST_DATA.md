@@ -123,3 +123,9 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
 - One platform credit price version: EUR 0.05 per credit, starting 21 Nov 2026 12:10 (local), methodology "Staging QA: average provider cost per credit". Price versions are insert-only by design and cannot be removed; a later version replaces it.
 - Proposal 0086 applied to staging only (credit price history visible to the Platform Owner only).
 
+
+## Phase 8.8 final completion (21 Nov 2026)
+- Proposal 0087 applied to staging only (official-rate import accepts the ECB 90-day history).
+- ECB history imported for the QA organization through the app: 65 publication days (24 Aug – 20 Nov 2026), 1,885 official rates in total; official rates are permanent by design. *Keep.*
+- Staging Catering (second business): two USD sales recorded through the app (USD 116 on 15 Oct, USD 220 on 5 Nov, customer reference STG-FX-1) and one USD 50 refund on 18 Nov belonging to the October sale. Revenue records are permanent. *Keep.*
+- Task "QA office breakfast boxes: Review the remaining budget…" got the Growth Strategist (analysis, no approval) and one successful AI run: 6 credits at 12:51, valued EUR 0.30 at the staging price. *Keep.*

@@ -88,3 +88,12 @@ export function completeness(t: Totals, extra: { attributedRevenue: boolean; pri
     ai: (t.credits === 0 ? "missing" : extra.priced ? "recorded" : "estimated") as InputState,
   };
 }
+
+/** The AI credit atoms one level counts, by the same rule as rollup(): a campaign its own; an initiative, strategy
+ *  or goal those of its linked campaigns, each campaign once; the business all of them. Used to value AI work. */
+export function creditAtoms<T extends EconCredit>(level: Level, id: string | null, campaigns: readonly EconCampaign[], credits: readonly T[]): T[] {
+  if (level === "business") return [...credits];
+  const key = level === "initiative" ? "initiative_id" : level === "strategy" ? "strategy_id" : level === "goal" ? "goal_id" : "id";
+  const ids = new Set(campaigns.filter((c) => c[key] === id).map((c) => c.id));
+  return credits.filter((c) => c.campaign_id !== null && ids.has(c.campaign_id));
+}

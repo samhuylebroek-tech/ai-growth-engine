@@ -6,7 +6,7 @@ import { attribute, revenueTotals, type Model } from "@/lib/bi/attribution";
 import { budgetEconomics } from "@/lib/budget-allocation";
 import { creditCost } from "@/lib/econ/credit-pricing";
 import { cac, campaignRoas, grossProfit, observedCustomerValue } from "@/lib/econ/profitability";
-import { completeness, rollup, type Money, type Totals } from "@/lib/econ/rollup";
+import { completeness, creditAtoms, rollup, type Level, type Money, type Totals } from "@/lib/econ/rollup";
 import { duplicateGroups } from "@/lib/econ/budget-duplicates";
 import type { EconData, EconProposal } from "@/lib/econ/read";
 
@@ -25,6 +25,13 @@ export function previousPeriod(from: string, to: string) {
   }
   const len = Math.round((Date.parse(to) - Date.parse(from)) / DAY) + 1;
   return { from: iso(Date.parse(from) - len * DAY), to: iso(Date.parse(from) - DAY) };
+}
+
+/** Money value of the AI credits one level counts (campaign, initiative, strategy, goal), each credit at the price in
+ *  effect when it was used; credits without an applicable price stay unpriced, pending and unknown ones are left out. */
+export function levelAiCost(d: Pick<EconData, "campaigns" | "credits" | "prices" | "planKey">, level: Exclude<Level, "business">, id: string) {
+  const atoms = creditAtoms(level, id, d.campaigns, d.credits).filter((c) => c.state === "charged");
+  return creditCost(atoms.map((c) => ({ credits: c.credits, at: c.at })), d.prices, d.planKey, PRICE_CURRENCY);
 }
 
 export type EconAlertCode =
@@ -74,7 +81,6 @@ export function economicsSummary(d: EconData, from: string, to: string, model: M
     /** Campaign work larger than the usage ledger means some usage could not be read; totals are then not reconciled. */
     reconciled: taskWork <= usageTotal,
   };
-  const priced = ai.cost.priced > 0 && ai.cost.unpriced === 0;
 
   // Budget of the period's months: planned, allocated to campaigns, unallocated (per currency, lines kept separate)
   const lines = d.budgetLines.filter((l) => l.period_month.slice(0, 10) >= from.slice(0, 7) + "-01" && l.period_month.slice(0, 10) <= to);
@@ -87,7 +93,8 @@ export function economicsSummary(d: EconData, from: string, to: string, model: M
     const roas = campaignRoas(c.id, d.revenue, d.touches, d.spend, model, from, to);
     const over = Object.entries(ct.allocated).filter(([cur, a]) => a > 0 && (ct.spent[cur] ?? 0) > a).map(([cur, a]) => ({ currency: cur, allocated: a, spent: ct.spent[cur] ?? 0 }));
     const near = Object.entries(ct.allocated).filter(([cur, a]) => a > 0 && (ct.spent[cur] ?? 0) <= a && (ct.spent[cur] ?? 0) >= 0.9 * a).map(([cur, a]) => ({ currency: cur, allocated: a, spent: ct.spent[cur] ?? 0 }));
-    return { id: c.id, title: c.title, status: c.status, channels: c.channels, t: ct, roas, over, near, inputs: completeness(ct, { attributedRevenue: roas.some((r) => r.revenue > 0), priced }) };
+    const aiCost = levelAiCost(d, "campaign", c.id);
+    return { id: c.id, title: c.title, status: c.status, channels: c.channels, t: ct, roas, aiCost, over, near, inputs: completeness(ct, { attributedRevenue: roas.some((r) => r.revenue > 0), priced: aiCost.priced > 0 && aiCost.unpriced === 0 }) };
   });
 
   // Channel economics: actual spending of the period by the campaign's first channel, and allocations by budget line channel

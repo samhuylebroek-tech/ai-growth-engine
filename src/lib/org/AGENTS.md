@@ -2,8 +2,8 @@
 
 - A business is a workspace; brands and units are `business_units` inside it. Never add a parallel business table, because every existing module is already isolated per workspace.
 - Organization reporting is pure (`consolidation.ts`, `coordination.ts`) over the caller's own RLS reads, so it covers only businesses the caller can open; nothing crosses businesses in SQL.
-- Money stays per currency. A converted total exists only when a stored official ECB rate (or a dated manual rate) covers every currency; otherwise it is withheld and the missing pairs are named.
-- Official rates are fetched only by the server (`exchange-rates.functions.ts`) and stored once per org/currency/date through a proof-checked SQL function, on the first visit of the day; no scheduler or system account.
+- Money stays per currency. Converted organization figures (`period-conversion.ts`) convert each month at its own closing rate from stored official or dated manual rates; a missing or too-old rate withholds the total and names the pair, so no report applies one rate to every period. Rules: docs/FINANCIAL_RULES.md.
+- Official rates are fetched only by the server (`exchange-rates.functions.ts`) and stored once per org/currency/date through a proof-checked SQL function, on the first visit of the day or as the ECB 90-day history on request; no scheduler or system account.
 - Business editors (role rank between admin and member) confirm facts/profile and manage budgets; per-business specialist allocation is enforced inside the shared `task_run_gate`, not in a separate dispatcher.
 - Organization intelligence (opportunities, allocation, monitoring, priorities) is deterministic and credit-free over the same view the UI shows; it never compares customer-level records across businesses, and every opportunity stays a hypothesis with classified evidence.
 - The Organization Growth Officer is one admin-started metered request needing access to every analysed business, anchored to one of them for accounting; its strategy is a draft until an org admin approves it and never replaces a business's own approved strategy.

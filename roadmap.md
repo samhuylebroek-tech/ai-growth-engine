@@ -1,4 +1,16 @@
 # AI Growth OS — Task Queue
+## Phase 8.8 final completion & financial integrity — 2026-11-21
+- [x] Environment verified (branch, HEAD 4586721, clean, staging marker, ledger 57/57, proposals to 0086).
+- [x] A AI cost per campaign/initiative/strategy/goal at the historical credit price; per specialist, task, run, retries, second reviews; pending/unknown apart.
+- [x] B Organization economics in a reporting currency: month-by-month closing rates (ECB, weekends/holidays, max 7 days old, ECB cross rate), withheld with reasons; ECB 90-day history import (proposal 0087, staging).
+- [x] C Canonical formulas documented (docs/FINANCIAL_RULES.md); months reconcile with the period summary; refunds in the sale month.
+- [x] F Growth Officer and reports carry campaign AI cost from the same summary.
+- [x] Tests: Vitest, SQL suites 51/51, staging browser checks (owner/admin/member/viewer, EN/NL/FR, desktop/tablet/phone).
+- [ ] Weekly/initiative/strategy/AI-execution/learning report types: not built this round.
+- [x] Organization overview converts only the current month (today's closing rate); longer periods point to the month-by-month Economics view.
+- [ ] Converted figures on Home and in the Growth Officer context: still per currency (by design so far).
+- [B] Real profit, CAC, ROAS: need real cost of goods, customer references and sales (staging has QA data only).
+- [B] Proposals 0063–0087 into the live database: owner approval.
 ## Phase 8.8 third stage — unified growth intelligence — 2026-11-21
 - [x] Environment verified (branch, HEAD 5d2de9e, clean, staging marker, ledger 57/57, 0084/0085 hashes match, RLS on all 103 tables).
 - [x] A Platform Owner credit pricing screen (history, future prices, currencies, reasons; credits only until a price exists). Proposal 0086 (staging) limits history to the Platform Owner.
@@ -8,7 +20,7 @@
 - [x] E Home financial alerts from the same figures.
 - [x] F Report economics section reconciled with Growth economics (tests).
 - [x] G Measurement follow-up for recommendations (Home alert when the app is opened; no background monitoring).
-- [ ] H Campaign/initiative AI cost: credits shown per campaign and level; money value per campaign not yet shown.
+- [x] H Campaign/initiative AI cost: money value per campaign and level (final completion round).
 - [x] Tests (727), browser checks owner/admin/member/viewer, EN/NL/FR, phone width.
 ## Phase 8.8 — unified campaign economics — 2026-11-22
 - [x] Environment verified (branch, HEAD 9567347, staging marker, ledger 57/57, RLS on all tables).

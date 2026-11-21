@@ -1586,7 +1586,7 @@ export function economicsLines(d: BusinessDomains, now: Date): string[] {
     const spent = Object.entries(c.t.spent).map(([k, v]) => `${v} ${k}`).join(", ") || "none";
     const roas = c.roas.map((x) => (x.value !== null ? `${x.value}x ${x.currency}` : x.status)).join(", ") || "unavailable";
     const missing = Object.entries(c.inputs).filter(([k, v]) => k !== "costs" && v !== "recorded").map(([k, v]) => `${k} ${v}`).join(", ");
-    out.push(`- campaign ${clip(c.title, 60)} [${c.status}]: allocated ${alloc}; actual spent since start ${spent}; AI credits ${c.t.credits}; ROAS ${roas}${missing ? `; not yet evaluable: ${missing}` : ""}${c.over.length ? "; ACTUAL SPENDING ABOVE ALLOCATION" : ""}`);
+    out.push(`- campaign ${clip(c.title, 60)} [${c.status}]: allocated ${alloc}; actual spent since start ${spent}; AI credits ${c.t.credits}${c.aiCost.priced > 0 ? ` (value ${c.aiCost.amount} ${c.aiCost.currency} at the credit price valid when used${c.aiCost.unpriced ? `; ${c.aiCost.unpriced} credits without a price` : ""})` : c.t.credits ? " (no credit price applied — credits only)" : ""}; ROAS ${roas}${missing ? `; not yet evaluable: ${missing}` : ""}${c.over.length ? "; ACTUAL SPENDING ABOVE ALLOCATION" : ""}`);
   }
   if (s.campaigns.length > 10) out.push(`(${s.campaigns.length - 10} more campaigns not listed)`);
   const ch = Object.entries(s.channels).map(([k, v]) => `${k} ${Object.entries(v).map(([c, a]) => `${a} ${c}`).join("/")}`);

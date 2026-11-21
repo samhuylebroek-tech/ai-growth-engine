@@ -179,6 +179,7 @@ export const ge = defineArea("ge", {
     "ge.f.roas": "ROAS = revenue credited to the campaign by the chosen attribution model ÷ the campaign's actual marketing spending; AI credits are not advertising spend.",
     "ge.f.rpc": "Revenue per customer = recorded net revenue ÷ customers with a reference (historical only, no prediction).",
     "ge.f.ai": "AI cost = each charged credit × the credit price that applied when it was used; credits without an applicable price stay credits.",
+    "ge.unpricedShort": "{n} credits without a price",
   },
   nl: {
     "ge.title": "Groei-economie",
@@ -357,6 +358,7 @@ export const ge = defineArea("ge", {
     "ge.f.roas": "ROAS = omzet die het gekozen toewijzingsmodel aan de campagne toekent ÷ werkelijke marketinguitgaven van de campagne; AI-credits zijn geen advertentie-uitgaven.",
     "ge.f.rpc": "Omzet per klant = geregistreerde netto-omzet ÷ klanten met een referentie (alleen historisch, geen voorspelling).",
     "ge.f.ai": "AI-kost = elke aangerekende credit × de creditprijs die gold bij gebruik; credits zonder geldende prijs blijven credits.",
+    "ge.unpricedShort": "{n} credits zonder prijs",
   },
   fr: {
     "ge.title": "Économie de la croissance",
@@ -535,5 +537,6 @@ export const ge = defineArea("ge", {
     "ge.f.roas": "ROAS = CA attribué à la campagne par le modèle choisi ÷ dépenses marketing réelles de la campagne ; les crédits IA ne sont pas des dépenses publicitaires.",
     "ge.f.rpc": "CA par client = CA net enregistré ÷ clients avec référence (historique uniquement, sans prévision).",
     "ge.f.ai": "Coût IA = chaque crédit facturé × le prix du crédit en vigueur lors de l'utilisation ; sans prix applicable, ils restent des crédits.",
+    "ge.unpricedShort": "{n} crédits sans prix",
   },
 });

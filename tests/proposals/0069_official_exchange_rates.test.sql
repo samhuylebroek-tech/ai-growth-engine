@@ -1,5 +1,6 @@
 -- Assertions for docs/proposals/0069 (rolled back): official rates need server proof, are stored once, are permanent,
--- are readable only inside the organization and coexist with manual rates.
+-- are readable only inside the organization and coexist with manual rates. (The too-old date is 120 days so it
+-- stays refused after proposal 0087 widened the accepted window from 14 to 100 days.)
 do $$
 declare
   uo uuid := gen_random_uuid(); um uuid := gen_random_uuid(); ux uuid := gen_random_uuid();
@@ -29,7 +30,7 @@ begin
   select count(*) into n from public.exchange_rates where org_id=o and base_currency='EUR' and source ilike 'ECB%';
   if n=2 then pass:=pass+1; else fail:=fail+1; failures:=failures||' stored:'||n; end if;
   begin perform public.import_official_rates_verified(o,current_date+1,rates,'rollback-fixture-only'); fail:=fail+1; failures:=failures||' future'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
-  begin perform public.import_official_rates_verified(o,current_date-30,rates,'rollback-fixture-only'); fail:=fail+1; failures:=failures||' too_old'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.import_official_rates_verified(o,current_date-120,rates,'rollback-fixture-only'); fail:=fail+1; failures:=failures||' too_old'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   begin perform public.import_official_rates_verified(o,current_date,'[{"currency":"EUR","rate":"1"}]','rollback-fixture-only'); fail:=fail+1; failures:=failures||' eur_quote'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   begin perform public.import_official_rates_verified(o,current_date,'[{"currency":"USD","rate":"-1"}]','rollback-fixture-only'); fail:=fail+1; failures:=failures||' negative'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   begin perform public.import_official_rates_verified(o,current_date,'[{"currency":"USD","rate":"abc"}]','rollback-fixture-only'); fail:=fail+1; failures:=failures||' not_number'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;

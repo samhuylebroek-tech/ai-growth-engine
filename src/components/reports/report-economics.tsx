@@ -40,6 +40,8 @@ export function ReportEconomics({ orgId, wsId, from, to, today }: { orgId: strin
       {s.currencies.length === 0 && <p className="text-muted-foreground">{t("rep.econ.none")}</p>}
       {s.budget.map((b) => <p key={b.currency}>{t("rep.econ.budget", { p: money(b.total, b.currency), a: money(b.allocated, b.currency), u: money(b.unallocated, b.currency), s: money(b.spent, b.currency) })}</p>)}
       <p>{t("rep.econ.ai", { n: s.ai.total, c: s.ai.onCampaigns, o: s.ai.otherWork })} {s.ai.cost.priced > 0 ? t("rep.econ.aiCost", { a: money(s.ai.cost.amount, s.ai.cost.currency) }) : t("rep.econ.aiNoPrice")}</p>
+      {s.campaigns.some((c) => c.t.credits > 0) && <p>{t("rep.econ.aiCampaigns", { list: s.campaigns.filter((c) => c.t.credits > 0).sort((a, b) => b.t.credits - a.t.credits).slice(0, 5)
+        .map((c) => `${c.title}: ${c.t.credits}${c.aiCost.priced > 0 ? ` (${money(c.aiCost.amount, c.aiCost.currency)})` : ""}`).join(" · ") })}</p>}
       <p>{t("rep.econ.outcomes", { i: s.outcomes.improved, w: s.outcomes.worse, n: s.outcomes.noChange, x: s.outcomes.inconclusive, d: s.measurementDue.length })}</p>
       <p className="text-muted-foreground">{t("rep.econ.note")}</p>
     </section>
