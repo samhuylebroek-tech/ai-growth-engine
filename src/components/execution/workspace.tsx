@@ -66,6 +66,10 @@ import { TaskOrigin } from "@/components/execution/task-origin";
 import { TaskReplan } from "@/components/execution/task-replan";
 import { CampaignSpend } from "@/components/execution/campaign-spend";
 import { CampaignIntelPanel } from "@/components/execution/campaign-intel-panel";
+import { CampaignLifecycle } from "@/components/execution/campaign-lifecycle";
+import { CampaignStrategy, campaignLinkOptions } from "@/components/execution/campaign-strategy";
+import { CAMPAIGN_STATUSES, INITIAL_CAMPAIGN_STATUSES, campaignPhase, linkGaps } from "@/lib/campaign-lifecycle";
+import { growthDb as lifecycleDb, isNotInstalled as lifecycleMissing } from "@/lib/pending-schema";
 import { campaignSpendOptions } from "@/components/execution/replan-data";
 import { spendSummary } from "@/lib/campaign-spend";
 import { ExecutionBar } from "@/components/execution/execution-bar";
@@ -79,6 +83,25 @@ const due = (item: WorkItem) => ("due_date" in item ? item.due_date : item.end_d
 const inputClass = "min-w-0 rounded-md border border-border bg-background px-2 py-2 text-xs";
 
 /** Tasks with a dependency on a task that is not done or cancelled yet. */
+/** Whether the campaign lifecycle (proposal 0083) is installed in the connected database. */
+function useCampaignLifecycle(enabled: boolean) {
+  const o = useOrg();
+  const q = useQuery({
+    queryKey: ["campaign-lifecycle-installed", o.workspace?.id],
+    enabled: enabled && !!o.workspace,
+    staleTime: 10 * 60_000,
+    retry: false,
+    queryFn: async () => {
+      const r = await lifecycleDb.from("campaign_status_events").select("id").eq("workspace_id", o.workspace?.id ?? "").limit(1);
+      if (r.error) { if (lifecycleMissing(r.error)) return false; throw r.error; }
+      return true;
+    },
+  });
+  return q.data === true;
+}
+const campaignChannels = (x: WorkItem): string[] => ("budget_eur" in x ? x.channels : []);
+const campaignStatusList = (lifecycle: boolean): readonly string[] => (lifecycle ? CAMPAIGN_STATUSES : STATUSES.campaigns);
+
 function blockedTasks(notes: readonly { kind: string; entity_type: string; entity_id: string; related_id: string | null }[], tasks: readonly { id: string; status: string }[]) {
   const open = new Set(tasks.filter((t) => !["done", "cancelled"].includes(t.status)).map((t) => t.id));
   return new Set(notes.filter((n) => n.kind === "dependency" && n.entity_type === "tasks" && n.related_id && open.has(n.related_id)).map((n) => n.entity_id));
@@ -103,6 +126,13 @@ export function ExecutionWorkspace({
   const [filter, setFilter] = useState(kind === "tasks" ? "mine" : "all");
   const [status, setStatus] = useState("all");
   const [priority, setPriority] = useState("all");
+  const [goal, setGoal] = useState("all");
+  const [channel, setChannel] = useState("all");
+  const lifecycle = useCampaignLifecycle(kind === "campaigns");
+  const statusList = kind === "campaigns" ? campaignStatusList(lifecycle) : STATUSES[kind];
+  const campaignSpend = useQuery({ ...campaignSpendOptions(o.org?.id, o.workspace?.id), enabled: kind === "campaigns" && !!o.org && !!o.workspace });
+  const links = useQuery({ ...campaignLinkOptions(o.workspace?.id), enabled: kind === "campaigns" && !!o.workspace });
+  const goals = links.data?.goals ?? [];
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
   const [create, setCreate] = useState(false);
   const [selected, setSelected] = useState<WorkItem | null>(null);
@@ -126,6 +156,13 @@ export function ExecutionWorkspace({
   const execProfiles = new Map((exec.data?.profiles ?? []).map((p) => [p.task_id, p]));
   const blockedIds = blockedTasks(q.data?.notes ?? [], q.data?.tasks ?? []);
   const runState = (id: string) => execRuns.get(id)?.latest.status;
+  const campaignAtRisk = (x: WorkItem) => {
+    if (!("results" in x)) return false;
+    if (x.status === "needs_attention") return true;
+    const money = campaignSpend.data ? spendSummary(Number(x.budget_eur), campaignSpend.data.filter((r) => r.campaign_id === x.id)) : undefined;
+    return campaignHealth({ status: x.status, start_date: x.start_date, end_date: x.end_date, goal_id: x.goal_id, results: x.results }, (q.data?.tasks ?? []).filter((t) => t.campaign_id === x.id), today, money).state === "at_risk";
+  };
+  const channels = kind === "campaigns" ? [...new Set(items.flatMap(campaignChannels))].sort() : [];
   const filtered = items.filter(
     (x) =>
       `${x.title} ${x.description} ${"labels" in x ? x.labels.join(" ") : ""}`
@@ -133,7 +170,12 @@ export function ExecutionWorkspace({
         .includes(search.toLowerCase()) &&
       (status === "all" || x.status === status) &&
       (priority === "all" || x.priority === priority) &&
+      (kind !== "campaigns" || goal === "all" || ("goal_id" in x && x.goal_id === goal)) &&
+      (kind !== "campaigns" || channel === "all" || campaignChannels(x).includes(channel)) &&
       (filter === "all" ||
+        (filter === "awaiting" && x.status === "awaiting_approval") ||
+        (filter === "at_risk" && campaignAtRisk(x)) ||
+        (filter === "unlinked" && "goal_id" in x && linkGaps({ goal_id: x.goal_id }).includes("no_goal")) ||
         (filter === "team" && (x.owner_id !== null || assignees.has(x.id))) ||
         (filter === "mine" && (x.owner_id === o.userId || assignees.has(x.id))) ||
         (filter === "today" && due(x) === today) ||
@@ -149,8 +191,13 @@ export function ExecutionWorkspace({
           String(due(x)) < today &&
           !["done", "cancelled", "completed", "archived"].includes(x.status))),
   );
-  useEffect(() => { setPage(1); }, [search, filter, status, priority, kind]);
+  useEffect(() => { setPage(1); }, [search, filter, status, priority, kind, goal, channel]);
   const paged = pageSlice(filtered, page);
+  // With the campaign lifecycle the board groups campaigns by phase; status changes happen on the campaign page.
+  const phaseBoard = kind === "campaigns" && lifecycle;
+  const boardColumns = phaseBoard
+    ? (["preparing", "running", "paused", "finished"] as const).map((p) => ({ key: p, label: tx(`cos.phase.${p}`), match: (x: WorkItem) => campaignPhase(x.status) === p }))
+    : STATUSES[kind].map((st) => ({ key: st, label: lbl(st), match: (x: WorkItem) => x.status === st }));
   async function refresh() {
     await qc.invalidateQueries({ queryKey: ["execution"] });
   }
@@ -215,7 +262,9 @@ export function ExecutionWorkspace({
       <div className="mb-5 flex flex-wrap gap-1">
         {(kind === "tasks"
           ? ["mine", "team", "all", "today", "upcoming", "overdue", ...(exec.data ? ["ai", "approval", "running", "failed", "blocked", "completed"] : [])]
-          : ["all", "today", "upcoming", "overdue"]
+          : kind === "campaigns"
+            ? ["all", ...(lifecycle ? ["awaiting"] : []), "at_risk", "unlinked", "upcoming", "overdue"]
+            : ["all", "today", "upcoming", "overdue"]
         ).map((f) => (
           <Button
             key={f}
@@ -232,6 +281,7 @@ export function ExecutionWorkspace({
                   ? tx(`work.all.${kind}`)
                   : ["ai", "approval", "running", "failed", "blocked", "completed"].includes(f)
                     ? tx(`run.f.${f}` as MessageKey)
+                    : f === "awaiting" ? tx("cos.f.awaiting") : f === "at_risk" ? tx("cos.f.atRisk") : f === "unlinked" ? tx("cos.f.unlinked")
                     : lbl(f)}
           </Button>
         ))}
@@ -256,7 +306,7 @@ export function ExecutionWorkspace({
           onChange={(e) => setStatus(e.target.value)}
         >
           <option value="all">{tx("work.allStatuses")}</option>
-          {STATUSES[kind].map((s) => (
+          {statusList.map((s) => (
             <option key={s} value={s}>
               {lbl(s)}
             </option>
@@ -273,6 +323,18 @@ export function ExecutionWorkspace({
             <option key={s} value={s}>{lbl(s)}</option>
           ))}
         </select>
+        {kind === "campaigns" && goals.length > 0 && (
+          <select aria-label={tx("cos.f.goal")} className={inputClass} value={goal} onChange={(e) => setGoal(e.target.value)}>
+            <option value="all">{tx("cos.f.allGoals")}</option>
+            {goals.map((g) => <option key={g.id} value={g.id}>{g.title}</option>)}
+          </select>
+        )}
+        {kind === "campaigns" && channels.length > 0 && (
+          <select aria-label={tx("cos.f.channel")} className={inputClass} value={channel} onChange={(e) => setChannel(e.target.value)}>
+            <option value="all">{tx("cos.f.allChannels")}</option>
+            {channels.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        )}
         <div className="flex">
           {[
             { id: "list", icon: List },
@@ -383,17 +445,17 @@ export function ExecutionWorkspace({
           {view === "list" && <div className="my-4 flex items-center justify-between gap-3"><p className="text-xs text-muted-foreground">{tx("work.paging", { n: paged.total, p: paged.page, of: paged.pages })}</p><div className="flex gap-1"><Button variant="outline" size="icon" aria-label={tx("work.prevPage")} disabled={paged.page === 1} onClick={() => setPage(paged.page - 1)}><ChevronLeft /></Button><Button variant="outline" size="icon" aria-label={tx("work.nextPage")} disabled={paged.page === paged.pages} onClick={() => setPage(paged.page + 1)}><ChevronRight /></Button></div></div>}
           {view === "kanban" && (
             <div className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {STATUSES[kind].map((s) => (
-                <section key={s} className="min-w-0 border-t-2 border-border pt-3">
+              {boardColumns.map((col) => (
+                <section key={col.key} className="min-w-0 border-t-2 border-border pt-3">
                   <h2 className="mb-4 flex justify-between text-xs font-semibold">
-                    {lbl(s)}
+                    {col.label}
                     <span className="text-muted-foreground">
-                      {filtered.filter((x) => x.status === s).length}
+                      {filtered.filter(col.match).length}
                     </span>
                   </h2>
                   <div className="space-y-3">
                     {filtered
-                      .filter((x) => x.status === s)
+                      .filter(col.match)
                       .map((x) => (
                         <article key={x.id} className="rounded-lg border border-border bg-card p-3">
                           <Button
@@ -409,7 +471,8 @@ export function ExecutionWorkspace({
                           {due(x) && (
                             <p className="mt-2 text-xs text-muted-foreground">{tx("work.dueX", { d: new Date(`${due(x)}T12:00:00`).toLocaleDateString(tag) })}</p>
                           )}
-                          {editable && (
+                          {phaseBoard && <p className="mt-2 text-xs"><span className="rounded border border-border px-1.5 py-0.5">{lbl(x.status)}</span></p>}
+                          {editable && !phaseBoard && (
                             <select
                               className={`${inputClass} mt-3 w-full`}
                               aria-label={tx("work.statusFor", { t: x.title })}
@@ -660,6 +723,12 @@ export function WorkForm({
   const [busy, setBusy] = useState(false);
   const editable = can(o.workspaceRole, "profile.edit");
   const set = (key: keyof typeof form, value: string) => setForm((f) => ({ ...f, [key]: value }));
+  // Proposal 0083: an existing campaign changes status only through its status panel; a new one starts as idea/proposal/draft.
+  const lifecycle = useCampaignLifecycle(kind === "campaigns");
+  const lifecycleForm = kind === "campaigns" && lifecycle;
+  useEffect(() => {
+    if (lifecycleForm && !item) setForm((f) => ((INITIAL_CAMPAIGN_STATUSES as readonly string[]).includes(f.status) ? f : { ...f, status: "draft" }));
+  }, [lifecycleForm, item]);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!o.org || !o.workspace || busy || !editable) return;
@@ -676,7 +745,7 @@ export function WorkForm({
       const common = {
         title: form.title.trim(),
         description: form.description,
-        status: form.status,
+        ...(lifecycleForm && item ? {} : { status: form.status }),
         priority: form.priority,
         start_date: form.start_date || null,
         owner_id: form.owner_id || null,
@@ -826,11 +895,14 @@ export function WorkForm({
         />
       </label>
       {kind !== "tasks" && field("objective", tx("work.f.objective"))}
+      {lifecycleForm && !item && <p className="text-xs text-muted-foreground">{tx("cos.newStatus")}</p>}
       <div className="grid gap-3 sm:grid-cols-2">
-        {select(
+        {lifecycleForm && item ? (
+          <p className="space-y-1 text-xs">{tx("work.f.status")}<span className="block rounded-md border border-border px-3 py-2">{lbl(item.status)}</span></p>
+        ) : select(
           "status",
           tx("work.f.status"),
-          STATUSES[kind].map((s) => ({ value: s, label: lbl(s) })),
+          (lifecycleForm ? INITIAL_CAMPAIGN_STATUSES : STATUSES[kind]).map((s) => ({ value: s, label: lbl(s) })),
         )}
         {select(
           "priority",
@@ -1075,7 +1147,15 @@ function WorkDetails({
       {tab === "overview" && (
         <>
           {kind === "campaigns" && <CampaignHealthLine item={item} tasks={q.data?.tasks ?? []} today={localDay()} detailed />}
-          {kind === "campaigns" && "budget_eur" in item && <CampaignSpend campaignId={item.id} budgetEur={Number(item.budget_eur)} />}
+          {kind === "campaigns" && "budget_eur" in item && (
+            <CampaignLifecycle
+              campaign={item}
+              statusLabel={lbl}
+              name={(id) => q.data?.members.find((m) => m.user_id === id)?.display_name ?? (id ? tx("work.teammate") : tx("work.unassigned"))}
+            />
+          )}
+          {kind === "campaigns" && "budget_eur" in item && <CampaignStrategy key={`${item.id}:${item.updated_at}`} campaign={item} />}
+          {kind === "campaigns" && "budget_eur" in item && <CampaignSpend campaignId={item.id} budgetEur={Number(item.budget_eur)} dates={{ start_date: item.start_date, end_date: item.end_date }} />}
           {kind === "campaigns" && "budget_eur" in item && <CampaignIntelPanel campaign={item} tasks={q.data?.tasks ?? []} campaigns={(q.data?.campaigns ?? []).filter((c): c is typeof item => "budget_eur" in c)} />}
           <WorkForm item={item} kind={kind} onSaved={() => refresh()} />
           {kind === "tasks" && "agent_key" in item && item.agent_key && editable && (

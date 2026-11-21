@@ -11,6 +11,8 @@ import { growthDb, isNotInstalled, type CampaignSpendRow } from "@/lib/pending-s
 import { localDay } from "@/lib/execution";
 import { openAmount, spendSummary } from "@/lib/campaign-spend";
 import { campaignSpendOptions } from "@/components/execution/replan-data";
+import { blockText, campaignLimitsOptions, CampaignLimits } from "@/components/execution/campaign-limits";
+import { wouldExceed, type Block } from "@/lib/campaign-budget";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -18,11 +20,13 @@ import { cn } from "@/lib/utils";
 const errText = (e: unknown) => (typeof e === "object" && e !== null ? String((e as { message?: unknown }).message ?? "") : "");
 const sel = "min-w-0 rounded-md border border-border bg-background px-2 py-2 text-xs";
 
-export function CampaignSpend({ campaignId, budgetEur }: { campaignId: string; budgetEur: number }) {
+export function CampaignSpend({ campaignId, budgetEur, dates }: { campaignId: string; budgetEur: number; dates?: { start_date: string | null; end_date: string | null } }) {
   const o = useOrg();
   const qc = useQueryClient();
   const { t: tx, tag } = useI18n();
   const q = useQuery(campaignSpendOptions(o.org?.id, o.workspace?.id));
+  const limitsQ = useQuery(campaignLimitsOptions(o.workspace?.id));
+  const [blocked, setBlocked] = useState<string | null>(null);
   const member = can(o.workspaceRole, "profile.edit");
   const [kind, setKind] = useState<CampaignSpendRow["kind"]>("spend");
   const [relates, setRelates] = useState<string>("");
@@ -41,6 +45,12 @@ export function CampaignSpend({ campaignId, budgetEur }: { campaignId: string; b
   const s = spendSummary(budgetEur, rows);
   const others = Object.entries(s.byCurrency).filter(([c]) => c !== "EUR");
   const target = rows.find((r) => r.id === relates);
+  const lim = (limitsQ.data ?? []).find((l) => l.campaign_id === campaignId) ?? null;
+  const typed = Number(amount.replace(",", "."));
+  const signedTyped = kind === "release" ? -Math.abs(typed) : kind === "correction" ? typed : Math.abs(typed);
+  const preview = amount.trim() && Number.isFinite(typed) && typed !== 0
+    ? wouldExceed(lim, rows, { kind, amount: signedTyped, currency: currency.trim().toUpperCase(), occurred_on: day, data_class: cls, relates_to: relates || null })
+    : null;
 
   function pick(k: CampaignSpendRow["kind"], entry?: CampaignSpendRow) {
     setKind(k); setRelates(entry?.id ?? ""); request.current = null;
@@ -61,6 +71,14 @@ export function CampaignSpend({ campaignId, budgetEur }: { campaignId: string; b
       });
       if (r.error) throw r.error;
       request.current = null;
+      const res = (r.data ?? {}) as { status?: string; limit?: Block["limit"]; limit_amount?: number | string | null; used?: number | string | null; currency?: string };
+      if (res.status === "blocked" && res.limit) {
+        const msg = blockText(tx, { limit: res.limit, max: res.limit_amount === null || res.limit_amount === undefined ? null : Number(res.limit_amount), used: res.used === null || res.used === undefined ? null : Number(res.used) }, res.currency ?? currency, money);
+        setBlocked(msg);
+        toast.error(msg);
+        return;
+      }
+      setBlocked(null);
       setAmount(""); setRef(""); setNote(""); pick("spend");
       await qc.invalidateQueries({ queryKey: ["campaign-spend"] });
       toast.success(tx("rp.spend.saved"));
@@ -136,12 +154,15 @@ export function CampaignSpend({ campaignId, budgetEur }: { campaignId: string; b
             <label className="flex flex-col gap-1">{tx("rp.spend.ref")}<Input value={ref} maxLength={120} onChange={(e) => setRef(e.target.value)} /></label>
             <label className="flex flex-col gap-1 sm:col-span-3">{tx("rp.spend.noteLabel")}<Input value={note} maxLength={300} onChange={(e) => setNote(e.target.value)} /></label>
           </div>
+          {preview && <p role="status" className="rounded border border-destructive/40 px-2 py-1 text-destructive">{blockText(tx, preview, lim?.currency ?? currency, money)}</p>}
+          {blocked && !preview && <p role="alert" className="rounded border border-destructive/40 px-2 py-1 text-destructive">{blocked}</p>}
           <div className="flex gap-2">
             <Button size="sm" disabled={busy || !amount.trim()} onClick={save}>{tx("rp.spend.save")}</Button>
             {target && <Button size="sm" variant="ghost" onClick={() => pick("spend")}>✕</Button>}
           </div>
         </div>
       ) : <p className="text-muted-foreground">{tx("rp.spend.viewerOnly")}</p>}
+      <CampaignLimits campaign={{ id: campaignId, start_date: dates?.start_date ?? null, end_date: dates?.end_date ?? null, budget_eur: budgetEur }} rows={rows} />
     </section>
   );
 }

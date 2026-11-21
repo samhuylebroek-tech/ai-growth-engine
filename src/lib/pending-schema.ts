@@ -530,6 +530,31 @@ export type CampaignSpendRow = {
   amount: number | string; currency: string; occurred_on: string; data_class: "manual" | "simulated"; source_ref: string;
   relates_to: string | null; note: string; request_key: string; created_by: string; created_at: string;
 };
+/** Proposal 0083: insert-only campaign status history. */
+export type CampaignStatusEventRow = {
+  id: string; org_id: string; workspace_id: string; campaign_id: string; from_status: string; to_status: string;
+  reason: string; detail: Json; actor_id: string; created_at: string;
+};
+/** Proposal 0083: hard spending limits per campaign (one row per campaign). */
+export type CampaignSpendLimitsRow = {
+  org_id: string; workspace_id: string; campaign_id: string; currency: string;
+  daily_max: number | string | null; weekly_max: number | string | null; monthly_max: number | string | null;
+  lifetime_max: number | string | null; reserve_amount: number | string | null; alert_thresholds: number[];
+  emergency_stop: boolean; stop_reason: string; updated_by: string; updated_at: string;
+};
+export type CampaignSpendLimitEventRow = {
+  id: string; org_id: string; workspace_id: string; campaign_id: string; kind: "limits" | "stop_on" | "stop_off";
+  before: Json | null; after: Json; reason: string; request_key: string; actor_id: string; created_at: string;
+};
+/** Proposal 0083: strategic links, KPI and outcome columns on campaigns. */
+export type CampaignOsColumns = {
+  strategy_id: string | null; initiative_id: string | null; hypothesis: string; expected_contribution: string; risks: string;
+  risk_level: "low" | "medium" | "high"; primary_kpi: string; kpi_unit: string;
+  kpi_baseline: number | null; kpi_target: number | null; kpi_actual: number | null;
+  outcome: "not_evaluated" | "achieved" | "partially_achieved" | "not_achieved" | "unknown";
+  results_unavailable_reason: string; approved_by: string | null; approved_at: string | null;
+};
+type CampaignOsWritable = Partial<Pick<CampaignOsColumns, "strategy_id" | "initiative_id" | "hypothesis" | "expected_contribution" | "risks" | "risk_level" | "primary_kpi" | "kpi_unit" | "kpi_baseline" | "kpi_target">>;
 export type BusinessCheckSettingsRow = {
   workspace_id: string; org_id: string; frequency: "off" | "daily" | "weekly" | "monthly"; updated_by: string; updated_at: string;
 };
@@ -858,6 +883,9 @@ type PendingTables = {
   task_replan_proposals: { Row: TaskReplanProposalRow; Insert: never; Update: never; Relationships: [] };
   task_replan_decisions: { Row: TaskReplanDecisionRow; Insert: never; Update: never; Relationships: [] };
   campaign_spend_entries: { Row: CampaignSpendRow; Insert: never; Update: never; Relationships: [] };
+  campaign_status_events: { Row: CampaignStatusEventRow; Insert: never; Update: never; Relationships: [] };
+  campaign_spend_limits: { Row: CampaignSpendLimitsRow; Insert: never; Update: never; Relationships: [] };
+  campaign_spend_limit_events: { Row: CampaignSpendLimitEventRow; Insert: never; Update: never; Relationships: [] };
   experiment_events: { Row: ExperimentEventRow; Insert: never; Update: never; Relationships: [] };
   specialist_reviews: { Row: SpecialistReviewRow; Insert: never; Update: never; Relationships: [] };
   specialist_result_decisions: { Row: SpecialistDecisionRow; Insert: never; Update: never; Relationships: [] };
@@ -1195,6 +1223,8 @@ type PendingFunctions = {
     Returns: Json;
   };
   record_campaign_spend: { Args: { _workspace: string; _request: string; _campaign: string; _p: Json }; Returns: Json };
+  transition_campaign: { Args: { _workspace: string; _campaign: string; _to: string; _p?: Json }; Returns: Json };
+  set_campaign_spend_limits: { Args: { _workspace: string; _request: string; _campaign: string; _p: Json }; Returns: Json };
   set_business_check_frequency: { Args: { _workspace: string; _frequency: BusinessCheckSettingsRow["frequency"] }; Returns: undefined };
   decide_org_strategy: { Args: { _id: string; _decision: "approve" | "reject" | "retire"; _note: string }; Returns: Json };
   begin_org_ai_request_verified: { Args: { _org: string; _workspace: string; _request: string; _input: Json; _proof: string }; Returns: Json };
@@ -1320,7 +1350,12 @@ export type PendingDatabase = Omit<Database, "public"> & {
       PendingTables & {
         budget_lines: PendingBudgetLines;
         growth_goals: UnitLinked<GeneratedTables["growth_goals"]>;
-        campaigns: UnitLinked<GeneratedTables["campaigns"]>;
+        campaigns: {
+          Row: UnitLinked<GeneratedTables["campaigns"]>["Row"] & Partial<CampaignOsColumns>;
+          Insert: UnitLinked<GeneratedTables["campaigns"]>["Insert"] & CampaignOsWritable;
+          Update: UnitLinked<GeneratedTables["campaigns"]>["Update"] & CampaignOsWritable;
+          Relationships: GeneratedTables["campaigns"]["Relationships"];
+        };
         business_profiles: PendingBusinessProfiles;
         organization_members: PendingOrgMembers;
       };
