@@ -77,6 +77,7 @@ import { ExecutionBar } from "@/components/execution/execution-bar";
 import { NextActions } from "@/components/execution/next-actions";
 import { taskExecutionOptions, runsByTask, runTone } from "@/components/execution/task-runs-data";
 import { BlockedExplanation } from "@/components/execution/blocked-explanation";
+import { limitAware, parseRateLimit } from "@/lib/rate-limit";
 import { useI18n } from "@/lib/i18n";
 import { MESSAGES, type MessageKey } from "@/lib/i18n/messages";
 
@@ -1093,7 +1094,8 @@ function WorkDetails({
       await refresh();
       toast.success(tx("work.attached"));
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : tx("work.uploadFailed"));
+      const m = (e as { message?: string } | null)?.message ?? "";
+      toast.error(parseRateLimit(m) ? limitAware(m, tx as never) : e instanceof Error ? e.message : tx("work.uploadFailed"));
     } finally {
       setBusy(false);
     }

@@ -74,3 +74,4 @@ use the editor.
 - Task-run eligibility is one SQL gate (task_run_gate, proposal 0064) shared by manual runs and bounded admin-started cycles that log a reason per task; schedules only mark cycles due, since runs need a signed-in session.
 - Business intelligence (proposal 0066): revenue is a permanent per-currency ledger, attribution is pure `src/lib/bi/` over RLS reads; see `src/lib/bi/AGENTS.md`.
 - Multi-business organizations (proposals 0067–0070): businesses are workspaces, org reporting and org intelligence are pure over RLS reads, and organization decisions only take effect through each business's own rights; see `src/lib/org/AGENTS.md`.
+- Rate limits (proposal 0090) are enforced in the database: triggers on run/upload inserts, `consume_rate_limit` before outside fetches, insert-only hidden counters; refusals surface via `src/lib/rate-limit.ts`, so no path can skip a limit and no credits are reserved for a refused request.

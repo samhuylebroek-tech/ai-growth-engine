@@ -1,4 +1,5 @@
 import { localHead } from "@/lib/page-head";
+import { limitAware, parseRateLimit } from "@/lib/rate-limit";
 import { useI18n } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -48,7 +49,7 @@ function Documents() {
       const up = await supabase.storage.from("documents").upload(path, file, { contentType: file.type || "application/octet-stream" });
       if (up.error) { toast.error(t("pg.doc.uploadFailed", { n: file.name })); continue; }
       const { error } = await supabase.from("documents").insert({ org_id: orgId, workspace_id: ws, name: file.name.slice(0, 200), storage_path: path, mime: file.type || "application/octet-stream", size_bytes: file.size, uploaded_by: o.userId });
-      if (error) { await supabase.storage.from("documents").remove([path]); toast.error(error.message === "document_limit_reached" ? t("pg.doc.planLimit", { n: ent ?? 0 }) : error.message === "documents_not_included" ? t("sec.doc.notIncluded") : t("pg.doc.saveFailed")); if (/document_limit_reached|documents_not_included/.test(error.message)) break; } else uploadedCount++;
+      if (error) { await supabase.storage.from("documents").remove([path]); toast.error(error.message === "document_limit_reached" ? t("pg.doc.planLimit", { n: ent ?? 0 }) : error.message === "documents_not_included" ? t("sec.doc.notIncluded") : parseRateLimit(error.message) ? limitAware(error.message, t as never) : t("pg.doc.saveFailed")); if (/document_limit_reached|documents_not_included|rate_limited:/.test(error.message)) break; } else uploadedCount++;
     }
     setBusy(null); refresh();
   }

@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { noteFailure, takeLimit } from "@/lib/rate-limit-server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { validatePublicUrl } from "@/lib/security/url";
@@ -33,9 +34,9 @@ export const runSeoAudit = createServerFn({ method: "POST" })
     const { data: ws } = await sb.from("workspaces").select("id,org_id").eq("id", data.workspaceId).maybeSingle();
     if (!ws) return { ok: false, error: "Workspace not found." };
     const access = await sb.rpc("has_workspace_role", { _workspace: ws.id, _min: "member" });
-    if (access.error || !access.data) return { ok: false, error: "You need member access to run an SEO check." };
+    if (access.error || !access.data) { await noteFailure(sb, "seo", ws.id); return { ok: false, error: "You need member access to run an SEO check." }; }
     const start = validatePublicUrl(/^https?:\/\//i.test(data.url) ? data.url : `https://${data.url}`);
-    if (!start.ok) return { ok: false, error: start.reason };
+    if (!start.ok) { await noteFailure(sb, "seo", ws.id); return { ok: false, error: start.reason }; }
     // Only sites registered by this business: its own website or an active competitor (read under the caller's RLS).
     const [profile, rivals] = await Promise.all([
       sb.from("business_profiles").select("website").eq("workspace_id", ws.id).maybeSingle(),
@@ -43,7 +44,10 @@ export const runSeoAudit = createServerFn({ method: "POST" })
     ]);
     if (profile.error || rivals.error) return { ok: false, error: "The registered websites could not be read." };
     if (!isRegisteredTarget(start.url.toString(), [profile.data?.website, ...(rivals.data ?? []).map((r) => r.website)]))
-      return { ok: false, error: "not_registered" };
+      { await noteFailure(sb, "seo", ws.id); return { ok: false, error: "not_registered" }; }
+    // Counted before anything is fetched (proposal 0090); refused targets above count as failed attempts.
+    const limited = await takeLimit(sb, "seo", ws.id);
+    if (limited) return { ok: false, error: limited };
     try {
       const home = await fetchPublic(start.url.toString(), "text/html");
       if (home.status >= 400) return { ok: false, error: `The website responded with status ${home.status}.` };

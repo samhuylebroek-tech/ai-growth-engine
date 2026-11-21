@@ -2,6 +2,7 @@
 // Credentials go straight from the request into encrypted storage through server-attested functions;
 // they are never returned to the browser. Imports run on the server as the signed-in user.
 import { createServerFn } from "@tanstack/react-start";
+import { noteFailure, takeLimit } from "@/lib/rate-limit-server";
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -36,8 +37,15 @@ export const connectTokenIntegration = createServerFn({ method: "POST" }).middle
     try {
       const sb = db(context.supabase);
       const admin = await sb.rpc("has_workspace_role", { _workspace: data.workspaceId, _min: "admin" });
-      if (admin.error || !admin.data) return { ok: false, error: "Only workspace administrators can connect data sources." };
-      const { scopes } = await probeToken(fetch, data.connector, data.token);
+      if (admin.error || !admin.data) { await noteFailure(sb, "connect", data.workspaceId); return { ok: false, error: "Only workspace administrators can connect data sources." }; }
+      // Counted before the provider is contacted (proposal 0090); a rejected token counts as a failed attempt.
+      const limited = await takeLimit(sb, "connect", data.workspaceId);
+      if (limited) return { ok: false, error: limited };
+      const probed = await probeToken(fetch, data.connector, data.token).catch(async (e: unknown) => {
+        if (e instanceof ProviderError && (e.health === "expired" || e.health === "insufficient_scope")) await noteFailure(sb, "connect", data.workspaceId); // rejected token, not an outage
+        throw e;
+      });
+      const { scopes } = probed;
       const r = await sb.rpc("store_connector_credential_verified", { _workspace: data.workspaceId, _connector: data.connector, _secret: data.token, _scopes: scopes, _expires: null, _account_label: data.connector === "stripe" ? `Restricted key …${data.token.slice(-4)}` : `Private app …${data.token.slice(-4)}`, _config: { currency: data.currency } as Json, _proof: proof() });
       if (r.error) return fail(r.error);
       const out = r.data as { status: string; missing_scopes: string[] };

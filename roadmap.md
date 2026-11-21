@@ -434,7 +434,7 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] Organization and platform emergency stops (independent tiers)
 - [x] Minimal grants; dependency updates (seroval, js-yaml, source-map-js)
 - [x] Security docs in docs/security/
-- [ ] Rate limits — documented only (owner decision)
+- [x] Rate limits — built on staging (0090) after owner changed the decision
 - [ ] Nested build-tool zod advisory — waits on TanStack tooling update
 - [ ] Re-run deep scan after these changes are saved; live rollout of 0063–0088 needs approval
 
@@ -465,5 +465,5 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] Real staging Growth Officer conversation using blocked work and KPI progress (6 credits)
 - [x] Blocked-task detail: cause, downstream tasks, campaign risk and suggested steps in the task panel (EN/NL/FR, browser-verified)
 - [x] Command Center warnings: what happened, why it matters, what to do, if nothing is done (all 37 warning types, EN/NL/FR) + new blocked-work warning
-- [ ] Rate limiting — waits on owner decision (earlier decision: document only)
+- [x] Rate limiting on staging (0090): AI, uploads, website checks, connections, failed-attempt pause; EN/NL/FR messages; browser-verified AI + upload
 - [ ] Zod 4 — documented risk and staged migration plan

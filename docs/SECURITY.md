@@ -38,7 +38,7 @@
 | Tenant isolation | 23 staging SQL suites incl. RLS isolation, privilege hardening, owner initialization, connectors. | 23/23 pass. |
 
 Open risks (documented, not yet fixed):
-- No per-user rate limit on "connect with token" attempts; only workspace admins can try, and each attempt is one read-only provider request. A database-backed limit needs a schema proposal.
+- ~~No per-user rate limit on "connect with token" attempts~~ — limited on staging by proposal 0090 (5 per 15 minutes per person, failed attempts pause).
 - `read_connector_credential_verified` is executable by signed-in users but requires the server-only accounting proof; moving it to a dedicated server role would remove that dependency.
 - Proposals 0057–0059 and 11 committed migrations are applied on staging only; the live database still has the older connector table permissions until the owner approves.
 - Password policy, sign-in rate limits and leaked-password protection are platform auth settings that were not changed in this review.
@@ -56,7 +56,7 @@ Open risks (documented, not yet fixed):
 | Dependencies | seroval, js-yaml, source-map-js advisories. | Updated via overrides. Nested `zod` 4.6.5 inside build tooling remains. |
 
 Open risks (documented decisions):
-- **No per-user/per-business rate limits** (owner decision 2026-11-21: document only). Existing caps: credits, reservations, parallel runs, monthly grants, 30 security events/hour.
+- Rate limits: superseded by proposal 0090 (owner decision changed 2026-11-21: build on staging). See below.
 - Members can register competitor websites, which then become valid SEO targets (public hosts only).
 - Audit rows from before 0088 are not chained; a database superuser could rebuild the chain.
 - Document storage policy counts files without a lock; two simultaneous uploads at the limit may both store a file, but the document record trigger is serialized, so the extra file is never registered.
@@ -64,3 +64,21 @@ Open risks (documented decisions):
 - Proposal 0088 is staging-only, except its document plan limits: those were applied live on 2026-11-21 as proposal 0088a (migration `0057_document_plan_limits_0088a`) with the owner's explicit, single-purpose approval. Live rollout of the rest of 0063–0088 still needs separate approval.
 - Staging already contains 0088a's objects through 0088; the new migration is idempotent, so the staging ledger can take it without changes.
 - Details: `docs/security/`.
+
+## Rate limits — 2026-11-21 (staging, proposal 0090)
+
+Owner decision changed from "document only" to "build on staging". Values are starting values, adjustable in `rate_limit_policies`.
+
+| Action | Per person | Per business | Per organization | Enforced by |
+| --- | --- | --- | --- | --- |
+| AI requests (every path that starts an AI run) | 10 / minute, 60 / hour | 200 / hour | 500 / hour | Database trigger on `agent_runs`; a refused request creates no run and reserves no credits. |
+| Uploads (documents and task files) | 20 / 10 minutes, 60 / hour | 150 / hour | — | Database triggers on `documents` and file notes. |
+| Website checks and website analyses | 5 / 10 minutes, 20 / hour | 40 / hour | 150 / day | `consume_rate_limit` before anything is fetched. |
+| Connecting a data source with a token | 5 / 15 minutes | 20 / hour | — | `consume_rate_limit` before the provider is contacted. |
+| Failed attempts (refused website target, rejected token, missing permission) | 10 in 15 minutes pause website checks and connections | — | — | `record_failed_attempt`; provider outages are not counted. |
+
+- Counters are insert-only rows nobody can read, write or delete through the API; checks per organization are serialized, rows older than 2 days are pruned on write.
+- A refused upload's stored file can now be removed by its uploader while no document record points to it (previously admin-only, so refused uploads stayed behind).
+- Verified: 25/25 rolled-back assertions, all 54 staging SQL suites, unit tests for the messages, browser refusals for AI (FR, phone; no run, no credits) and uploads (NL; no file left behind).
+- Not verified in the browser: website-check and connection refusals (staging has no registered website or test token); covered by the database assertions and server code review.
+- Remaining: sign-in attempt limits are platform auth settings (unchanged); direct storage uploads without a document record are bounded by the plan's file limit, not by these rates; the live database has none of this until proposal 0090 is approved for production (the app then simply applies no limit).
