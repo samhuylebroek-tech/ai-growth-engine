@@ -11,6 +11,7 @@ import { PageHeader, Panel, StatusChip } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/lib/i18n";
+import { CreditPrices } from "@/components/admin/credit-prices";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -173,6 +174,7 @@ function Admin() {
         </table>
       </div>
       <p className="mt-4 text-xs text-muted-foreground">{t("own.marginNote")}</p>
+      <CreditPrices />
     </div>
   );
 }
