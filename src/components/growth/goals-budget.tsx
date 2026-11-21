@@ -11,6 +11,7 @@ import { goalProgress, budgetTotals, budgetAlert, reallocationProposals } from "
 import { goalMeasurement, type GoalLike } from "@/lib/goal-measurement";
 import { StrategyPanel } from "@/components/growth/strategy-panel";
 import { BudgetAllocations } from "@/components/growth/budget-allocation";
+import { wouldDuplicate } from "@/lib/econ/budget-duplicates";
 import { InitiativeOperations } from "@/components/growth/initiative-operations";
 import { PlanDetails } from "@/components/growth/plan-details";
 import { GrowthChain } from "@/components/growth/growth-chain";
@@ -89,14 +90,17 @@ function Planner({ orgId, wsId, canEdit, canBudget, canApprove, userId }: { orgI
     if (r.error) toast.error(tr("goals.updateGoalFailed")); await refresh();
   };
 
-  const [b, setB] = useState({ channel: "", planned: "", cap: "", goal: "", initiative: "", unit: "" });
+  const [b, setB] = useState({ channel: "", planned: "", cap: "", goal: "", initiative: "", unit: "", note: "", separate: false });
+  const dupOf = wouldDuplicate(lines.data ?? [], { channel: b.channel, period_month: month, currency: "EUR", goal_id: b.goal || null, initiative_id: b.initiative || null, unit_id: b.unit || null });
   const addLine = async () => {
     const planned = num(b.planned) ?? 0, cap = num(b.cap);
     if (!b.channel.trim()) return void toast.error(tr("goals.nameChannel"));
     if (cap != null && planned > cap) return void toast.error(tr("goals.overCap"));
-    const r = await supabase.from("budget_lines").insert({ org_id: orgId, workspace_id: wsId, channel: b.channel.trim(), period_month: month, planned, hard_cap: cap, goal_id: b.goal || null, initiative_id: b.initiative || null, ...(b.unit ? { unit_id: b.unit } : {}) });
+    // A line that looks like an existing one needs an explicit "separate budget" choice and a note to tell them apart.
+    if (dupOf.length && (!b.separate || b.note.trim().length < 3)) return void toast.error(tr("ba.dup.add", { n: dupOf.length }));
+    const r = await supabase.from("budget_lines").insert({ org_id: orgId, workspace_id: wsId, channel: b.channel.trim(), period_month: month, planned, hard_cap: cap, goal_id: b.goal || null, initiative_id: b.initiative || null, note: b.note.trim(), ...(b.unit ? { unit_id: b.unit } : {}) });
     if (r.error) return void toast.error(tr("goals.saveLineFailed"));
-    setB({ channel: "", planned: "", cap: "", goal: "", initiative: "", unit: "" }); await refresh();
+    setB({ channel: "", planned: "", cap: "", goal: "", initiative: "", unit: "", note: "", separate: false }); await refresh();
   };
   const setActual = async (id: string, v: string) => {
     const n = num(v); if (n == null || n < 0) return;
@@ -208,6 +212,9 @@ function Planner({ orgId, wsId, canEdit, canBudget, canApprove, userId }: { orgI
           <Input aria-label={tr("goals.hardCap")} type="number" min={0} placeholder={tr("goals.hardCapPh")} value={b.cap} onChange={e => setB({ ...b, cap: e.target.value })} />
           <div className="space-y-1"><select aria-label={tr("goals.linkedGoal")} className={`${sel} w-full`} value={b.goal} onChange={e => setB({ ...b, goal: e.target.value, initiative: "" })}><option value="">{tr("goals.noLinkedGoal")}</option>{(goals.data ?? []).map(x => <option key={x.id} value={x.id}>{x.title}</option>)}</select><select aria-label={tr("goals.linkedInitiative")} className={`${sel} w-full`} value={b.initiative} onChange={e => { const initiative = budgetInitiatives.data?.find(i => i.id === e.target.value); setB({ ...b, initiative: e.target.value, goal: initiative?.goal_id ?? b.goal }); }}><option value="">{tr("goals.noInitiative")}</option>{(budgetInitiatives.data ?? []).filter(i => !b.goal || i.goal_id === b.goal).map(i => <option key={i.id} value={i.id}>{i.title}</option>)}</select></div>
           <Button onClick={addLine}><Plus className="mr-1 h-4 w-4" />{tr("goals.addLine")}</Button>
+          {dupOf.length > 0 && <div role="alert" className="space-y-2 text-sm text-warning sm:col-span-5"><p>{tr("ba.dup.add", { n: dupOf.length })}</p>
+            <div className="flex flex-wrap items-center gap-3"><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={b.separate} onChange={e => setB({ ...b, separate: e.target.checked })} />{tr("ba.dup.confirm")}</label>
+              <Input aria-label={tr("ba.dup.notePh")} className="h-8 w-64" maxLength={500} placeholder={tr("ba.dup.notePh")} value={b.note} onChange={e => setB({ ...b, note: e.target.value })} /></div></div>}
         </div>}
       </section>
     </div>

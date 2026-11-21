@@ -59,7 +59,7 @@ export function learningPatterns(learnings: readonly Learning[], proposals: read
     const k = `${lever}|${l.channel.toLowerCase()}|${l.business_model}`;
     groups.set(k, [...(groups.get(k) ?? []), { ...l, lever }]);
   }
-  return [...groups.entries()].map(([key, ls]) => {
+  return [...groups.entries()].map(([key, ls]): Pattern => {
     const pos = ls.filter((l) => l.outcome_class === "positive").length, neg = ls.filter((l) => l.outcome_class === "negative").length;
     const nc = ls.length - pos - neg;
     const camps = new Set(ls.map((l) => proposals.find((p) => p.id === l.proposal_id)?.campaign_id ?? `p:${l.proposal_id}`)).size;
@@ -76,7 +76,7 @@ export function learningPatterns(learnings: readonly Learning[], proposals: read
       key, lever: ls[0]!.lever, channel: ls[0]!.channel, businessModel: ls[0]!.business_model,
       observations: ls.length, campaigns: camps, positive: pos, negative: neg, noChange: nc,
       from: dates[0]!, to: dates.at(-1)!, consistency, confidence,
-      direction: pos / ls.length >= 0.7 ? "positive" : neg / ls.length >= 0.7 ? "negative" : "mixed",
+      direction: (pos / ls.length >= 0.7 ? "positive" : neg / ls.length >= 0.7 ? "negative" : "mixed") as Pattern["direction"],
       avgDaysToResult: days.length ? Math.round(days.reduce((a, b) => a + b, 0) / days.length) : null,
       costOverruns: ls.filter((l) => l.expected_cost !== null && l.actual_cost !== null && Number(l.actual_cost) > Number(l.expected_cost) * 1.2).length,
       limitations, lastValidated: dates.at(-1)!,
@@ -93,4 +93,17 @@ export function expectedVsActual(l: Learning) {
     days: l.days_to_result,
     change: l.measured_change_pct === null ? null : Number(l.measured_change_pct),
   };
+}
+
+/** Outcomes a learning may record for a proposal; mirrors `record_recommendation_learning`: a positive, negative or
+ *  no-change learning needs the recorded measurement that says so. Empty when the proposal has no work yet. */
+export function allowedOutcomes(p: Pick<Proposal, "status" | "outcome">): Learning["outcome_class"][] {
+  if (p.status === "measured") {
+    if (p.outcome === "improved") return ["positive", "partially_executed"];
+    if (p.outcome === "worse") return ["negative", "partially_executed"];
+    if (p.outcome === "no_change") return ["no_change", "partially_executed"];
+    return ["inconclusive", "insufficient_data", "measurement_unavailable", "partially_executed"];
+  }
+  if (p.status === "converted") return ["not_executed", "partially_executed", "insufficient_data", "measurement_unavailable"];
+  return [];
 }

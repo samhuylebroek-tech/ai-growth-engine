@@ -531,6 +531,34 @@ export type CampaignSpendRow = {
   relates_to: string | null; note: string; request_key: string; created_by: string; created_at: string;
   /** Proposal 0084: the budget line (channel and month) the entry was paid from; absent before 0084. */
   budget_line_id?: string | null;
+  /** Proposal 0085: cost category; absent before 0085 (then marketing). */
+  category?: "marketing" | "production" | "agency" | "software" | "other";
+};
+/** Proposal 0085: business-level cost (never a campaign cost), insert-only with linked corrections. */
+export type BusinessCostRow = {
+  id: string; org_id: string; workspace_id: string; category: "cogs" | "software" | "agency" | "marketing" | "other_operating";
+  kind: "cost" | "correction"; amount: number | string; currency: string; period_start: string; period_end: string;
+  data_class: "manual" | "estimated" | "simulated" | "imported"; initiative_id: string | null; revenue_event_id: string | null;
+  relates_to: string | null; source_ref: string; note: string; request_key: string; created_by: string; created_at: string;
+};
+/** Proposal 0085: versioned cost model per business. */
+export type BusinessCostModelRow = {
+  id: string; org_id: string; workspace_id: string; model: "per_sale" | "per_period" | "margin_estimate" | "none";
+  margin_rate: number | string | null; effective_from: string; note: string; request_key: string; created_by: string; created_at: string;
+};
+/** Proposal 0085: insert-only credit price versions (Platform Owner). */
+export type CreditPriceVersionRow = {
+  id: string; scope: "platform" | "plan"; plan_key: string | null; currency: string; price_per_credit: number | string;
+  effective_from: string; methodology: string; created_by: string; created_at: string;
+};
+/** Proposal 0085: insert-only recommendation learning. */
+export type RecommendationLearningRow = {
+  id: string; org_id: string; workspace_id: string; proposal_id: string;
+  outcome_class: "positive" | "negative" | "no_change" | "inconclusive" | "insufficient_data" | "not_executed" | "partially_executed" | "measurement_unavailable";
+  evidence_class: "actual" | "estimated" | "simulated"; lever: string; channel: string; business_model: string;
+  measured_change_pct: number | string | null; expected_impact: string; expected_cost: number | string | null; actual_cost: number | string | null;
+  currency: string | null; expected_credits: number | null; actual_credits: number; uncertain_runs: number; days_to_result: number | null;
+  task_status: string; execution_quality: "good" | "acceptable" | "poor" | "unknown"; lesson: string; request_key: string; recorded_by: string; created_at: string;
 };
 /** Proposal 0084: current allocation of one budget line to one campaign. */
 export type CampaignBudgetAllocationRow = {
@@ -907,6 +935,10 @@ type PendingTables = {
   task_replan_decisions: { Row: TaskReplanDecisionRow; Insert: never; Update: never; Relationships: [] };
   campaign_spend_entries: { Row: CampaignSpendRow; Insert: never; Update: never; Relationships: [] };
   campaign_budget_allocations: { Row: CampaignBudgetAllocationRow; Insert: never; Update: never; Relationships: [] };
+  business_cost_entries: { Row: BusinessCostRow; Insert: never; Update: never; Relationships: [] };
+  business_cost_models: { Row: BusinessCostModelRow; Insert: never; Update: never; Relationships: [] };
+  credit_price_versions: { Row: CreditPriceVersionRow; Insert: never; Update: never; Relationships: [] };
+  recommendation_learnings: { Row: RecommendationLearningRow; Insert: never; Update: never; Relationships: [] };
   budget_allocation_events: { Row: BudgetAllocationEventRow; Insert: never; Update: never; Relationships: [] };
   budget_change_requests: { Row: BudgetChangeRequestRow; Insert: never; Update: never; Relationships: [] };
   campaign_status_events: { Row: CampaignStatusEventRow; Insert: never; Update: never; Relationships: [] };
@@ -1252,6 +1284,10 @@ type PendingFunctions = {
   change_campaign_allocation: { Args: { _workspace: string; _request: string; _p: Json }; Returns: Json };
   request_budget_change: { Args: { _workspace: string; _request: string; _p: Json }; Returns: Json };
   decide_budget_change: { Args: { _id: string; _approve: boolean; _note: string }; Returns: Json };
+  record_business_cost: { Args: { _workspace: string; _request: string; _p: Json }; Returns: Json };
+  set_cost_model: { Args: { _workspace: string; _request: string; _model: string; _margin_rate: number | null; _effective_from: string; _note: string }; Returns: Json };
+  set_credit_price: { Args: { _scope: string; _plan: string | null; _currency: string; _price: number; _effective_from: string; _methodology: string }; Returns: string };
+  record_recommendation_learning: { Args: { _proposal: string; _request: string; _p: Json }; Returns: Json };
   transition_campaign: { Args: { _workspace: string; _campaign: string; _to: string; _p?: Json }; Returns: Json };
   set_campaign_spend_limits: { Args: { _workspace: string; _request: string; _campaign: string; _p: Json }; Returns: Json };
   set_business_check_frequency: { Args: { _workspace: string; _frequency: BusinessCheckSettingsRow["frequency"] }; Returns: undefined };

@@ -29,6 +29,7 @@ import { cn } from "@/lib/utils";
 import { biKey } from "./bi-data";
 import { BiState, useBi } from "./business-overview";
 import { Badge, Section, sel, tk, useFmt } from "./parts";
+import { RecommendationLearning } from "@/components/econ/recommendation-learning";
 
 const FILTERS = {
   open: ["proposed", "approved"],
@@ -104,6 +105,7 @@ function Body({ d }: { d: BiData }) {
           </ul>
         )}
       </Section>
+      <RecommendationLearning d={d} />
     </>
   );
 }

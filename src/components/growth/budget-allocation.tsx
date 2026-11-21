@@ -9,6 +9,7 @@ import type { MessageKey } from "@/lib/i18n/messages";
 import { growthDb, isNotInstalled, retryUnlessNotInstalled, type BudgetAllocationRejection, type CampaignBudgetAllocationRow, type BudgetAllocationEventRow, type BudgetChangeRequestRow } from "@/lib/pending-schema";
 import { budgetEconomics, groupAllocations, monthForecast, previewAllocation, type CampaignLike, type LineLike } from "@/lib/budget-allocation";
 import { campaignSpendOptions } from "@/components/execution/replan-data";
+import { duplicateGroups, lineLabel } from "@/lib/econ/budget-duplicates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -20,7 +21,7 @@ const errMsg = (e: unknown) => (typeof e === "object" && e !== null ? String((e 
 const errCode = (e: unknown) => (typeof e === "object" && e !== null ? String((e as { code?: unknown }).code ?? "") : "");
 
 export function BudgetAllocations({ orgId, wsId, month, lines, goals, canRequest, canBudget, elapsed }: {
-  orgId: string; wsId: string; month: string; lines: readonly (LineLike & { goal_id: string | null; initiative_id: string | null })[];
+  orgId: string; wsId: string; month: string; lines: readonly (LineLike & { goal_id: string | null; initiative_id: string | null; note?: string | null; created_at?: string | null })[];
   goals: readonly { id: string; title: string }[]; canRequest: boolean; canBudget: boolean; elapsed: number;
 }) {
   const qc = useQueryClient();
@@ -44,7 +45,11 @@ export function BudgetAllocations({ orgId, wsId, month, lines, goals, canRequest
   const econ = useMemo(() => budgetEconomics(lines, allocQ.data ?? [], spendQ.data ?? []), [lines, allocQ.data, spendQ.data]);
   const campaigns = campaignsQ.data ?? [];
   const title = (id: string | null | undefined) => campaigns.find((c) => c.id === id)?.title ?? "—";
-  const lineName = (id: string) => lines.find((l) => l.id === id)?.channel ?? "—";
+  const dups = useMemo(() => duplicateGroups(lines), [lines]);
+  const dupIds = new Set(dups.flat().map((l) => l.id));
+  // Lines that look alike carry a distinguishing label everywhere they are named.
+  const tagOf = (id: string) => { const l = lines.find((x) => x.id === id); return l && dupIds.has(id) ? ` (${lineLabel(l, tag)})` : ""; };
+  const lineName = (id: string) => `${lines.find((l) => l.id === id)?.channel ?? "—"}${tagOf(id)}`;
   const refresh = () => Promise.all([
     qc.invalidateQueries({ queryKey: ["budget-allocations", wsId] }), qc.invalidateQueries({ queryKey: ["budget-allocation-events", wsId] }),
     qc.invalidateQueries({ queryKey: ["budget-change-requests", wsId] }), qc.invalidateQueries({ queryKey: ["budget-lines", wsId] }),
@@ -128,6 +133,11 @@ export function BudgetAllocations({ orgId, wsId, month, lines, goals, canRequest
         );
       })}
 
+      {dups.length > 0 && <div role="alert" className="space-y-1 rounded border border-warning/40 p-3 text-sm text-warning">
+        <p className="font-medium">{tr("ba.dup.title")}</p>
+        {dups.map((g) => <p key={g[0]!.id}>{tr("ba.dup.group", { ch: g[0]!.channel, m: g[0]!.period_month.slice(0, 7), c: g[0]!.currency, n: g.length, a: money(g.reduce((t, l) => t + Number(l.planned), 0), g[0]!.currency), labels: g.map((l) => lineLabel(l, tag)).join(", ") })}</p>)}
+        <p className="text-xs">{tr("ba.dup.note")}</p>
+      </div>}
       <ul className="space-y-3">
         {econ.lines.map((l) => {
           const src = lines.find((x) => x.id === l.id);
@@ -136,7 +146,7 @@ export function BudgetAllocations({ orgId, wsId, month, lines, goals, canRequest
           return (
             <li key={l.id} className="space-y-2 rounded border p-3 text-sm">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <span className="font-medium">{tr("ba.line", { ch: l.channel, a: money(l.planned, l.currency) })}</span>
+                <span className="font-medium">{tr("ba.line", { ch: l.channel, a: money(l.planned, l.currency) })}{tagOf(l.id)}</span>
                 <span className={cn("text-xs", l.unallocated === 0 ? "text-muted-foreground" : "")}>{tr("ba.lineUnallocated", { a: money(l.unallocated, l.currency) })}</span>
               </div>
               {earmark && <p className="text-xs text-muted-foreground">{tr("ba.lineEarmark", { t: earmark })}</p>}
@@ -174,7 +184,7 @@ export function BudgetAllocations({ orgId, wsId, month, lines, goals, canRequest
             <label className="flex flex-col gap-1 text-xs">{tr("ba.form.line")}
               <select aria-label={tr("ba.form.line")} className={sel} value={lineId} onChange={(e) => { setLineId(e.target.value); key.current = null; setRefusal(null); }}>
                 <option value="">{tr("ba.form.choose")}</option>
-                {econ.lines.map((l) => <option key={l.id} value={l.id}>{`${l.channel} · ${money(l.unallocated, l.currency)}`}</option>)}
+                {econ.lines.map((l) => <option key={l.id} value={l.id}>{`${l.channel}${tagOf(l.id)} · ${money(l.unallocated, l.currency)}`}</option>)}
               </select></label>
             <label className="flex flex-col gap-1 text-xs">{tr("ba.form.campaign")}
               <select aria-label={tr("ba.form.campaign")} className={sel} value={campaignId} onChange={(e) => { setCampaignId(e.target.value); key.current = null; setRefusal(null); }}>

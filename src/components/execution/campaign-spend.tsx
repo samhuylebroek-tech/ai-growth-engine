@@ -47,6 +47,7 @@ export function CampaignSpend({ campaignId, budgetEur, dates }: { campaignId: st
   const [cls, setCls] = useState<"manual" | "simulated">("manual");
   const [ref, setRef] = useState("");
   const [note, setNote] = useState("");
+  const [category, setCategory] = useState("marketing");
   const [busy, setBusy] = useState(false);
   const request = useRef<string | null>(null);
   const money = (n: number, c = "EUR") => new Intl.NumberFormat(tag, { style: "currency", currency: c }).format(n);
@@ -84,7 +85,7 @@ export function CampaignSpend({ campaignId, budgetEur, dates }: { campaignId: st
     try {
       const r = await growthDb.rpc("record_campaign_spend", {
         _workspace: o.workspace.id, _request: request.current, _campaign: campaignId,
-        _p: { kind, amount: signed, currency: currency.trim().toUpperCase(), occurred_on: day, data_class: cls, source_ref: ref.trim(), note: note.trim(), ...(relates ? { relates_to: relates } : {}), ...(!relates && lineId && lineChoices.some((x) => x.a.budget_line_id === lineId) ? { budget_line_id: lineId } : {}) },
+        _p: { kind, amount: signed, currency: currency.trim().toUpperCase(), occurred_on: day, data_class: cls, source_ref: ref.trim(), note: note.trim(), ...(relates ? { relates_to: relates } : category !== "marketing" ? { category } : {}), ...(!relates && lineId && lineChoices.some((x) => x.a.budget_line_id === lineId) ? { budget_line_id: lineId } : {}) },
       });
       if (r.error) throw r.error;
       request.current = null;
@@ -171,6 +172,10 @@ export function CampaignSpend({ campaignId, budgetEur, dates }: { campaignId: st
               <select className={sel} value={cls} disabled={!!target} onChange={(e) => setCls(e.target.value as "manual" | "simulated")}>
                 <option value="manual">{tx("rp.spend.c.manual")}</option><option value="simulated">{tx("rp.spend.c.simulated")}</option>
               </select></label>
+            {!target && <label className="flex flex-col gap-1">{tx("ge.category")}
+              <select aria-label={tx("ge.category")} className={sel} value={category} onChange={(e) => { setCategory(e.target.value); request.current = null; }}>
+                {["marketing", "production", "agency", "software", "other"].map((k) => <option key={k} value={k}>{tx(`ge.scat.${k}` as MessageKey)}</option>)}
+              </select></label>}
             <label className="flex flex-col gap-1">{tx("rp.spend.ref")}<Input value={ref} maxLength={120} onChange={(e) => setRef(e.target.value)} /></label>
             {!target && lineChoices.length > 0 && <label className="flex flex-col gap-1 sm:col-span-2">{tx("ba.spendLine")}
               <select aria-label={tx("ba.spendLine")} className={sel} value={lineId} onChange={(e) => { setLineId(e.target.value); request.current = null; }}>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { expectedVsActual, learningPatterns, stageOf, type Learning } from "@/lib/econ/learning";
+import { allowedOutcomes, expectedVsActual, learningPatterns, stageOf, type Learning } from "@/lib/econ/learning";
 
 const p = (id: string, status: string, extra: Record<string, unknown> = {}) => ({ id, status, outcome: null, measure_after: null, campaign_id: null, category: "immediate", created_at: "2026-11-01", reviewed_at: null, ...extra });
 let n = 0;
@@ -38,5 +38,17 @@ describe("learning patterns", () => {
   it("compares expected and actual only where both are recorded", () => {
     expect(expectedVsActual(l("a", "positive", { actual_cost: 130 }))).toMatchObject({ cost: { diff: 30 }, credits: { diff: 1 } });
     expect(expectedVsActual(l("a", "positive", { actual_cost: null })).cost).toBeNull();
+  });
+});
+
+describe("allowedOutcomes", () => {
+  it("allows a positive learning only after a measurement recorded an improvement", () => {
+    expect(allowedOutcomes({ status: "measured", outcome: "improved" })).toContain("positive");
+    expect(allowedOutcomes({ status: "measured", outcome: "worse" })).not.toContain("positive");
+    expect(allowedOutcomes({ status: "converted", outcome: null })).not.toContain("positive");
+  });
+  it("allows no learning before the recommendation became work", () => {
+    expect(allowedOutcomes({ status: "approved", outcome: null })).toEqual([]);
+    expect(allowedOutcomes({ status: "proposed", outcome: null })).toEqual([]);
   });
 });

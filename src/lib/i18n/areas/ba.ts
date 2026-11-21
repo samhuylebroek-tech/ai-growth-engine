@@ -4,6 +4,12 @@ import { defineArea } from "../define";
 export const ba = defineArea("ba", {
   en: {
     "ba.title": "Budget allocation to campaigns",
+    "ba.dup.title": "Possible duplicate budget lines",
+    "ba.dup.group": "{ch} {m} ({c}): {n} lines, {a} planned in total — {labels}",
+    "ba.dup.note": "They stay separate budgets; nothing is merged or removed. Check that both are intended, and tell them apart by their note.",
+    "ba.dup.add": "A budget line for this channel and month already exists ({n}). Tick “This is a separate budget” and add a note to tell them apart.",
+    "ba.dup.confirm": "This is a separate budget",
+    "ba.dup.notePh": "Note (e.g. approved by …)",
     "ba.intro": "Each budget line (channel and month) is shared by all campaigns. A campaign receives money only through an allocation, so the same amount can never be handed out twice.",
     "ba.notInstalled": "Campaign allocations are not available in this environment yet.",
     "ba.loadFailed": "Budget allocations could not be loaded.",
@@ -93,6 +99,12 @@ export const ba = defineArea("ba", {
   },
   nl: {
     "ba.title": "Budgettoewijzing aan campagnes",
+    "ba.dup.title": "Mogelijk dubbele budgetregels",
+    "ba.dup.group": "{ch} {m} ({c}): {n} regels, samen {a} gepland — {labels}",
+    "ba.dup.note": "Ze blijven aparte budgetten; niets wordt samengevoegd of verwijderd. Controleer of beide bedoeld zijn en onderscheid ze met hun notitie.",
+    "ba.dup.add": "Er bestaat al een budgetregel voor dit kanaal en deze maand ({n}). Vink “Dit is een apart budget” aan en voeg een notitie toe om ze te onderscheiden.",
+    "ba.dup.confirm": "Dit is een apart budget",
+    "ba.dup.notePh": "Notitie (bv. goedgekeurd door …)",
     "ba.intro": "Elke budgetregel (kanaal en maand) wordt door alle campagnes gedeeld. Een campagne krijgt alleen geld via een toewijzing, zodat hetzelfde bedrag nooit twee keer kan worden uitgedeeld.",
     "ba.notInstalled": "Campagnetoewijzingen zijn in deze omgeving nog niet beschikbaar.",
     "ba.loadFailed": "Budgettoewijzingen konden niet worden geladen.",
@@ -182,6 +194,12 @@ export const ba = defineArea("ba", {
   },
   fr: {
     "ba.title": "Affectation du budget aux campagnes",
+    "ba.dup.title": "Lignes budgétaires possiblement en double",
+    "ba.dup.group": "{ch} {m} ({c}) : {n} lignes, {a} prévus au total — {labels}",
+    "ba.dup.note": "Elles restent des budgets séparés ; rien n'est fusionné ni supprimé. Vérifiez que les deux sont voulues et distinguez-les par leur note.",
+    "ba.dup.add": "Une ligne budgétaire existe déjà pour ce canal et ce mois ({n}). Cochez « C'est un budget distinct » et ajoutez une note pour les distinguer.",
+    "ba.dup.confirm": "C'est un budget distinct",
+    "ba.dup.notePh": "Note (p. ex. approuvé par …)",
     "ba.intro": "Chaque ligne budgétaire (canal et mois) est partagée par toutes les campagnes. Une campagne ne reçoit de l'argent que par une affectation : le même montant ne peut jamais être attribué deux fois.",
     "ba.notInstalled": "Les affectations de campagne ne sont pas encore disponibles dans cet environnement.",
     "ba.loadFailed": "Impossible de charger les affectations budgétaires.",
