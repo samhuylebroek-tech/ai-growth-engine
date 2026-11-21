@@ -3,6 +3,7 @@ import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/r
 import { setResponseHeader } from "@tanstack/react-start/server";
 import { renderErrorPage } from "./lib/error-page";
 import { checkRuntimeEnvironment } from "./lib/environment";
+import { bodyLimitRefusal } from "./lib/request-limits";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
@@ -42,6 +43,13 @@ const environmentMiddleware = createMiddleware().server(async ({ next }) => {
   return next();
 });
 
+// Refuses oversized request bodies before any parsing or validation (see src/lib/request-limits.ts).
+const bodyLimitMiddleware = createMiddleware().server(async ({ next, request, handlerType }) => {
+  const refusal = bodyLimitRefusal(request.method, request.headers, handlerType);
+  if (refusal) return new Response(refusal.reason, { status: refusal.status, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
+  return next();
+});
+
 // Start installs this automatically when src/start.ts is absent; defining the
 // file opts out, so re-add it explicitly to keep server functions protected
 // from cross-site requests.
@@ -57,5 +65,5 @@ const csrfMiddleware = createCsrfMiddleware({
 // project did not intentionally replace it.
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachSupabaseAuth],
-  requestMiddleware: [errorMiddleware, environmentMiddleware, csrfMiddleware],
+  requestMiddleware: [errorMiddleware, environmentMiddleware, bodyLimitMiddleware, csrfMiddleware],
 }));
