@@ -1288,6 +1288,8 @@ type PendingFunctions = {
   set_cost_model: { Args: { _workspace: string; _request: string; _model: string; _margin_rate: number | null; _effective_from: string; _note: string }; Returns: Json };
   set_credit_price: { Args: { _scope: string; _plan: string | null; _currency: string; _price: number; _effective_from: string; _methodology: string }; Returns: string };
   record_recommendation_learning: { Args: { _proposal: string; _request: string; _p: Json }; Returns: Json };
+  /** Proposal 0086: the credit prices that apply to the caller (platform + own plans), without reasons or authors. */
+  credit_prices_in_effect: { Args: Record<string, never>; Returns: { scope: string; plan_key: string | null; currency: string; price_per_credit: number; effective_from: string }[] };
   transition_campaign: { Args: { _workspace: string; _campaign: string; _to: string; _p?: Json }; Returns: Json };
   set_campaign_spend_limits: { Args: { _workspace: string; _request: string; _campaign: string; _p: Json }; Returns: Json };
   set_business_check_frequency: { Args: { _workspace: string; _frequency: BusinessCheckSettingsRow["frequency"] }; Returns: undefined };

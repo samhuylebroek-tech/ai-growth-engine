@@ -10,19 +10,18 @@ import { useI18n } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { hasRole } from "@/lib/permissions";
 import { growthDb, isNotInstalled } from "@/lib/pending-schema";
-import { attribute, MODELS, revenueTotals, type Model } from "@/lib/bi/attribution";
+import { MODELS, type Model } from "@/lib/bi/attribution";
 import { PERIODS, periodRange, type PeriodKey } from "@/lib/bi/kpis";
-import { rollup, completeness, type Money, type Totals } from "@/lib/econ/rollup";
-import { creditCost } from "@/lib/econ/credit-pricing";
-import { cac, campaignRoas, grossProfit, observedCustomerValue } from "@/lib/econ/profitability";
+import { rollup, type Money } from "@/lib/econ/rollup";
+import { economicsSummary, PRICE_CURRENCY, type EconSummary } from "@/lib/econ/summary";
 import { econKey, econOptions, type EconData } from "@/components/econ/econ-data";
 import { SectionHeading } from "@/components/app/section-heading";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const sel = "h-9 w-full min-w-0 rounded-md border border-input bg-background px-2 text-sm";
+const AGENT_KEYS = ["growth_officer", "organization_growth_officer", "business_intelligence", "market_research", "competitor_intel", "marketing_strategy", "seo", "content", "social", "advertising", "crm", "email"];
 const COST_CATS = ["cogs", "software", "agency", "marketing", "other_operating"] as const;
-const PRICE_CURRENCY = "EUR";
 
 export function GrowthEconomics() {
   const o = useOrg(); const { t } = useI18n();
@@ -40,7 +39,8 @@ function Economics({ orgId, wsId, canRecord, canModel }: { orgId: string; wsId: 
   const money = (n: number, c: string) => new Intl.NumberFormat(tag, { style: "currency", currency: c }).format(n);
   const many = (m: Money) => { const e = Object.entries(m).filter(([, v]) => v !== 0); return e.length ? e.map(([c, v]) => money(v, c)).join(" · ") : "—"; };
   const d = q.data;
-  const view = useMemo(() => d ? build(d, from, to, model) : null, [d, from, to, model]);
+  const today = new Date().toISOString().slice(0, 10);
+  const view = useMemo(() => d ? economicsSummary(d, from, to, model, today) : null, [d, from, to, model, today]);
   if (q.isLoading) return <p className="p-6 text-muted-foreground">{t("ge.loading")}</p>;
   if (q.error) return <p className="p-6 text-destructive">{t(isNotInstalled(q.error) ? "ge.notInstalled" : "ge.loadFailed")}</p>;
   if (!d || !view) return null;
@@ -79,12 +79,18 @@ function Economics({ orgId, wsId, canRecord, canModel }: { orgId: string; wsId: 
             </dl>
           </div>
         ))}
+        {view.currencies.map((c) => <Missing key={`m:${c.currency}`} c={c} />)}
         <div className="rounded-lg border bg-card p-4 text-sm">
           <h3 className="mb-1 font-medium">{t("ge.ai")}</h3>
-          <p>{t("ge.aiCredits", { c: view.biz.credits, p: view.biz.pendingCredits, u: view.biz.uncertainRuns })}</p>
-          <p className="text-muted-foreground">{view.ai.priced > 0 ? t("ge.aiCost", { a: money(view.ai.amount, PRICE_CURRENCY), p: view.ai.priced }) : t("ge.aiNoPrice")}{view.ai.unpriced > 0 && view.ai.priced > 0 ? ` · ${t("ge.aiUnpriced", { n: view.ai.unpriced })}` : ""}</p>
+          <p>{t("ge.aiTotal", { n: view.ai.total, c: view.ai.onCampaigns, o: view.ai.otherWork })}</p>
+          {(view.ai.pending > 0 || view.ai.uncertain > 0) && <p className="text-muted-foreground">{t("ge.aiOpen", { p: view.ai.pending, u: view.ai.uncertain })}</p>}
+          {view.ai.byAgent.length > 0 && <p className="text-xs text-muted-foreground">{view.ai.byAgent.map(([k, n]) => `${t(`ge.agent.${AGENT_KEYS.includes(k) ? k : "other"}` as MessageKey)} ${n}`).join(" · ")}</p>}
+          <p className="text-muted-foreground">{view.ai.cost.priced > 0 ? t("ge.aiCost", { a: money(view.ai.cost.amount, PRICE_CURRENCY), p: view.ai.cost.priced }) : t("ge.aiNoPrice")}{view.ai.cost.unpriced > 0 && view.ai.cost.priced > 0 ? ` · ${t("ge.aiUnpriced", { n: view.ai.cost.unpriced })}` : ""}</p>
+          {!view.ai.reconciled && <p role="alert" className="text-xs text-warning">{t("ge.aiNotReconciled")}</p>}
           <p className="text-xs text-muted-foreground">{t("ge.aiSeparate")}</p>
         </div>
+        <Budget v={view} money={money} />
+        <Channels v={view} money={money} />
       </section>
 
       <section aria-label={t("ge.campaigns")} className="space-y-2">
@@ -108,6 +114,7 @@ function Economics({ orgId, wsId, canRecord, canModel }: { orgId: string; wsId: 
       </section>
 
       <Rollups d={d} many={many} />
+      <Formulas />
       {d.costsInstalled && <CostLedger orgId={orgId} wsId={wsId} d={d} canRecord={canRecord} canModel={canModel} money={money} />}
     </div>
   );
@@ -117,34 +124,60 @@ function Fig({ label, value, note }: { label: string; value: string; note: strin
   return <div className="rounded border border-border p-3"><dt className="text-xs text-muted-foreground">{label}</dt><dd className="text-lg font-semibold tabular-nums">{value}</dd>{note && <p className="mt-1 text-xs text-muted-foreground">{note}</p>}</div>;
 }
 
-function build(d: EconData, from: string, to: string, model: Model) {
-  const inPeriod = <T extends { occurred_on: string }>(r: T) => r.occurred_on >= from && r.occurred_on <= to;
-  const periodSpend = d.spend.filter(inPeriod);
-  const periodCosts = d.costs.filter((c) => c.period_start >= from && c.period_end <= to);
-  const input = { campaigns: d.campaigns, allocations: d.allocations, spend: d.spend, costs: d.costs, credits: d.credits };
-  const biz = rollup("business", null, input);
-  const pbiz: Totals = rollup("business", null, { ...input, spend: periodSpend, costs: periodCosts });
-  const revenue = revenueTotals(d.revenue, from, to);
-  const att = attribute(d.revenue, d.touches, model, from, to);
-  const gp = grossProfit(d.revenue, d.costs, d.models, from, to);
-  const cc = cac(d.revenue, d.spend, d.costs, from, to);
-  const clv = observedCustomerValue(d.revenue);
-  const curs = new Set([...revenue.map((r) => r.currency), ...Object.keys(pbiz.spent), ...Object.keys(pbiz.directCosts), ...Object.keys(pbiz.simulatedSpent), ...Object.keys(pbiz.estimatedCosts)]);
-  const cats = (m: Record<string, Money>, cur: string) => Object.entries(m).filter(([, v]) => v[cur]).map(([k, v]) => [k, v[cur]!] as const);
-  const currencies = [...curs].sort().map((cur) => ({
-    currency: cur, rev: revenue.find((r) => r.currency === cur) ?? null, att: att.find((a) => a.currency === cur) ?? null,
-    spent: pbiz.spent[cur] ?? 0, reserved: pbiz.reserved[cur] ?? 0, simulated: pbiz.simulatedSpent[cur] ?? 0, costs: pbiz.directCosts[cur] ?? 0, estCosts: pbiz.estimatedCosts[cur] ?? 0,
-    byCat: cats(pbiz.spentByCategory, cur), costCat: cats(pbiz.costsByCategory, cur),
-    gp: gp.find((g) => g.currency === cur) ?? null, cac: cc.find((x) => x.currency === cur) ?? null, clv: clv.find((x) => x.currency === cur) ?? null,
-  }));
-  const ai = creditCost(d.credits.filter((c) => c.state === "charged").map((c) => ({ credits: c.credits, at: c.at })), d.prices, d.planKey, PRICE_CURRENCY);
-  const priced = ai.priced > 0 && ai.unpriced === 0;
-  const campaigns = d.campaigns.map((c) => {
-    const ct = rollup("campaign", c.id, input);
-    const roas = campaignRoas(c.id, d.revenue, d.touches, d.spend, model, from, to);
-    return { id: c.id, title: c.title, t: ct, roas, inputs: completeness(ct, { attributedRevenue: roas.some((r) => r.revenue > 0), priced }) };
-  });
-  return { biz, currencies, ai, campaigns };
+type Cur = EconSummary["currencies"][number];
+/** Each missing input of a figure, with why it is needed and where it is added. */
+function Missing({ c }: { c: Cur }) {
+  const { t } = useI18n();
+  const keys = new Set<string>();
+  for (const m of c.gp?.missing ?? []) keys.add(m);
+  if (c.cac?.salesWithoutCustomer) keys.add("customer_ref");
+  if (c.cac && c.cac.spend <= 0 && (c.rev?.sales ?? 0) > 0) keys.add("acquisition_spend");
+  if (c.att && c.att.unattributedSales > 0) keys.add("attribution");
+  if (!keys.size) return null;
+  return (
+    <div className="rounded-lg border border-dashed p-4 text-sm">
+      <h3 className="mb-2 font-medium">{t("ge.missingTitle", { c: c.currency })}</h3>
+      <ul className="space-y-1.5 text-xs">{[...keys].map((k) => <li key={k}><span className="font-medium">{t(`ge.missing.${k}` as MessageKey)}</span> — {t(`ge.fix.${k}` as MessageKey)}</li>)}</ul>
+    </div>
+  );
+}
+
+function Budget({ v, money }: { v: EconSummary; money: (n: number, c: string) => string }) {
+  const { t } = useI18n();
+  return (
+    <div className="rounded-lg border bg-card p-4 text-sm">
+      <h3 className="mb-1 font-medium">{t("ge.budget")}</h3>
+      {v.budget.length === 0 ? <p className="text-muted-foreground">{t("ge.noBudget")}</p> : v.budget.map((b) => (
+        <p key={b.currency}>{t("ge.budgetLine", { p: money(b.total, b.currency), a: money(b.allocated, b.currency), u: money(b.unallocated, b.currency), s: money(b.spent, b.currency), r: money(b.reserved, b.currency), n: b.lines })}</p>))}
+      {v.duplicates.length > 0 && <p className="text-xs text-warning">{t("ge.budgetDups", { n: v.duplicates.length })}</p>}
+      <p className="text-xs text-muted-foreground">{t("ge.budgetNote")}</p>
+    </div>
+  );
+}
+
+function Channels({ v, money }: { v: EconSummary; money: (n: number, c: string) => string }) {
+  const { t } = useI18n();
+  const rows = Object.entries(v.channels);
+  return (
+    <div className="rounded-lg border bg-card p-4 text-sm">
+      <h3 className="mb-1 font-medium">{t("ge.channels")}</h3>
+      {rows.length === 0 ? <p className="text-muted-foreground">{t("ge.noChannels")}</p> : (
+        <ul className="space-y-0.5">{rows.map(([ch, m]) => <li key={ch}>{ch === "unspecified" ? t("ge.channelNone") : ch}: {Object.entries(m).map(([cur, a]) => money(a, cur)).join(" · ")}</li>)}</ul>)}
+      <p className="text-xs text-muted-foreground">{t("ge.channelsNote")}</p>
+    </div>
+  );
+}
+
+function Formulas() {
+  const { t } = useI18n();
+  return (
+    <details className="rounded-lg border bg-card p-4 text-sm">
+      <summary className="cursor-pointer font-medium">{t("ge.formulas")}</summary>
+      <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
+        {["net", "gp", "margin", "cac", "roas", "rpc", "ai"].map((k) => <li key={k}>{t(`ge.f.${k}` as MessageKey)}</li>)}
+      </ul>
+    </details>
+  );
 }
 
 function Rollups({ d, many }: { d: EconData; many: (m: Money) => string }) {
