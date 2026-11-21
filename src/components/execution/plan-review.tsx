@@ -62,7 +62,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
         _kind: kind,
         _request: request,
         _plan: valid.data,
-        _goal: kind === "tasks" || !selectedGoalId ? null : selectedGoalId,
+        ...(kind === "tasks" || !selectedGoalId ? {} : { _goal: selectedGoalId }),
       });
       if (r.error) throw r.error;
       await qc.invalidateQueries({ queryKey: ["execution"] });
