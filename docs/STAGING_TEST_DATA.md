@@ -79,6 +79,9 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
   Officer analysis (5 credits, recommends option A). The proposal is intentionally left undecided so no task dates
   changed. Test-account passwords were rotated by `seed-users.ts` after a sandbox restart (no other change). *Keep.*
 
+- **Phase 8.6 campaign diagnosis (2026-11-21)** — QA Member created one task from the diagnosis of "QA office
+  breakfast boxes" ("Review the remaining budget…", labels `campaign-advice`, `advice:review_budget`). *Keep.*
+
 ## Cleanup proposal (needs separate approval)
 
 1. Archive (status change, not delete) the five QA-named goals/campaigns/tasks through the normal app screens.

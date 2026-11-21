@@ -353,7 +353,8 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 ## Phase 8.6 (unified growth department, 2026-11-21)
 - [x] A Re-planning 2.0: Growth Officer analysis (cause, consequences, affected tasks, option assessment, recommendation, further ideas, risks, cost, approval, verification), stale detection, editor still decides (0082)
 - [x] E/J Second-review credits in the specialist report; all reviews/decisions read page by page (no 500 cap); reviews bound to their own paid request (0082)
-- [ ] B Campaign Intelligence 2.0: diagnostics from recorded data, problem detection, AI advice
+- [x] B Campaign Intelligence 2.0: figures with source (spend ledger, linked metrics, linear attribution), CPL/CPA/conversion/ROAS/ROI only when computable, 14 rule-based problems, advice → internal task (no credits)
+- [ ] B AI-written campaign advice (metered) on top of the rule diagnosis
 - [ ] C Growth Situation Analysis (sources, dates, reliability per section)
 - [ ] D Strategy Engine 2.0: versions/statuses, strategy vs. reality
 - [ ] F Experiment portfolio and learning from finished experiments

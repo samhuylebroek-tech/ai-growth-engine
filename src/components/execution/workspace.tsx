@@ -65,6 +65,7 @@ import { TaskAIWork } from "@/components/execution/task-ai-work";
 import { TaskOrigin } from "@/components/execution/task-origin";
 import { TaskReplan } from "@/components/execution/task-replan";
 import { CampaignSpend } from "@/components/execution/campaign-spend";
+import { CampaignIntelPanel } from "@/components/execution/campaign-intel-panel";
 import { campaignSpendOptions } from "@/components/execution/replan-data";
 import { spendSummary } from "@/lib/campaign-spend";
 import { ExecutionBar } from "@/components/execution/execution-bar";
@@ -1075,6 +1076,7 @@ function WorkDetails({
         <>
           {kind === "campaigns" && <CampaignHealthLine item={item} tasks={q.data?.tasks ?? []} today={localDay()} detailed />}
           {kind === "campaigns" && "budget_eur" in item && <CampaignSpend campaignId={item.id} budgetEur={Number(item.budget_eur)} />}
+          {kind === "campaigns" && "budget_eur" in item && <CampaignIntelPanel campaign={item} tasks={q.data?.tasks ?? []} campaigns={(q.data?.campaigns ?? []).filter((c): c is typeof item => "budget_eur" in c)} />}
           <WorkForm item={item} kind={kind} onSaved={() => refresh()} />
           {kind === "tasks" && "agent_key" in item && item.agent_key && editable && (
             <Button variant="outline" onClick={runAgent}>
