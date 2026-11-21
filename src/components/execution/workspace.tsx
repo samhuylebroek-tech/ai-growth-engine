@@ -66,6 +66,7 @@ import { TaskOrigin } from "@/components/execution/task-origin";
 import { TaskReplan } from "@/components/execution/task-replan";
 import { CampaignSpend } from "@/components/execution/campaign-spend";
 import { CampaignIntelPanel } from "@/components/execution/campaign-intel-panel";
+import { CampaignAiTeam } from "@/components/execution/campaign-ai-team";
 import { CampaignLifecycle } from "@/components/execution/campaign-lifecycle";
 import { CampaignStrategy, campaignLinkOptions } from "@/components/execution/campaign-strategy";
 import { CAMPAIGN_STATUSES, INITIAL_CAMPAIGN_STATUSES, campaignPhase, linkGaps } from "@/lib/campaign-lifecycle";
@@ -1156,6 +1157,7 @@ function WorkDetails({
           )}
           {kind === "campaigns" && "budget_eur" in item && <CampaignStrategy key={`${item.id}:${item.updated_at}`} campaign={item} />}
           {kind === "campaigns" && "budget_eur" in item && <CampaignSpend campaignId={item.id} budgetEur={Number(item.budget_eur)} dates={{ start_date: item.start_date, end_date: item.end_date }} />}
+          {kind === "campaigns" && "budget_eur" in item && <CampaignAiTeam campaignId={item.id} tasks={q.data?.tasks ?? []} />}
           {kind === "campaigns" && "budget_eur" in item && <CampaignIntelPanel campaign={item} tasks={q.data?.tasks ?? []} campaigns={(q.data?.campaigns ?? []).filter((c): c is typeof item => "budget_eur" in c)} />}
           <WorkForm item={item} kind={kind} onSaved={() => refresh()} />
           {kind === "tasks" && "agent_key" in item && item.agent_key && editable && (

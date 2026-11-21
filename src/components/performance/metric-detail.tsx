@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { kpiQuality, type KpiQuality } from "@/lib/kpi-periods";
 import { useI18n } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -82,6 +83,7 @@ function Detail({ wsId, metricId, canEdit }: { wsId: string; metricId: string; c
       {editing && <EditMetric metric={metric} goals={goals.data ?? []} initiatives={initiatives.data ?? []} onDone={async saved => { setEditing(false); if (saved) await refresh(); }} />}
       {recording !== false && <RecordValueForm key={recording?.id ?? "new"} metric={metric} correcting={recording} onDone={async saved => { setRecording(false); if (saved) await refresh(); }} />}
 
+      <MeasurementQuality q={kpiQuality(rows, metric.id, new Date().toISOString().slice(0, 10))} />
       <section className="rounded-lg border bg-card p-4">
         <h2 className="mb-3 font-medium">{t("performance.monthByMonth")}</h2>
         {points.length === 0 ? <p className="text-sm text-muted-foreground">{t("performance.noValues")}</p> : <>
@@ -160,5 +162,26 @@ function EditMetric({ metric, goals, initiatives, onDone }: { metric: Metric; go
       </div>
       <div className="flex gap-2"><Button size="sm" onClick={save} disabled={busy}>{busy ? t("performance.saving") : t("performance.saveChanges")}</Button><Button size="sm" variant="ghost" onClick={() => onDone(false)}>{t("performance.cancel")}</Button></div>
     </div>
+  );
+}
+
+/** Whether this metric's results can be compared over time: period lengths, gaps, overlaps, corrections and age. */
+function MeasurementQuality({ q }: { q: KpiQuality }) {
+  const { t } = useI18n();
+  const issues = [
+    q.mixedLengths && t("kp.mixed"),
+    q.gaps > 0 && t("kp.gaps", { n: q.gaps }),
+    q.overlaps > 0 && t("kp.overlaps", { n: q.overlaps }),
+    q.corrections > 0 && t("kp.corrections", { n: q.corrections }),
+    q.staleDays !== null && q.staleDays > 45 && t("kp.stale", { n: q.staleDays }),
+  ].filter((x): x is string => !!x);
+  return (
+    <section aria-label={t("kp.title")} className="rounded-lg border bg-card p-4 text-sm">
+      <h2 className="mb-1 font-medium">{t("kp.title")}</h2>
+      {q.periods === 0 ? <p className="text-muted-foreground">{t("kp.none")}</p> : <>
+        <p className="text-muted-foreground">{t("kp.periods", { n: q.periods, d: q.lastPeriodEnd ?? "" })}</p>
+        {issues.length === 0 ? <p>{t("kp.clean")}</p> : <ul className="mt-1 list-disc pl-5 text-warning">{issues.map((x) => <li key={x}>{x}</li>)}</ul>}
+      </>}
+    </section>
   );
 }

@@ -1,5 +1,6 @@
 // Continuous improvement: findings from recorded performance, improvement proposals, approval, conversion into
 // work and outcome measurement. Approved proposals become tasks; nothing changes strategies, budgets or campaigns.
+import { beforeAfter } from "@/lib/kpi-periods";
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -9,9 +10,8 @@ import { useI18n } from "@/lib/i18n";
 import { can } from "@/lib/permissions";
 import { growthDb, type ProposalRow } from "@/lib/pending-schema";
 import type { Json } from "@/integrations/supabase/types";
-import { effectiveMeasurements, isActual } from "@/lib/performance";
 import { buildView, NO_FILTERS, type BiData } from "@/lib/bi/view";
-import { observedOutcome, type Candidate } from "@/lib/bi/optimization";
+import { type Candidate } from "@/lib/bi/optimization";
 import {
   approvalGates,
   evidenceQuality,
@@ -457,21 +457,10 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
   // The approver states exactly what they inspected; the database refuses if the list changed meanwhile.
   const seen = linked.map((e) => e.id).sort();
   const metric = p.metric_id ? d.metrics.find((m) => m.id === p.metric_id) : undefined;
-  const observed = useMemo(() => {
-    if (!metric || p.status !== "converted") return null;
-    const rows = effectiveMeasurements(d.measurements)
-      .filter((r) => r.metric_id === metric.id && isActual(r.kind))
-      .sort((a, b) => a.period_start.localeCompare(b.period_start));
-    const before = [...rows].reverse().find((r) => r.period_end < p.created_at.slice(0, 10));
-    const after = rows.filter((r) => r.period_start >= p.created_at.slice(0, 10)).at(-1);
-    return before && after
-      ? {
-          o: observedOutcome(metric.direction, Number(before.value), Number(after.value)),
-          before: Number(before.value),
-          after: Number(after.value),
-        }
-      : { o: "inconclusive" as const, before: null, after: null };
-  }, [metric, d.measurements, p.status, p.created_at]);
+  const observed = useMemo(
+    () => (!metric || p.status !== "converted" ? null : beforeAfter(d.measurements, metric.id, metric.direction, p.decided_at ?? p.created_at)),
+    [metric, d.measurements, p.status, p.decided_at, p.created_at],
+  );
   async function act(
     action: "review" | "promote" | "approve" | "reject" | "convert" | "measure" | "withdraw",
     data: Record<string, string | string[]> = {},
@@ -730,13 +719,15 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
             <>
               {observed && (
                 <p className="w-full text-[11px] text-muted-foreground">
-                  {observed.before !== null
-                    ? t("bi.imp.observed", {
-                        b: observed.before,
-                        a: observed.after!,
-                        o: t(tk(`bi.outcome.${observed.o}`)),
-                      })
-                    : t("bi.imp.observedNone")}
+                  {observed.before && observed.after
+                    ? `${t("kp.observed", {
+                        b: observed.before.value,
+                        bp: `${observed.before.period_start} – ${observed.before.period_end}`,
+                        a: observed.after.value,
+                        ap: `${observed.after.period_start} – ${observed.after.period_end}`,
+                        o: t(tk(`bi.outcome.${observed.outcome}`)),
+                      })}${observed.changePct !== null ? ` (${observed.changePct > 0 ? "+" : ""}${observed.changePct}%)` : ""} · ${t(observed.confidence === "medium" ? "kp.confMedium" : "kp.confLow", { f: observed.normalFluctuationPct ?? 0 })} ${t("bi.imp.notCause")}`
+                    : t(observed.reason === "no_comparable_after" ? "kp.noComparable" : observed.reason === "no_before" ? "kp.noBefore" : "bi.imp.observedNone")}
                 </p>
               )}
               <select
