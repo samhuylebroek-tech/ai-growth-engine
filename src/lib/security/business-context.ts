@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { goalMeasurement } from "@/lib/goal-measurement";
 import { isRealOverrun, spendSummary } from "@/lib/campaign-spend";
 import { limitUsage } from "@/lib/campaign-budget";
 import type { CampaignSpendRow } from "@/lib/pending-schema";
@@ -988,7 +989,9 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
     lines: d.goals.map((g) => {
       const age = ageDays(g.updated_at, now);
       const overdue = g.due_date && g.due_date < today && g.status === "active" ? " OVERDUE" : "";
-      return `- [${g.priority}/${g.status}] ${clip(g.title, 100)} — ${clip(g.metric || g.objective, 60)}: baseline ${g.baseline ?? "?"} → target ${g.target ?? "?"}, user-entered current ${g.current_value ?? "not recorded"}; due ${g.due_date ?? "none"}${overdue}${age !== null && age > 60 ? `; not updated for ${age} days (possibly stale)` : ""}`;
+      const m = goalMeasurement(g, today);
+      const measure = m.measurable ? "" : ` NOT MEASURABLE (missing ${m.missing.filter((k) => k === "metric" || k === "baseline" || k === "target").join(", ")}; never assume a value)`;
+      return `- [${g.priority}/${g.status}]${measure} ${clip(g.title, 100)} — ${clip(g.metric || g.objective, 60)}: baseline ${g.baseline ?? "?"} → target ${g.target ?? "?"}, user-entered current ${g.current_value ?? "not recorded"}; due ${g.due_date ?? "none"}${overdue}${age !== null && age > 60 ? `; not updated for ${age} days (possibly stale)` : ""}`;
     }),
   });
 

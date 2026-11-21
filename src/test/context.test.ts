@@ -82,6 +82,20 @@ function fixtures(): Record<string, Row[]> {
       },
       {
         ...A,
+        id: "goal-no-baseline",
+        title: "Grow monthly revenue by 20%",
+        objective: "increase_revenue",
+        metric: "monthly revenue",
+        baseline: null,
+        target: null,
+        current_value: null,
+        due_date: null,
+        priority: "secondary",
+        status: "active",
+        updated_at: "2026-11-15",
+      },
+      {
+        ...A,
         id: "goal-old",
         title: "Old stale goal",
         objective: "leads",
@@ -644,6 +658,11 @@ describe("unified business context — domain sources", () => {
       context.indexOf("## ACTIVE GROWTH GOALS"),
     );
     expect(verified).not.toContain("same-day delivery");
+  });
+  it("marks a goal without a measured baseline as not measurable and never assumes one", async () => {
+    const context = await build();
+    expect(context).toMatch(/NOT MEASURABLE \(missing baseline, target; never assume a value\) Grow monthly revenue by 20%/);
+    expect(context).not.toMatch(/NOT MEASURABLE[^\n]*Win 20 new clients/);
   });
   it("includes high-priority SEO findings with check date and ignores malformed findings", async () => {
     const context = await build();
