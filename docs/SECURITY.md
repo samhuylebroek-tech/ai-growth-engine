@@ -61,5 +61,6 @@ Open risks (documented decisions):
 - Audit rows from before 0088 are not chained; a database superuser could rebuild the chain.
 - Document storage policy counts files without a lock; two simultaneous uploads at the limit may both store a file, but the document record trigger is serialized, so the extra file is never registered.
 - Two-step verification is required only for platform administration, not for organization admins.
-- Proposal 0088 is staging-only; live rollout of 0063–0088 needs separate approval.
+- Proposal 0088 is staging-only, except its document plan limits: those were applied live on 2026-11-21 as proposal 0088a (migration `0057_document_plan_limits_0088a`) with the owner's explicit, single-purpose approval. Live rollout of the rest of 0063–0088 still needs separate approval.
+- Staging already contains 0088a's objects through 0088; the new migration is idempotent, so the staging ledger can take it without changes.
 - Details: `docs/security/`.

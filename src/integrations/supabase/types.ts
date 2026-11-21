@@ -475,6 +475,7 @@ export type Database = {
           goal_id: string | null
           hard_cap: number | null
           id: string
+          initiative_id: string | null
           note: string
           org_id: string
           period_month: string
@@ -491,6 +492,7 @@ export type Database = {
           goal_id?: string | null
           hard_cap?: number | null
           id?: string
+          initiative_id?: string | null
           note?: string
           org_id: string
           period_month: string
@@ -507,6 +509,7 @@ export type Database = {
           goal_id?: string | null
           hard_cap?: number | null
           id?: string
+          initiative_id?: string | null
           note?: string
           org_id?: string
           period_month?: string
@@ -520,6 +523,13 @@ export type Database = {
             columns: ["goal_id", "org_id", "workspace_id"]
             isOneToOne: false
             referencedRelation: "growth_goals"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "budget_lines_initiative_scope_fk"
+            columns: ["initiative_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "growth_initiatives"
             referencedColumns: ["id", "org_id", "workspace_id"]
           },
           {
@@ -1730,6 +1740,243 @@ export type Database = {
           },
         ]
       }
+      growth_initiative_operations: {
+        Row: {
+          baseline_value: number | null
+          blocker_note: string
+          current_value: number | null
+          due_date: string | null
+          initiative_id: string
+          org_id: string
+          owner_id: string | null
+          success_metric: string
+          target_value: number | null
+          updated_at: string
+          updated_by: string
+          workspace_id: string
+        }
+        Insert: {
+          baseline_value?: number | null
+          blocker_note?: string
+          current_value?: number | null
+          due_date?: string | null
+          initiative_id: string
+          org_id: string
+          owner_id?: string | null
+          success_metric?: string
+          target_value?: number | null
+          updated_at?: string
+          updated_by?: string
+          workspace_id: string
+        }
+        Update: {
+          baseline_value?: number | null
+          blocker_note?: string
+          current_value?: number | null
+          due_date?: string | null
+          initiative_id?: string
+          org_id?: string
+          owner_id?: string | null
+          success_metric?: string
+          target_value?: number | null
+          updated_at?: string
+          updated_by?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "growth_initiative_operations_initiative_id_org_id_workspac_fkey"
+            columns: ["initiative_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "growth_initiatives"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "growth_initiative_operations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "growth_initiative_operations_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      growth_initiatives: {
+        Row: {
+          channel: string
+          created_at: string
+          detail: string
+          effort: string
+          goal_id: string
+          id: string
+          org_id: string
+          plan_version_id: string
+          project_id: string | null
+          sort_order: number
+          status: string
+          target_week: number
+          title: string
+          workspace_id: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          detail?: string
+          effort?: string
+          goal_id: string
+          id?: string
+          org_id: string
+          plan_version_id: string
+          project_id?: string | null
+          sort_order: number
+          status?: string
+          target_week?: number
+          title: string
+          workspace_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          detail?: string
+          effort?: string
+          goal_id?: string
+          id?: string
+          org_id?: string
+          plan_version_id?: string
+          project_id?: string | null
+          sort_order?: number
+          status?: string
+          target_week?: number
+          title?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "growth_initiatives_goal_id_org_id_workspace_id_fkey"
+            columns: ["goal_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "growth_goals"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "growth_initiatives_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "growth_initiatives_plan_version_id_org_id_workspace_id_fkey"
+            columns: ["plan_version_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "growth_plan_versions"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "growth_initiatives_project_scope_fk"
+            columns: ["project_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "growth_initiatives_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      growth_plan_versions: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string
+          goal_id: string
+          id: string
+          org_id: string
+          plan_snapshot: Json
+          status: string
+          strategic_thesis: string
+          strategy_id: string
+          summary: string
+          title: string
+          version: number
+          workspace_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string
+          goal_id: string
+          id?: string
+          org_id: string
+          plan_snapshot: Json
+          status?: string
+          strategic_thesis?: string
+          strategy_id: string
+          summary: string
+          title: string
+          version: number
+          workspace_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string
+          goal_id?: string
+          id?: string
+          org_id?: string
+          plan_snapshot?: Json
+          status?: string
+          strategic_thesis?: string
+          strategy_id?: string
+          summary?: string
+          title?: string
+          version?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "growth_plan_versions_goal_id_org_id_workspace_id_fkey"
+            columns: ["goal_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "growth_goals"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "growth_plan_versions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "growth_plan_versions_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: true
+            referencedRelation: "growth_strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "growth_plan_versions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       growth_strategies: {
         Row: {
           body: Json
@@ -1781,6 +2028,68 @@ export type Database = {
           },
           {
             foreignKeyName: "growth_strategies_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      growth_strategy_conversions: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          org_id: string
+          project_id: string
+          result: Json
+          strategy_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          org_id: string
+          project_id: string
+          result: Json
+          strategy_id: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          org_id?: string
+          project_id?: string
+          result?: Json
+          strategy_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "growth_strategy_conversions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "growth_strategy_conversions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "growth_strategy_conversions_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: true
+            referencedRelation: "growth_strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "growth_strategy_conversions_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -1874,6 +2183,86 @@ export type Database = {
           },
         ]
       }
+      metric_definitions: {
+        Row: {
+          archived: boolean
+          created_at: string
+          created_by: string
+          currency: string | null
+          direction: string
+          goal_id: string | null
+          id: string
+          initiative_id: string | null
+          key: string
+          label: string
+          org_id: string
+          unit: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          created_by?: string
+          currency?: string | null
+          direction?: string
+          goal_id?: string | null
+          id?: string
+          initiative_id?: string | null
+          key: string
+          label: string
+          org_id: string
+          unit: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          created_by?: string
+          currency?: string | null
+          direction?: string
+          goal_id?: string | null
+          id?: string
+          initiative_id?: string | null
+          key?: string
+          label?: string
+          org_id?: string
+          unit?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metric_definitions_goal_id_org_id_workspace_id_fkey"
+            columns: ["goal_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "growth_goals"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "metric_definitions_initiative_id_org_id_workspace_id_fkey"
+            columns: ["initiative_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "growth_initiatives"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "metric_definitions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "metric_definitions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_members: {
         Row: {
           created_at: string
@@ -1940,6 +2329,89 @@ export type Database = {
             columns: ["parent_org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      performance_measurements: {
+        Row: {
+          corrects_id: string | null
+          created_at: string
+          created_by: string
+          id: string
+          kind: string
+          metric_id: string
+          note: string
+          org_id: string
+          period_end: string
+          period_start: string
+          request_key: string
+          source: string
+          source_ref: string
+          value: number
+          workspace_id: string
+        }
+        Insert: {
+          corrects_id?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind: string
+          metric_id: string
+          note?: string
+          org_id: string
+          period_end: string
+          period_start: string
+          request_key: string
+          source: string
+          source_ref?: string
+          value: number
+          workspace_id: string
+        }
+        Update: {
+          corrects_id?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: string
+          metric_id?: string
+          note?: string
+          org_id?: string
+          period_end?: string
+          period_start?: string
+          request_key?: string
+          source?: string
+          source_ref?: string
+          value?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performance_measurements_corrects_id_org_id_workspace_id_fkey"
+            columns: ["corrects_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "performance_measurements"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "performance_measurements_metric_id_org_id_workspace_id_fkey"
+            columns: ["metric_id", "org_id", "workspace_id"]
+            isOneToOne: false
+            referencedRelation: "metric_definitions"
+            referencedColumns: ["id", "org_id", "workspace_id"]
+          },
+          {
+            foreignKeyName: "performance_measurements_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "performance_measurements_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
         ]
@@ -2683,6 +3155,7 @@ export type Database = {
         Args: { _amount: number; _note: string; _org: string }
         Returns: undefined
       }
+      approve_growth_plan: { Args: { _plan: string }; Returns: Json }
       begin_coordinated_analysis: {
         Args: {
           _input: Json
@@ -2739,12 +3212,22 @@ export type Database = {
       }
       convert_execution_plan: {
         Args: {
+          _goal?: string
           _kind: string
           _plan: Json
           _request: string
           _source: string
           _workspace: string
         }
+        Returns: Json
+      }
+      create_growth_initiative_work: {
+        Args: { _initiative: string }
+        Returns: Json
+      }
+      create_growth_plan_draft: { Args: { _strategy: string }; Returns: Json }
+      create_growth_strategy_project: {
+        Args: { _selected: Json; _strategy: string }
         Returns: Json
       }
       create_invitation: {
@@ -2772,10 +3255,25 @@ export type Database = {
         Args: { _decision: string; _note?: string; _version: string }
         Returns: string
       }
+      define_metric: {
+        Args: {
+          _currency: string
+          _direction: string
+          _goal: string
+          _initiative: string
+          _key: string
+          _label: string
+          _unit: string
+          _workspace: string
+        }
+        Returns: Json
+      }
+      document_capacity: { Args: { _org: string }; Returns: Json }
       document_path_access: {
         Args: { _min: Database["public"]["Enums"]["org_role"]; _path: string }
         Returns: boolean
       }
+      document_upload_allowed: { Args: { _path: string }; Returns: boolean }
       ensure_monthly_credit_grant: { Args: { _org: string }; Returns: number }
       execution_user_allowed: {
         Args: { _user: string; _workspace: string }
@@ -2873,6 +3371,20 @@ export type Database = {
         }
         Returns: undefined
       }
+      record_measurement: {
+        Args: {
+          _corrects: string
+          _kind: string
+          _metric: string
+          _note: string
+          _period_end: string
+          _period_start: string
+          _request: string
+          _source_ref: string
+          _value: number
+        }
+        Returns: Json
+      }
       recover_coordinated_analysis_verified: {
         Args: { _close: boolean; _id: string; _proof: string }
         Returns: Json
@@ -2929,6 +3441,14 @@ export type Database = {
         Returns: number
       }
       shares_org_with: { Args: { _user: string }; Returns: boolean }
+      update_growth_initiative_operations: {
+        Args: { _initiative: string; _patch: Json }
+        Returns: Json
+      }
+      update_metric_definition: {
+        Args: { _metric: string; _patch: Json }
+        Returns: Json
+      }
       verify_ai_accounting: { Args: { _proof: string }; Returns: undefined }
       ws_org: { Args: { _ws: string }; Returns: string }
     }
