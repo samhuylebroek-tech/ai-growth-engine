@@ -98,6 +98,15 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
 - **Goal measurement (2026-11-22)** — goal "QA: Grow qualified leads" was given the metric "gekwalificeerde leads",
   starting value 4, target 10 and current value 6 through the goals screen (entered values, not a connected source). *Keep.*
 
+- **Unified budget allocation, proposal 0084 (2026-11-22)** — Concurrency check (`scripts/staging/concurrency-budget.ts`):
+  budget line `qa_concurrency` (EUR 100, `ca4e36bd-2d23-462f-87fd-73e7a542aeff`) with EUR 60 allocated to "QA office
+  breakfast boxes" and one refused concurrent allocation event. Browser checks: two `paid_social` EUR 10,000 lines for
+  the same month (the second came from a re-run of the screen test), EUR 4,000 → 3,500 allocated to "QA office breakfast
+  boxes" and EUR 3,000 → 3,500 to "QA 8.7 lifecycle campaign"; one refused over-allocation; one QA Member move request
+  (EUR 500, reason "QA 8.8 move request (staging)") approved by QA Admin; one simulated EUR 250 spend linked to the
+  `paid_social` line on "QA 8.7 lifecycle campaign" and one refused EUR 3,600 attempt. Allocation events and spend are
+  insert-only. *Keep.*
+
 ## Cleanup proposal (needs separate approval)
 
 1. Archive (status change, not delete) the five QA-named goals/campaigns/tasks through the normal app screens.

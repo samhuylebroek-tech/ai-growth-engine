@@ -1,4 +1,14 @@
 # AI Growth OS — Task Queue
+## Phase 8.8 — unified campaign economics — 2026-11-22
+- [x] Environment verified (branch, HEAD 9567347, staging marker, ledger 57/57, RLS on all tables).
+- [x] Proposal 0084 (staging only): shared budget-line allocations, insert-only allocation events, member requests with editor decisions, spend linked to a line and refused above the allocation; rollback 40/40, SQL suites 48/48, real two-session concurrency check.
+- [x] Budget allocation screens (business budget per currency, per-line split, requests, history, goal drill-down) and spend line selection, EN/NL/FR.
+- [x] Campaign specialists and AI costs panel (recorded credits only, no invented money value).
+- [x] KPI measurement periods: comparable before/after with confidence, measurement quality per metric.
+- [ ] Recommendation outcome learning across proposals (patterns per lever/channel) — next.
+- [ ] Integrated campaign/initiative/organization economics report — next.
+- [B] Campaign profit, ROAS, CAC: need cost of goods and customer references, and an agreed credit price.
+- [B] Proposals 0063–0084 into the live database: owner approval.
 ## Phase 8.2 extended sprint — 2026-11-20
 - [x] Environment verified (branch, HEAD a53b2d6, staging marker, ledger 57, proposals to 0073).
 - [x] Evidence freshness (type-aware; historical records never expire; source unavailable / verification required).
