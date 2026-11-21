@@ -103,8 +103,10 @@ export function ExecutionBar() {
   return <section aria-label={t("run.barTitle")} className="mb-5 rounded-lg border bg-card p-3 text-sm">
     {s.paused && <div role="status" className="mb-3 flex flex-wrap items-center gap-2 rounded-md border border-warning/50 bg-warning/10 p-2 text-sm">
       <Pause className="h-4 w-4" /><span className="font-medium">{t("orch.paused")}</span>
-      <span className="text-muted-foreground">{s.pause_reason ? t("orch.pausedBy", { when: when(s.paused_at), reason: s.pause_reason }) : t("orch.pausedNoReason", { when: when(s.paused_at) })}</span>
-      {role === "admin" && <Button size="sm" variant="outline" className="ml-auto" disabled={busy} onClick={() => setPaused(false)}><Play />{t("orch.resume")}</Button>}
+      {(s.workspace_paused ?? s.paused) && <span className="text-muted-foreground">{s.pause_reason ? t("orch.pausedBy", { when: when(s.paused_at), reason: s.pause_reason }) : t("orch.pausedNoReason", { when: when(s.paused_at) })}</span>}
+      {s.org_paused && <span className="w-full text-muted-foreground">{t("sec.stop.byOrg")}</span>}
+      {s.platform_paused && <span className="w-full text-muted-foreground">{t("sec.stop.byPlatform")}</span>}
+      {role === "admin" && (s.workspace_paused ?? s.paused) && <Button size="sm" variant="outline" className="ml-auto" disabled={busy} onClick={() => setPaused(false)}><Play />{t("orch.resume")}</Button>}
     </div>}
     {cyclesOn && due?.due && !s.paused && role === "admin" && <div role="status" className="mb-3 flex flex-wrap items-center gap-2 rounded-md border border-primary/40 bg-primary/5 p-2">
       <AlarmClock className="h-4 w-4" /><span className="font-medium">{t("orch.dueTitle")}</span>

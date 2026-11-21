@@ -4,7 +4,8 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Network, Building2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useOrg } from "@/lib/org-context";
-import { can } from "@/lib/permissions";
+import { can, hasRole } from "@/lib/permissions";
+import { OrgStop } from "@/components/security/org-stop";
 import { convertMoney, REPORTING_CURRENCIES, type Money } from "@/lib/org/consolidation";
 import type { RankedAction } from "@/lib/org/priorities";
 import { Section, sel, useFmt } from "@/components/bi/parts";
@@ -66,6 +67,7 @@ function Overview({ orgId, tab, onTab }: { orgId: string; tab: OrgTab; onTab: (t
         {t(tk(`ogo.tab.${x}`))}{x === "risks" && pendingCount(m) > 0 ? ` · ${pendingCount(m)}` : ""}
       </button>)}
     </nav>
+    {active === "overview" && <OrgStop orgId={orgId} canManage={hasRole(o.role, "admin")} />}
     {single && <SingleBusiness name={m.businesses[0]?.name ?? ""} />}
     {active === "overview" && <OverviewTab m={m} finance={finance} cur={cur} monthOnly={period === "month"} open={open} select={o.setWorkspaceId} onTab={onTab} single={single} />}
     {active === "strategy" && <StrategyTab m={m} />}

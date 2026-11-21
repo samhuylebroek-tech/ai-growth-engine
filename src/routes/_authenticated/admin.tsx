@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/lib/i18n";
 import { CreditPrices } from "@/components/admin/credit-prices";
+import { SecurityPanel } from "@/components/admin/security-panel";
+import { MfaChallenge } from "@/components/security/mfa-challenge";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -31,6 +33,8 @@ function Admin() {
   const [grant, setGrant] = useState<Record<string, string>>({});
   if (q.isLoading)
     return <div className="p-10 text-sm text-muted-foreground">{t("own.loading")}</div>;
+  if (q.data && !q.data.ok && q.data.error === "mfa_required")
+    return <MfaChallenge onVerified={() => qc.invalidateQueries({ queryKey: ["owner"] })} />;
   if (!q.data?.ok)
     return (
       <div className="p-10">
@@ -49,6 +53,8 @@ function Admin() {
       .eq("org_id", orgId);
     if (error) toast.error(t("own.notAllowed"));
     else {
+      // With proposal 0088 the database audits subscription changes itself and refuses this direct call;
+      // older databases still record it here.
       await supabase.rpc("log_audit", {
         _org: orgId,
         _action: "subscription.plan_changed",
@@ -174,6 +180,7 @@ function Admin() {
         </table>
       </div>
       <p className="mt-4 text-xs text-muted-foreground">{t("own.marginNote")}</p>
+      <SecurityPanel />
       <CreditPrices />
     </div>
   );

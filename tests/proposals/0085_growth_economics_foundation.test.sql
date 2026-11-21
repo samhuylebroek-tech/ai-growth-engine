@@ -10,7 +10,7 @@ declare
   m date := date_trunc('month', current_date)::date;
   pass int := 0; fail int := 0; failures text := '';
 begin
-  execute $t$CREATE FUNCTION pg_temp.su(_u uuid) RETURNS void LANGUAGE plpgsql AS $b$ BEGIN RESET ROLE; PERFORM set_config('request.jwt.claims', json_build_object('sub',_u,'role','authenticated')::text, true); SET LOCAL ROLE authenticated; END $b$ $t$;
+  execute $t$CREATE FUNCTION pg_temp.su(_u uuid) RETURNS void LANGUAGE plpgsql AS $b$ BEGIN RESET ROLE; PERFORM set_config('request.jwt.claims', json_build_object('sub',_u,'role','authenticated','aal','aal2')::text, true); SET LOCAL ROLE authenticated; END $b$ $t$;
   execute $t$CREATE FUNCTION pg_temp.root() RETURNS void LANGUAGE plpgsql AS $b$ BEGIN RESET ROLE; END $b$ $t$;
   execute $t$CREATE FUNCTION pg_temp.cost(_w uuid, _p jsonb, _k uuid DEFAULT gen_random_uuid()) RETURNS jsonb LANGUAGE sql AS $b$
     SELECT public.record_business_cost(_w, _k, jsonb_build_object('category','cogs','amount',100,'currency','EUR','period_start',date_trunc('month', current_date)::date,

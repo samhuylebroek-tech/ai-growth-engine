@@ -58,7 +58,7 @@ function Seo({ orgId, wsId, userId, canEdit }: { orgId: string; wsId: string; us
   const start = async (e: React.FormEvent) => {
     e.preventDefault(); if (!target.trim() || busy) return; setBusy(true);
     try { const r = await run({ data: { workspaceId: wsId, url: target } });
-      if (!r.ok) return void toast.error(r.error);
+      if (!r.ok) return void toast.error(r.error === "not_registered" ? tx("marketing.seo.notRegistered") : r.error);
       setPicked(r.id); await qc.invalidateQueries({ queryKey: ["seo-audits", wsId] }); toast.success(tx("marketing.seo.done"));
     } catch { toast.error(tx("marketing.seo.failed")); } finally { setBusy(false); }
   };

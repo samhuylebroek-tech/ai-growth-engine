@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { AccountSecurity } from "@/components/security/account-security";
 
 export const Route = createFileRoute("/_authenticated/app/settings")({ head: () => localHead("settings"), component: SettingsPage });
 
@@ -113,7 +114,7 @@ function SettingsPage() {
       </TabsContent><TabsContent value="organization"><section className="max-w-lg">{can(o.role, "org.update") && <Panel><form onSubmit={rename} className="space-y-3"><Label htmlFor="org-name">{t("settings.orgName")}</Label><Input id="org-name" defaultValue={o.org?.name} onChange={(e) => setOrgName(e.target.value)} required maxLength={120} /><Button size="sm">{t("settings.save")}</Button></form></Panel>}</section>
       <h2 className="mb-3 mt-10 font-semibold">{t("settings.anotherOrg")}</h2>
       <form onSubmit={createOrg} className="flex flex-wrap gap-2"><Input aria-label={t("settings.newOrgPh")} placeholder={t("settings.newOrgPh")} value={newOrg} onChange={(e) => setNewOrg(e.target.value)} required maxLength={120} className="max-w-xs" /><Button variant="outline">{t("settings.create")}</Button></form>
-      </TabsContent><TabsContent value="access"><section className="max-w-2xl"><h2 className="font-semibold">{t("settings.signinTitle")}</h2><div className="mt-5 divide-y divide-border border-y border-border">{[[t("settings.p.email"), t("settings.s.available")], ["Google", t("settings.s.available")], ["Microsoft", t("settings.s.msUnverified")], [t("settings.p.oidc"), t("settings.s.adminRequired")], ["SAML", t("settings.s.notConfigured")], [t("settings.p.scim"), t("settings.s.notAvailable")]].map(([name,status]) => <div key={name} className="flex flex-wrap justify-between gap-3 py-4 text-sm"><span>{name}</span><span className="text-xs text-muted-foreground">{status}</span></div>)}</div><p className="mt-5 text-xs leading-relaxed text-muted-foreground">{t("settings.signinNote")}</p><Button variant="outline" className="mt-5" asChild><Link to="/auth" search={{ redirect: undefined }}>{t("settings.accountSignin")}</Link></Button></section></TabsContent></Tabs>
+      </TabsContent><TabsContent value="access"><section className="max-w-2xl"><h2 className="font-semibold">{t("settings.signinTitle")}</h2><div className="mt-5 divide-y divide-border border-y border-border">{[[t("settings.p.email"), t("settings.s.available")], ["Google", t("settings.s.available")], ["Microsoft", t("settings.s.msUnverified")], [t("settings.p.oidc"), t("settings.s.adminRequired")], ["SAML", t("settings.s.notConfigured")], [t("settings.p.scim"), t("settings.s.notAvailable")]].map(([name,status]) => <div key={name} className="flex flex-wrap justify-between gap-3 py-4 text-sm"><span>{name}</span><span className="text-xs text-muted-foreground">{status}</span></div>)}</div><p className="mt-5 text-xs leading-relaxed text-muted-foreground">{t("settings.signinNote")}</p><Button variant="outline" className="mt-5" asChild><Link to="/auth" search={{ redirect: undefined }}>{t("settings.accountSignin")}</Link></Button><AccountSecurity /></section></TabsContent></Tabs>
     </>
   );
 }

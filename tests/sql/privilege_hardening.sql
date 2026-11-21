@@ -25,9 +25,9 @@ begin
   if n=0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' growth_plan_direct_writes('||names||')'; end if;
   select count(*) into n from pg_class c join pg_namespace s on s.oid=c.relnamespace where s.nspname='public' and c.relkind='r' and not c.relrowsecurity;
   if n=0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' rls_disabled'; end if;
-  -- Helpers used by authenticated RLS policies stay callable for signed-in users.
+  -- Helpers used by RLS policies stay callable; execution_user_allowed is internal-only once proposal 0088 is applied.
   if has_function_privilege('authenticated','public.has_workspace_role(uuid,public.org_role)','execute')
-     and has_function_privilege('authenticated','public.execution_user_allowed(uuid,uuid)','execute')
+     and (has_function_privilege('authenticated','public.execution_user_allowed(uuid,uuid)','execute') = (to_regclass('public.audit_chain_head') is null))
      and has_function_privilege('anon','public.is_platform_staff()','execute')
   then pass:=pass+1; else fail:=fail+1; failures:=failures||' helpers_callable'; end if;
   raise exception 'PRIVILEGE_RESULT pass=% fail=% failures=[%]', pass, fail, failures;

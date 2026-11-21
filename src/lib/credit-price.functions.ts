@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { requirePlatformOwner } from "@/lib/security/owner";
+import { platformOwnerGate } from "@/lib/security/owner";
 import type { CreditPriceVersionRow, PendingDatabase } from "@/lib/pending-schema";
 
 // Credit price administration. Platform Owner only: the server checks the exact role before every read and
@@ -13,7 +13,8 @@ export const getCreditPriceAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const sb = context.supabase;
-    try { await requirePlatformOwner(sb); } catch { return { ok: false as const, error: "forbidden" as const }; }
+    const gate = await platformOwnerGate(sb, context.claims, "credit_prices");
+    if (gate !== "ok") return { ok: false as const, error: gate === "mfa_required" ? ("mfa_required" as const) : ("forbidden" as const) };
     const pending = sb as unknown as SupabaseClient<PendingDatabase>;
     const since = new Date(Date.now() - 30 * 864e5).toISOString();
     const [history, plans, usage, subs] = await Promise.all([
@@ -53,15 +54,17 @@ export const setCreditPrice = createServerFn({ method: "POST" })
       effectiveFrom: z.string().datetime({ offset: true }),
       methodology: z.string().trim().min(3).max(500),
     }).parse(d))
-  .handler(async ({ data, context }): Promise<{ ok: true; id: string } | { ok: false; error: "forbidden" | "backdated" | "invalid" | "failed" }> => {
+  .handler(async ({ data, context }): Promise<{ ok: true; id: string } | { ok: false; error: "forbidden" | "mfa_required" | "backdated" | "invalid" | "failed" }> => {
     const sb = context.supabase;
-    try { await requirePlatformOwner(sb); } catch { return { ok: false, error: "forbidden" }; }
+    const gate = await platformOwnerGate(sb, context.claims, "credit_prices");
+    if (gate !== "ok") return { ok: false, error: gate };
     const pending = sb as unknown as SupabaseClient<PendingDatabase>;
     const { data: id, error } = await pending.rpc("set_credit_price", {
       _scope: data.scope, _plan: data.scope === "plan" ? data.plan : null, _currency: data.currency,
       _price: data.price, _effective_from: data.effectiveFrom, _methodology: data.methodology,
     });
     if (error) {
+      if (/mfa_required/.test(error.message)) return { ok: false, error: "mfa_required" };
       if (error.code === "42501") return { ok: false, error: "forbidden" };
       if (/credit_price_backdated/.test(error.message)) return { ok: false, error: "backdated" };
       if (error.code === "22023" || error.code === "23505") return { ok: false, error: "invalid" };

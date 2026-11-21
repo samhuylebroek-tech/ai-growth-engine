@@ -52,7 +52,42 @@ export type ExecutionSettingsRow = {
   timezone: string;
   schedule: "off" | "daily" | "weekdays";
   schedule_hour: number;
+  /** Proposal 0088: independent stops; `paused` is derived from all three. Absent before 0088. */
+  workspace_paused?: boolean;
+  org_paused?: boolean;
+  platform_paused?: boolean;
 };
+/** Proposal 0088: organization- or platform-wide emergency stop. */
+export type ExecutionStopRow = {
+  id: string;
+  scope: "organization" | "platform";
+  org_id: string | null;
+  reason: string;
+  workspaces: number;
+  started_by: string;
+  started_at: string;
+  ended_by: string | null;
+  ended_at: string | null;
+};
+export type AuditChainStatus = {
+  ok: boolean;
+  checked: number;
+  head_seq: number;
+  head_hash: string;
+  started_at: string;
+  unchained_before_start: number;
+  problem: { kind: string; seq?: number; id?: number } | null;
+  checked_at: string;
+};
+export type SecurityOverview = {
+  days: number;
+  by_kind: Record<string, number>;
+  repeated: { actor: string; count: number; last: string }[];
+  credit_spikes: { org: string; last_24h: number; daily_avg_7d: number }[];
+  stops: { scope: string; org: string | null; reason: string; started_at: string }[];
+  generated_at: string;
+};
+export type DocumentCapacity = { included: boolean; limit: number | null; used: number; stored_files: number };
 export type ExecutionCycleRow = {
   id: string;
   org_id: string;
@@ -912,6 +947,7 @@ type PendingTables = {
   task_execution_profiles: { Row: TaskProfileRow; Insert: never; Update: never; Relationships: [] };
   task_runs: { Row: TaskRunRow; Insert: never; Update: never; Relationships: [] };
   execution_cycles: { Row: ExecutionCycleRow; Insert: never; Update: never; Relationships: [] };
+  execution_stops: { Row: ExecutionStopRow; Insert: never; Update: never; Relationships: [] };
   external_actions: { Row: ExternalActionRow; Insert: never; Update: never; Relationships: [] };
   business_units: { Row: BusinessUnitRow; Insert: never; Update: never; Relationships: [] };
   exchange_rates: { Row: ExchangeRateRow; Insert: never; Update: never; Relationships: [] };
@@ -1289,6 +1325,14 @@ type PendingFunctions = {
   set_credit_price: { Args: { _scope: string; _plan: string | null; _currency: string; _price: number; _effective_from: string; _methodology: string }; Returns: string };
   record_recommendation_learning: { Args: { _proposal: string; _request: string; _p: Json }; Returns: Json };
   /** Proposal 0086: the credit prices that apply to the caller (platform + own plans), without reasons or authors. */
+  /** Proposal 0088: security hardening. */
+  verify_audit_chain: { Args: Record<string, never>; Returns: Json };
+  security_overview: { Args: { _days: number }; Returns: Json };
+  record_security_event: { Args: { _kind: "owner_access_denied" | "owner_mfa_required" | "credit_price_denied" | "platform_stop_denied"; _detail: Json }; Returns: boolean };
+  set_org_execution_stop: { Args: { _org: string; _stop: boolean; _reason: string }; Returns: Json };
+  set_platform_execution_stop: { Args: { _stop: boolean; _reason: string }; Returns: Json };
+  document_capacity: { Args: { _org: string }; Returns: Json };
+  session_mfa_verified: { Args: Record<string, never>; Returns: boolean };
   credit_prices_in_effect: { Args: Record<string, never>; Returns: { scope: string; plan_key: string | null; currency: string; price_per_credit: number; effective_from: string }[] };
   transition_campaign: { Args: { _workspace: string; _campaign: string; _to: string; _p?: Json }; Returns: Json };
   set_campaign_spend_limits: { Args: { _workspace: string; _request: string; _campaign: string; _p: Json }; Returns: Json };

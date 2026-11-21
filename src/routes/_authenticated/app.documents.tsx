@@ -7,6 +7,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { FileText, Upload, Wand2, Trash2, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { growthDb, type DocumentCapacity } from "@/lib/pending-schema";
 import { useOrg } from "@/lib/org-context";
 import { can } from "@/lib/permissions";
 import { validateUpload, safeFileName } from "@/lib/security/upload";
@@ -32,8 +33,12 @@ function Documents() {
   async function upload(files: FileList | null) {
     if (!files || !orgId || !ws) return;
     const selectedFiles = Array.from(files);
-    const { data: ent } = await supabase.rpc("org_entitlement", { _org: orgId, _feature: "documents" });
-    let uploadedCount = q.data?.length ?? 0;
+    // The database enforces the plan (proposal 0088); this pre-check only explains a refusal before uploading.
+    const cap = await growthDb.rpc("document_capacity", { _org: orgId });
+    const capacity = cap.error ? null : (cap.data as unknown as DocumentCapacity);
+    if (capacity && !capacity.included) { toast.error(t("sec.doc.notIncluded")); return; }
+    const ent = capacity ? capacity.limit : (await supabase.rpc("org_entitlement", { _org: orgId, _feature: "documents" })).data;
+    let uploadedCount = capacity ? Math.max(capacity.used, capacity.stored_files) : q.data?.length ?? 0;
     for (const file of selectedFiles) {
       const v = validateUpload(file.name, file.type, file.size);
       if (!v.ok) { toast.error(`${file.name}: ${v.reason}`); continue; }
@@ -43,7 +48,7 @@ function Documents() {
       const up = await supabase.storage.from("documents").upload(path, file, { contentType: file.type || "application/octet-stream" });
       if (up.error) { toast.error(t("pg.doc.uploadFailed", { n: file.name })); continue; }
       const { error } = await supabase.from("documents").insert({ org_id: orgId, workspace_id: ws, name: file.name.slice(0, 200), storage_path: path, mime: file.type || "application/octet-stream", size_bytes: file.size, uploaded_by: o.userId });
-      if (error) { await supabase.storage.from("documents").remove([path]); toast.error(t("pg.doc.saveFailed")); } else uploadedCount++;
+      if (error) { await supabase.storage.from("documents").remove([path]); toast.error(error.message === "document_limit_reached" ? t("pg.doc.planLimit", { n: ent ?? 0 }) : error.message === "documents_not_included" ? t("sec.doc.notIncluded") : t("pg.doc.saveFailed")); if (/document_limit_reached|documents_not_included/.test(error.message)) break; } else uploadedCount++;
     }
     setBusy(null); refresh();
   }

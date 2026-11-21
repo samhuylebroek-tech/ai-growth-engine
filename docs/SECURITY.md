@@ -42,3 +42,24 @@ Open risks (documented, not yet fixed):
 - `read_connector_credential_verified` is executable by signed-in users but requires the server-only accounting proof; moving it to a dedicated server role would remove that dependency.
 - Proposals 0057–0059 and 11 committed migrations are applied on staging only; the live database still has the older connector table permissions until the owner approves.
 - Password policy, sign-in rate limits and leaked-password protection are platform auth settings that were not changed in this review.
+
+## Security hardening review — 2026-11-21 (staging, proposal 0088)
+
+| Area | Finding | Status |
+| --- | --- | --- |
+| Documents | Plan document limits were only checked in the browser. | Fixed in the database: storage upload policy and document trigger refuse when documents are not in the plan or the limit is reached. |
+| SEO check | Any member could make the server fetch any public website. | Fixed: only the business's own website or a registered competitor; sitemaps stay on the same site. |
+| Platform Owner | Owner operations needed only the role. | Now also need a session confirmed with an authenticator app (`aal2`), in server functions and SQL. |
+| Audit log | Rows were append-only but not tamper-evident; the browser could write audit rows. | New rows are hash-chained and verifiable by the owner; admin changes are audited by database triggers; direct browser writes revoked. |
+| Emergency stop | Only a per-business pause. | Organization and platform stops added, independent tiers, audited. |
+| Grants | API roles had TRUNCATE/REFERENCES/TRIGGER and could call internal helpers. | Revoked. |
+| Dependencies | seroval, js-yaml, source-map-js advisories. | Updated via overrides. Nested `zod` 4.6.5 inside build tooling remains. |
+
+Open risks (documented decisions):
+- **No per-user/per-business rate limits** (owner decision 2026-11-21: document only). Existing caps: credits, reservations, parallel runs, monthly grants, 30 security events/hour.
+- Members can register competitor websites, which then become valid SEO targets (public hosts only).
+- Audit rows from before 0088 are not chained; a database superuser could rebuild the chain.
+- Document storage policy counts files without a lock; two simultaneous uploads at the limit may both store a file, but the document record trigger is serialized, so the extra file is never registered.
+- Two-step verification is required only for platform administration, not for organization admins.
+- Proposal 0088 is staging-only; live rollout of 0063–0088 needs separate approval.
+- Details: `docs/security/`.

@@ -426,3 +426,14 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [ ] P3–P9 budgets/goals, strategy versions, initiative/org reporting, financial data (COGS, customers), commercial foundations, security/scale regression
 
 - [x] Refunds count in the period of their sale everywhere (user decision 21 Nov): reports and situation analysis use the same rule as economics/Home.
+
+## Security hardening (proposal 0088, staging)
+- [x] Server-side document plan limits; SEO checks limited to registered sites
+- [x] Platform Owner needs authenticator code (aal2); TOTP setup, challenge, removal, sign out other devices
+- [x] Hash-chained audit log + owner verification; trigger-based admin audit; refused-access signals
+- [x] Organization and platform emergency stops (independent tiers)
+- [x] Minimal grants; dependency updates (seroval, js-yaml, source-map-js)
+- [x] Security docs in docs/security/
+- [ ] Rate limits — documented only (owner decision)
+- [ ] Nested build-tool zod advisory — waits on TanStack tooling update
+- [ ] Re-run deep scan after these changes are saved; live rollout of 0063–0088 needs approval

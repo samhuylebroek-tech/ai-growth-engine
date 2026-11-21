@@ -44,6 +44,15 @@ async function requireRole(sb: DB, orgId: string, min: "viewer" | "member" | "ad
   if (error || !data) throw new Error("You don't have permission to do this.");
 }
 
+/** Editor (or higher) on the workspace. Databases without the editor role (before proposal 0067) fall back to admin, never lower. */
+async function hasEditorAccess(sb: DB, workspaceId: string): Promise<boolean> {
+  const r = await sb.rpc("has_workspace_role", { _workspace: workspaceId, _min: "editor" as "admin" });
+  if (!r.error) return r.data === true;
+  if (r.error.code !== "22P02") return false;
+  const a = await sb.rpc("has_workspace_role", { _workspace: workspaceId, _min: "admin" });
+  return !a.error && a.data === true;
+}
+
 async function assertEntitled(sb: DB, orgId: string, feature: string) {
   const { data: sub } = await sb.from("subscriptions").select("plan_key,status,trial_ends_at").eq("org_id", orgId).maybeSingle();
   if (!sub || !["active", "trialing"].includes(sub.status)) throw new Error("This organization has no active plan.");
@@ -360,8 +369,8 @@ export const analyzeWebsite = createServerFn({ method: "POST" })
       if (!ws) throw new Error("Workspace not found.");
       orgId = ws.org_id;
       await requireRole(sb, orgId, "member");
-      const access = await sb.rpc("has_workspace_role", { _workspace: ws.id, _min: "member" });
-      if (access.error || !access.data) throw new Error("You need member access to this workspace.");
+      // Fetching a website the business has not registered yet feeds its profile: editors only (they confirm facts).
+      if (!(await hasEditorAccess(sb, ws.id))) throw new Error("You need editor access to this business to analyze a website.");
       await assertEntitled(sb, orgId, "ai_assistant");
       const { text, url: sourceUrl } = await safeFetch(data.url);
       if (text.length < 50) throw new Error("The website had too little readable text to analyze.");
@@ -392,8 +401,8 @@ export const discoverBusiness = createServerFn({ method: "POST" })
       const { data: ws } = await sb.from("workspaces").select("id,org_id").eq("id", data.workspaceId).maybeSingle();
       if (!ws) throw new Error("Workspace not found.");
       await requireRole(sb, ws.org_id, "member");
-      const access = await sb.rpc("has_workspace_role", { _workspace: ws.id, _min: "member" });
-      if (access.error || !access.data) throw new Error("You need member access to this workspace.");
+      // Discovery fetches a not-yet-registered website and proposes profile facts: editors only (they confirm facts).
+      if (!(await hasEditorAccess(sb, ws.id))) throw new Error("You need editor access to this business to discover it from a website.");
       await assertEntitled(sb, ws.org_id, "ai_assistant");
       const valid = validatePublicUrl(data.url);
       if (!valid.ok) throw new Error(valid.reason);

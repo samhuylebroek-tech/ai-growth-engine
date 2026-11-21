@@ -8,7 +8,7 @@ declare
   o uuid; o2 uuid; w uuid; myplan text; other text; n int; p numeric;
   pass int := 0; fail int := 0; failures text := '';
 begin
-  execute $t$CREATE FUNCTION pg_temp.su(_u uuid) RETURNS void LANGUAGE plpgsql AS $b$ BEGIN RESET ROLE; PERFORM set_config('request.jwt.claims', json_build_object('sub',_u,'role','authenticated')::text, true); SET LOCAL ROLE authenticated; END $b$ $t$;
+  execute $t$CREATE FUNCTION pg_temp.su(_u uuid) RETURNS void LANGUAGE plpgsql AS $b$ BEGIN RESET ROLE; PERFORM set_config('request.jwt.claims', json_build_object('sub',_u,'role','authenticated','aal','aal2')::text, true); SET LOCAL ROLE authenticated; END $b$ $t$;
   execute $t$CREATE FUNCTION pg_temp.root() RETURNS void LANGUAGE plpgsql AS $b$ BEGIN RESET ROLE; END $b$ $t$;
   insert into auth.users(id,email,aud,role,instance_id) values
     (uo,'ucp-owner@test.local','authenticated','authenticated','00000000-0000-0000-0000-000000000000'),

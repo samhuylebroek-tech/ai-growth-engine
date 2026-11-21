@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { validatePublicUrl } from "@/lib/security/url";
+import { isRegisteredTarget, sameSite } from "@/lib/security/outbound";
 import { parsePage, parseRobots, parseSitemap, siteFindings, type SeoPage } from "@/lib/seo-audit";
 
 const MAX_PAGES = 15;
@@ -35,6 +36,14 @@ export const runSeoAudit = createServerFn({ method: "POST" })
     if (access.error || !access.data) return { ok: false, error: "You need member access to run an SEO check." };
     const start = validatePublicUrl(/^https?:\/\//i.test(data.url) ? data.url : `https://${data.url}`);
     if (!start.ok) return { ok: false, error: start.reason };
+    // Only sites registered by this business: its own website or an active competitor (read under the caller's RLS).
+    const [profile, rivals] = await Promise.all([
+      sb.from("business_profiles").select("website").eq("workspace_id", ws.id).maybeSingle(),
+      sb.from("competitors").select("website").eq("workspace_id", ws.id).eq("status", "active").limit(200),
+    ]);
+    if (profile.error || rivals.error) return { ok: false, error: "The registered websites could not be read." };
+    if (!isRegisteredTarget(start.url.toString(), [profile.data?.website, ...(rivals.data ?? []).map((r) => r.website)]))
+      return { ok: false, error: "not_registered" };
     try {
       const home = await fetchPublic(start.url.toString(), "text/html");
       if (home.status >= 400) return { ok: false, error: `The website responded with status ${home.status}.` };
@@ -43,11 +52,11 @@ export const runSeoAudit = createServerFn({ method: "POST" })
       const robotsFound = !!robotsRes && robotsRes.status === 200 && !/html/i.test(robotsRes.type);
       const robots = robotsFound ? parseRobots(robotsRes!.body) : { blocksAll: false, sitemaps: [] };
       let sitemapUrls: string[] = []; let sitemapAt = "";
-      for (const sm of [...robots.sitemaps, `${origin}/sitemap.xml`].slice(0, 3)) {
+      for (const sm of [...robots.sitemaps.filter((u) => sameSite(u, origin)), `${origin}/sitemap.xml`].slice(0, 3)) {
         const r = await fetchPublic(sm, "application/xml", 2_000_000).catch(() => null);
         if (r && r.status === 200 && /<(urlset|sitemapindex)/i.test(r.body)) {
           let locs = parseSitemap(r.body);
-          if (/<sitemapindex/i.test(r.body) && locs[0]) { const child = await fetchPublic(locs[0], "application/xml", 2_000_000).catch(() => null); locs = child && child.status === 200 ? parseSitemap(child.body) : []; }
+          if (/<sitemapindex/i.test(r.body) && locs[0] && sameSite(locs[0], origin)) { const child = await fetchPublic(locs[0], "application/xml", 2_000_000).catch(() => null); locs = child && child.status === 200 ? parseSitemap(child.body) : []; }
           sitemapUrls = locs; sitemapAt = sm; break;
         }
       }

@@ -47,7 +47,10 @@ begin
   begin perform public.set_execution_governance(w,'{"allowed_specialists":["wizard"]}'); fail:=fail+1; failures:=failures||' bad_specialist'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   begin perform public.set_execution_governance(w,'{"max_parallel":5}'); fail:=fail+1; failures:=failures||' parallel_over_3'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   -- ranking: A (urgent, overdue) first; B low; C blocked; D external; E waits for approval
+  -- internal helpers are not API-callable after 0088: read them as the database owner
+  execute 'reset role';
   if public.task_priority_score(ta) > public.task_priority_score(tc) and public.task_priority_score(tc) > public.task_priority_score(tb) then pass:=pass+1; else fail:=fail+1; failures:=failures||' score_order'; end if;
+  execute 'set local role authenticated';
   c := public.plan_execution_cycle(w,k,'manual');
   if (c->>'queued')::int=1 and (c->>'awaiting')::int=1 and (c->>'skipped')::int=3 and c->>'status'='open' then pass:=pass+1; else fail:=fail+1; failures:=failures||' cycle_counts '||c::text; end if;
   select decision||':'||reason into rs from public.execution_cycle_items where cycle_id=(c->>'id')::uuid and task_id=ta;
@@ -96,7 +99,9 @@ begin
   begin perform public.queue_task_run(tb,gen_random_uuid(),8); fail:=fail+1; failures:=failures||' queued_while_paused'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   begin perform public.plan_execution_cycle(w,gen_random_uuid(),'manual'); fail:=fail+1; failures:=failures||' cycle_while_paused'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   perform public.set_execution_paused(w,false,'');
+  execute 'reset role';
   if not (public.task_execution_settings(w)).paused then pass:=pass+1; else fail:=fail+1; failures:=failures||' resumed'; end if;
+  execute 'set local role authenticated';
   select count(*) into n from public.audit_logs where org_id=o and action in ('execution.paused','execution.resumed'); if n=2 then pass:=pass+1; else fail:=fail+1; failures:=failures||' pause_audit '||n; end if;
   -- daily cap, allowed specialists and retry limit
   perform public.set_execution_governance(w,'{"max_parallel":3,"daily_credit_cap":5}');
