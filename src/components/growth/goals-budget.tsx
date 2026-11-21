@@ -14,6 +14,7 @@ import { BudgetAllocations } from "@/components/growth/budget-allocation";
 import { wouldDuplicate } from "@/lib/econ/budget-duplicates";
 import { InitiativeOperations } from "@/components/growth/initiative-operations";
 import { PlanDetails } from "@/components/growth/plan-details";
+import { VersionCompare } from "@/components/growth/version-compare";
 import { GrowthChain } from "@/components/growth/growth-chain";
 import { strategySchema } from "@/lib/growth-strategy";
 import { Textarea } from "@/components/ui/textarea";
@@ -261,7 +262,7 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
     queryKey: ["growth-plan-versions", orgId, wsId, goalId],
     retry: retryUnlessNotInstalled,
     queryFn: async () => {
-      const r = await supabase.from("growth_plan_versions").select("id,strategy_id,version,status,title,summary,approved_at,created_at,plan_snapshot")
+      const r = await supabase.from("growth_plan_versions").select("id,strategy_id,version,status,title,summary,strategic_thesis,approved_at,created_at,plan_snapshot")
         .eq("org_id", orgId).eq("workspace_id", wsId).eq("goal_id", goalId).order("version", { ascending: false }).limit(10);
       if (r.error) throw r.error;
       return r.data;
@@ -386,6 +387,9 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
     </>;
   };
   const versionOf = new Map((plans.data ?? []).map(plan => [plan.id, plan.version] as const));
+  // Compare the newest version under review (or in effect) with the version right before it.
+  const compareTarget = draftPlan ?? current;
+  const compareBase = compareTarget ? (plans.data ?? []).filter(plan => plan.version < compareTarget.version).sort((a, b) => b.version - a.version)[0] : undefined;
   return (
     <div className="space-y-2 rounded-lg border p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -427,6 +431,7 @@ function GrowthPlanPanel({ goalId, orgId, wsId, userId, canEdit, canApprove }: {
                 {current.status === "approved" && <details className="group mt-1"><summary className="cursor-pointer select-none text-xs font-medium text-primary">{tr("goals.op.title")} · {tr(statusKey(item.status))}</summary><InitiativeOperations initiativeId={item.id} orgId={orgId} workspaceId={wsId} userId={userId} canEdit={canEdit} status={item.status} /></details>}
               </li>)}</ol>}
           {current.status === "draft" && canApprove && <div className="flex flex-wrap gap-2"><Button size="sm" disabled={!!busyAction} onClick={() => approve(current.id)}>{busyAction === current.id ? tr("goals.approving") : tr("goals.approvePlan")}</Button>{decisionControls(current)}</div>}
+          {compareTarget && compareBase && <VersionCompare orgId={orgId} wsId={wsId} base={compareBase} target={compareTarget} />}
           {(decisions.data ?? []).length > 0 && <div className="border-t pt-2"><p className="text-xs font-medium text-muted-foreground">{tr("goals.pd.history")}</p><ul className="mt-1 space-y-1">{decisions.data!.slice(0, 6).map(d => <li key={d.id} className="text-xs"><span className="font-medium">{tr("goals.pd.decisionLine", { v: versionOf.get(d.plan_version_id) ?? "?", d: tr(`goals.pd.dec.${d.decision}`), when: new Date(d.decided_at).toLocaleString(tag, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) })}</span>{d.note && <span className="block text-muted-foreground">{d.note}</span>}</li>)}</ul></div>}
           {current.status === "draft" && !canApprove && <p className="text-xs text-muted-foreground">{tr("goals.awaiting")}</p>}
         </>}

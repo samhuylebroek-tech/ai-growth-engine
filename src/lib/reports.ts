@@ -5,12 +5,12 @@ import { campaignHealth, type HealthState } from "@/lib/campaign-health";
 import { isExpenditure, spendSummary } from "@/lib/campaign-spend";
 import type { CampaignSpendRow } from "@/lib/pending-schema";
 
-export const REPORT_TYPES = ["daily", "weekly", "monthly", "financial", "campaign", "ai_execution", "specialists", "experiments"] as const;
+export const REPORT_TYPES = ["daily", "weekly", "monthly", "financial", "campaign", "ai_execution", "specialists", "experiments", "initiative", "strategy", "learning"] as const;
 export type ReportType = (typeof REPORT_TYPES)[number];
 export type PeriodKey = "1d" | "7d" | "30d" | "last_month";
 export const PERIOD_KEYS: readonly PeriodKey[] = ["1d", "7d", "30d", "last_month"];
 export type Period = { from: string; to: string };
-export const DEFAULT_PERIOD: Record<ReportType, PeriodKey> = { daily: "1d", weekly: "7d", monthly: "last_month", specialists: "30d", financial: "last_month", campaign: "30d", ai_execution: "30d", experiments: "30d" };
+export const DEFAULT_PERIOD: Record<ReportType, PeriodKey> = { daily: "1d", weekly: "7d", monthly: "last_month", specialists: "30d", financial: "last_month", campaign: "30d", ai_execution: "30d", experiments: "30d", initiative: "30d", strategy: "30d", learning: "30d" };
 
 const DAY = 86_400_000;
 const add = (d: string, n: number) => new Date(Date.parse(`${d}T00:00:00Z`) + n * DAY).toISOString().slice(0, 10);

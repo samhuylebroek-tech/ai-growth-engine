@@ -15,6 +15,7 @@ import { buildReport, DEFAULT_PERIOD, PERIOD_KEYS, REPORT_TYPES, type Delta, typ
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ReportEconomics } from "@/components/reports/report-economics";
+import { GrowthReportSection } from "@/components/reports/growth-report-sections";
 
 const tk = (k: string) => k as MessageKey;
 type QReview = Quality["reviews"][number] & { id: string };
@@ -135,6 +136,14 @@ export function BusinessReports() {
             <p className="text-xs text-muted-foreground">{t("rep.src.revenue", { n: r.finance.reduce((n, f) => n + (f.now?.entries ?? 0), 0) })}</p>
             {r.finance.some((f) => f.perSpend !== null) && <p className="text-xs text-muted-foreground">{t("rep.perSpendNote")}</p>}
           </section>
+        )}
+
+        {(type === "initiative" || type === "strategy" || type === "learning") && o.org && o.workspace && (
+          <GrowthReportSection type={type} orgId={o.org.id} wsId={o.workspace.id} period={r.current} today={today}
+            tasks={work.data.tasks.map((x) => ({ id: x.id, status: x.status, project_id: x.project_id, campaign_id: x.campaign_id, due_date: x.due_date }))}
+            campaigns={work.data.campaigns.map((c) => ({ id: c.id, title: c.title, status: c.status, goal_id: "goal_id" in c ? c.goal_id : null, initiative_id: "initiative_id" in c ? (c.initiative_id as string | null) : null, strategy_id: "strategy_id" in c ? (c.strategy_id as string | null) : null, budget_eur: "budget_eur" in c ? c.budget_eur : 0 }))}
+            goals={bi.data.goals.map((g) => ({ id: g.id, title: g.title, status: g.status, metric: g.metric ?? "", baseline: g.baseline === null ? null : Number(g.baseline), target: g.target === null ? null : Number(g.target), current_value: g.current_value === null ? null : Number(g.current_value), due_date: g.due_date, created_at: g.created_at }))}
+            operations={bi.data.operations.map((x) => ({ initiative_id: x.initiative_id, success_metric: x.success_metric ?? "", baseline_value: x.baseline_value === null ? null : Number(x.baseline_value), target_value: x.target_value === null ? null : Number(x.target_value), current_value: x.current_value === null ? null : Number(x.current_value), due_date: x.due_date ?? null }))} />
         )}
 
         {r.show.finance && <ReportEconomics orgId={o.org?.id} wsId={o.workspace?.id} from={r.current.from} to={r.current.to} today={today} />}
