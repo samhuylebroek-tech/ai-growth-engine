@@ -3,7 +3,7 @@ import { buildReport, periods, revenueFigures, spendFigures, taskFigures } from 
 
 const today = "2026-11-20";
 const rev = (kind: string, amount: number, occurred_at: string, data_class = "manual", currency = "EUR") => ({ kind, amount, currency, occurred_at, data_class });
-const spend = (amount: number, occurred_on: string, kind = "spend", currency = "EUR") => ({ campaign_id: "c", kind, amount, currency, occurred_on, data_class: "simulated" });
+const spend = (amount: number, occurred_on: string, kind = "spend", currency = "EUR", data_class = "manual") => ({ campaign_id: "c", kind, amount, currency, occurred_on, data_class });
 const empty = { revenue: [], spend: [], tasks: [], runs: [], experiments: [], campaigns: [] };
 
 describe("reports", () => {
@@ -22,15 +22,16 @@ describe("reports", () => {
   });
 
   it("campaign spend in the period counts spending and corrections, not reservations", () => {
-    const f = spendFigures([spend(200, "2026-10-02"), spend(-10, "2026-10-05", "correction"), spend(50, "2026-10-06", "commitment"), spend(70, "2026-11-02")], { from: "2026-10-01", to: "2026-10-31" });
+    const f = spendFigures([spend(200, "2026-10-02"), spend(-10, "2026-10-05", "correction"), spend(50, "2026-10-06", "commitment"), spend(70, "2026-11-02"), spend(40, "2026-10-07", "spend", "EUR", "simulated")], { from: "2026-10-01", to: "2026-10-31" });
     expect(f.spent).toEqual({ EUR: 190 });
-    expect(f.simulated).toBe(2);
+    expect(f.simulatedSpent).toEqual({ EUR: 40 });
+    expect(f.simulated).toBe(1);
   });
 
   it("financial report compares with the previous month and computes revenue per recorded spend only in one currency", () => {
     const r = buildReport("financial", "last_month", { ...empty,
       revenue: [rev("sale", 1000, "2026-10-03T00:00:00Z"), rev("refund", -100, "2026-10-04T00:00:00Z"), rev("sale", 600, "2026-09-10T00:00:00Z"), rev("sale", 300, "2026-10-05T00:00:00Z", "manual", "USD")],
-      spend: [spend(300, "2026-10-10")] }, today);
+      spend: [spend(300, "2026-10-10"), spend(5000, "2026-10-11", "spend", "EUR", "simulated")] }, today);
     const eur = r.finance.find((f) => f.currency === "EUR")!;
     expect(eur.net).toEqual({ now: 900, before: 600, change: 300, pct: 50 });
     expect(eur.perSpend).toBe(3);

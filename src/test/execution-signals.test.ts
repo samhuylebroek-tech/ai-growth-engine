@@ -24,7 +24,7 @@ describe("execution signals from real records", () => {
   });
   it("warns when recorded campaign spend passes the budget, and not when the spend read was truncated", () => {
     const camp = { id: "c1", title: "Autumn", status: "active", category: "advertising", budget_eur: 500, results: "", start_date: null, end_date: null };
-    const spend = [{ campaign_id: "c1", kind: "spend" as const, amount: 520, currency: "EUR", data_class: "simulated" as const }];
+    const spend = [{ campaign_id: "c1", kind: "spend" as const, amount: 520, currency: "EUR", data_class: "manual" as const }];
     const s = detectSignals({ ...base(), campaigns: ok([camp]), campaignSpend: ok(spend) }, NOW).find((x) => x.code === "campaign_budget_over");
     expect(s?.vars).toEqual({ campaign: "Autumn", p: 104 });
     expect(s?.to).toBe("/app/campaigns");
@@ -32,6 +32,10 @@ describe("execution signals from real records", () => {
     expect(codes({ ...base(), campaigns: ok([camp]), campaignSpend: ok(near) })).toContain("campaign_budget_near");
     expect(codes({ ...base(), campaigns: ok([camp]), campaignSpend: { status: "ok", rows: spend, truncated: true } })).not.toContain("campaign_budget_over");
     expect(codes({ ...base(), campaigns: ok([camp]), campaignSpend: ok([{ ...spend[0]!, currency: "USD" }]) })).not.toContain("campaign_budget_over");
+    // Simulated spending never produces a real budget signal.
+    const simulated = codes({ ...base(), campaigns: ok([camp]), campaignSpend: ok([{ ...spend[0]!, data_class: "simulated" as const }]) });
+    expect(simulated).not.toContain("campaign_budget_over");
+    expect(simulated).not.toContain("campaign_budget_near");
   });
   it("counts re-planning proposals without a final decision; postponed ones still wait", () => {
     const replans = ok([{ id: "p1", task_id: "t1", created_at: "x" }, { id: "p2", task_id: "t2", created_at: "x" }, { id: "p3", task_id: "t3", created_at: "x" }]);

@@ -13,7 +13,7 @@ import { can } from "@/lib/permissions";
 import { localDay } from "@/lib/execution";
 import { biOptions } from "@/components/bi/bi-data";
 import { campaignSpendOptions } from "@/components/execution/replan-data";
-import { spendSummary } from "@/lib/campaign-spend";
+import { isExpenditure, isSimulatedSpend, spendSummary } from "@/lib/campaign-spend";
 import { attribute } from "@/lib/bi/attribution";
 import { isNotInstalled } from "@/lib/pending-schema";
 import { campaignIntel, type Advice, type Figure, type FigureKey, type Intel } from "@/lib/campaign-intel";
@@ -45,15 +45,13 @@ export function CampaignIntelPanel({ campaign, tasks, campaigns }: { campaign: C
     campaign: { id: campaign.id, title: campaign.title, status: campaign.status, objective: campaign.objective ?? "", audience: campaign.audience ?? "", channels: campaign.channels ?? [],
       budget_eur: Number(campaign.budget_eur), start_date: campaign.start_date, end_date: campaign.end_date, goal_id: campaign.goal_id, results: campaign.results ?? "" },
     tasks: mine, spend: ledger ? spendSummary(Number(campaign.budget_eur), ledger) : null,
-    spendRows: (ledger ?? []).filter((r) => r.currency === "EUR" && (r.kind === "spend" || r.kind === "correction")).map((r) => ({ occurred_on: r.occurred_on, amount: Number(r.amount) })),
+    spendRows: (ledger ?? []).filter((r) => r.currency === "EUR" && isExpenditure(r) && !isSimulatedSpend(r)).map((r) => ({ occurred_on: r.occurred_on, amount: Number(r.amount) })),
     metrics: bi.data.metrics.map((m) => ({ id: m.id, key: m.key, label: m.label, campaign_id: m.campaign_id ?? null, archived: m.archived })),
     measurements: bi.data.measurements, attributed, experiments: [],
     others: campaigns.map((c) => ({ id: c.id, title: c.title, status: c.status, channels: c.channels ?? [], start_date: c.start_date, end_date: c.end_date, audience: c.audience ?? "" })),
     today: localDay(),
   });
 
-  const simShare = ledger && ledger.length ? ledger.filter((r) => r.data_class === "simulated").length / ledger.length : 0;
-  const simNote = simShare === 1 ? t("ci.simAll") : simShare > 0 ? t("ci.simSome") : "";
   const money = (n: number) => new Intl.NumberFormat(tag, { style: "currency", currency: "EUR" }).format(n);
   const show = (f: Figure) => {
     if (f.value === null) return t("ci.missing", { r: t(tk(`ci.m.${f.missing ?? "no_actuals"}`)) });
@@ -94,11 +92,17 @@ export function CampaignIntelPanel({ campaign, tasks, campaigns }: { campaign: C
               <div key={k} className="min-w-0 rounded border border-border p-2">
                 <dt className="text-muted-foreground">{t(tk(`ci.f.${k}`))}</dt>
                 <dd className={cn("break-words tabular-nums", f.value === null ? "text-muted-foreground" : "font-semibold")}>{show(f)}</dd>
-                <dd className="text-[11px] text-muted-foreground">{t(tk(`ci.s.${f.source}`))}{simNote && ["spent", "reserved", "remaining", "cpl", "cpa", "roas", "roi"].includes(k) ? ` · ${simNote}` : ""}</dd>
+                <dd className="text-[11px] text-muted-foreground">{t(tk(`ci.s.${f.source}`))}</dd>
               </div>
             );
           })}
         </dl>
+        {intel.simulated && (
+          <p className="mt-2 rounded border border-warning/50 px-2 py-1 text-[11px] text-warning">
+            {t("ci.simLine", { n: intel.simulated.entries, s: money(intel.simulated.spent), r: money(intel.simulated.committed) })}
+            {intel.simulated.warnings.filter((w) => w !== "other_currency").map((w) => ` ${t(tk(`ci.simWarn.${w}`))}`).join("")}
+          </p>
+        )}
         {intel.estimatesExcluded > 0 && <p className="mt-1 text-muted-foreground">{t("ci.estimates", { n: intel.estimatesExcluded })}</p>}
       </div>
       <div>

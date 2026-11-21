@@ -6,8 +6,9 @@ const e = (kind: "spend" | "commitment" | "release" | "correction", amount: numb
 
 describe("campaign spend", () => {
   it("remaining budget = budget − spent − committed, with corrections and releases netted", () => {
-    const s = spendSummary(500, [e("spend", 100, "EUR", "simulated"), e("correction", -30), e("commitment", 50), e("release", -50), e("commitment", 40)]);
-    expect(s.eur).toEqual({ spent: 70, committed: 40, entries: 5, simulated: 1 });
+    const s = spendSummary(500, [e("spend", 100), e("correction", -30), e("commitment", 50), e("release", -50), e("commitment", 40), e("spend", 100, "EUR", "simulated")]);
+    expect(s.eur).toEqual({ spent: 70, committed: 40, released: 50, entries: 5 });
+    expect(s.simulatedEur).toEqual({ spent: 100, committed: 0, released: 0, entries: 1 });
     expect(s.remaining).toBe(390);
     expect(s.warnings).toEqual([]);
   });

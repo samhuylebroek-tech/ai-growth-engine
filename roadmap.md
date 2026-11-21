@@ -365,3 +365,11 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [ ] K Monitoring 2.0 (compare checks, resolved/recurring findings, unchecked areas)
 - [ ] L Command Center 2.0; M evidence links on recommendations; N execution-state distinctions
 - [ ] O Scalability review (task_runs read capped at 3000 in BI data); Q end-to-end scenarios 1–9; R regression/security sweep
+
+## Phase 8.6 completion / 8.7 (master directive)
+- [x] P1 One classification of campaign money (actual vs simulated, reservations, releases, missing ≠ zero) used by campaign page, diagnosis, situation, reports, signals and Growth Officer context; cross-component regression test
+- [ ] P1 Situation: conflicts, freshness, conflicting/outdated statuses, reasons, next step
+- [ ] P1 AI-written situation explanation (metered, traceable, uncertainty shown)
+- [ ] P1 Priorities with impact/confidence/urgency/effort/owner/measurement
+- [ ] P2 AI campaign advisory; campaign ↔ strategy/initiative links
+- [ ] P3–P9 budgets/goals, strategy versions, initiative/org reporting, financial data (COGS, customers), commercial foundations, security/scale regression

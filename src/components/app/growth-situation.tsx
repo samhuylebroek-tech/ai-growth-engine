@@ -7,7 +7,7 @@ import type { MessageKey } from "@/lib/i18n/messages";
 import { biOptions } from "@/components/bi/bi-data";
 import { executionOptions, localDay } from "@/lib/execution";
 import { campaignSpendOptions } from "@/components/execution/replan-data";
-import { spendSummary } from "@/lib/campaign-spend";
+import { isRealOverrun, spendSummary } from "@/lib/campaign-spend";
 import { campaignHealth } from "@/lib/campaign-health";
 import { collectPages } from "@/lib/pagination";
 import { growthDb, isNotInstalled } from "@/lib/pending-schema";
@@ -49,13 +49,12 @@ export function GrowthSituation() {
   if (!bi.data || !work.data || reviews.isLoading || (spend.isLoading && !spend.error)) return <p role="status" className="text-sm text-muted-foreground">{t("sa.loading")}</p>;
   const today = localDay();
   const ledger = spend.data ?? null;
-  // A campaign whose spending is only simulated is judged without that spending, so a test overrun never reads as real.
+  // Campaign money uses the shared classification (campaign-spend.ts): health and overruns come from actual
+  // entries only; an overrun that exists only with simulated entries is reported apart and labelled.
   const campaigns = work.data.campaigns.filter((c) => "budget_eur" in c).map((c) => {
-    const own = ledger?.filter((r) => r.campaign_id === c.id) ?? [];
-    const simulatedOnly = own.length > 0 && own.every((r) => r.data_class === "simulated");
-    const s = ledger ? spendSummary(Number(c.budget_eur), own) : undefined;
-    const h = campaignHealth({ status: c.status, start_date: c.start_date, end_date: c.end_date, goal_id: c.goal_id, results: c.results }, work.data.tasks.filter((x) => x.campaign_id === c.id), today, simulatedOnly ? undefined : s);
-    return { status: c.status, state: h.state, overBudget: !!s?.warnings.includes("budget_over"), overBudgetSimulated: simulatedOnly };
+    const s = ledger ? spendSummary(Number(c.budget_eur), ledger.filter((r) => r.campaign_id === c.id)) : undefined;
+    const h = campaignHealth({ status: c.status, start_date: c.start_date, end_date: c.end_date, goal_id: c.goal_id, results: c.results }, work.data.tasks.filter((x) => x.campaign_id === c.id), today, s);
+    return { status: c.status, state: h.state, overBudget: isRealOverrun(s), simulatedOverBudget: !!s?.simulatedWarnings.some((w) => w === "budget_over" || w === "committed_over") };
   });
   const since = new Date(Date.parse(`${today}T00:00:00Z`) - 60 * 86_400_000).toISOString().slice(0, 10);
   const s = growthSituation({

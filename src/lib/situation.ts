@@ -2,6 +2,7 @@
 // caller's RLS: each section has a status, findings with their source and reliability, and what is missing.
 // Statuses follow fixed rules; a section without data is "unknown", never "good". Costs no credits.
 import { periods, revenueFigures, type RevenueRow } from "@/lib/reports";
+import { isExpenditure, isSimulatedSpend } from "@/lib/campaign-spend";
 
 export type SectionKey = "health" | "potential" | "problems" | "financial" | "marketing" | "sales" | "customers" | "execution" | "resources" | "risks";
 export type Status = "good" | "attention" | "problem" | "unknown";
@@ -21,8 +22,8 @@ export type SituationInput = {
   deals: readonly { stage: string; value: number | string; currency: string }[];
   tasks: readonly { status: string; due_date: string | null; updated_at: string }[];
   runs: readonly { status: string; created_at: string }[];
-  /** overBudgetSimulated: the overrun comes only from simulated spending, so it is not a real overrun. */
-  campaigns: readonly { status: string; state: string; overBudget: boolean; overBudgetSimulated?: boolean }[];
+  /** overBudget: a real overrun from actual entries; simulatedOverBudget: an overrun that exists only with simulated entries. */
+  campaigns: readonly { status: string; state: string; overBudget: boolean; simulatedOverBudget?: boolean }[];
   experiments: readonly { status: string; outcome?: string | null; result_data_class?: string | null }[];
   reviews: readonly { verdict: string }[] | null;
   budget: readonly { planned: number; actual: number; currency: string; period_month: string }[];
@@ -67,8 +68,8 @@ export function growthSituation(i: SituationInput): Situation {
   // Marketing performance: campaign states from their own records and spending.
   const live = i.campaigns.filter((c) => c.status === "active" || c.status === "paused" || c.status === "planned");
   const atRisk = live.filter((c) => c.state === "at_risk").length;
-  const over = i.campaigns.filter((c) => c.overBudget && !c.overBudgetSimulated).length;
-  const overSim = i.campaigns.filter((c) => c.overBudget && c.overBudgetSimulated).length;
+  const over = i.campaigns.filter((c) => c.overBudget).length;
+  const overSim = i.campaigns.filter((c) => !c.overBudget && c.simulatedOverBudget).length;
   const mf: Finding[] = [{ code: "campaigns", params: { n: live.length, r: atRisk }, source: "campaigns", reliability: "rule", weight: atRisk ? 3 : live.some((c) => c.state === "needs_attention") ? 2 : 0 }];
   if (over) mf.push({ code: "over_budget", params: { n: over }, source: "spend_ledger", reliability: "recorded", weight: 3 });
   if (overSim) mf.push({ code: "over_budget", params: { n: overSim }, source: "spend_ledger", reliability: "simulated", weight: 1 });
@@ -85,9 +86,11 @@ export function growthSituation(i: SituationInput): Situation {
     return { code: "net_revenue", params: { c, v: m.net, b }, source: "revenue_ledger", reliability, weight: b > 0 && m.net < b * 0.8 ? 2 : 0 };
   });
   if (i.spend) {
-    const sim = i.spend.length > 0 && i.spend.every((s) => s.data_class === "simulated");
-    const spentEur = i.spend.filter((s) => s.currency === "EUR" && (s.kind === "spend" || s.kind === "correction") && s.occurred_on >= current.from).reduce((n, s) => n + Number(s.amount), 0);
-    if (spentEur) ff.push({ code: "spend", params: { v: Math.round(spentEur * 100) / 100 }, source: "spend_ledger", reliability: sim ? "simulated" : "recorded", weight: 0 });
+    // Actual and simulated expenditure are summed apart (shared rule in campaign-spend.ts).
+    const sum = (sim: boolean) => Math.round(i.spend!.filter((s) => s.currency === "EUR" && isExpenditure(s as { kind: "spend" }) && isSimulatedSpend(s as { data_class: "manual" }) === sim && s.occurred_on >= current.from).reduce((n, s) => n + Number(s.amount), 0) * 100) / 100;
+    const actual = sum(false), simulated = sum(true);
+    if (actual) ff.push({ code: "spend", params: { v: actual }, source: "spend_ledger", reliability: "entered", weight: 0 });
+    if (simulated) ff.push({ code: "spend", params: { v: simulated }, source: "spend_ledger", reliability: "simulated", weight: 0 });
   }
   const fMissing = [...(Object.keys(now).length ? [] : ["revenue"]), ...(i.purchaseCostsRecorded ? [] : ["purchase_costs"]), ...(i.spend ? [] : ["spend"])];
   add("financial", ff, fMissing, Object.keys(now).length > 0);

@@ -38,7 +38,9 @@ export type Problem =
 export type AdviceKind = "define_kpis" | "measure_results" | "improve_conversion" | "review_budget_split" | "review_budget" | "review_audience"
   | "compare_channels" | "adjust_message" | "connect_source" | "link_goal" | "replan_tasks" | "evaluate_campaign";
 export type Advice = { kind: AdviceKind; problem: Problem; specialist: string | null; kpi: FigureKey | null; risk: "low" | "medium" | "high" };
-export type Intel = { figures: Record<FigureKey, Figure>; problems: Problem[]; advice: Advice[]; overlaps: string[]; estimatesExcluded: number; health: ReturnType<typeof campaignHealth> };
+/** simulated: what simulated ledger entries add (EUR), kept out of every figure, problem and advice. */
+export type Intel = { figures: Record<FigureKey, Figure>; problems: Problem[]; advice: Advice[]; overlaps: string[]; estimatesExcluded: number; health: ReturnType<typeof campaignHealth>;
+  simulated: { entries: number; spent: number; committed: number; warnings: SpendSummary["simulatedWarnings"] } | null };
 
 /** Rule thresholds, named so the screen and tests can explain them. */
 export const RULES = { lowConversionRate: 0.01, lowConversionMinClicks: 100, risingCost: 0.2, resultsExpectedAfter: 0.5 } as const;
@@ -62,7 +64,8 @@ function measured(key: string, i: IntelInput): { value: number | null; missing?:
 export function campaignIntel(i: IntelInput): Intel {
   const c = i.campaign;
   const health = campaignHealth({ status: c.status, start_date: c.start_date, end_date: c.end_date, goal_id: c.goal_id, results: c.results }, i.tasks, i.today, i.spend ?? undefined);
-  const spentEur = i.spend ? i.spend.eur.spent : null;
+  // Actual entries only: simulated spending never enters a figure (see campaign-spend.ts).
+  const spentEur = i.spend && i.spend.eur.entries > 0 ? i.spend.eur.spent : null;
   const leads = measured("leads", i);
   const clicks = measured("clicks", i);
   const conv = measured("conversions", i);
@@ -87,8 +90,8 @@ export function campaignIntel(i: IntelInput): Intel {
 
   const figures: Record<FigureKey, Figure> = {
     budget: fig("budget", c.budget_eur > 0 ? c.budget_eur : null, "campaign", true, { currency: "EUR", ...(c.budget_eur > 0 ? {} : { missing: "no_budget" as const }) }),
-    spent: fig("spent", spentEur, "spend_ledger", true, { currency: "EUR", ...(i.spend ? {} : { missing: "no_ledger" as const }) }),
-    reserved: fig("reserved", i.spend ? i.spend.eur.committed : null, "spend_ledger", true, { currency: "EUR", ...(i.spend ? {} : { missing: "no_ledger" as const }) }),
+    spent: fig("spent", spentEur, "spend_ledger", true, { currency: "EUR", ...(i.spend ? (spentEur === null ? { missing: "no_spend" as const } : {}) : { missing: "no_ledger" as const }) }),
+    reserved: fig("reserved", i.spend && i.spend.eur.entries > 0 ? i.spend.eur.committed : null, "spend_ledger", true, { currency: "EUR", ...(i.spend ? (i.spend.eur.entries > 0 ? {} : { missing: "no_spend" as const }) : { missing: "no_ledger" as const }) }),
     remaining: fig("remaining", i.spend?.remaining ?? null, "computed", true, { currency: "EUR", ...(i.spend?.remaining == null ? { missing: (i.spend ? "no_budget" : "no_ledger") as MissingReason } : {}) }),
     leads: fig("leads", leads.value, "metric", true, leads.missing ? { missing: leads.missing } : {}),
     clicks: fig("clicks", clicks.value, "metric", true, clicks.missing ? { missing: clicks.missing } : {}),
@@ -129,7 +132,7 @@ export function campaignIntel(i: IntelInput): Intel {
   }
   if (!c.audience.trim()) problems.push("no_audience");
   if (!c.goal_id && c.status !== "archived") problems.push("no_goal");
-  const simulatedOnly = !!i.spend && i.spend.eur.entries > 0 && i.spend.eur.simulated === i.spend.eur.entries;
+  const simulatedOnly = !!i.spend && i.spend.simulatedEntries > 0 && i.spend.eur.entries === 0;
   if (simulatedOnly || (anyResult && ![leads, clicks, conv, custom].some((x) => x.value !== null) && !eurRevenue)) problems.push("weak_evidence");
   const overlaps = i.others.filter((o) => o.id !== c.id && ["active", "planned"].includes(o.status) && o.channels.some((ch) => c.channels.includes(ch)) && overlapsDates(o, c)).map((o) => o.title);
   if (overlaps.length && live) problems.push("overlap");
@@ -154,5 +157,8 @@ export function campaignIntel(i: IntelInput): Intel {
   const advice = problems.map((p) => ADVICE[p]).filter((a) => (seen.has(a.kind) ? false : (seen.add(a.kind), true)));
   const metricIds = new Set(i.metrics.filter((m) => m.campaign_id === c.id).map((m) => m.id));
   const estimatesExcluded = i.measurements.filter((m) => metricIds.has(m.metric_id) && !isActual(String(m.kind))).length;
-  return { figures, problems, advice, overlaps, estimatesExcluded, health };
+  const simulated = i.spend && i.spend.simulatedEntries > 0
+    ? { entries: i.spend.simulatedEntries, spent: i.spend.simulatedEur.spent, committed: i.spend.simulatedEur.committed, warnings: i.spend.simulatedWarnings }
+    : null;
+  return { figures, problems, advice, overlaps, estimatesExcluded, health, simulated };
 }

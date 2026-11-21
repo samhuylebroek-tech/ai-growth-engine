@@ -136,11 +136,12 @@ export function BusinessReports() {
           </section>
         )}
 
-        {r.show.spend && r.spend && r.spend.entries > 0 && (
+        {r.show.spend && r.spend && (r.spend.entries > 0 || r.spend.simulated > 0) && (
           <section className="space-y-1 text-xs">
             <h3 className="text-sm font-semibold">{t("rep.spent")}</h3>
             <p className="tabular-nums">{Object.entries(r.spend.spent).map(([c, n]) => t("rep.spendPrev", { a: money(n, c), b: money(r.spend!.before[c] ?? 0, c) })).join(" · ")}</p>
-            <p className="text-muted-foreground">{t("rep.src.spend", { n: r.spend.entries, s: r.spend.simulated })}</p>
+            {r.spend.simulated > 0 && <p className="text-warning">{t("rep.simSpent", { list: Object.entries(r.spend.simulatedSpent).map(([c, n]) => money(n, c)).join(" · ") })}</p>}
+            <p className="text-muted-foreground">{t("rep.src.spend", { n: r.spend.entries + r.spend.simulated, s: r.spend.simulated })}</p>
           </section>
         )}
 
@@ -156,7 +157,7 @@ export function BusinessReports() {
                       <td className="py-1 pr-3">{c.title}</td>
                       <td className="py-1 pr-3">{t(`work.health.${c.state}` as MessageKey)}</td>
                       <td className="py-1 pr-3">{c.budget > 0 ? money(c.budget, "EUR") : t("rep.none")}</td>
-                      <td className="py-1 pr-3">{money(c.spentEur, "EUR")}</td>
+                      <td className="py-1 pr-3">{c.spentEur === null ? t("rep.none") : money(c.spentEur, "EUR")}{c.simulatedEur ? ` (+${money(c.simulatedEur, "EUR")} ${t("rep.simShort")})` : ""}</td>
                       <td className={cn("py-1 pr-3", c.over && "text-destructive")}>{c.remaining === null ? t("rep.none") : `${money(c.remaining, "EUR")}${c.over ? ` · ${t("rep.overBudget")}` : ""}`}</td>
                       <td className="py-1 pr-3">{c.done}/{c.total}</td>
                     </tr>

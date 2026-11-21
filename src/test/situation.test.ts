@@ -20,7 +20,7 @@ describe("growth situation analysis", () => {
     expect(s.priorities.map((p) => p.code)).toEqual(expect.arrayContaining(["overdue", "over_budget"]));
   });
   it("a budget overrun from simulated spending only is labelled simulated and is not a priority", () => {
-    const s = growthSituation({ ...empty, campaigns: [{ status: "active", state: "on_track", overBudget: true, overBudgetSimulated: true }] });
+    const s = growthSituation({ ...empty, campaigns: [{ status: "active", state: "on_track", overBudget: false, simulatedOverBudget: true }] });
     const f = sec(s, "marketing").findings.find((x) => x.code === "over_budget");
     expect(f?.reliability).toBe("simulated");
     expect(s.priorities.map((p) => p.code)).not.toContain("over_budget");

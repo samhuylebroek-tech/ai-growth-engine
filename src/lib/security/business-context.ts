@@ -1,4 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isRealOverrun, spendSummary } from "@/lib/campaign-spend";
+import type { CampaignSpendRow } from "@/lib/pending-schema";
 import { detectFactConflicts } from "@/lib/fact-conflicts";
 import { leverCoverage, leverLines } from "@/lib/growth-levers";
 import type { Database } from "@/integrations/supabase/types";
@@ -1488,12 +1490,10 @@ function spendNote(d: BusinessDomains, c: Campaign): string {
   if (!r || r.status !== "ok" || r.truncated || !c.id) return "";
   const rows = r.rows.filter((x) => x.campaign_id === c.id);
   if (!rows.length) return "; recorded spend: none";
-  const cur = new Map<string, { spent: number; reserved: number; sim: number }>();
-  for (const x of rows) {
-    const e = cur.get(x.currency) ?? { spent: 0, reserved: 0, sim: 0 };
-    if (x.kind === "spend" || x.kind === "correction") e.spent += Number(x.amount); else e.reserved += Number(x.amount);
-    if (x.data_class === "simulated") e.sim += 1;
-    cur.set(x.currency, e);
-  }
-  return `; recorded spend ${[...cur].map(([k, v]) => `${k} ${v.spent.toFixed(2)} spent, ${v.reserved.toFixed(2)} reserved${v.sim ? ` (${v.sim} simulated test entries)` : ""}`).join("; ")}`;
+  // Same classification as every screen (campaign-spend.ts): actual and simulated amounts are never added together.
+  const sum = spendSummary(Number(c.budget_eur ?? 0), rows.map((x) => ({ kind: x.kind as CampaignSpendRow["kind"], amount: x.amount, currency: x.currency, data_class: x.data_class as CampaignSpendRow["data_class"] })));
+  const line = (m: Record<string, { spent: number; committed: number }>) => Object.entries(m).map(([k, v]) => `${k} ${v.spent.toFixed(2)} spent, ${v.committed.toFixed(2)} reserved`).join("; ");
+  const actual = Object.keys(sum.byCurrency).length ? `; recorded actual spend ${line(sum.byCurrency)}${isRealOverrun(sum) ? " (EUR budget exceeded by actual entries)" : ""}` : "; recorded actual spend: none";
+  const sim = sum.simulatedEntries ? `; simulated test entries (not real spending, never a real overrun): ${line(sum.simulatedByCurrency)}` : "";
+  return actual + sim;
 }

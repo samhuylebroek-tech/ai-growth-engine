@@ -93,7 +93,12 @@ export function CampaignSpend({ campaignId, budgetEur }: { campaignId: string; b
         <p key={w} className={cn("rounded border px-2 py-1", w === "budget_over" || w === "committed_over" ? "border-destructive/40 text-destructive" : "border-warning/50 text-warning")}>{tx(`rp.spend.w.${w}` as MessageKey)}</p>
       ))}
       {others.length > 0 && <p className="text-muted-foreground">{tx("rp.spend.other", { list: others.map(([c, t]) => money(t.spent, c)).join(", ") })}</p>}
-      {Object.values(s.byCurrency).some((t) => t.simulated) && <p className="text-muted-foreground">{tx("rp.spend.simulatedNote", { n: Object.values(s.byCurrency).reduce((a, t) => a + t.simulated, 0) })}</p>}
+      {s.simulatedEntries > 0 && (
+        <p className="rounded border border-warning/50 px-2 py-1 text-warning">
+          {tx("rp.spend.simulatedNote", { n: s.simulatedEntries })} {tx("rp.spend.simTotals", { s: money(s.simulatedEur.spent), r: money(s.simulatedEur.committed) })}
+          {s.simulatedWarnings.filter((w) => w !== "other_currency").map((w) => ` ${tx(`ci.simWarn.${w}` as MessageKey)}`).join("")}
+        </p>
+      )}
 
       {rows.length === 0 ? <p className="text-muted-foreground">{tx("rp.spend.none")}</p> : (
         <ul className="divide-y divide-border">

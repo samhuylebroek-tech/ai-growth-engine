@@ -2,7 +2,8 @@
 // length, figures computed only from recorded rows read under the caller's RLS, each figure labelled as recorded,
 // computed or estimated, and an explicit list of what is missing. Nothing is projected or invented.
 import { campaignHealth, type HealthState } from "@/lib/campaign-health";
-import { spendSummary } from "@/lib/campaign-spend";
+import { isExpenditure, spendSummary } from "@/lib/campaign-spend";
+import type { CampaignSpendRow } from "@/lib/pending-schema";
 
 export const REPORT_TYPES = ["daily", "weekly", "monthly", "financial", "campaign", "ai_execution", "specialists", "experiments"] as const;
 export type ReportType = (typeof REPORT_TYPES)[number];
@@ -51,16 +52,18 @@ export function revenueFigures(rows: readonly RevenueRow[], p: Period) {
 }
 
 export type SpendRow = { campaign_id: string; kind: string; amount: number | string; currency: string; occurred_on: string; data_class: string };
+/** Expenditure in the period per currency. Simulated entries are counted apart and never added to spent. */
 export function spendFigures(rows: readonly SpendRow[], p: Period) {
   const spent: Record<string, number> = {};
+  const simulatedSpent: Record<string, number> = {};
   let simulated = 0; let entries = 0;
   for (const r of rows) {
-    if ((r.kind !== "spend" && r.kind !== "correction") || !inP(r.occurred_on, p)) continue;
+    if (!isExpenditure(r as Pick<CampaignSpendRow, "kind">) || !inP(r.occurred_on, p)) continue;
+    if (r.data_class === "simulated") { simulated += 1; simulatedSpent[r.currency] = r2((simulatedSpent[r.currency] ?? 0) + Number(r.amount)); continue; }
     spent[r.currency] = r2((spent[r.currency] ?? 0) + Number(r.amount));
     entries += 1;
-    if (r.data_class === "simulated") simulated += 1;
   }
-  return { spent, entries, simulated };
+  return { spent, simulatedSpent, entries, simulated };
 }
 
 export type TaskRow = { id: string; status: string; due_date: string | null; created_at: string; updated_at: string; campaign_id: string | null };
@@ -155,12 +158,12 @@ export function experimentFigures(rows: readonly ExperimentRow[], p: Period) {
 }
 
 export type CampaignRow = { id: string; title: string; status: string; budget_eur: number | string; start_date: string | null; end_date: string | null; goal_id: string | null; results?: string };
-export type CampaignLine = { id: string; title: string; state: HealthState; budget: number; spentEur: number; remaining: number | null; over: boolean; done: number; total: number; otherCurrencies: boolean };
+export type CampaignLine = { id: string; title: string; state: HealthState; budget: number; /** Actual EUR spending; null when the ledger could not be read. */ spentEur: number | null; simulatedEur: number; remaining: number | null; over: boolean; done: number; total: number; otherCurrencies: boolean };
 export function campaignLines(campaigns: readonly CampaignRow[], tasks: readonly TaskRow[], spend: readonly SpendRow[] | null, today: string): CampaignLine[] {
   return campaigns.filter((c) => c.status !== "archived").map((c) => {
-    const s = spend ? spendSummary(Number(c.budget_eur), spend.filter((x) => x.campaign_id === c.id).map((x) => ({ ...x, kind: x.kind as "spend", data_class: x.data_class as "manual" }))) : null;
+    const s = spend ? spendSummary(Number(c.budget_eur), spend.filter((x) => x.campaign_id === c.id).map((x) => ({ ...x, kind: x.kind as CampaignSpendRow["kind"], data_class: x.data_class as CampaignSpendRow["data_class"] }))) : null;
     const h = campaignHealth({ status: c.status, start_date: c.start_date, end_date: c.end_date, goal_id: c.goal_id, results: c.results ?? "" }, tasks.filter((t) => t.campaign_id === c.id), today, s ?? undefined);
-    return { id: c.id, title: c.title, state: h.state, budget: Number(c.budget_eur), spentEur: s?.eur.spent ?? 0, remaining: s?.remaining ?? null,
+    return { id: c.id, title: c.title, state: h.state, budget: Number(c.budget_eur), spentEur: s ? s.eur.spent : null, simulatedEur: s?.simulatedEur.spent ?? 0, remaining: s?.remaining ?? null,
       over: !!s?.warnings.includes("budget_over"), done: h.done, total: h.total, otherCurrencies: !!s?.warnings.includes("other_currency") };
   });
 }
