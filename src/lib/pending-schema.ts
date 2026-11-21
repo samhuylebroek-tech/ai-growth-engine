@@ -529,6 +529,29 @@ export type CampaignSpendRow = {
   id: string; org_id: string; workspace_id: string; campaign_id: string; kind: "spend" | "commitment" | "release" | "correction";
   amount: number | string; currency: string; occurred_on: string; data_class: "manual" | "simulated"; source_ref: string;
   relates_to: string | null; note: string; request_key: string; created_by: string; created_at: string;
+  /** Proposal 0084: the budget line (channel and month) the entry was paid from; absent before 0084. */
+  budget_line_id?: string | null;
+};
+/** Proposal 0084: current allocation of one budget line to one campaign. */
+export type CampaignBudgetAllocationRow = {
+  id: string; org_id: string; workspace_id: string; budget_line_id: string; campaign_id: string; currency: string;
+  amount: number | string; status: "active" | "cancelled"; updated_by: string; created_at: string; updated_at: string;
+};
+export type BudgetAllocationRejection = "no_change" | "campaign_running" | "move_more_than_allocated" | "below_committed" | "campaign_closed" | "earmark_mismatch" | "exceeds_unallocated" | "stale";
+/** Proposal 0084: insert-only allocation history, including refused attempts. */
+export type BudgetAllocationEventRow = {
+  id: string; org_id: string; workspace_id: string; budget_line_id: string; campaign_id: string; to_campaign_id: string | null;
+  kind: "allocate" | "increase" | "decrease" | "move" | "cancel" | "release_unused"; outcome: "applied" | "rejected";
+  rejection: BudgetAllocationRejection | null; previous_amount: number | string; new_amount: number | string; difference: number | string;
+  currency: string; line_planned: number | string; unallocated_before: number | string; reason: string; request_key: string;
+  change_request_id: string | null; actor_id: string; created_at: string;
+};
+/** Proposal 0084: a member's request to change an allocation; applied only by an editor's decision. */
+export type BudgetChangeRequestRow = {
+  id: string; org_id: string; workspace_id: string; kind: "set" | "move" | "cancel" | "release_unused"; budget_line_id: string;
+  campaign_id: string; to_campaign_id: string | null; amount: number | string | null; seen_amount: number | string | null; reason: string;
+  status: "pending" | "applied" | "rejected" | "failed"; result: Json | null; request_key: string; requested_by: string;
+  decided_by: string | null; decided_at: string | null; decision_note: string | null; created_at: string;
 };
 /** Proposal 0083: insert-only campaign status history. */
 export type CampaignStatusEventRow = {
@@ -883,6 +906,9 @@ type PendingTables = {
   task_replan_proposals: { Row: TaskReplanProposalRow; Insert: never; Update: never; Relationships: [] };
   task_replan_decisions: { Row: TaskReplanDecisionRow; Insert: never; Update: never; Relationships: [] };
   campaign_spend_entries: { Row: CampaignSpendRow; Insert: never; Update: never; Relationships: [] };
+  campaign_budget_allocations: { Row: CampaignBudgetAllocationRow; Insert: never; Update: never; Relationships: [] };
+  budget_allocation_events: { Row: BudgetAllocationEventRow; Insert: never; Update: never; Relationships: [] };
+  budget_change_requests: { Row: BudgetChangeRequestRow; Insert: never; Update: never; Relationships: [] };
   campaign_status_events: { Row: CampaignStatusEventRow; Insert: never; Update: never; Relationships: [] };
   campaign_spend_limits: { Row: CampaignSpendLimitsRow; Insert: never; Update: never; Relationships: [] };
   campaign_spend_limit_events: { Row: CampaignSpendLimitEventRow; Insert: never; Update: never; Relationships: [] };
@@ -1223,6 +1249,9 @@ type PendingFunctions = {
     Returns: Json;
   };
   record_campaign_spend: { Args: { _workspace: string; _request: string; _campaign: string; _p: Json }; Returns: Json };
+  change_campaign_allocation: { Args: { _workspace: string; _request: string; _p: Json }; Returns: Json };
+  request_budget_change: { Args: { _workspace: string; _request: string; _p: Json }; Returns: Json };
+  decide_budget_change: { Args: { _id: string; _approve: boolean; _note: string }; Returns: Json };
   transition_campaign: { Args: { _workspace: string; _campaign: string; _to: string; _p?: Json }; Returns: Json };
   set_campaign_spend_limits: { Args: { _workspace: string; _request: string; _campaign: string; _p: Json }; Returns: Json };
   set_business_check_frequency: { Args: { _workspace: string; _frequency: BusinessCheckSettingsRow["frequency"] }; Returns: undefined };

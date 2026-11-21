@@ -69,7 +69,7 @@ export function limitUsage(l: SpendLimits, rows: readonly Row[], day: string, cl
   });
 }
 
-export type Block = { limit: "emergency_stop" | "currency" | LimitKey; max: number | null; used: number | null };
+export type Block = { limit: "emergency_stop" | "currency" | "allocation" | LimitKey; max: number | null; used: number | null };
 /** The limit a new entry would hit, or null. Same order as the database: stop, currency, daily, weekly, monthly, lifetime. */
 export function wouldExceed(l: SpendLimits | null | undefined, rows: readonly Row[], e: Pick<Row, "kind" | "amount" | "currency" | "occurred_on" | "data_class" | "relates_to">): Block | null {
   const amt = Number(e.amount);

@@ -35,6 +35,7 @@ export function campaignLimitsOptions(ws: string | undefined) {
 export function blockText(tx: (k: MessageKey, v?: Record<string, string | number>) => string, b: Block, currency: string, money: (n: number, c?: string) => string) {
   if (b.limit === "emergency_stop") return tx("cos.block.emergency_stop");
   if (b.limit === "currency") return tx("cos.block.currency", { c: currency });
+  if (b.limit === "allocation") return tx("ba.block.allocation", { used: money(b.used ?? 0, currency), max: money(b.max ?? 0, currency) });
   return tx("cos.block.limit", { k: tx(`cos.lim.${b.limit}`), used: money(b.used ?? 0, currency), max: money(b.max ?? 0, currency) });
 }
 

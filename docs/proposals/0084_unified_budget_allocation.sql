@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS public.campaign_budget_allocations (
 );
 CREATE INDEX IF NOT EXISTS campaign_budget_allocations_campaign_idx ON public.campaign_budget_allocations(campaign_id);
 CREATE INDEX IF NOT EXISTS campaign_budget_allocations_ws_idx ON public.campaign_budget_allocations(workspace_id);
+REVOKE ALL ON public.campaign_budget_allocations FROM anon, authenticated;
 GRANT SELECT ON public.campaign_budget_allocations TO authenticated;
 GRANT ALL ON public.campaign_budget_allocations TO service_role;
 ALTER TABLE public.campaign_budget_allocations ENABLE ROW LEVEL SECURITY;
@@ -59,6 +60,7 @@ CREATE TABLE IF NOT EXISTS public.budget_change_requests (
   UNIQUE (workspace_id, request_key)
 );
 CREATE INDEX IF NOT EXISTS budget_change_requests_ws_idx ON public.budget_change_requests(workspace_id, status);
+REVOKE ALL ON public.budget_change_requests FROM anon, authenticated;
 GRANT SELECT ON public.budget_change_requests TO authenticated;
 GRANT ALL ON public.budget_change_requests TO service_role;
 ALTER TABLE public.budget_change_requests ENABLE ROW LEVEL SECURITY;
@@ -91,6 +93,7 @@ CREATE TABLE IF NOT EXISTS public.budget_allocation_events (
 );
 CREATE INDEX IF NOT EXISTS budget_allocation_events_line_idx ON public.budget_allocation_events(budget_line_id, created_at);
 CREATE INDEX IF NOT EXISTS budget_allocation_events_campaign_idx ON public.budget_allocation_events(campaign_id, created_at);
+REVOKE ALL ON public.budget_allocation_events FROM anon, authenticated;
 GRANT SELECT ON public.budget_allocation_events TO authenticated;
 GRANT ALL ON public.budget_allocation_events TO service_role;
 ALTER TABLE public.budget_allocation_events ENABLE ROW LEVEL SECURITY;

@@ -7,7 +7,7 @@ import { useOrg } from "@/lib/org-context";
 import { can } from "@/lib/permissions";
 import { useI18n } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/messages";
-import { growthDb, isNotInstalled, type CampaignSpendRow } from "@/lib/pending-schema";
+import { growthDb, isNotInstalled, retryUnlessNotInstalled, type CampaignBudgetAllocationRow, type CampaignSpendRow } from "@/lib/pending-schema";
 import { localDay } from "@/lib/execution";
 import { openAmount, spendSummary } from "@/lib/campaign-spend";
 import { campaignSpendOptions } from "@/components/execution/replan-data";
@@ -27,6 +27,17 @@ export function CampaignSpend({ campaignId, budgetEur, dates }: { campaignId: st
   const q = useQuery(campaignSpendOptions(o.org?.id, o.workspace?.id));
   const limitsQ = useQuery(campaignLimitsOptions(o.workspace?.id));
   const [blocked, setBlocked] = useState<string | null>(null);
+  // Proposal 0084: allocations of budget lines to this campaign; entries can name the line they are paid from.
+  const fundingQ = useQuery({ queryKey: ["budget-allocations", o.workspace?.id, "campaign", campaignId], enabled: !!o.workspace, retry: retryUnlessNotInstalled, queryFn: async () => {
+    const a = await growthDb.from("campaign_budget_allocations").select("*").eq("workspace_id", o.workspace!.id).eq("campaign_id", campaignId).eq("status", "active").limit(100);
+    if (a.error) { if (isNotInstalled(a.error)) return { allocations: [] as CampaignBudgetAllocationRow[], lines: [] }; throw a.error; }
+    const ids = (a.data ?? []).map((x) => x.budget_line_id);
+    if (!ids.length) return { allocations: (a.data ?? []) as CampaignBudgetAllocationRow[], lines: [] };
+    const l = await growthDb.from("budget_lines").select("id,channel,period_month,currency").in("id", ids);
+    if (l.error) throw l.error;
+    return { allocations: (a.data ?? []) as CampaignBudgetAllocationRow[], lines: l.data ?? [] };
+  } });
+  const [lineId, setLineId] = useState("");
   const member = can(o.workspaceRole, "profile.edit");
   const [kind, setKind] = useState<CampaignSpendRow["kind"]>("spend");
   const [relates, setRelates] = useState<string>("");
@@ -48,8 +59,14 @@ export function CampaignSpend({ campaignId, budgetEur, dates }: { campaignId: st
   const lim = (limitsQ.data ?? []).find((l) => l.campaign_id === campaignId) ?? null;
   const typed = Number(amount.replace(",", "."));
   const signedTyped = kind === "release" ? -Math.abs(typed) : kind === "correction" ? typed : Math.abs(typed);
+  const funding = (fundingQ.data?.allocations ?? []).map((a) => ({ a, line: fundingQ.data?.lines.find((l) => l.id === a.budget_line_id) })).filter((x) => !!x.line);
+  const lineChoices = funding.filter((x) => x.line!.period_month.slice(0, 7) === day.slice(0, 7) && x.line!.currency === currency.trim().toUpperCase());
+  const chosen = funding.find((x) => x.a.budget_line_id === lineId);
+  const lineExposure = (id: string, c: "manual" | "simulated") => rows.filter((r) => r.budget_line_id === id && r.data_class === c).reduce((t, r) => t + Number(r.amount), 0);
+  const allocationBlock: Block | null = chosen && !target && signedTyped > 0 && lineExposure(chosen.a.budget_line_id, cls) + signedTyped > Number(chosen.a.amount)
+    ? { limit: "allocation", max: Number(chosen.a.amount), used: lineExposure(chosen.a.budget_line_id, cls) } : null;
   const preview = amount.trim() && Number.isFinite(typed) && typed !== 0
-    ? wouldExceed(lim, rows, { kind, amount: signedTyped, currency: currency.trim().toUpperCase(), occurred_on: day, data_class: cls, relates_to: relates || null })
+    ? wouldExceed(lim, rows, { kind, amount: signedTyped, currency: currency.trim().toUpperCase(), occurred_on: day, data_class: cls, relates_to: relates || null }) ?? allocationBlock
     : null;
 
   function pick(k: CampaignSpendRow["kind"], entry?: CampaignSpendRow) {
@@ -67,7 +84,7 @@ export function CampaignSpend({ campaignId, budgetEur, dates }: { campaignId: st
     try {
       const r = await growthDb.rpc("record_campaign_spend", {
         _workspace: o.workspace.id, _request: request.current, _campaign: campaignId,
-        _p: { kind, amount: signed, currency: currency.trim().toUpperCase(), occurred_on: day, data_class: cls, source_ref: ref.trim(), note: note.trim(), ...(relates ? { relates_to: relates } : {}) },
+        _p: { kind, amount: signed, currency: currency.trim().toUpperCase(), occurred_on: day, data_class: cls, source_ref: ref.trim(), note: note.trim(), ...(relates ? { relates_to: relates } : {}), ...(!relates && lineId && lineChoices.some((x) => x.a.budget_line_id === lineId) ? { budget_line_id: lineId } : {}) },
       });
       if (r.error) throw r.error;
       request.current = null;
@@ -84,8 +101,8 @@ export function CampaignSpend({ campaignId, budgetEur, dates }: { campaignId: st
       toast.success(tx("rp.spend.saved"));
     } catch (e) {
       const m = errText(e);
-      toast.error(tx(m === "spend_duplicate_reference" ? "rp.spend.duplicate" : m === "spend_below_zero" ? "rp.spend.belowZero" : m.startsWith("invalid") ? "rp.spend.invalid" : "rp.spend.failed"));
-      if (m === "spend_duplicate_reference" || m === "spend_below_zero" || m.startsWith("invalid")) request.current = null;
+      toast.error(tx(m === "spend_duplicate_reference" ? "rp.spend.duplicate" : m === "spend_below_zero" ? "rp.spend.belowZero" : m === "spend_line_mismatch" ? "ba.spendLineMismatch" : m.startsWith("invalid") ? "rp.spend.invalid" : "rp.spend.failed"));
+      if (m === "spend_duplicate_reference" || m === "spend_below_zero" || m === "spend_line_mismatch" || m.startsWith("invalid")) request.current = null;
     } finally { setBusy(false); }
   }
 
@@ -107,6 +124,8 @@ export function CampaignSpend({ campaignId, budgetEur, dates }: { campaignId: st
         </div>
       )}
       {s.budget === 0 && <p className="text-muted-foreground">{tx("rp.spend.noBudget")}</p>}
+      {fundingQ.data && (funding.length === 0 ? <p className="text-muted-foreground">{tx("ba.noFunding")}</p> : (
+        <p>{tx("ba.funding", { list: funding.map((x) => `${x.line!.channel} ${new Date(`${x.line!.period_month}T00:00:00`).toLocaleDateString(tag, { month: "short", year: "numeric" })}: ${money(Number(x.a.amount), x.a.currency)} (${money(Math.max(0, lineExposure(x.a.budget_line_id, "manual")), x.a.currency)} ${tx("ba.spent").toLowerCase()} / ${tx("ba.reserved").toLowerCase()})`).join(" · ") })}</p>))}
       {s.warnings.filter((w) => w !== "other_currency").map((w) => (
         <p key={w} className={cn("rounded border px-2 py-1", w === "budget_over" || w === "committed_over" ? "border-destructive/40 text-destructive" : "border-warning/50 text-warning")}>{tx(`rp.spend.w.${w}` as MessageKey)}</p>
       ))}
@@ -126,6 +145,7 @@ export function CampaignSpend({ campaignId, budgetEur, dates }: { campaignId: st
                 {new Date(`${r.occurred_on}T12:00:00`).toLocaleDateString(tag)} · {tx(`rp.spend.k.${r.kind}` as MessageKey)} · <span className="tabular-nums">{money(Number(r.amount), r.currency)}</span>
                 {r.data_class === "simulated" && <span className="ml-1 rounded border px-1 text-muted-foreground">{tx("rp.spend.c.simulated")}</span>}
                 {r.source_ref && <span className="text-muted-foreground"> · {r.source_ref}</span>}
+                {r.budget_line_id && <span className="text-muted-foreground"> · {fundingQ.data?.lines.find((l) => l.id === r.budget_line_id)?.channel ?? tx("ba.spendLine")}</span>}
                 {r.note && <span className="block text-muted-foreground">{r.note}</span>}
                 {(r.kind === "spend" || r.kind === "commitment") && <span className="block text-muted-foreground">{tx("rp.spend.openAmount", { a: money(openAmount(r, rows), r.currency) })}</span>}
               </span>
@@ -152,6 +172,11 @@ export function CampaignSpend({ campaignId, budgetEur, dates }: { campaignId: st
                 <option value="manual">{tx("rp.spend.c.manual")}</option><option value="simulated">{tx("rp.spend.c.simulated")}</option>
               </select></label>
             <label className="flex flex-col gap-1">{tx("rp.spend.ref")}<Input value={ref} maxLength={120} onChange={(e) => setRef(e.target.value)} /></label>
+            {!target && lineChoices.length > 0 && <label className="flex flex-col gap-1 sm:col-span-2">{tx("ba.spendLine")}
+              <select aria-label={tx("ba.spendLine")} className={sel} value={lineId} onChange={(e) => { setLineId(e.target.value); request.current = null; }}>
+                <option value="">{tx("ba.spendLineNone")}</option>
+                {lineChoices.map((x) => <option key={x.a.budget_line_id} value={x.a.budget_line_id}>{`${x.line!.channel} · ${money(Number(x.a.amount), x.a.currency)}`}</option>)}
+              </select></label>}
             <label className="flex flex-col gap-1 sm:col-span-3">{tx("rp.spend.noteLabel")}<Input value={note} maxLength={300} onChange={(e) => setNote(e.target.value)} /></label>
           </div>
           {preview && <p role="status" className="rounded border border-destructive/40 px-2 py-1 text-destructive">{blockText(tx, preview, lim?.currency ?? currency, money)}</p>}

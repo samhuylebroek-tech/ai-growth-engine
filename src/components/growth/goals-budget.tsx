@@ -10,6 +10,7 @@ import { growthDb as supabase, GROWTH_PLANS_NOT_INSTALLED, isNotInstalled, retry
 import { goalProgress, budgetTotals, budgetAlert, reallocationProposals } from "@/lib/growth-plan";
 import { goalMeasurement, type GoalLike } from "@/lib/goal-measurement";
 import { StrategyPanel } from "@/components/growth/strategy-panel";
+import { BudgetAllocations } from "@/components/growth/budget-allocation";
 import { InitiativeOperations } from "@/components/growth/initiative-operations";
 import { PlanDetails } from "@/components/growth/plan-details";
 import { GrowthChain } from "@/components/growth/growth-chain";
@@ -104,6 +105,8 @@ function Planner({ orgId, wsId, canEdit, canBudget, canApprove, userId }: { orgI
   };
 
   const t = budgetTotals(lines.data ?? []);
+  // Totals are only added up within one currency; with several currencies the allocation overview shows each apart.
+  const lineCurrencies = [...new Set((lines.data ?? []).map(l => l.currency))];
   const now = new Date(); const sel0 = new Date(`${month}T00:00:00`);
   const days = new Date(sel0.getFullYear(), sel0.getMonth() + 1, 0).getDate();
   const elapsed = sel0.getFullYear() === now.getFullYear() && sel0.getMonth() === now.getMonth() ? now.getDate() / days : sel0 < now ? 1 : 0;
@@ -112,7 +115,7 @@ function Planner({ orgId, wsId, canEdit, canBudget, canApprove, userId }: { orgI
     const from = lines.data?.find(l => l.id === m.fromId), to = lines.data?.find(l => l.id === m.toId); if (!from || !to) return;
     // One locked database step: both lines change together, only if they still hold the amounts shown here.
     const r = await supabase.rpc("move_budget", { _from: from.id, _to: to.id, _amount: m.amount, _seen_from: Number(from.planned), _seen_to: Number(to.planned) });
-    if (r.error) { await refresh(); return void toast.error(tr(r.error.code === "40001" ? "goals.moveStale" : "goals.moveFailed")); }
+    if (r.error) { await refresh(); return void toast.error(tr(r.error.code === "40001" ? "goals.moveStale" : String(r.error.message).startsWith("budget_below_allocated") ? "ba.belowAllocated" : "goals.moveFailed")); }
     toast.success(tr("goals.moved", { amount: fmt(m.amount, from.currency), from: m.from, to: m.to })); await refresh();
   };
   const fmt = (n: number, currency = "EUR") => new Intl.NumberFormat(tag, { style: "currency", currency }).format(n);
@@ -176,20 +179,21 @@ function Planner({ orgId, wsId, canEdit, canBudget, canApprove, userId }: { orgI
           <h2 className="flex items-center gap-2 text-lg font-medium"><Wallet className="h-5 w-5" /> {tr("goals.budget")}</h2>
           <Input aria-label={tr("goals.month")} type="month" className="w-44" value={month.slice(0, 7)} onChange={e => e.target.value && setMonth(`${e.target.value}-01`)} />
         </div>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {lineCurrencies.length <= 1 && <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {[[tr("goals.planned"), t.planned], [tr("goals.spent"), t.actual], [tr("goals.remaining"), t.remaining], [tr("goals.variance"), t.variance]].map(([k, v]) => (
-            <div key={k as string} className="rounded-lg border bg-card p-3"><p className="text-xs text-muted-foreground">{k}</p><p className="text-lg font-semibold">{fmt(v as number)}</p></div>))}
-        </div>
+            <div key={k as string} className="rounded-lg border bg-card p-3"><p className="text-xs text-muted-foreground">{k}</p><p className="text-lg font-semibold">{fmt(v as number, lineCurrencies[0] ?? "EUR")}</p></div>))}
+        </div>}
         <div className="overflow-x-auto rounded-lg border">
           <table className="w-full text-sm"><thead className="bg-muted/50 text-left"><tr><th className="p-2">{tr("goals.channel")}</th><th className="p-2">{tr("goals.goalInitiative")}</th><th className="p-2">{tr("goals.planned")}</th><th className="p-2">{tr("goals.cap")}</th><th className="p-2">{tr("goals.spent")}</th><th className="p-2">{tr("goals.status")}</th></tr></thead>
             <tbody>{(lines.data ?? []).length === 0 && <tr><td colSpan={6} className="p-3 text-muted-foreground">{tr("goals.noBudget")}</td></tr>}
               {(lines.data ?? []).map(l => { const a = budgetAlert(l); return (
                 <tr key={l.id} className="border-t"><td className="p-2">{l.channel}{unitName(l.unit_id) && <span className="block text-xs text-muted-foreground">{unitName(l.unit_id)}</span>}</td><td className="p-2 text-muted-foreground">{goals.data?.find(x => x.id === l.goal_id)?.title ?? "—"}{l.initiative_id && <span className="block text-xs">{budgetInitiatives.data?.find(i => i.id === l.initiative_id)?.title ?? tr("goals.initiativeLinked")}</span>}</td>
-                  <td className="p-2">{fmt(Number(l.planned))}</td><td className="p-2">{l.hard_cap != null ? fmt(Number(l.hard_cap)) : "—"}</td>
-                  <td className="p-2">{canBudget ? <Input aria-label={tr("goals.spentOn", { channel: l.channel })} className="h-8 w-28" type="number" min={0} defaultValue={Number(l.actual)} onBlur={e => { if (Number(e.target.value) !== Number(l.actual)) void setActual(l.id, e.target.value); }} /> : fmt(Number(l.actual))}</td>
+                  <td className="p-2">{fmt(Number(l.planned), l.currency)}</td><td className="p-2">{l.hard_cap != null ? fmt(Number(l.hard_cap), l.currency) : "—"}</td>
+                  <td className="p-2">{canBudget ? <Input aria-label={tr("goals.spentOn", { channel: l.channel })} className="h-8 w-28" type="number" min={0} defaultValue={Number(l.actual)} onBlur={e => { if (Number(e.target.value) !== Number(l.actual)) void setActual(l.id, e.target.value); }} /> : fmt(Number(l.actual), l.currency)}</td>
                   <td className="p-2">{a === "over_cap" ? <Badge variant="destructive">{tr("goals.overHardCap")}</Badge> : a === "over_plan" ? <Badge variant="destructive">{tr("goals.overPlan")}</Badge> : a === "near_plan" ? <Badge variant="secondary">{tr("goals.nearPlan")}</Badge> : <Badge variant="outline">{tr("goals.onTrack")}</Badge>}</td></tr>); })}
             </tbody></table>
         </div>
+        <BudgetAllocations orgId={orgId} wsId={wsId} month={month} lines={lines.data ?? []} goals={goals.data ?? []} canRequest={canEdit} canBudget={canBudget} elapsed={elapsed} />
         {proposals.length > 0 && <div className="space-y-2 rounded-lg border bg-card p-4">
           <p className="text-sm font-medium">{tr("goals.moves")}</p>
           <p className="text-xs text-muted-foreground">{tr("goals.movesNote")}</p>
