@@ -170,3 +170,11 @@ export function nextOccurrence(due: string, recurrence: string) {
   } else throw new Error("Task is not recurring");
   return d.toISOString().slice(0, 10);
 }
+
+/**
+ * Goal used when converting a recommendation: an explicit choice wins, including "" for "no growth goal";
+ * only when nothing was chosen yet is the top-priority goal preselected.
+ */
+export function pickConversionGoal(chosen: string | null, goals: readonly { id: string }[] | undefined): string {
+  return chosen ?? goals?.[0]?.id ?? "";
+}

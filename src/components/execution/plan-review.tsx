@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { useOrg } from "@/lib/org-context";
 import { supabase } from "@/integrations/supabase/client";
-import { draftExecutionPlan, executionOptions, planSchema } from "@/lib/execution";
+import { draftExecutionPlan, executionOptions, pickConversionGoal, planSchema } from "@/lib/execution";
 
 export function PlanReview({ sourceId, content }: { sourceId: string; content: string }) {
   const o = useOrg();
@@ -28,7 +28,8 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
   const [plan, setPlan] = useState(() => draftExecutionPlan(content));
   const [busy, setBusy] = useState(false);
   const [request, setRequest] = useState("");
-  const [goalId, setGoalId] = useState("");
+  // null = not chosen yet (preselect the top goal); "" = the user explicitly chose "no goal".
+  const [goalId, setGoalId] = useState<string | null>(null);
   const q = useQuery(executionOptions(o.org?.id, o.workspace?.id, o.userId));
   const goals = useQuery({
     queryKey: ["growth-goals-for-execution", o.org?.id, o.workspace?.id],
@@ -46,7 +47,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
       return r.data ?? [];
     },
   });
-  const selectedGoalId = goalId || goals.data?.[0]?.id || "";
+  const selectedGoalId = pickConversionGoal(goalId, goals.data);
   async function create() {
     if (!o.workspace || busy) return;
     const valid = planSchema.safeParse(plan);
@@ -87,7 +88,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
         size="sm"
         onClick={() => {
           setRequest(crypto.randomUUID());
-          setGoalId("");
+          setGoalId(null);
           setOpen(true);
         }}
       >
