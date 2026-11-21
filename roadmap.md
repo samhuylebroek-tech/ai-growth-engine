@@ -1,4 +1,15 @@
 # AI Growth OS — Task Queue
+## Phase 8.8 third stage — unified growth intelligence — 2026-11-21
+- [x] Environment verified (branch, HEAD 5d2de9e, clean, staging marker, ledger 57/57, 0084/0085 hashes match, RLS on all 103 tables).
+- [ ] A Platform Owner credit pricing screen (history, future prices, currencies, reasons; credits only until a price exists).
+- [ ] B Economics: formulas and exact missing-input explanations on every figure; channel economics.
+- [ ] C Organization economics across businesses (original currency, converted only with recorded rates).
+- [ ] D Growth Officer reads the economics summary (budget, allocation, spend, costs, AI cost, learning outcomes).
+- [ ] E Home financial alerts from the same figures.
+- [ ] F Monthly report financial section reconciled with Growth economics.
+- [ ] G Measurement follow-up for recommendations (shown when the app is opened; no background monitoring).
+- [ ] H Campaign specialist/AI cost overview at campaign and initiative level.
+- [ ] Tests, browser checks (roles, EN/NL/FR, phone/tablet), report.
 ## Phase 8.8 — unified campaign economics — 2026-11-22
 - [x] Environment verified (branch, HEAD 9567347, staging marker, ledger 57/57, RLS on all tables).
 - [x] Proposal 0084 (staging only): shared budget-line allocations, insert-only allocation events, member requests with editor decisions, spend linked to a line and refused above the allocation; rollback 40/40, SQL suites 48/48, real two-session concurrency check.

@@ -119,7 +119,12 @@ begin
   begin perform public.set_credit_price('plan', null, 'EUR', 0.04, now() + interval '1 day', 'No plan'); fail:=fail+1; failures:=failures||' plan_missing';
     exception when others then if sqlstate='22023' then pass:=pass+1; else fail:=fail+1; failures:=failures||' plan_missing:'||sqlstate; end if; end;
   perform pg_temp.su(uv);
-  select count(*) into n from public.credit_price_versions where methodology='Test price';
+  -- members see the price that applies to them; after proposal 0086 through credit_prices_in_effect() (the history table is Platform Owner only)
+  if to_regprocedure('public.credit_prices_in_effect()') is not null then
+    execute 'select count(*) from public.credit_prices_in_effect() c where c.price_per_credit = 0.05 and c.currency = ''EUR'' and c.effective_from > now()' into n;
+  else
+    select count(*) into n from public.credit_price_versions where methodology='Test price';
+  end if;
   if n=1 then pass:=pass+1; else fail:=fail+1; failures:=failures||' price_read:'||n; end if;
   perform pg_temp.root();
   begin update public.credit_price_versions set price_per_credit=1 where methodology='Test price'; fail:=fail+1; failures:=failures||' price_mutable';
