@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { OrgEconomics } from "@/components/org/org-economics";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Network, Building2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
@@ -18,7 +19,7 @@ import { ResourcesTab } from "@/components/org/org-resources";
 import { RisksTab } from "@/components/org/org-risks";
 import { subjectLabel } from "@/components/org/org-parts";
 
-export const ORG_TABS = ["overview", "strategy", "opportunities", "initiatives", "resources", "risks"] as const;
+export const ORG_TABS = ["overview", "strategy", "opportunities", "initiatives", "resources", "economics", "risks"] as const;
 export type OrgTab = (typeof ORG_TABS)[number];
 
 export function Organization({ tab, onTab }: { tab: OrgTab; onTab: (t: OrgTab) => void }) {
@@ -36,12 +37,12 @@ function Overview({ orgId, tab, onTab }: { orgId: string; tab: OrgTab; onTab: (t
   const finance = can(o.role, "finance.consolidated");
   const [target, setTarget] = useState<string | null>(null);
   const single = m.businesses.length < 2;
-  const open = (id: string, to: "/app" | "/app/goals" | "/app/campaigns" | "/app/tasks" | "/app/costs" | "/app/approvals" = "/app") => { o.setWorkspaceId(id); void navigate({ to }); };
+  const open = (id: string, to: "/app" | "/app/goals" | "/app/campaigns" | "/app/tasks" | "/app/costs" | "/app/approvals" | "/app/economics" = "/app") => { o.setWorkspaceId(id); void navigate({ to }); };
 
   if (m.q.isLoading) return <p role="status" className="py-12 text-sm text-muted-foreground">{t("org.loading")}</p>;
   if (m.q.isError || !m.model || !m.q.data) return <div role="alert" className="py-6 text-sm text-destructive">{String((m.q.error as Error | null)?.message ?? "").startsWith("too_many") ? t("org.tooMany") : t("org.loadFailed")}</div>;
   const cur = target ?? m.model.view.defaultCurrency;
-  const tabs: OrgTab[] = single ? ["overview", "resources"] : [...ORG_TABS];
+  const tabs: OrgTab[] = (single ? (["overview", "resources", "economics"] as OrgTab[]) : [...ORG_TABS]).filter((x) => x !== "economics" || finance);
   const active = tabs.includes(tab) ? tab : "overview";
 
   return <>
@@ -71,6 +72,7 @@ function Overview({ orgId, tab, onTab }: { orgId: string; tab: OrgTab; onTab: (t
     {active === "opportunities" && <OpportunitiesTab m={m} />}
     {active === "initiatives" && <InitiativesTab m={m} />}
     {active === "resources" && <ResourcesTab m={m} orgId={orgId} finance={finance} />}
+    {active === "economics" && <OrgEconomics orgId={orgId} businesses={m.businesses} period={period} open={(id) => open(id, "/app/economics")} />}
     {active === "risks" && <RisksTab m={m} open={open} />}
   </>;
 }
