@@ -52,7 +52,8 @@ export const planSchema = z
   });
 export type ExecutionPlan = z.infer<typeof planSchema>;
 /** Extract only explicit bullet/numbered steps. This is a local editable draft, not a second AI call. */
-const clip = (v: unknown, n: number) => (typeof v === "string" ? v.replace(/\*\*/g, "").trim().slice(0, n) : "");
+const CLAIM_TAG = /^\[(?:fact|calc|calculation|estimate|hypothesis|recommendation|missing)\]:?\s*/i;
+const clip = (v: unknown, n: number) => (typeof v === "string" ? v.replace(/\*\*/g, "").trim().replace(CLAIM_TAG, "").slice(0, n) : "");
 /** Saved structured answers (strategies, specialist analyses) are JSON; draft from their fields instead of raw braces. */
 function draftFromStructured(content: string): ExecutionPlan | null {
   if (!content.trimStart().startsWith("{")) return null;
@@ -92,6 +93,8 @@ export function draftExecutionPlan(content: string): ExecutionPlan {
       l
         .replace(/^\s*(?:[-*]|\d+[.)])\s+/, "")
         .replace(/\*\*/g, "")
+        // Information labels from AI answers (src/lib/claims.ts) are not part of a task title.
+        .replace(CLAIM_TAG, "")
         .trim(),
     )
     .filter(Boolean);

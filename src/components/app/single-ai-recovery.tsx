@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AiMarkdown } from "@/components/ai/ai-markdown";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { RotateCcw, Download } from "lucide-react";
@@ -9,8 +10,6 @@ import { recoverSingleAIRequest, acceptUncertainAIOutcome } from "@/lib/ai.funct
 import { useI18n } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { Button } from "@/components/ui/button";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 
 /** pendingOnly: list only requests that did not complete (pages whose results are not chat answers). */
 export function SingleAIRecovery({ onRecovered, pendingOnly = false }: { onRecovered?: (id: string) => void; pendingOnly?: boolean }) {
@@ -66,5 +65,5 @@ export function SingleAIRecovery({ onRecovered, pendingOnly = false }: { onRecov
     if (row.status === "succeeded" && row.conversation_id) {
       if (onRecovered) onRecovered(row.conversation_id); else setOpened(row.reply);
     } else restore(row.id);
-  }}><RotateCcw />{busy === row.id ? t("recovery.busy") : row.status === "succeeded" ? t("recovery.open") : t("recovery.recover")}</Button></div>{uncertain === row.id && <div role="alert" className="w-full rounded-md border border-warning/40 bg-warning/10 p-3 text-sm"><p className="font-medium">{t("recovery.uncertain.title")}</p><p className="mt-1 text-muted-foreground">{t("recovery.uncertain.body")}</p><div className="mt-2 flex flex-wrap gap-2"><Button size="sm" disabled={!!busy} onClick={() => acceptUsed(row.id)}>{t("recovery.uncertain.accept")}</Button><Button size="sm" variant="ghost" onClick={() => setUncertain(null)}>{t("recovery.uncertain.later")}</Button></div></div>}</div>)}</div>}{opened && <article className="prose-chat mt-5 min-w-0 break-words border-t border-border pt-5 text-sm"><ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml>{opened}</ReactMarkdown></article>}</section>;
+  }}><RotateCcw />{busy === row.id ? t("recovery.busy") : row.status === "succeeded" ? t("recovery.open") : t("recovery.recover")}</Button></div>{uncertain === row.id && <div role="alert" className="w-full rounded-md border border-warning/40 bg-warning/10 p-3 text-sm"><p className="font-medium">{t("recovery.uncertain.title")}</p><p className="mt-1 text-muted-foreground">{t("recovery.uncertain.body")}</p><div className="mt-2 flex flex-wrap gap-2"><Button size="sm" disabled={!!busy} onClick={() => acceptUsed(row.id)}>{t("recovery.uncertain.accept")}</Button><Button size="sm" variant="ghost" onClick={() => setUncertain(null)}>{t("recovery.uncertain.later")}</Button></div></div>}</div>)}</div>}{opened && <article className="prose-chat mt-5 min-w-0 break-words border-t border-border pt-5 text-sm"><AiMarkdown content={opened} /></article>}</section>;
 }

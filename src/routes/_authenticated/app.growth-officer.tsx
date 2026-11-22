@@ -1,4 +1,5 @@
 import { requestAttemptKey } from "@/lib/single-ai-request";
+import { AiMarkdown } from "@/components/ai/ai-markdown";
 import { useI18n } from "@/lib/i18n";
 import { SingleAIRecovery } from "@/components/app/single-ai-recovery";
 import { DeepAnalysisRecovery } from "@/components/app/deep-analysis-recovery";
@@ -18,8 +19,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { PlanReview } from "@/components/execution/plan-review";
 import { ExecutionContextPicker } from "@/components/execution/context-picker";
 import type { ExecutionRef } from "@/lib/execution-context";
@@ -148,5 +147,5 @@ function GrowthOfficer() {
 function Bubble({ role, content }: { role: string; content: string }) {
   const { t } = useI18n();
   async function copy() { try { await navigator.clipboard.writeText(content); toast.success(t("officer.copied")); } catch { toast.error(t("officer.copyFailed")); } }
-  return <article className={cn("min-w-0 break-words", role === "user" ? "ml-6 rounded-lg bg-secondary p-4" : "border-b border-border py-4")}><div className="mb-3 flex items-center justify-between"><span className="flex items-center gap-2 text-[11px] font-semibold">{role === "user" ? t("officer.you") : <><Sparkles className="h-3.5 w-3.5 text-primary" />Growth Officer</>}</span>{role !== "user" && <Button variant="ghost" size="icon" aria-label={t("officer.copy")} title={t("officer.copy")} onClick={copy}><Copy /></Button>}</div><div className={cn("text-sm leading-relaxed", role === "user" ? "whitespace-pre-wrap" : "prose-chat")} >{role === "user" ? content : <ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml>{content}</ReactMarkdown>}</div></article>;
+  return <article className={cn("min-w-0 break-words", role === "user" ? "ml-6 rounded-lg bg-secondary p-4" : "border-b border-border py-4")}><div className="mb-3 flex items-center justify-between"><span className="flex items-center gap-2 text-[11px] font-semibold">{role === "user" ? t("officer.you") : <><Sparkles className="h-3.5 w-3.5 text-primary" />Growth Officer</>}</span>{role !== "user" && <Button variant="ghost" size="icon" aria-label={t("officer.copy")} title={t("officer.copy")} onClick={copy}><Copy /></Button>}</div><div className={cn("text-sm leading-relaxed", role === "user" ? "whitespace-pre-wrap" : "prose-chat")} >{role === "user" ? content : <AiMarkdown content={content} />}</div></article>;
 }

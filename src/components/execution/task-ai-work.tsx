@@ -1,11 +1,10 @@
 import { Link } from "@tanstack/react-router";
+import { AiMarkdown } from "@/components/ai/ai-markdown";
 import { SPECIALIST_INTEGRATIONS } from "@/lib/integrations/catalog";
 import { useEffect, useRef, useState } from "react";
 import { gateCode } from "@/lib/scheduler";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 import { Bot, CircleAlert, Pause, Play, RotateCcw, ShieldCheck, Sparkles, X, Check } from "lucide-react";
 import { useOrg } from "@/lib/org-context";
@@ -166,13 +165,13 @@ function RunResult({ run }: { run: TaskRunRow }) {
       {review.flags.length > 0 && <ul className="mt-1 list-disc pl-4 text-muted-foreground">{review.flags.map((f) => <li key={f}>{t(`run.flag.${f}` as MessageKey)}</li>)}</ul>}</div>
     {o ? <>
       <div><p className="font-medium">{o.title}</p><p className="text-sm text-muted-foreground">{o.summary}</p></div>
-      {o.sections.map((x, i) => <div key={i} className="prose prose-sm max-w-none break-words dark:prose-invert"><h4>{x.heading}</h4><ReactMarkdown remarkPlugins={[remarkGfm]}>{x.body}</ReactMarkdown></div>)}
+      {o.sections.map((x, i) => <div key={i} className="prose prose-sm max-w-none break-words dark:prose-invert"><h4>{x.heading}</h4><AiMarkdown content={x.body} legend={false} /></div>)}
       {o.deliverables.length > 0 && <Block title={t("run.deliverables")} items={o.deliverables} />}
       {o.evidence_gaps.length > 0 && <Block title={t("run.gaps")} items={o.evidence_gaps} />}
       {o.next_steps.length > 0 && <Block title={t("run.nextSteps")} items={o.next_steps.map((n) => `${n.title} (${t(n.owner === "ai" ? "run.ownerAi" : "run.ownerTeam")})`)} />}
       {o.external_actions.length > 0 && <div className="rounded-md border border-warning/40 p-2 text-xs"><p className="font-medium text-warning">{t("run.external")}</p>
         <ul className="list-disc pl-4">{o.external_actions.map((x, i) => <li key={i}>{x.action}{x.system ? ` · ${x.system}` : ""}</li>)}</ul><p className="mt-1 text-muted-foreground">{t("run.externalNote")}</p></div>}
-    </> : <div className="prose prose-sm max-w-none break-words dark:prose-invert"><ReactMarkdown remarkPlugins={[remarkGfm]}>{raw?.markdown ?? ""}</ReactMarkdown></div>}
+    </> : <div className="prose prose-sm max-w-none break-words dark:prose-invert"><AiMarkdown content={raw?.markdown ?? ""} /></div>}
     <SpecialistQC run={run} />
   </section>;
 }

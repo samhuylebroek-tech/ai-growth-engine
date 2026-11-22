@@ -13,9 +13,9 @@ import { useI18n } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { useOrg } from "@/lib/org-context";
 import { can } from "@/lib/permissions";
-import { SECTIONS, sectionQuestions, type Question, type SectionId } from "@/lib/onboarding/questions";
+import { SECTIONS, questionById, sectionQuestions, type Question, type SectionId } from "@/lib/onboarding/questions";
 import {
-  changedAnswers, draftsFromFacts, emptyDraft, hasContent, isVisible, optionsOf, overallProgress, savedAnswers, sectionProgress, understandingSummary,
+  changedAnswers, decodeAnswer, draftsFromFacts, emptyDraft, encodeAnswer, hasContent, isVisible, optionsOf, overallProgress, savedAnswers, sectionProgress, understandingSummary,
   type AnswerFact, type Draft, type ProfileForSummary, type SummaryStatus,
 } from "@/lib/onboarding/answers";
 import { labelIn, labelsOf } from "@/lib/onboarding/labels";
@@ -264,7 +264,13 @@ export function UnderstandingSummary({ data, compact = false }: { data: GuidedDa
   const editable = can(o.workspaceRole, "profile.confirm");
   const topics = understandingSummary(data.profile, data.facts);
   const known = topics.filter((x) => x.items.length).length;
-  const value = (source: string, v: string) => (source === "profile:monthly_budget_eur" ? t("ob.sum.budget", { value: v }) : v);
+  const { locale } = useI18n();
+  // Choices are shown in the reader's language, whatever language they were saved in; own text stays as written.
+  const value = (source: string, v: string) => {
+    if (source === "profile:monthly_budget_eur") return t("ob.sum.budget", { value: v });
+    const q = source.startsWith("question:") ? questionById(source.slice(9)) : undefined;
+    return q && q.kind !== "text" ? encodeAnswer(q, decodeAnswer(q, v, labelsOf), labelIn(locale)) || v : v;
+  };
   return (
     <section aria-labelledby="ob-summary-title" className={cn(!compact && "mx-auto max-w-3xl")}>
       {compact ? <h2 id="ob-summary-title" className="text-base font-semibold">{t("ob.sum.title")}</h2> : <h1 id="ob-summary-title" className="text-3xl font-semibold">{t("ob.sum.title")}</h1>}
@@ -279,7 +285,10 @@ export function UnderstandingSummary({ data, compact = false }: { data: GuidedDa
               {topic.items.length ? topic.items.slice(0, 6).map((item) => (
                 <div key={item.source} className="flex flex-wrap items-start gap-2">
                   <span className={cn("inline-flex shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium", TONE[item.status])}>{t(`ob.sum.status.${item.status}` as MessageKey)}</span>
-                  <span className="min-w-0 flex-1 whitespace-pre-line break-words text-sm">{value(item.source, item.value)}</span>
+                  <span className="min-w-0 flex-1 break-words text-sm">
+                    {item.source.startsWith("question:") && <span className="block text-xs text-muted-foreground">{t(`ob.q.${item.source.slice(9)}.label` as MessageKey)}</span>}
+                    <span className="whitespace-pre-line">{value(item.source, item.value)}</span>
+                  </span>
                 </div>
               )) : <span className="text-sm text-muted-foreground">{t("ob.sum.missing")}</span>}
             </dd>
