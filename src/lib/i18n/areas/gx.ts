@@ -4,6 +4,9 @@ import { defineArea } from "../define";
 // summary. Keys start with "gx.". Written for someone who has never used marketing or AI software.
 export const gx = defineArea("gx", {
   en: {
+    "gx.step.tell_more.title": "Help AI Growth Engine understand how your business works",
+    "gx.step.tell_more.why": "{answered} of {total} key questions answered. Your customers, how you sell, your challenges, your time and your boundaries make every recommendation fit. Each step takes about two minutes and every question can be skipped.",
+    "gx.step.tell_more.cta": "Continue the questions",
     "gx.next.label": "Your next step",
     "gx.next.urgent": "Needs attention",
     "gx.next.why": "Why this matters:",
@@ -88,6 +91,9 @@ export const gx = defineArea("gx", {
     "gx.u.area.budget": "Monthly marketing budget",
   },
   nl: {
+    "gx.step.tell_more.title": "Help AI Growth Engine begrijpen hoe je bedrijf werkt",
+    "gx.step.tell_more.why": "{answered} van {total} belangrijke vragen beantwoord. Je klanten, hoe je verkoopt, je uitdagingen, je tijd en je grenzen zorgen dat elk advies past. Elke stap duurt ongeveer twee minuten en elke vraag mag je overslaan.",
+    "gx.step.tell_more.cta": "Ga verder met de vragen",
     "gx.next.label": "Je volgende stap",
     "gx.next.urgent": "Vraagt aandacht",
     "gx.next.why": "Waarom dit belangrijk is:",
@@ -172,6 +178,9 @@ export const gx = defineArea("gx", {
     "gx.u.area.budget": "Maandelijks marketingbudget",
   },
   fr: {
+    "gx.step.tell_more.title": "Aidez AI Growth Engine à comprendre le fonctionnement de votre entreprise",
+    "gx.step.tell_more.why": "{answered} questions clés sur {total} répondues. Vos clients, votre façon de vendre, vos défis, votre temps et vos limites rendent chaque recommandation adaptée. Chaque étape prend environ deux minutes et chaque question peut être passée.",
+    "gx.step.tell_more.cta": "Continuer les questions",
     "gx.next.label": "Votre prochaine étape",
     "gx.next.urgent": "Demande votre attention",
     "gx.next.why": "Pourquoi c’est important :",

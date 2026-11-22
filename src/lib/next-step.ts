@@ -7,6 +7,7 @@ import type { Signal, SignalDestination } from "@/lib/signals";
 export type StepCode =
   | "setup_business"
   | "setup_waiting"
+  | "tell_more"
   | "decide_urgent"
   | "signal"
   | "overdue_tasks"
@@ -43,6 +44,8 @@ export type NextStepInput = {
   pendingApprovals: number;
   highRiskApprovals: number;
   overdueTasks: number;
+  /** Guided onboarding key questions answered; null while unknown (never treated as "nothing answered"). */
+  understanding?: { answered: number; total: number } | null;
   /** null while unknown (not read yet or failed): never treated as "no goal". */
   hasActiveGoal: boolean | null;
   signals: readonly Signal[];
@@ -64,6 +67,9 @@ export function candidateSteps(i: NextStepInput): NextStep[] {
   if (pressing) out.push({ code: "signal", to: pressing.to, vars: pressing.vars, signal: pressing, urgent: true });
   if (i.canEdit && i.overdueTasks > 0)
     out.push({ code: "overdue_tasks", to: "/app/tasks", vars: { n: i.overdueTasks }, urgent: true });
+  // Knowing customers, sales, challenges, time and boundaries makes every later step fit; only editors can answer.
+  if (i.onboardingDone && i.canConfirm && i.understanding && i.understanding.answered < i.understanding.total)
+    out.push({ code: "tell_more", to: "/app/onboarding", vars: { answered: i.understanding.answered, total: i.understanding.total }, urgent: false });
   if (i.canEdit && i.hasActiveGoal === false) out.push({ code: "set_goal", to: "/app/goals", vars: {}, urgent: false });
   if (i.canDecide && i.pendingApprovals > i.highRiskApprovals)
     out.push({ code: "decide_approvals", to: "/app/approvals", vars: { n: i.pendingApprovals - i.highRiskApprovals }, urgent: false });

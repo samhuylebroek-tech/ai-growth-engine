@@ -1059,6 +1059,10 @@ type PendingBudgetLines = {
 
 type ConvertPlan = GeneratedFunctions["convert_execution_plan"];
 type PendingFunctions = {
+  save_business_answers: {
+    Args: { _workspace: string; _answers: Json };
+    Returns: Json;
+  };
   set_metric_baseline: {
     Args: { _metric: string; _request: string; _measurement: string | null; _value: number | null; _period_start: string | null; _period_end: string | null; _source: string | null; _note: string };
     Returns: Json;

@@ -1,3 +1,4 @@
+import { ANSWER_SOURCE } from "@/lib/onboarding/questions";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { goalMeasurement } from "@/lib/goal-measurement";
 import { isRealOverrun, spendSummary } from "@/lib/campaign-spend";
@@ -138,6 +139,8 @@ export type Fact = {
   key: string;
   value: string;
   source_type: string;
+  /** "Onboarding answer" marks an answer from the guided questions (proposal 0091). */
+  source_ref?: string | null;
   verified: boolean;
   created_at?: string | null;
 };
@@ -424,7 +427,8 @@ const LIMITS = {
   kpiGoals: 400,
   spend: 2000,
   replans: 50,
-  facts: 60,
+  // Room for every guided onboarding answer next to other confirmed facts; the rendered text stays capped.
+  facts: 90,
   goals: 12,
   recs: 8,
   plans: 6,
@@ -515,7 +519,7 @@ export async function readBusinessDomains(
     ),
     strict<Fact>(
       "verified facts",
-      t("business_facts", "key,value,source_type,verified,created_at")
+      t("business_facts", "key,value,source_type,source_ref,verified,created_at")
         .eq("verified", true)
         .order("created_at", { ascending: false })
         .limit(LIMITS.facts),
@@ -1062,13 +1066,26 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
     ],
   });
 
+  const answers = d.facts.filter((f) => f.source_ref === ANSWER_SOURCE);
+  if (answers.length)
+    sections.push({
+      key: "owner-answers",
+      title: "HOW THE BUSINESS WORKS (answers confirmed by the business)",
+      evidence: ["verified_business_fact"],
+      budget: 1500,
+      priority: 1,
+      lines: [
+        "Boundaries stated here (channels not to use, activities not wanted, rules, approvals) are binding: never recommend against them.",
+        ...answers.map((f) => `- ${clip(f.key, 60)}: ${clip(f.value.replace(/\s*\n\s*/g, "; "), 220)}`),
+      ],
+    });
   sections.push({
     key: "verified-facts",
     title: "VERIFIED BUSINESS FACTS",
     evidence: ["verified_business_fact"],
     budget: 1700,
     priority: 1,
-    lines: d.facts.map(
+    lines: d.facts.filter((f) => f.source_ref !== ANSWER_SOURCE).map(
       (f) =>
         `- ${clip(f.key, 60)}: ${clip(f.value, 220)} (source: ${f.source_type}${f.created_at ? `, confirmed ${day(f.created_at)}` : ""})`,
     ),

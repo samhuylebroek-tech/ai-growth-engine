@@ -9,6 +9,8 @@ import type { MessageKey } from "@/lib/i18n/messages";
 import { nextSteps, type NextStep as Step } from "@/lib/next-step";
 import { growthSignalsOptions } from "@/components/app/growth-signals";
 import { HOME_DUPLICATES } from "@/lib/signals";
+import { ANSWER_SOURCE } from "@/lib/onboarding/questions";
+import { overallProgress } from "@/lib/onboarding/answers";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +42,22 @@ export function NextStep({ counts }: { counts: NextStepCounts }) {
       return (r.count ?? 0) > 0;
     },
   });
+  const answers = useQuery({
+    queryKey: ["next-step-answers", o.org?.id, o.workspace?.id],
+    enabled: !!o.org && !!o.workspace && counts.onboardingDone,
+    queryFn: async () => {
+      const r = await supabase
+        .from("business_facts")
+        .select("key")
+        .eq("org_id", o.org!.id)
+        .eq("workspace_id", o.workspace!.id)
+        .eq("source_ref", ANSWER_SOURCE)
+        .eq("verified", true)
+        .limit(200);
+      if (r.error) throw r.error;
+      return overallProgress((r.data ?? []).map((f) => ({ key: f.key, value: "", verified: true, source_type: "user", source_ref: ANSWER_SOURCE })));
+    },
+  });
   if (signals.isLoading || goal.isLoading)
     return <p role="status" className="mb-6 rounded-xl border border-border p-5 text-sm text-muted-foreground">{t("gx.next.loading")}</p>;
   const { primary, alternatives } = nextSteps({
@@ -50,6 +68,7 @@ export function NextStep({ counts }: { counts: NextStepCounts }) {
     canUseAi: can(o.workspaceRole, "ai.use"),
     // A failed read is unknown, never "no goal" or "no warnings".
     hasActiveGoal: goal.isSuccess ? goal.data : null,
+    understanding: answers.isSuccess ? answers.data : null,
     signals: (signals.data ?? []).filter((s) => !HOME_DUPLICATES.has(s.code)),
   });
   const title = (s: Step) => (s.signal ? t(`signal.${s.signal.code}.title` as MessageKey, s.vars) : t(`gx.step.${s.code}.title` as MessageKey, s.vars));

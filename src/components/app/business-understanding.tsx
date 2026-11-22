@@ -10,7 +10,7 @@ import type { MessageKey } from "@/lib/i18n/messages";
 import { useOrg } from "@/lib/org-context";
 import { growthDb } from "@/lib/pending-schema";
 import { conflictStatus, detectFactConflicts, type ConflictEvent, type FactRow } from "@/lib/fact-conflicts";
-import { businessUnderstanding, understandingCounts, type Area, type ProfileLike, type UnderstandingStatus } from "@/lib/business-understanding";
+import { businessUnderstanding, GUIDED_AREAS, understandingCounts, type Area, type GuidedArea, type ProfileLike, type UnderstandingStatus } from "@/lib/business-understanding";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -45,8 +45,11 @@ export function BusinessUnderstanding({ profile, facts, complete, canConfirm }: 
   const counts = understandingCounts(areas);
   const attention = areas.filter((a) => a.status !== "confirmed");
   const shown = all ? areas : attention;
-  const name = (a: Area) => (["website", "objectives", "budget"].includes(a.key) ? t(`gx.u.area.${a.key}` as MessageKey) : t(`account.field.${a.key}` as MessageKey));
-  const how = (a: Area) => (!canConfirm && !["confirmed", "unknown"].includes(a.status) ? t("gx.u.how.askEditor") : a.status === "missing" ? t(a.discoverable ? "gx.u.how.missingAuto" : "gx.u.how.missingManual") : t(`gx.u.how.${a.status}` as MessageKey));
+  const guided = (a: Area) => GUIDED_AREAS.includes(a.key as GuidedArea);
+  const name = (a: Area) =>
+    a.key === "horizon" ? t("ob.area.horizon") : guided(a) ? t(`ob.section.${a.key}.title` as MessageKey)
+      : ["website", "objectives", "budget"].includes(a.key) ? t(`gx.u.area.${a.key}` as MessageKey) : t(`account.field.${a.key}` as MessageKey);
+  const how = (a: Area) => (!canConfirm && !["confirmed", "unknown"].includes(a.status) ? t("gx.u.how.askEditor") : a.status === "missing" ? t(guided(a) ? "ob.how.missing" : a.discoverable ? "gx.u.how.missingAuto" : "gx.u.how.missingManual") : t(`gx.u.how.${a.status}` as MessageKey));
   return (
     <section aria-labelledby="understanding-title" className="mb-8 rounded-xl border border-border bg-card p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">

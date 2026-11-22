@@ -6,9 +6,13 @@
 import { DISCOVERY_FIELDS } from "@/lib/discovery";
 import { factTopic, type FactConflict, type FactRow } from "@/lib/fact-conflicts";
 import { WINDOWS } from "@/lib/evidence-freshness";
+import { QUESTIONS, type Question } from "@/lib/onboarding/questions";
 
 export type UnderstandingStatus = "confirmed" | "inferred" | "estimated" | "conflicting" | "outdated" | "missing" | "unknown";
-export type AreaKey = (typeof DISCOVERY_FIELDS)[number]["key"] | "website" | "objectives" | "budget";
+/** Areas answered through the guided onboarding questions (src/lib/onboarding/questions.ts). */
+export type GuidedArea = Question["area"];
+export const GUIDED_AREAS: readonly GuidedArea[] = ["customers", "sales", "challenges", "resources", "ambitions", "horizon", "constraints"];
+export type AreaKey = (typeof DISCOVERY_FIELDS)[number]["key"] | "website" | "objectives" | "budget" | GuidedArea;
 export type Area = {
   key: AreaKey;
   status: UnderstandingStatus;
@@ -35,6 +39,7 @@ type Fact = FactRow & { created_at?: string | null };
 export const AREAS: readonly AreaKey[] = [
   "company_identity", "description", "website", "industry", "business_model", "offerings", "audiences", "markets",
   "usps", "positioning", "tone", "competitors", "channels", "objectives", "budget",
+  ...GUIDED_AREAS,
 ];
 const PROFILE_FIELD: Partial<Record<AreaKey, keyof NonNullable<ProfileLike>>> = {
   website: "website", description: "description", industry: "industry", business_model: "business_model",
@@ -61,7 +66,8 @@ export function businessUnderstanding(
   return AREAS.map((key) => {
     const discoverable = DISCOVERY_FIELDS.some((f) => f.key === key);
     const l = label(key);
-    const topics = new Set([factTopic(key.replace(/_/g, " ")), ...(l ? [factTopic(l)] : [])]);
+    const guided = QUESTIONS.filter((q) => q.area === key).map((q) => factTopic(q.key));
+    const topics = new Set(guided.length ? guided : [factTopic(key.replace(/_/g, " ")), ...(l ? [factTopic(l)] : [])]);
     const onTopic = facts.filter((f) => topics.has(factTopic(f.key)));
     const field = PROFILE_FIELD[key];
     const inProfile = !!profile && !!field && present(profile[field]);

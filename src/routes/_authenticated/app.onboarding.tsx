@@ -17,14 +17,37 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { StatusChip } from "@/components/app/status";
+import { GuidedOverview, SectionForm, UnderstandingSummary, useGuidedData } from "@/components/onboarding/guided";
+import { SECTIONS, type SectionId } from "@/lib/onboarding/questions";
 
+type Step = "basics" | SectionId | "summary";
+const STEPS: readonly string[] = ["basics", ...SECTIONS, "summary"];
 export const Route = createFileRoute("/_authenticated/app/onboarding")({
+  validateSearch: (s: Record<string, unknown>): { section?: Step } => (typeof s["section"] === "string" && STEPS.includes(s["section"]) ? { section: s["section"] as Step } : {}),
   head: () => pageHead(translate(readLocale(), "account.discovery.headTitle"), translate(readLocale(), "account.discovery.headDescription")), component: Onboarding,
 });
+
+/**
+ * First visit: website and basic details, then the guided questions. Afterwards the page opens on the overview of
+ * steps; `?section=` opens one step or the summary. Keyed by business so drafts never cross businesses.
+ */
+function Onboarding() {
+  const { t } = useI18n();
+  const o = useOrg();
+  const { section } = Route.useSearch();
+  const data = useGuidedData();
+  const scope = `${o.org?.id ?? ""}:${o.workspace?.id ?? ""}`;
+  if (section === "basics") return <BasicsFlow key={scope} />;
+  if (data.isPending) return <p role="status" className="mx-auto max-w-3xl py-10 text-sm text-muted-foreground"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />{t("ob.loading")}</p>;
+  if (data.isError || !data.data) return <p role="alert" className="mx-auto max-w-3xl py-10 text-sm text-destructive">{t("ob.readFailed")}</p>;
+  if (!section) return data.data.profile?.onboarding_completed_at ? <GuidedOverview key={scope} data={data.data} /> : <BasicsFlow key={scope} />;
+  if (section === "summary") return <UnderstandingSummary key={scope} data={data.data} />;
+  return <SectionForm key={`${scope}:${section}`} section={section} data={data.data} />;
+}
 type ReviewFact = DiscoveryFact & { accepted: boolean };
 const list = (text: string) => text.split("\n").map(x => x.trim()).filter(Boolean).slice(0, 30);
 
-function Onboarding() {
+function BasicsFlow() {
   const { t } = useI18n();
   const o = useOrg(); const navigate = useNavigate(); const qc = useQueryClient(); const discover = useServerFn(discoverBusiness);
   const [step, setStep] = useState<"website" | "review" | "goals">("website");
@@ -99,9 +122,9 @@ function Onboarding() {
         const g = await supabase.from("growth_goals").insert({ org_id: o.org.id, workspace_id: o.workspace.id, title: first.title.trim().slice(0, 200), objective: "leads", metric: first.metric.trim().slice(0, 120) || "Result", target: Number.isFinite(target) && first.target !== "" ? target : null, due_date: first.due || null, priority: (existing.count ?? 0) === 0 ? "primary" : "secondary" });
         await qc.invalidateQueries();
         if (g.error) { toast.error(t("account.discovery.goalFailed")); navigate({ to: "/app/goals" }); return; }
-        toast.success(t("account.discovery.profileGoalSaved")); navigate({ to: "/app/goals" }); return;
+        toast.success(t("account.discovery.profileGoalSaved")); navigate({ to: "/app/onboarding", search: { section: "customers" } }); return;
       }
-      await qc.invalidateQueries(); toast.success(t("account.discovery.profileSaved")); navigate({ to: "/app" });
+      await qc.invalidateQueries(); toast.success(t("account.discovery.profileSaved")); navigate({ to: "/app/onboarding", search: { section: "customers" } });
     } catch (e) { setError(e instanceof Error ? e.message : t("account.discovery.saveFailed")); }
     finally { setBusy(false); }
   }

@@ -1,4 +1,17 @@
 # AI Growth OS — Task Queue
+## Round 2 — onboarding, trustworthy answers, journeys (2026-11-22, staging only)
+- [ ] Verify branch, HEAD, clean tree, staging project and ledger before work.
+- [ ] A Onboarding: customers, sales process, challenges, resources, ambitions, time horizon, constraints; short skippable steps, saved progress, editable, EN/NL/FR, mobile; reuse existing facts/knowledge (no second store).
+- [ ] A Business understanding summary after onboarding (confirmed vs assumption, missing), editable; connect to Growth Officer, knowledge, goals, next step.
+- [ ] B Growth Officer: claim-level labels fact/calculation/estimate/hypothesis/recommendation/missing (EN/NL/FR) + evidence view; same labels in situation/diagnosis/reports.
+- [ ] B Five controlled staging Growth Officer scenarios; credits checked against the ledger.
+- [ ] C Persona journeys A–E (simulated), roles, languages, devices.
+- [ ] D First-growth journey after onboarding (summary → gaps → opportunity → next action → goal on approval).
+- [ ] E Next step aware of onboarding progress, approvals, budget/KPI warnings, reports; explain who can act.
+- [ ] F Website-check limit refusal in the browser (safe staging target only).
+- [ ] G UX consistency pass across modules.
+- [ ] H Security/data-integrity revalidation (onboarding conflicts, repeated submissions, unauthorized edits); dev-tool advisories.
+- [ ] GitHub sync status checked honestly.
 ## Grand master mission, round 1 (UX, guidance, Zod 4) — 2026-11-22
 - [x] Environment verified (branch, HEAD 48f1206, clean, staging ledger 57, proposals to 0090; no migrations this round).
 - [x] Home: one clear next step for the person's role (pure `next-step.ts`, no AI/credits), with up to two alternatives.

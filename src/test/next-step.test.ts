@@ -52,4 +52,19 @@ describe("one clear next step", () => {
     const r = nextSteps({ ...admin, highRiskApprovals: 1, pendingApprovals: 4, overdueTasks: 1, hasActiveGoal: false, unconfirmedFacts: 2, signals: [sig("a", "high", "high", 20)] });
     expect(r.alternatives).toHaveLength(2);
   });
+  it("asks an editor to finish the guided questions before setting a goal, with the count", () => {
+    const r = nextSteps({ ...admin, hasActiveGoal: false, understanding: { answered: 4, total: 14 } });
+    expect(r.primary).toMatchObject({ code: "tell_more", to: "/app/onboarding", vars: { answered: 4, total: 14 } });
+    expect(r.alternatives[0]?.code).toBe("set_goal");
+  });
+  it("never asks members or viewers to answer, and says nothing when progress is unknown or complete", () => {
+    const u = { answered: 0, total: 14 };
+    expect([nextSteps({ ...member, understanding: u }).primary, ...nextSteps({ ...member, understanding: u }).alternatives].some((s) => s.code === "tell_more")).toBe(false);
+    expect(nextSteps({ ...viewer, understanding: u }).primary.code).not.toBe("tell_more");
+    expect(nextSteps({ ...admin, understanding: null }).primary.code).not.toBe("tell_more");
+    expect(nextSteps({ ...admin, understanding: { answered: 14, total: 14 } }).primary.code).not.toBe("tell_more");
+  });
+  it("keeps urgent decisions ahead of the guided questions", () => {
+    expect(nextSteps({ ...admin, highRiskApprovals: 1, pendingApprovals: 1, understanding: { answered: 0, total: 14 } }).primary.code).toBe("decide_urgent");
+  });
 });

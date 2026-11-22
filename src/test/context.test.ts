@@ -851,6 +851,24 @@ describe("unified business context — missing, empty, denied and oversized data
   });
 });
 
+describe("guided onboarding answers in the context", () => {
+  it("shows confirmed answers once, in their own section with binding boundaries, and ignores unconfirmed look-alikes", async () => {
+    const rows = fixtures();
+    rows["business_facts"] = [
+      { ...A, key: "Channels not to use", value: "Cold calling\nInfluencers", source_type: "user", source_ref: "Onboarding answer", verified: true },
+      { ...A, key: "Ideal customer", value: "spoofed-unconfirmed", source_type: "user", source_ref: "Onboarding answer", verified: false },
+      { ...A, key: "Industry", value: "Bakery", source_type: "user", source_ref: null, verified: true },
+    ];
+    const context = await build(rows);
+    expect(context).toContain("HOW THE BUSINESS WORKS");
+    expect(context).toContain("Channels not to use: Cold calling; Influencers");
+    expect(context).toContain("are binding");
+    expect(context.match(/Channels not to use/g)?.length).toBe(1);
+    expect(context).not.toContain("spoofed-unconfirmed");
+    expect(context).toContain("Industry: Bakery");
+  });
+});
+
 describe("business context helpers", () => {
   it("recognises only schema-missing error codes as unavailable", () => {
     expect(isMissingSchema({ code: "PGRST205" })).toBe(true);
