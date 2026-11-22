@@ -28,7 +28,12 @@ describe("one clear next step", () => {
   });
   it("never offers decisions to someone below admin", () => {
     const r = nextSteps({ ...member, highRiskApprovals: 2, pendingApprovals: 5 });
-    expect([r.primary, ...r.alternatives].some((s) => s.to === "/app/approvals")).toBe(false);
+    expect([r.primary, ...r.alternatives].some((s) => s.code === "decide_urgent" || s.code === "decide_approvals")).toBe(false);
+  });
+  it("tells a member that proposals wait for an administrator, and never a viewer", () => {
+    expect(nextSteps({ ...member, pendingApprovals: 3 }).primary).toMatchObject({ code: "awaiting_decision", to: "/app/approvals", vars: { n: 3 }, urgent: false });
+    expect(nextSteps({ ...viewer, pendingApprovals: 3 }).primary.code).toBe("read_overview");
+    expect(nextSteps({ ...admin, pendingApprovals: 3 }).primary.code).toBe("decide_approvals");
   });
   it("picks the highest-scoring pressing warning, whatever order it arrives in", () => {
     const r = nextSteps({ ...admin, signals: [sig("low", "high", "high", 10), sig("top", "high", "high", 25)] });

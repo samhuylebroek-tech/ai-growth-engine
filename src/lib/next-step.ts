@@ -13,6 +13,7 @@ export type StepCode =
   | "overdue_tasks"
   | "set_goal"
   | "decide_approvals"
+  | "awaiting_decision"
   | "confirm_facts"
   | "ask_officer"
   | "read_overview";
@@ -78,6 +79,9 @@ export function candidateSteps(i: NextStepInput): NextStep[] {
     const other = signals.find((s) => s !== pressing && !(s.code === "tasks_overdue" && i.overdueTasks > 0));
     if (other) out.push({ code: "signal", to: other.to, vars: other.vars, signal: other, urgent: false });
   }
+  // Says who can act: proposals the person sent or can see wait for an administrator, so nobody waits in the dark.
+  if (!i.canDecide && i.canEdit && i.pendingApprovals > 0)
+    out.push({ code: "awaiting_decision", to: "/app/approvals", vars: { n: i.pendingApprovals }, urgent: false });
   if (i.canConfirm && i.unconfirmedFacts > 0)
     out.push({ code: "confirm_facts", to: "/app/profile", vars: { n: i.unconfirmedFacts }, urgent: false });
   if (i.canUseAi) out.push({ code: "ask_officer", to: "/app/growth-officer", vars: {}, urgent: false });

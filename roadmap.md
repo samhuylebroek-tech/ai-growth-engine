@@ -6,8 +6,8 @@
 - [x] B Growth Officer + specialist/team answers: claim-level labels (EN/NL/FR), fact worded uncertain → hypothesis, legend.
 - [ ] B Evidence drill-down per labelled statement; same labels in reports and organization officer.
 - [x] B Five controlled staging Growth Officer scenarios; 27 credits = usage events = ledger.
-- [ ] C Persona journeys A–E (simulated), roles, languages, devices.
-- [ ] D First-growth journey after onboarding (summary → gaps → opportunity → next action → goal on approval).
+- [x] C Persona journeys (page walkthroughs A–E + member/viewer; fixes: read-only onboarding overview for non-editors, economics main title) A–E (simulated), roles, languages, devices.
+- [x] D First-growth journey after onboarding: summary → fill gaps → growth situation → prepared Growth Officer question → goal (per role, tested).
 - [ ] E Next step aware of onboarding progress, approvals, budget/KPI warnings, reports; explain who can act.
 - [x] F Website-check limit refusal in the browser NL/EN/FR (reserved domain, no fetch, nothing saved); unregistered target counted as failure.
 - [ ] G UX consistency pass across modules.
@@ -25,7 +25,7 @@
 - [x] Website-check limit refusal in the browser (done in round 2).
 - [x] Onboarding: customers, sales, challenges, resources, time horizon, constraints (round 2).
 - [x] Growth Officer: answers labelled per statement (round 2).
-- [ ] Persona journeys A–E end to end (simulated, not human usability studies).
+- [x] Persona journeys A–E page walkthroughs (round 2; simulated, not human usability studies).
 - [B] Rate-limit values and proposals 0063–0090 into the live database: owner approval.
 ## Phase 8.8 final completion & financial integrity — 2026-11-21
 - [x] Environment verified (branch, HEAD 4586721, clean, staging marker, ledger 57/57, proposals to 0086).
