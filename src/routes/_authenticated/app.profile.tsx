@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FactConflicts } from "@/components/app/fact-conflicts";
+import { BusinessUnderstanding } from "@/components/app/business-understanding";
 
 export const Route = createFileRoute("/_authenticated/app/profile")({ head: () => pageHead(translate(readLocale(), "account.profile.headTitle"), translate(readLocale(), "account.profile.headDescription")), component: Profile });
 
@@ -72,6 +73,7 @@ function Profile() {
         actions={edit && <Button variant="outline" asChild><Link to="/app/onboarding">{t("account.profile.edit")}</Link></Button>} />
       {q.isLoading && <div role="status" className="py-12 text-sm text-muted-foreground">{t("account.profile.loading")}</div>}
       {q.isError && <div role="alert" className="py-4 text-sm text-destructive">{t("account.profile.failed")}</div>}
+      {q.data && <BusinessUnderstanding profile={q.data.bp} facts={q.data.facts} complete={q.data.complete} canConfirm={confirmFacts} />}
       {bp && (
         <div><p className="mb-4 text-xs text-muted-foreground">{t("account.profile.hint")}</p>
           {"reporting_currency" in bp && <div className="mb-4 flex flex-wrap items-center gap-2 text-sm"><span className="text-xs text-muted-foreground">{t("account.profile.currency")}</span>{confirmFacts ? <select aria-label={t("account.profile.currency")} className="rounded-md border border-input bg-background px-2 py-1 text-sm" value={bp.reporting_currency} onChange={(e) => setCurrency(e.target.value)}>{[...new Set([bp.reporting_currency, ...REPORTING_CURRENCIES])].map((c) => <option key={c} value={c}>{c}</option>)}</select> : <span className="font-medium">{bp.reporting_currency}</span>}<span className="text-xs text-muted-foreground">{t("account.profile.currencyHint")}</span></div>}<div className="grid gap-x-8 gap-y-6 border-y border-border py-6 md:grid-cols-3">

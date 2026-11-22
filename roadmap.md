@@ -1,4 +1,18 @@
 # AI Growth OS — Task Queue
+## Grand master mission, round 1 (UX, guidance, Zod 4) — 2026-11-22
+- [x] Environment verified (branch, HEAD 48f1206, clean, staging ledger 57, proposals to 0090; no migrations this round).
+- [x] Home: one clear next step for the person's role (pure `next-step.ts`, no AI/credits), with up to two alternatives.
+- [x] Home: short "How it works" guide that teaches through the real pages; dismiss per person, reopen from the header.
+- [x] Home: extra figure tiles behind one "Show all figures" button (remembered per person and business).
+- [x] Fix: members were sent to the business setup that only editors can confirm (Home warning and quick action).
+- [x] Business details: "What we know about your business" per topic (confirmed / found / AI guess / contradicting / older than a year / missing / not checked), with what to do and who can do it.
+- [x] Zod 4.6.6 upgrade (GHSA-mrhx-c7xc-m3w5 fixed); IDs validated with the same lenient check as before; CI audit no longer ignores the advisory.
+- [x] Data source connections: refused keys explained in the user's language ("not accepted", "no read permission", wrong format, outage); connect limit browser-tested (6th attempt refused, NL).
+- [ ] Website-check limit refusal in the browser: needs a registered staging website.
+- [ ] Onboarding: ask about customers, sales process, challenges, resources, time horizon and constraints (only goals and budget asked today).
+- [ ] Growth Officer: answers labelled fact / calculation / estimate / hypothesis / recommendation / missing in every reply.
+- [ ] Persona journeys A–E end to end (simulated, not human usability studies).
+- [B] Rate-limit values and proposals 0063–0090 into the live database: owner approval.
 ## Phase 8.8 final completion & financial integrity — 2026-11-21
 - [x] Environment verified (branch, HEAD 4586721, clean, staging marker, ledger 57/57, proposals to 0086).
 - [x] A AI cost per campaign/initiative/strategy/goal at the historical credit price; per specialist, task, run, retries, second reviews; pending/unknown apart.
@@ -435,7 +449,7 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] Minimal grants; dependency updates (seroval, js-yaml, source-map-js)
 - [x] Security docs in docs/security/
 - [x] Rate limits — built on staging (0090) after owner changed the decision
-- [ ] Nested build-tool zod advisory — waits on TanStack tooling update
+- [x] Nested build-tool zod advisory — tooling now on zod 4.6.6
 - [ ] Re-run deep scan after these changes are saved; live rollout of 0063–0088 needs approval
 
 ## Phase 9 — growth lifecycle, reports, canonical financials (staging)
@@ -458,7 +472,7 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] Dependency fixes within allowed versions (19 advisories); Zod 3 advisory mitigated by the body limit, documented
 - [x] KPI definitions shown per KPI and shared with the Growth Officer
 - [x] Blocked work: Growth Officer sees tasks waiting on unfinished tasks; business check counts them (was always 0)
-- [ ] Zod 4 upgrade (major) — needs a reviewed migration of all validators
+- [x] Zod 4 upgrade (major) — done 2026-11-22 (4.6.6)
 
 ## Master development mission (staging only)
 - [x] KPI starting points, targets, progress, trend and missing months (0089), EN/NL/FR, browser-verified
@@ -466,4 +480,4 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] Blocked-task detail: cause, downstream tasks, campaign risk and suggested steps in the task panel (EN/NL/FR, browser-verified)
 - [x] Command Center warnings: what happened, why it matters, what to do, if nothing is done (all 37 warning types, EN/NL/FR) + new blocked-work warning
 - [x] Rate limiting on staging (0090): AI, uploads, website checks, connections, failed-attempt pause; EN/NL/FR messages; browser-verified AI + upload
-- [ ] Zod 4 — documented risk and staged migration plan
+- [x] Zod 4 — upgraded 2026-11-22

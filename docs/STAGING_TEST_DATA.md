@@ -134,3 +134,9 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
 - Main workspace: one USD 250 sale on 15 Oct 2026 recorded through the app's revenue call (customer reference qa-phase9-usd, note "QA Phase 9: USD test sale for converted Home figures") to check converted Home figures. Revenue records are permanent. *Keep.*
 - Draft strategy version 2 created for goal "QA Journey: more online bookings" (archived goal) and for "QA: Grow qualified leads", to check version comparison (adds "QA Phase 9: booking reminder test", risk "QA Phase 9: reminder fatigue"). *Keep.*
 - No schema changes; staging ledger unchanged.
+
+## Grand master round 1 (22 Nov 2026)
+- Main workspace (Staging Bakery): three confirmed business facts added by QA Owner through the profile screen to check the "What we know" summary: "Industry" = "Artisan bakery (QA guidance check)" (twice, same value, so no conflict) and "Tone of voice" = "Warm and plain (QA guidance check)". *Keep.*
+- Data source connection limit: seven Stripe connect attempts by QA Admin and one by QA Owner with an invented, invalid restricted key (Stripe answered 401; nothing was stored). Counters are hidden and expire on their own. *Keep.*
+- Staging test account passwords rotated by `seed-users.ts` (sandbox file only).
+- No schema changes; staging ledger 57, proposals to 0090.

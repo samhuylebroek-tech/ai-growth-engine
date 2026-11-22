@@ -75,3 +75,5 @@ use the editor.
 - Business intelligence (proposal 0066): revenue is a permanent per-currency ledger, attribution is pure `src/lib/bi/` over RLS reads; see `src/lib/bi/AGENTS.md`.
 - Multi-business organizations (proposals 0067–0070): businesses are workspaces, org reporting and org intelligence are pure over RLS reads, and organization decisions only take effect through each business's own rights; see `src/lib/org/AGENTS.md`.
 - Rate limits (proposal 0090) are enforced in the database: triggers on run/upload inserts, `consume_rate_limit` before outside fetches, insert-only hidden counters; refusals surface via `src/lib/rate-limit.ts`, so no path can skip a limit and no credits are reserved for a refused request.
+- Home recommends one next step from pure `src/lib/next-step.ts` over the records Home already reads, in fixed priority and only steps the viewer's role permits; it costs no credits and unknown reads are never treated as absent.
+- IDs are validated with `z.guid()` (Zod 4), not the strict RFC UUID check, because the database derives some keys from md5; `src/test/zod-upgrade.test.ts` guards this and the minimum Zod version.
