@@ -19,6 +19,7 @@ import {
   type AnswerFact, type Draft, type ProfileForSummary, type SummaryStatus,
 } from "@/lib/onboarding/answers";
 import { labelIn, labelsOf } from "@/lib/onboarding/labels";
+import { growthDraftKey } from "@/lib/growth-draft";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -274,7 +275,7 @@ export function UnderstandingSummary({ data, compact = false }: { data: GuidedDa
   return (
     <section aria-labelledby="ob-summary-title" className={cn(!compact && "mx-auto max-w-3xl")}>
       {compact ? <h2 id="ob-summary-title" className="text-base font-semibold">{t("ob.sum.title")}</h2> : <h1 id="ob-summary-title" className="text-3xl font-semibold">{t("ob.sum.title")}</h1>}
-      <p className={cn("max-w-2xl text-muted-foreground", compact ? "mt-1 text-sm" : "mt-3")}>{t("ob.sum.intro")}</p>
+      <p className={cn("max-w-2xl text-muted-foreground", compact ? "mt-1 text-sm" : "mt-3")}>{editable ? t("ob.sum.intro") : t("ob.sum.introRead")}</p>
       <p className="mt-3 text-sm font-medium tabular-nums">{t("ob.sum.counts", { known, total: topics.length, missing: topics.length - known })}</p>
       {!data.complete && <p role="status" className="mt-1 text-xs text-muted-foreground">{t("ob.readFailed")}</p>}
       <dl className="mt-5 divide-y divide-border rounded-xl border border-border bg-card">
@@ -298,17 +299,46 @@ export function UnderstandingSummary({ data, compact = false }: { data: GuidedDa
           </div>
         ))}
       </dl>
-      {!compact && (
-        <div className="mt-8 rounded-xl border border-border bg-card p-5">
-          <h2 className="text-base font-semibold">{t("ob.sum.next")}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{t("ob.sum.nextText")}</p>
-          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-            {can(o.workspaceRole, "ai.use") && <Button asChild><Link to="/app/growth-officer">{t("ob.sum.ask")} <ArrowRight /></Link></Button>}
-            {can(o.workspaceRole, "profile.edit") && <Button variant="outline" asChild><Link to="/app/goals">{t("ob.sum.goal")}</Link></Button>}
-            <Button variant="ghost" asChild><Link to="/app/onboarding">{t("ob.back")}</Link></Button>
-          </div>
-        </div>
-      )}
+      {!compact && <FirstGrowthPath missing={topics.filter((x) => !x.items.length).map((x) => x.edit)} />}
+    </section>
+  );
+}
+
+/** The first growth journey after onboarding: fill gaps, read the situation, ask for the first step, set a goal. */
+function FirstGrowthPath({ missing }: { missing: (SectionId | "basics")[] }) {
+  const { t } = useI18n();
+  const o = useOrg();
+  const navigate = useNavigate();
+  const editor = can(o.workspaceRole, "profile.confirm");
+  const ai = can(o.workspaceRole, "ai.use");
+  const goals = can(o.workspaceRole, "profile.edit");
+  function ask() {
+    if (!o.org || !o.workspace) return;
+    try { sessionStorage.setItem(growthDraftKey(o.org.id, o.workspace.id), t("ob.path.ask.question")); } catch { /* private mode: the page opens without a prepared question */ }
+    navigate({ to: "/app/growth-officer" });
+  }
+  const steps: { key: string; title: string; why: string; action: React.ReactNode }[] = [];
+  const first = missing[0];
+  if (editor && first)
+    steps.push({ key: "fill", title: t("ob.path.fill.title"), why: t("ob.path.fill.why", { n: missing.length }), action: <Button size="sm" variant="outline" asChild><Link to="/app/onboarding" search={{ section: first }}>{t("ob.path.fill.cta")}</Link></Button> });
+  steps.push({ key: "situation", title: t("ob.path.situation.title"), why: t("ob.path.situation.why"), action: <Button size="sm" variant="outline" asChild><Link to="/app/intelligence">{t("ob.path.situation.cta")}</Link></Button> });
+  if (ai) steps.push({ key: "ask", title: t("ob.path.ask.title"), why: t("ob.path.ask.why"), action: <Button size="sm" onClick={ask}>{t("ob.path.ask.cta")} <ArrowRight /></Button> });
+  if (goals) steps.push({ key: "goal", title: t("ob.path.goal.title"), why: t("ob.path.goal.why"), action: <Button size="sm" variant="outline" asChild><Link to="/app/goals">{t("ob.path.goal.cta")}</Link></Button> });
+  return (
+    <section aria-labelledby="ob-path-title" className="mt-8 rounded-xl border border-border bg-card p-5">
+      <h2 id="ob-path-title" className="text-base font-semibold">{t("ob.path.title")}</h2>
+      <p className="mt-1 text-sm text-muted-foreground">{t("ob.path.intro")}</p>
+      <ol className="mt-4 space-y-4">
+        {steps.map((s, i) => (
+          <li key={s.key} className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+            <span aria-hidden className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">{i + 1}</span>
+            <div className="min-w-0 flex-1"><p className="text-sm font-medium">{s.title}</p><p className="mt-0.5 text-sm text-muted-foreground">{s.why}</p></div>
+            <div className="shrink-0">{s.action}</div>
+          </li>
+        ))}
+      </ol>
+      {!editor && <p className="mt-4 text-xs text-muted-foreground">{t("ob.path.viewer")}</p>}
+      <div className="mt-4 border-t border-border pt-3"><Button variant="ghost" size="sm" asChild><Link to="/app/onboarding">{t("ob.back")}</Link></Button></div>
     </section>
   );
 }
