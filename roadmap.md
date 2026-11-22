@@ -8,10 +8,11 @@
 - [x] B Five controlled staging Growth Officer scenarios; 27 credits = usage events = ledger.
 - [x] C Persona journeys (page walkthroughs A–E + member/viewer; fixes: read-only onboarding overview for non-editors, economics main title) A–E (simulated), roles, languages, devices.
 - [x] D First-growth journey after onboarding: summary → fill gaps → growth situation → prepared Growth Officer question → goal (per role, tested).
-- [ ] E Next step aware of onboarding progress, approvals, budget/KPI warnings, reports; explain who can act.
+- [x] E Next step aware of onboarding progress, approvals and warnings; members told proposals wait for an administrator (tested).
 - [x] F Website-check limit refusal in the browser NL/EN/FR (reserved domain, no fetch, nothing saved); unregistered target counted as failure.
 - [ ] G UX consistency pass across modules.
-- [ ] H Security/data-integrity revalidation (onboarding conflicts, repeated submissions, unauthorized edits); dev-tool advisories.
+- [x] H Revalidation: 55/55 staging SQL suites incl. 0091 (stale edits, repeats, unauthorized edits), production packages clean.
+- [ ] H Two moderate advisories in developer tools only (esbuild via drizzle-kit, minimatch via eslint/gateway tooling): upstream packages, not in the app.
 - [ ] GitHub sync status checked honestly.
 ## Grand master mission, round 1 (UX, guidance, Zod 4) — 2026-11-22
 - [x] Environment verified (branch, HEAD 48f1206, clean, staging ledger 57, proposals to 0090; no migrations this round).
