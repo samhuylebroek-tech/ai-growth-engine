@@ -8,7 +8,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Json } from "@/integrations/supabase/types";
 import { isNotInstalled, CONNECTORS_NOT_INSTALLED, type PendingDatabase } from "@/lib/pending-schema";
-import { fetchGa4, fetchHubspot, fetchSearchConsole, fetchStripe, googleAccessToken, probeToken, ProviderError, type FetchResult } from "@/lib/integrations/providers";
+import { fetchGa4, fetchHubspot, fetchSearchConsole, fetchStripe, googleAccessToken, probeCode, probeToken, ProviderError, type FetchResult, type ProbeCode } from "@/lib/integrations/providers";
 import { runSync, type SyncOutcome } from "@/lib/integrations/sync";
 import { getCookie, setCookie, deleteCookie } from "@tanstack/react-start/server";
 import { allowedRedirectOrigin, pkcePair, safeEqual, signState, verifyState } from "@/lib/integrations/oauth";
@@ -32,8 +32,8 @@ export const integrationsAvailability = createServerFn({ method: "GET" }).middle
   .handler(async (): Promise<{ google: boolean }> => ({ google: !!googleConfig() }));
 
 export const connectTokenIntegration = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ workspaceId: z.string().uuid(), connector: z.enum(["stripe", "hubspot"]), token: z.string().trim().min(10).max(500), currency: z.string().regex(/^[A-Z]{3}$/).default("EUR") }).parse(d))
-  .handler(async ({ data, context }): Promise<Result<{ status: string; missing: string[] }>> => {
+  .inputValidator((d: unknown) => z.object({ workspaceId: z.guid(), connector: z.enum(["stripe", "hubspot"]), token: z.string().trim().min(10).max(500), currency: z.string().regex(/^[A-Z]{3}$/).default("EUR") }).parse(d))
+  .handler(async ({ data, context }): Promise<Result<{ status: string; missing: string[] }> | { ok: false; error: string; code: ProbeCode }> => {
     try {
       const sb = db(context.supabase);
       const admin = await sb.rpc("has_workspace_role", { _workspace: data.workspaceId, _min: "admin" });
@@ -41,10 +41,13 @@ export const connectTokenIntegration = createServerFn({ method: "POST" }).middle
       // Counted before the provider is contacted (proposal 0090); a rejected token counts as a failed attempt.
       const limited = await takeLimit(sb, "connect", data.workspaceId);
       if (limited) return { ok: false, error: limited };
-      const probed = await probeToken(fetch, data.connector, data.token).catch(async (e: unknown) => {
-        if (e instanceof ProviderError && (e.health === "expired" || e.health === "insufficient_scope")) await noteFailure(sb, "connect", data.workspaceId); // rejected token, not an outage
-        throw e;
-      });
+      let probed: { scopes: string[] };
+      try { probed = await probeToken(fetch, data.connector, data.token); }
+      catch (e) {
+        if (!(e instanceof ProviderError)) throw e;
+        if (e.health === "expired" || e.health === "insufficient_scope") await noteFailure(sb, "connect", data.workspaceId); // rejected token, not an outage
+        return { ok: false, error: e.message, code: probeCode(e) };
+      }
       const { scopes } = probed;
       const r = await sb.rpc("store_connector_credential_verified", { _workspace: data.workspaceId, _connector: data.connector, _secret: data.token, _scopes: scopes, _expires: null, _account_label: data.connector === "stripe" ? `Restricted key …${data.token.slice(-4)}` : `Private app …${data.token.slice(-4)}`, _config: { currency: data.currency } as Json, _proof: proof() });
       if (r.error) return fail(r.error);
@@ -54,7 +57,7 @@ export const connectTokenIntegration = createServerFn({ method: "POST" }).middle
   });
 
 export const startGoogleIntegration = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ workspaceId: z.string().uuid(), connector: z.enum(["google_analytics", "search_console"]), origin: z.string().url().max(200), property: z.string().trim().min(3).max(200) }).parse(d))
+  .inputValidator((d: unknown) => z.object({ workspaceId: z.guid(), connector: z.enum(["google_analytics", "search_console"]), origin: z.string().url().max(200), property: z.string().trim().min(3).max(200) }).parse(d))
   .handler(async ({ data, context }): Promise<Result<{ url: string }>> => {
     const g = googleConfig();
     if (!g) return { ok: false, error: "Google sign-in for data sources is not configured for this environment." };
@@ -96,7 +99,7 @@ export const completeGoogleIntegration = createServerFn({ method: "POST" }).midd
   });
 
 export const syncIntegration = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ workspaceId: z.string().uuid(), connector: CONNECTOR, months: z.number().int().min(1).max(24), requestKey: z.string().uuid() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ workspaceId: z.guid(), connector: CONNECTOR, months: z.number().int().min(1).max(24), requestKey: z.guid() }).parse(d))
   .handler(async ({ data, context }): Promise<Result<SyncOutcome>> => {
     const sb = db(context.supabase); const ws = data.workspaceId, c = data.connector; let runId = "";
     try {
@@ -137,7 +140,7 @@ export const syncIntegration = createServerFn({ method: "POST" }).middleware([re
   });
 
 export const disconnectIntegration = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ workspaceId: z.string().uuid(), connector: CONNECTOR }).parse(d))
+  .inputValidator((d: unknown) => z.object({ workspaceId: z.guid(), connector: CONNECTOR }).parse(d))
   .handler(async ({ data, context }): Promise<Result<null>> => {
     try {
       const r = await db(context.supabase).rpc("disconnect_connector_verified", { _workspace: data.workspaceId, _connector: data.connector, _proof: proof() });

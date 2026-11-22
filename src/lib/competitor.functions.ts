@@ -7,7 +7,7 @@ import { changeObservations, pageObservations, pickPages, readCompetitorPage, ty
 
 export const checkCompetitor = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ competitorId: z.string().uuid() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ competitorId: z.guid() }).parse(d))
   .handler(async ({ data, context }): Promise<{ ok: true; added: number; changes: number } | { ok: false; error: string }> => {
     const sb = context.supabase;
     const c = await sb.from("competitors").select("id,org_id,workspace_id,website,status").eq("id", data.competitorId).maybeSingle();

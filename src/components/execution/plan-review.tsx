@@ -180,11 +180,11 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
                 onChange={(e) =>
                   setPlan({
                     ...plan,
-                    category: planSchema.innerType().shape.category.parse(e.target.value),
+                    category: planSchema.shape.category.parse(e.target.value),
                   })
                 }
               >
-                {planSchema.innerType().shape.category.options.map((c) => (
+                {planSchema.shape.category.options.map((c) => (
                   <option key={c} value={c}>{tr(`officer.cat.${c}`)}</option>
                 ))}
               </select>
@@ -263,7 +263,6 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
                             ? {
                                 ...x,
                                 priority: planSchema
-                                  .innerType()
                                   .shape.tasks.element.shape.priority.parse(e.target.value),
                               }
                             : x,

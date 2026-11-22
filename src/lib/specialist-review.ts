@@ -86,10 +86,10 @@ Answer with JSON only: {"summary":"","dimensions":{"completeness":{"score":1,"no
 Write human-readable text in the user's language (English, Dutch or French as requested); keep JSON keys in English.`;
 
 export const reviewRequestSchema = z.object({
-  orgId: z.string().uuid(),
-  workspaceId: z.string().uuid(),
-  runId: z.string().uuid(),
+  orgId: z.guid(),
+  workspaceId: z.guid(),
+  runId: z.guid(),
   reviewer: z.string(),
-  requestKey: z.string().uuid(),
+  requestKey: z.guid(),
   locale: z.enum(["en", "nl", "fr"]).default("en"),
 });

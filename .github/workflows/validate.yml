@@ -78,9 +78,8 @@ jobs:
       - name: Install locked dependencies
         run: bun install --frozen-lockfile
 
-      # Fails on high or critical advisories in packages the running app uses. One accepted exception, documented
-      # in docs/security/SECURITY_CONTROLS.md: GHSA-mrhx-c7xc-m3w5 (zod 3 has no fixed release; oversized request
-      # bodies are refused before validation by src/lib/request-limits.ts until the zod 4 migration).
+      # Fails on high or critical advisories in packages the running app uses. No accepted exceptions: the zod
+      # advisory GHSA-mrhx-c7xc-m3w5 was resolved by the zod 4.6.6 upgrade (src/test/zod-upgrade.test.ts).
       - name: Audit runtime dependencies
-        run: bun audit --production --audit-level=high --ignore=GHSA-mrhx-c7xc-m3w5
+        run: bun audit --production --audit-level=high
 

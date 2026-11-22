@@ -4,13 +4,13 @@ import { specialistKeySchema, SPECIALISTS, specialistOutputSchema, type Speciali
 import { quoteUntrusted } from "@/lib/security/upload";
 
 export const coordinationInputSchema = z.object({
-  orgId: z.string().uuid(), workspaceId: z.string().uuid(), requestKey: z.string().uuid(),
+  orgId: z.guid(), workspaceId: z.guid(), requestKey: z.guid(),
   request: z.string().trim().min(3).max(4000),
   mode: z.enum(["manual", "auto"]).default("manual"),
   agents: z.array(specialistKeySchema).length(2).refine(a => new Set(a).size === 2, "Choose two different specialists").optional(),
   executionContext: executionSelectionSchema,
   // Optional: absent keeps the legacy fresh-analysis behaviour; null explicitly starts fresh; a UUID is ownership-checked server-side.
-  conversationId: z.string().uuid().nullable().optional(),
+  conversationId: z.guid().nullable().optional(),
 }).superRefine((value, context) => {
   if (value.mode === "manual" && !value.agents) {
     context.addIssue({ code: "custom", path: ["agents"], message: "Manual coordination requires two specialists." });
@@ -34,12 +34,12 @@ export function selectSpecialistsForRequest(request: string): [SpecialistKey, Sp
 }
 export const COORDINATION_LIMITS = { specialists: 2, calls: 3, reservePerCall: 50, maxCredits: 150 } as const;
 export const coordinationClaimSchema = z.object({
-  claimed: z.boolean(), id: z.string().uuid(), status: z.enum(["running", "succeeded", "failed"]),
-  runIds: z.array(z.string().uuid()).length(3).optional(),
-  conversationId: z.string().uuid().nullable().optional(), messageId: z.string().uuid().nullable().optional(),
+  claimed: z.boolean(), id: z.guid(), status: z.enum(["running", "succeeded", "failed"]),
+  runIds: z.array(z.guid()).length(3).optional(),
+  conversationId: z.guid().nullable().optional(), messageId: z.guid().nullable().optional(),
   error: z.string().nullable().optional(),
 });
-export const coordinationReceiptSchema = z.object({ conversationId: z.string().uuid(), messageId: z.string().uuid(), credits: z.number().int().min(0).max(150).optional() });
+export const coordinationReceiptSchema = z.object({ conversationId: z.guid(), messageId: z.guid(), credits: z.number().int().min(0).max(150).optional() });
 export type SpecialistAnalysis = { agent: z.infer<typeof specialistKeySchema>; output: z.infer<typeof specialistOutputSchema> };
 export function synthesisEvidence(results: SpecialistAnalysis[]) {
   if (results.length !== 2 || new Set(results.map(r => r.agent)).size !== 2) throw new Error("Two independent analyses are required");

@@ -32,7 +32,7 @@ function backend(sb: DB, connection: string): SimBackend {
 }
 
 export const executeExternalAction = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ actionId: z.string().uuid(), key: z.string().uuid(), scenario: z.enum(SCENARIOS).default("success") }).parse(d))
+  .inputValidator((d: unknown) => z.object({ actionId: z.guid(), key: z.guid(), scenario: z.enum(SCENARIOS).default("success") }).parse(d))
   .handler(async ({ data, context }): Promise<Result<{ stage: string; error: string | null }>> => {
     const sb = db(context.supabase);
     try {
@@ -52,7 +52,7 @@ export const executeExternalAction = createServerFn({ method: "POST" }).middlewa
   });
 
 export const verifyExternalAction = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ actionId: z.string().uuid() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ actionId: z.guid() }).parse(d))
   .handler(async ({ data, context }): Promise<Result<{ stage: string; verification: string }>> => {
     const sb = db(context.supabase);
     try {
@@ -70,7 +70,7 @@ export const verifyExternalAction = createServerFn({ method: "POST" }).middlewar
 
 /** Simulated synchronisation: records a sync run in the normal import history, imports nothing and says so. */
 export const syncSimulatedIntegration = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ workspaceId: z.string().uuid(), connector: z.string().regex(/^sim\.[a-z_]+$/), request: z.string().uuid() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ workspaceId: z.guid(), connector: z.string().regex(/^sim\.[a-z_]+$/), request: z.guid() }).parse(d))
   .handler(async ({ data, context }): Promise<Result<{ status: string }>> => {
     const sb = db(context.supabase);
     try {

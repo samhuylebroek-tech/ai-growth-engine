@@ -45,9 +45,9 @@ Answer with JSON only: {"cause":"","consequences":"","affected":[{"task_id":"","
 Write human-readable text in the user's language (English, Dutch or French as requested); keep JSON keys and option keys in English.`;
 
 export const analysisRequestSchema = z.object({
-  orgId: z.string().uuid(),
-  workspaceId: z.string().uuid(),
-  proposalId: z.string().uuid(),
-  requestKey: z.string().uuid(),
+  orgId: z.guid(),
+  workspaceId: z.guid(),
+  proposalId: z.guid(),
+  requestKey: z.guid(),
   locale: z.enum(["en", "nl", "fr"]).default("en"),
 });

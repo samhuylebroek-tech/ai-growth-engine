@@ -5,9 +5,9 @@ import { z } from "zod";
 
 export const MAX_DESIGNS = 3;
 export const designRequestSchema = z.object({
-  orgId: z.string().uuid(),
-  workspaceId: z.string().uuid(),
-  requestKey: z.string().uuid(),
+  orgId: z.guid(),
+  workspaceId: z.guid(),
+  requestKey: z.guid(),
   focus: z.string().trim().max(500).default(""),
   locale: z.enum(["en", "nl", "fr"]).default("en"),
 });

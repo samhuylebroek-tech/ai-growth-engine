@@ -12,4 +12,4 @@
 | SEO outbound restriction | `src/lib/security/outbound.ts`, `seo.functions.ts` | Unit tests, browser refusal for an unregistered site |
 | Minimal grants | 0088 revokes | `tests/sql/privilege_hardening.sql` |
 | Credit grants bounded + aal2 | `admin_grant_credits` | 0088 SQL suite |
-| Dependencies | `package.json` overrides (seroval, js-yaml, source-map-js) | Dependency scan; nested build-tool `zod` advisory remains |
+| Dependencies | `package.json` overrides (seroval, js-yaml, source-map-js) | Dependency scan with no accepted exceptions; zod 4.6.6 (`src/test/zod-upgrade.test.ts` guards the version and the lenient ID check). Remaining: two moderate development-only advisories |

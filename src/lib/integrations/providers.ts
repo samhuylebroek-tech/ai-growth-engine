@@ -4,9 +4,14 @@ import { mapGa4Report, mapHubspotDeals, mapSearchConsole, mapStripeBalance, type
 
 export type Fetch = (input: string, init?: RequestInit) => Promise<Response>;
 export type HealthStatus = "expired" | "insufficient_scope" | "error";
+/** Why a pasted key was refused, so the screen can explain it in the user's language. */
+export type ProbeCode = "key_rejected" | "key_no_read" | "key_secret_not_restricted" | "key_format_stripe" | "key_format_hubspot" | "provider_unavailable";
 export class ProviderError extends Error {
-  constructor(public health: HealthStatus, message: string) { super(message); }
+  constructor(public health: HealthStatus, message: string, public code?: ProbeCode) { super(message); }
 }
+/** The explanation code for a failed key check: rejected key, missing read permission, wrong format or an outage. */
+export const probeCode = (e: ProviderError): ProbeCode =>
+  e.code ?? (e.health === "expired" ? "key_rejected" : e.health === "insufficient_scope" ? "key_no_read" : "provider_unavailable");
 export type FetchResult = { values: ImportedValue[]; truncated: boolean };
 export type Range = { startDate: string; endDate: string };
 
@@ -84,12 +89,12 @@ export async function fetchHubspot(f: Fetch, token: string, range: Range, defaul
 /** Validates a pasted token before it is stored: format first, then one read-only call. */
 export async function probeToken(f: Fetch, connector: Extract<ReadOnlyConnector, "stripe" | "hubspot">, token: string): Promise<{ scopes: string[] }> {
   if (connector === "stripe") {
-    if (/^sk_(live|test)_/.test(token)) throw new ProviderError("error", "Use a Stripe restricted key with read-only access (starts with rk_), not a secret key.");
-    if (!/^rk_(live|test)_[A-Za-z0-9]{10,}$/.test(token)) throw new ProviderError("error", "This does not look like a Stripe restricted key (rk_…).");
+    if (/^sk_(live|test)_/.test(token)) throw new ProviderError("error", "Use a Stripe restricted key with read-only access (starts with rk_), not a secret key.", "key_secret_not_restricted");
+    if (!/^rk_(live|test)_[A-Za-z0-9]{10,}$/.test(token)) throw new ProviderError("error", "This does not look like a Stripe restricted key (rk_…).", "key_format_stripe");
     await call(f, "https://api.stripe.com/v1/balance_transactions?limit=1", { headers: { authorization: `Bearer ${token}` } }, "Stripe");
     return { scopes: ["read_only_restricted_key"] };
   }
-  if (!/^pat-[a-z0-9]{2,5}-[A-Za-z0-9-]{10,}$/.test(token)) throw new ProviderError("error", "This does not look like a HubSpot private app token (pat-…).");
+  if (!/^pat-[a-z0-9]{2,5}-[A-Za-z0-9-]{10,}$/.test(token)) throw new ProviderError("error", "This does not look like a HubSpot private app token (pat-…).", "key_format_hubspot");
   try {
     await call(f, "https://api.hubapi.com/crm/v3/objects/deals/search", { method: "POST", headers: { authorization: `Bearer ${token}`, "content-type": "application/json" }, body: JSON.stringify({ limit: 1 }) }, "HubSpot");
     return { scopes: ["crm.objects.deals.read"] };

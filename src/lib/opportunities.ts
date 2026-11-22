@@ -59,7 +59,7 @@ export function parseOpportunities(raw: string): Opportunity[] {
 }
 
 export const opportunityRequestSchema = z.object({
-  orgId: z.string().uuid(), workspaceId: z.string().uuid(), requestKey: z.string().uuid(),
+  orgId: z.guid(), workspaceId: z.guid(), requestKey: z.guid(),
   horizonDays: z.union([z.literal(30), z.literal(90), z.literal(180), z.literal(365)]),
   focus: z.string().trim().max(500).default(""),
   locale: z.enum(["en", "nl", "fr"]).default("en"),

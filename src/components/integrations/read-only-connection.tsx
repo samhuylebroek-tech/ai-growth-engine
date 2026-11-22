@@ -95,14 +95,15 @@ export function ReadOnlyConnection({
     qc.invalidateQueries({ queryKey: ["tracked-metric-keys"] });
   };
   async function run<T>(
-    fn: () => Promise<{ ok: true; data: T } | { ok: false; error: string }>,
+    fn: () => Promise<{ ok: true; data: T } | { ok: false; error: string; code?: string }>,
     done: (d: T) => void,
   ) {
     setBusy(true);
     try {
       const r = await fn();
       if (r.ok) done(r.data);
-      else toast.error(r.error);
+      // A refused key is explained in the user's language; other server messages are shown as given.
+      else toast.error("code" in r && r.code ? tx(`pages.int.probe.${r.code}` as MessageKey, { name }) : connectionErrorText(r.error, tx));
     } catch {
       toast.error(tx("pages.int.notComplete"));
     } finally {

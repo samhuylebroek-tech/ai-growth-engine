@@ -158,7 +158,7 @@ export function parseProposals(text: string) {
 export const askGrowthOfficer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({
-    orgId: z.string().uuid(), workspaceId: z.string().uuid(), requestKey: z.string().uuid(), conversationId: z.string().uuid().nullable(), executionContext: executionSelectionSchema, message: z.string().trim().min(1).max(4000),
+    orgId: z.guid(), workspaceId: z.guid(), requestKey: z.guid(), conversationId: z.guid().nullable(), executionContext: executionSelectionSchema, message: z.string().trim().min(1).max(4000),
   }).parse(d))
   .handler(async ({ data, context }): Promise<Result<{ conversationId: string; reply: string; proposals: number; credits: number }>> => {
     const sb = context.supabase as DB;
@@ -204,7 +204,7 @@ export const askGrowthOfficer = createServerFn({ method: "POST" })
 /** Recovers a single paid answer without calling the provider or replaying requests. */
 export const recoverSingleAIRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ orgId: z.string().uuid(), workspaceId: z.string().uuid(), requestId: z.string().uuid() }).parse(input))
+  .inputValidator((input: unknown) => z.object({ orgId: z.guid(), workspaceId: z.guid(), requestId: z.guid() }).parse(input))
   .handler(async ({ data, context }): Promise<Result<{ status: string; conversationId: string | null }>> => {
     const sb = context.supabase as DB;
     try {
@@ -243,7 +243,7 @@ export const recoverSingleAIRequest = createServerFn({ method: "POST" })
 /** Recovery settles stored receipts only. It never dispatches inference. */
 export const recoverCoordinatedAnalysis = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ orgId: z.string().uuid(), workspaceId: z.string().uuid(), analysisId: z.string().uuid(), close: z.boolean() }).parse(input))
+  .inputValidator((input: unknown) => z.object({ orgId: z.guid(), workspaceId: z.guid(), analysisId: z.guid(), close: z.boolean() }).parse(input))
   .handler(async ({ data, context }): Promise<Result<{ status: string; pending: number }>> => {
     const sb = context.supabase as DB;
     try {
@@ -285,7 +285,7 @@ function parseFacts(text: string): { key: string; value: string; confidence: num
 
 export const extractDocumentFacts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ documentId: z.string().uuid(), orgId: z.string().uuid(), workspaceId: z.string().uuid() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ documentId: z.guid(), orgId: z.guid(), workspaceId: z.guid() }).parse(d))
   .handler(async ({ data, context }): Promise<Result<{ facts: number; credits: number }>> => {
     const sb = context.supabase as DB;
     let doc;
@@ -362,7 +362,7 @@ async function safeFetch(raw: string): Promise<{ text: string; url: string }> {
 
 export const analyzeWebsite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ workspaceId: z.string().uuid(), url: z.string().max(500) }).parse(d))
+  .inputValidator((d: unknown) => z.object({ workspaceId: z.guid(), url: z.string().max(500) }).parse(d))
   .handler(async ({ data, context }): Promise<Result<{ facts: number; credits: number }>> => {
     const sb = context.supabase as DB;
     let runId: string | null = null; let orgId = "";
@@ -398,7 +398,7 @@ export const analyzeWebsite = createServerFn({ method: "POST" })
 
 export const discoverBusiness = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ workspaceId: z.string().uuid(), url: z.string().trim().max(500) }).parse(d))
+  .inputValidator((d: unknown) => z.object({ workspaceId: z.guid(), url: z.string().trim().max(500) }).parse(d))
   .handler(async ({ data, context }): Promise<Result<Discovery & { credits: number; sources: string[] }>> => {
     const sb = context.supabase as DB;
     let runId: string | null = null;
@@ -445,8 +445,8 @@ At most 12 distinct facts and 8 suggestions. Include only supported facts; mark 
 export const runSpecialist = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({
-    orgId: z.string().uuid(), workspaceId: z.string().uuid(), agent: specialistKeySchema,
-    requestKey: z.string().uuid(), request: z.string().trim().min(3).max(4000), executionContext: executionSelectionSchema,
+    orgId: z.guid(), workspaceId: z.guid(), agent: specialistKeySchema,
+    requestKey: z.guid(), request: z.string().trim().min(3).max(4000), executionContext: executionSelectionSchema,
   }).parse(input))
   .handler(async ({ data, context }): Promise<Result<{ conversationId: string; messageId: string; reply: string; credits: number }>> => {
     const sb = context.supabase as DB;
@@ -580,7 +580,7 @@ export const runCoordinatedAnalysis = createServerFn({ method: "POST" })
 export const draftContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({
-    orgId: z.string().uuid(), workspaceId: z.string().uuid(), assetId: z.string().uuid(), requestKey: z.string().uuid(), brief: draftBriefSchema,
+    orgId: z.guid(), workspaceId: z.guid(), assetId: z.guid(), requestKey: z.guid(), brief: draftBriefSchema,
   }).parse(input))
   .handler(async ({ data, context }): Promise<Result<{ draft: string; credits: number }>> => {
     const sb = context.supabase as DB;
@@ -628,8 +628,8 @@ export const draftContent = createServerFn({ method: "POST" })
 export const reviewContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({
-    orgId: z.string().uuid(), workspaceId: z.string().uuid(), assetId: z.string().uuid(), requestKey: z.string().uuid(),
-    versionId: z.string().uuid().nullable(), dimensions: z.array(z.enum(DIMENSION_KEYS)).min(1).max(7),
+    orgId: z.guid(), workspaceId: z.guid(), assetId: z.guid(), requestKey: z.guid(),
+    versionId: z.guid().nullable(), dimensions: z.array(z.enum(DIMENSION_KEYS)).min(1).max(7),
   }).parse(input))
   .handler(async ({ data, context }): Promise<Result<{ review: Review; credits: number }>> => {
     const sb = context.supabase as DB;
@@ -688,7 +688,7 @@ export const reviewContent = createServerFn({ method: "POST" })
 export const planGrowthStrategy = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({
-    orgId: z.string().uuid(), workspaceId: z.string().uuid(), goalId: z.string().uuid(), requestKey: z.string().uuid(), horizonWeeks: z.number().int().min(2).max(26),
+    orgId: z.guid(), workspaceId: z.guid(), goalId: z.guid(), requestKey: z.guid(), horizonWeeks: z.number().int().min(2).max(26),
   }).parse(input))
   .handler(async ({ data, context }): Promise<Result<{ strategy: Strategy; credits: number }>> => {
     const sb = context.supabase as DB;
@@ -749,7 +749,7 @@ export const planGrowthStrategy = createServerFn({ method: "POST" })
 export const repurposeContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({
-    orgId: z.string().uuid(), workspaceId: z.string().uuid(), assetId: z.string().uuid(), requestKey: z.string().uuid(), channels: z.array(z.enum(CHANNELS)).min(1).max(6),
+    orgId: z.guid(), workspaceId: z.guid(), assetId: z.guid(), requestKey: z.guid(), channels: z.array(z.enum(CHANNELS)).min(1).max(6),
   }).parse(input))
   .handler(async ({ data, context }): Promise<Result<{ items: { channel: string; title: string; body: string }[]; credits: number }>> => {
     const sb = context.supabase as DB;
@@ -1077,7 +1077,7 @@ export const analyzeReplan = createServerFn({ method: "POST" })
  */
 export const acceptUncertainAIOutcome = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ orgId: z.string().uuid(), workspaceId: z.string().uuid(), requestId: z.string().uuid() }).parse(input))
+  .inputValidator((input: unknown) => z.object({ orgId: z.guid(), workspaceId: z.guid(), requestId: z.guid() }).parse(input))
   .handler(async ({ data, context }): Promise<Result<{ credits: number }>> => {
     const sb = context.supabase as DB;
     try {
@@ -1099,7 +1099,7 @@ export const acceptUncertainAIOutcome = createServerFn({ method: "POST" })
  */
 export const executeTaskRun = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ orgId: z.string().uuid(), workspaceId: z.string().uuid(), runId: z.string().uuid() }).parse(input))
+  .inputValidator((input: unknown) => z.object({ orgId: z.guid(), workspaceId: z.guid(), runId: z.guid() }).parse(input))
   .handler(async ({ data, context }): Promise<Result<{ status: string; credits: number | null }>> => {
     const sb = context.supabase as DB;
     const pending = sb as unknown as SupabaseClient<PendingDatabase>;
@@ -1187,8 +1187,8 @@ ${TASK_OUTPUT_FORMAT} ${LANGUAGE_RULE}`,
 
 // ---- Organization Growth Officer (proposal 0070) -------------------------------------------------------------------
 const orgRequestSchema = z.object({
-  id: z.string().uuid(), run_id: z.string().uuid(), claimed: z.boolean().optional(), kind: z.literal("organization"),
-  status: z.enum(["running", "succeeded", "failed"]), workspace_id: z.string().uuid(), credits: z.number().int().nullable(),
+  id: z.guid(), run_id: z.guid(), claimed: z.boolean().optional(), kind: z.literal("organization"),
+  status: z.enum(["running", "succeeded", "failed"]), workspace_id: z.guid(), credits: z.number().int().nullable(),
 });
 const ORG_INTEL_OFF = "Organization strategy is not switched on in this environment yet.";
 type PendingDB = SupabaseClient<PendingDatabase>;
@@ -1201,7 +1201,7 @@ async function saveOrgStrategy(sb: DB, requestId: string, raw: string, refMap: R
   catch { structured = false; body = { title: "Organization strategy (unstructured answer)", summary: raw.trim().slice(0, 3900) || "No answer text.", unstructured: true, refs: refMap }; }
   const r = await (sb as unknown as PendingDB).rpc("finish_org_strategy_verified", { _id: requestId, _reply: raw.trim() || "(empty)", _strategy: body as never, _proof: accountingProof() });
   if (r.error) throw new Error("Your paid strategy is preserved. Recover saved work on the organization page; nothing will be sent again.");
-  const out = z.object({ strategy_id: z.string().uuid(), version: z.number(), credits: z.number(), opportunities: z.number(), replayed: z.boolean() }).parse(r.data);
+  const out = z.object({ strategy_id: z.guid(), version: z.number(), credits: z.number(), opportunities: z.number(), replayed: z.boolean() }).parse(r.data);
   return { ...out, structured };
 }
 
@@ -1213,7 +1213,7 @@ async function saveOrgStrategy(sb: DB, requestId: string, raw: string, refMap: R
 export const planOrganizationStrategy = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({
-    orgId: z.string().uuid(), anchorWorkspaceId: z.string().uuid(), businessIds: z.array(z.string().uuid()).min(2).max(12), requestKey: z.string().uuid(),
+    orgId: z.guid(), anchorWorkspaceId: z.guid(), businessIds: z.array(z.guid()).min(2).max(12), requestKey: z.guid(),
     horizonMonths: z.number().int().min(1).max(36), focus: z.string().trim().max(1000), locale: z.enum(["en", "nl", "fr"]),
   }).parse(input))
   .handler(async ({ data, context }): Promise<Result<{ strategyId: string; version: number; credits: number; opportunities: number; structured: boolean }>> => {
@@ -1294,7 +1294,7 @@ export const planOrganizationStrategy = createServerFn({ method: "POST" })
 /** Recovers an organization request without calling the AI again: saves a delivered answer, or closes a request that never started. */
 export const recoverOrgStrategy = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ orgId: z.string().uuid(), requestId: z.string().uuid() }).parse(input))
+  .inputValidator((input: unknown) => z.object({ orgId: z.guid(), requestId: z.guid() }).parse(input))
   .handler(async ({ data, context }): Promise<Result<{ status: "saved" | "closed" | "uncertain" | "done" }>> => {
     const sb = context.supabase as DB;
     try {
@@ -1304,7 +1304,7 @@ export const recoverOrgStrategy = createServerFn({ method: "POST" })
       const receipt = await sb.from("ai_call_receipts").select("state,response_text").eq("run_id", row.data.run_id).maybeSingle();
       if (receipt.error) throw new Error("Could not read the saved answer.");
       if (receipt.data && ["delivered", "settled"].includes(receipt.data.state) && receipt.data.response_text) {
-        const ids = z.object({ businesses: z.array(z.string().uuid()) }).parse(row.data.input).businesses;
+        const ids = z.object({ businesses: z.array(z.guid()) }).parse(row.data.input).businesses;
         const ws = await sb.from("workspaces").select("id,name").eq("org_id", data.orgId).in("id", ids);
         if (ws.error) throw new Error("Could not read the businesses.");
         const sorted = (ws.data ?? []).sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));

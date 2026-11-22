@@ -28,7 +28,7 @@ export async function fetchPublic(raw: string, accept: string, limit = 800_000):
 
 export const runSeoAudit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ workspaceId: z.string().uuid(), url: z.string().trim().min(4).max(500) }).parse(d))
+  .inputValidator((d: unknown) => z.object({ workspaceId: z.guid(), url: z.string().trim().min(4).max(500) }).parse(d))
   .handler(async ({ data, context }): Promise<{ ok: true; id: string } | { ok: false; error: string }> => {
     const sb = context.supabase;
     const { data: ws } = await sb.from("workspaces").select("id,org_id").eq("id", data.workspaceId).maybeSingle();

@@ -53,7 +53,7 @@ Open risks (documented, not yet fixed):
 | Audit log | Rows were append-only but not tamper-evident; the browser could write audit rows. | New rows are hash-chained and verifiable by the owner; admin changes are audited by database triggers; direct browser writes revoked. |
 | Emergency stop | Only a per-business pause. | Organization and platform stops added, independent tiers, audited. |
 | Grants | API roles had TRUNCATE/REFERENCES/TRIGGER and could call internal helpers. | Revoked. |
-| Dependencies | seroval, js-yaml, source-map-js advisories. | Updated via overrides. Nested `zod` 4.6.5 inside build tooling remains. |
+| Dependencies | seroval, js-yaml, source-map-js advisories. | Updated via overrides. `zod` upgraded to 4.6.6 (GHSA-mrhx-c7xc-m3w5 fixed; build tooling also on 4.6.6). Remaining: two moderate advisories in development-only tools (esbuild dev server, minimatch in lint/type tooling). |
 
 Open risks (documented decisions):
 - Rate limits: superseded by proposal 0090 (owner decision changed 2026-11-21: build on staging). See below.

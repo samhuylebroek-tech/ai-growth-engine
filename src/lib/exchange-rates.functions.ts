@@ -19,7 +19,7 @@ export type OfficialRatesResult = { ok: true; date: string; added: number; curre
 
 export const syncOfficialRates = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ orgId: z.string().uuid() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ orgId: z.guid() }).parse(d))
   .handler(async ({ data, context }): Promise<OfficialRatesResult> => {
     const proof = process.env["AI_ACCOUNTING_SECRET"];
     if (!proof) return { ok: false, error: "Server verification is not configured." };
@@ -38,7 +38,7 @@ export type RateHistoryResult = { ok: true; days: number; added: number; first: 
  *  Days the database refuses (outside its accepted window) are counted, never altered or replaced. */
 export const syncOfficialRateHistory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ orgId: z.string().uuid() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ orgId: z.guid() }).parse(d))
   .handler(async ({ data, context }): Promise<RateHistoryResult> => {
     const proof = process.env["AI_ACCOUNTING_SECRET"];
     if (!proof) return { ok: false, error: "Server verification is not configured." };

@@ -39,7 +39,7 @@ export const planSchema = z
           description: z.string().max(12000),
           due_date: dateInput,
           priority: z.enum(["low", "medium", "high", "urgent"]),
-          owner_id: z.string().uuid().or(z.literal("")),
+          owner_id: z.guid().or(z.literal("")),
         }),
       )
       .min(1)

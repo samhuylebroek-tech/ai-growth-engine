@@ -79,10 +79,10 @@ Write human-readable text in the user's language (English, Dutch or French as re
 
 export const narrativeRequestSchema = z.object({
   scope: z.enum(["business", "campaign"]).default("business"),
-  campaignId: z.string().uuid().optional(),
-  orgId: z.string().uuid(),
-  workspaceId: z.string().uuid(),
-  requestKey: z.string().uuid(),
+  campaignId: z.guid().optional(),
+  orgId: z.guid(),
+  workspaceId: z.guid(),
+  requestKey: z.guid(),
   locale: z.enum(["en", "nl", "fr"]).default("en"),
   findings: z.array(findingSchema).min(1).max(60),
   unknownSections: z.number().int().min(0).max(10),

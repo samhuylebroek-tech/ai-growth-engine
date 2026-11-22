@@ -105,7 +105,7 @@ function Opportunities({ orgId, wsId, canEdit, canAsk }: { orgId: string; wsId: 
     setActing(row.id);
     const r = await growthDb.rpc("convert_growth_opportunity", { _opportunity: row.id });
     setActing(null);
-    const receipt = z.object({ goal_id: z.string().uuid(), created: z.boolean() }).safeParse(r.data);
+    const receipt = z.object({ goal_id: z.guid(), created: z.boolean() }).safeParse(r.data);
     if (r.error || !receipt.success) return void toast.error(t("opp.toast.failed"));
     toast.success(receipt.data.created ? t("opp.toast.converted") : t("opp.toast.alreadyConverted"));
     await qc.invalidateQueries({ queryKey: opportunitiesQueryKey(orgId, wsId) });
