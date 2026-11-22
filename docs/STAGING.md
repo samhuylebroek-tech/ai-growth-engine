@@ -90,6 +90,7 @@ for every applied proposal.
 | `0057_read_only_integration_imports` | Browser sessions can no longer mark a source "connected"; imported results only through a server-attested function, only for a connected source in the same workspace; re-syncs become corrections | Applied; 17/17 |
 | `0058_platform_owner_initialization` | One-time Platform Owner initialization; audit log append-only for every role; owner role cannot be inserted, changed or removed outside the procedure | Applied; 20/20 |
 | `0059_connector_credentials_and_imports` | Credentials encrypted in Vault, readable only server-side; connection health (connected / access expired / missing permission / error); import runs with unique request keys and history; disconnect removes the credential but keeps history | Applied; 28/28 |
+| `0091_business_answers` | Guided onboarding answers become confirmed business facts, saved only by editors for known questions; repeated answers do not duplicate, changes/removals are audited with the previous value, stale edits are refused as a whole, other sources and unconfirmed look-alikes are never overwritten | Applied; 20/20 |
 
 ## Platform Owner initialization (staging) — 2026-11-19
 

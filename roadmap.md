@@ -1,14 +1,15 @@
 # AI Growth OS — Task Queue
 ## Round 2 — onboarding, trustworthy answers, journeys (2026-11-22, staging only)
-- [ ] Verify branch, HEAD, clean tree, staging project and ledger before work.
-- [ ] A Onboarding: customers, sales process, challenges, resources, ambitions, time horizon, constraints; short skippable steps, saved progress, editable, EN/NL/FR, mobile; reuse existing facts/knowledge (no second store).
-- [ ] A Business understanding summary after onboarding (confirmed vs assumption, missing), editable; connect to Growth Officer, knowledge, goals, next step.
-- [ ] B Growth Officer: claim-level labels fact/calculation/estimate/hypothesis/recommendation/missing (EN/NL/FR) + evidence view; same labels in situation/diagnosis/reports.
-- [ ] B Five controlled staging Growth Officer scenarios; credits checked against the ledger.
+- [x] Verify branch, HEAD, clean tree, staging project and ledger before work (HEAD 0f9fc65, ledger 57, proposals to 0090).
+- [x] A Onboarding: customers, sales process, challenges, resources, ambitions, time horizon, constraints; short skippable steps, saved progress, editable, EN/NL/FR, mobile; reuse existing facts/knowledge (no second store).
+- [x] A Business understanding summary after onboarding (confirmed vs assumption, missing), editable; connect to Growth Officer, knowledge, goals, next step.
+- [x] B Growth Officer + specialist/team answers: claim-level labels (EN/NL/FR), fact worded uncertain → hypothesis, legend.
+- [ ] B Evidence drill-down per labelled statement; same labels in reports and organization officer.
+- [x] B Five controlled staging Growth Officer scenarios; 27 credits = usage events = ledger.
 - [ ] C Persona journeys A–E (simulated), roles, languages, devices.
 - [ ] D First-growth journey after onboarding (summary → gaps → opportunity → next action → goal on approval).
 - [ ] E Next step aware of onboarding progress, approvals, budget/KPI warnings, reports; explain who can act.
-- [ ] F Website-check limit refusal in the browser (safe staging target only).
+- [x] F Website-check limit refusal in the browser NL/EN/FR (reserved domain, no fetch, nothing saved); unregistered target counted as failure.
 - [ ] G UX consistency pass across modules.
 - [ ] H Security/data-integrity revalidation (onboarding conflicts, repeated submissions, unauthorized edits); dev-tool advisories.
 - [ ] GitHub sync status checked honestly.
@@ -21,9 +22,9 @@
 - [x] Business details: "What we know about your business" per topic (confirmed / found / AI guess / contradicting / older than a year / missing / not checked), with what to do and who can do it.
 - [x] Zod 4.6.6 upgrade (GHSA-mrhx-c7xc-m3w5 fixed); IDs validated with the same lenient check as before; CI audit no longer ignores the advisory.
 - [x] Data source connections: refused keys explained in the user's language ("not accepted", "no read permission", wrong format, outage); connect limit browser-tested (6th attempt refused, NL).
-- [ ] Website-check limit refusal in the browser: needs a registered staging website.
-- [ ] Onboarding: ask about customers, sales process, challenges, resources, time horizon and constraints (only goals and budget asked today).
-- [ ] Growth Officer: answers labelled fact / calculation / estimate / hypothesis / recommendation / missing in every reply.
+- [x] Website-check limit refusal in the browser (done in round 2).
+- [x] Onboarding: customers, sales, challenges, resources, time horizon, constraints (round 2).
+- [x] Growth Officer: answers labelled per statement (round 2).
 - [ ] Persona journeys A–E end to end (simulated, not human usability studies).
 - [B] Rate-limit values and proposals 0063–0090 into the live database: owner approval.
 ## Phase 8.8 final completion & financial integrity — 2026-11-21

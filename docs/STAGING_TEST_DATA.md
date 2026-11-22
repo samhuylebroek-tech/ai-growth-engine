@@ -140,3 +140,10 @@ initiative (committed), 29 exchange-rate rows (official ECB + earlier manual tes
 - Data source connection limit: seven Stripe connect attempts by QA Admin and one by QA Owner with an invented, invalid restricted key (Stripe answered 401; nothing was stored). Counters are hidden and expire on their own. *Keep.*
 - Staging test account passwords rotated by `seed-users.ts` (sandbox file only).
 - No schema changes; staging ledger 57, proposals to 0090.
+
+## Round 2 (22 Nov 2026)
+- Proposal 0091 applied to staging only (guided onboarding answers saved by editors as confirmed facts, audited, stale edits refused). Ledger still 57.
+- Main workspace (Staging Bakery): 13 onboarding answers by QA Admin through the guided questions (customers, sales, challenges, ambitions, boundaries; resources skipped), plus one change of "Customer needs and problems" by QA Owner while QA Admin had the same step open (the admin's stale save was refused). Audit: 13 `business_answer.added`, 1 `business_answer.changed`. *Keep.*
+- Five Growth Officer questions by QA Admin (facts, calculation, missing data, recommendation, hypothesis): 5 conversations, 27 credits (usage events 5+5+5+7+5 = ledger −27; balance 76 → 49). *Keep.*
+- Website-check limit test: competitor "QA rate-limit target" (website example.com, an RFC 2606 documentation domain) added for QA Member; five counted checks taken through `consume_rate_limit` (no fetch), then the 6th, 7th and 8th attempts in the browser (NL/EN/FR) were refused before any fetch; one attempt on unregistered example.org counted as one failed attempt. No SEO audit saved. Counters are hidden and expire on their own. *Keep.*
+- Staging test account passwords rotated by `seed-users.ts` (sandbox file only).
