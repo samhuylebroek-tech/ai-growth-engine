@@ -17,6 +17,7 @@ import { SECTIONS, questionById, sectionQuestions, type Question, type SectionId
 import {
   changedAnswers, decodeAnswer, draftsFromFacts, emptyDraft, encodeAnswer, hasContent, isVisible, optionsOf, overallProgress, savedAnswers, sectionProgress, understandingSummary,
   type AnswerFact, type Draft, type ProfileForSummary, type SummaryStatus,
+  firstGrowthSteps, type GrowthPathStep,
 } from "@/lib/onboarding/answers";
 import { labelIn, labelsOf } from "@/lib/onboarding/labels";
 import { growthDraftKey } from "@/lib/growth-draft";
@@ -310,20 +311,19 @@ function FirstGrowthPath({ missing }: { missing: (SectionId | "basics")[] }) {
   const o = useOrg();
   const navigate = useNavigate();
   const editor = can(o.workspaceRole, "profile.confirm");
-  const ai = can(o.workspaceRole, "ai.use");
-  const goals = can(o.workspaceRole, "profile.edit");
   function ask() {
     if (!o.org || !o.workspace) return;
     try { sessionStorage.setItem(growthDraftKey(o.org.id, o.workspace.id), t("ob.path.ask.question")); } catch { /* private mode: the page opens without a prepared question */ }
     navigate({ to: "/app/growth-officer" });
   }
-  const steps: { key: string; title: string; why: string; action: React.ReactNode }[] = [];
-  const first = missing[0];
-  if (editor && first)
-    steps.push({ key: "fill", title: t("ob.path.fill.title"), why: t("ob.path.fill.why", { n: missing.length }), action: <Button size="sm" variant="outline" asChild><Link to="/app/onboarding" search={{ section: first }}>{t("ob.path.fill.cta")}</Link></Button> });
-  steps.push({ key: "situation", title: t("ob.path.situation.title"), why: t("ob.path.situation.why"), action: <Button size="sm" variant="outline" asChild><Link to="/app/intelligence">{t("ob.path.situation.cta")}</Link></Button> });
-  if (ai) steps.push({ key: "ask", title: t("ob.path.ask.title"), why: t("ob.path.ask.why"), action: <Button size="sm" onClick={ask}>{t("ob.path.ask.cta")} <ArrowRight /></Button> });
-  if (goals) steps.push({ key: "goal", title: t("ob.path.goal.title"), why: t("ob.path.goal.why"), action: <Button size="sm" variant="outline" asChild><Link to="/app/goals">{t("ob.path.goal.cta")}</Link></Button> });
+  const first = missing[0] ?? "basics";
+  const all: Record<GrowthPathStep, { title: string; why: string; action: React.ReactNode }> = {
+    fill: { title: t("ob.path.fill.title"), why: t("ob.path.fill.why", { n: missing.length }), action: <Button size="sm" variant="outline" asChild><Link to="/app/onboarding" search={{ section: first }}>{t("ob.path.fill.cta")}</Link></Button> },
+    situation: { title: t("ob.path.situation.title"), why: t("ob.path.situation.why"), action: <Button size="sm" variant="outline" asChild><Link to="/app/intelligence">{t("ob.path.situation.cta")}</Link></Button> },
+    ask: { title: t("ob.path.ask.title"), why: t("ob.path.ask.why"), action: <Button size="sm" onClick={ask}>{t("ob.path.ask.cta")} <ArrowRight /></Button> },
+    goal: { title: t("ob.path.goal.title"), why: t("ob.path.goal.why"), action: <Button size="sm" variant="outline" asChild><Link to="/app/goals">{t("ob.path.goal.cta")}</Link></Button> },
+  };
+  const steps = firstGrowthSteps((a) => can(o.workspaceRole, a), missing.length).map((key) => ({ key, ...all[key] }));
   return (
     <section aria-labelledby="ob-path-title" className="mt-8 rounded-xl border border-border bg-card p-5">
       <h2 id="ob-path-title" className="text-base font-semibold">{t("ob.path.title")}</h2>

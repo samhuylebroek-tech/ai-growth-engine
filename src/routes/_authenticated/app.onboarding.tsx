@@ -40,7 +40,9 @@ function Onboarding() {
   if (section === "basics") return <BasicsFlow key={scope} />;
   if (data.isPending) return <p role="status" className="mx-auto max-w-3xl py-10 text-sm text-muted-foreground"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />{t("ob.loading")}</p>;
   if (data.isError || !data.data) return <p role="alert" className="mx-auto max-w-3xl py-10 text-sm text-destructive">{t("ob.readFailed")}</p>;
-  if (!section) return data.data.profile?.onboarding_completed_at ? <GuidedOverview key={scope} data={data.data} /> : <BasicsFlow key={scope} />;
+  // Only editors can save the basics, so everyone else opens the read-only overview instead of a form they cannot use.
+  const startHere = !data.data.profile?.onboarding_completed_at && can(o.workspaceRole, "profile.confirm");
+  if (!section) return startHere ? <BasicsFlow key={scope} /> : <GuidedOverview key={scope} data={data.data} />;
   if (section === "summary") return <UnderstandingSummary key={scope} data={data.data} />;
   return <SectionForm key={`${scope}:${section}`} section={section} data={data.data} />;
 }

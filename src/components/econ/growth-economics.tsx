@@ -15,7 +15,7 @@ import { PERIODS, periodRange, type PeriodKey } from "@/lib/bi/kpis";
 import { rollup, type Money } from "@/lib/econ/rollup";
 import { economicsSummary, levelAiCost, PRICE_CURRENCY, type EconSummary } from "@/lib/econ/summary";
 import { econKey, econOptions, type EconData } from "@/components/econ/econ-data";
-import { SectionHeading } from "@/components/app/section-heading";
+import { PageHeader } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -47,8 +47,7 @@ function Economics({ orgId, wsId, canRecord, canModel }: { orgId: string; wsId: 
   const st = (s: string) => t(`ge.status.${s}` as MessageKey);
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6">
-      <SectionHeading title={t("ge.title")} />
-      <p className="-mt-4 text-sm text-muted-foreground">{t("ge.intro")}</p>
+      <PageHeader title={t("ge.title")} description={t("ge.intro")} />
       <div className="flex flex-wrap gap-3">
         <label className="grid gap-1 text-xs">{t("ge.period")}<select className={sel} value={period} onChange={(e) => setPeriod(e.target.value as PeriodKey)}>
           {PERIODS.map((p) => <option key={p} value={p}>{t(`bi.period.${p}` as MessageKey)}</option>)}</select></label>
