@@ -128,7 +128,7 @@ export const cost = defineArea("cost", {
     "cost.notInstalled": "Le suivi des coûts des exécutions IA n’est pas encore activé pour cet espace.",
     "cost.failed": "Les coûts n’ont pas pu se charger. Rien n’est affiché plutôt qu’un total incomplet.",
     "cost.eyebrow": "Vue financière",
-    "cost.title": "Coûts & ROI",
+    "cost.title": "Coûts et rendement",
     "cost.intro": "Les crédits IA sont suivis de chaque exécution jusqu’au projet, à la campagne, à l’initiative, au plan et à l’objectif. Les budgets marketing saisis et le chiffre d’affaires sont présentés à part et jamais ajoutés aux crédits.",
     "cost.creditsEyebrow": "Crédits IA",
     "cost.creditsTitle": "Les crédits en bref",

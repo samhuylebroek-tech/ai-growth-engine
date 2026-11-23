@@ -209,7 +209,7 @@ export const head = defineArea("head", {
     "head.settings.d": "Gérer les espaces de travail, les invitations et l'équipe.",
     "head.performance.t": "Performance",
     "head.performance.d": "Suivez les résultats prévus, estimés et réels par indicateur et par mois, avec un historique permanent des corrections.",
-    "head.business.t": "Performance de l'entreprise",
+    "head.business.t": "Performance de l’entreprise",
     "head.business.d": "Chiffre d'affaires, attribution, indicateurs, comparaisons et prochaines meilleures actions, chacun avec sa source, sa période et sa qualité.",
     "head.google.t": "Connexion d'une source Google",
     "head.google.d": "Finalisation d'une connexion en lecture seule à Google Analytics ou Search Console.",

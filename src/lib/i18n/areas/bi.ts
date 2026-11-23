@@ -1330,10 +1330,10 @@ export const bi = defineArea("bi", {
       "Aucun chiffre d'affaires n'est encore enregistré. Enregistrez des ventes ou connectez une source de paiement pour voir le chiffre d'affaires et l'attribution.",
     "bi.openRevenue": "Ouvrir chiffre d'affaires & attribution",
     "bi.openPerformance": "Suivre des indicateurs",
-    "bi.page.business.title": "Performance de l'entreprise",
+    "bi.page.business.title": "Performance de l’entreprise",
     "bi.page.business.desc":
       "Chiffre d'affaires, attribution, indicateurs de croissance, comparaisons et prochaines meilleures actions. Chaque chiffre indique sa source, sa période et sa fiabilité.",
-    "bi.page.revenue.title": "Chiffre d'affaires & attribution",
+    "bi.page.revenue.title": "Chiffre d’affaires et attribution",
     "bi.page.revenue.desc":
       "Enregistrez ventes, remboursements et corrections, reliez-les aux campagnes et canaux qui les ont précédés et comparez les modèles d'attribution sans rien compter deux fois.",
     "bi.page.improvements.title": "Améliorations",
