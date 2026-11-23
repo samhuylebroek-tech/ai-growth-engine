@@ -100,7 +100,8 @@ export function OrgProvider({ children }: { children: ReactNode }) {
       return result.data ?? [];
     },
   });
-  const workspaces = ws.data ?? [];
+  // Stable between renders, so the context value (and every consumer) only changes when the list does.
+  const workspaces = useMemo(() => ws.data ?? [], [ws.data]);
   const workspace = workspaces.find((w) => w.id === wsId) ?? workspaces[0] ?? null;
   const access = useQuery({
     queryKey: ["workspace-access", workspace?.id, me.data?.userId],

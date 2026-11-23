@@ -1,13 +1,24 @@
 # AI Growth OS — Task Queue
+## Round 5 — ultimate master build: CI stabilization + lifecycle validation (2026-11-23, staging only)
+- [x] GitHub audit: branch product/operating-system-experience-blueprint, local HEAD a280a0c = GitHub branch HEAD (Synchronized), PR #1 open → main; CI 4/5 green, ESLint red.
+- [x] ESLint root cause (reproduced on a clean install of the PR merge commit): 16,266 Prettier findings in 470 files + one `any`; formatted with the project's own settings, generated backend client excluded from formatting, local build cache excluded from lint. Lint: 0 errors, 59 warnings left visible (react-refresh structure, 2 intentional id-keyed effects).
+- [x] CI reproducibility: Bun pinned 1.4.4 (= local), checkout v5 (Node 24 warning). Routines: `scripts/ci/format-changed.sh`, read-only `scripts/ci/github-status.ts`.
+- [x] Performance: workspace list and learning list were re-created every render (organization context re-rendered all consumers); memoized.
+- [x] "My tasks" empty state: says nothing is assigned to you and offers all tasks (EN/NL/FR), browser-checked EN/FR.
+- [x] Personas B–E page sweeps on staging: B admin EN desktop (12 lifecycle pages), C member NL phone, D viewer FR tablet (no create/plan buttons, AI starters disabled with reason), E owner EN desktop (organization overview). One h1 per page, no overflow, no console errors.
+- [x] Growth Officer on the latest code: member NL phone, campaign-attention question; structured, labelled answer; 6 credits = usage event = ledger delta.
+- [ ] CI result for the new commit: visible only after the platform pushes; check with `bun scripts/ci/github-status.ts` next round.
+- [ ] Full lifecycle run that creates new records (goal → strategy → initiative → campaign → tasks → KPI → report) end to end on staging.
+- [ ] Old QA records with broken titles ("{", answer headings as campaign names) remain on staging; deletion not authorized.
 ## Round 4 — product excellence, intelligence, consistency, validation (2026-11-23, staging only)
 - [x] Verify branch, HEAD, GitHub, staging (HEAD c84969a = GitHub branch, compare identical; staging ledger 57, 58 files: 0057 is the live-only 0088a subset, already in staging via proposal 0088).
 - [x] P2 Growth Officer: question focus (relevant context first, background shortened before dropping), answer structure (happening / evidence / why / cause / uncertain / next / measure), trade-offs, no needless questions. Real staging runs: NL owner campaigns 7 credits, FR member mobile blocked work 6 credits (= usage events = ledger).
 - [x] P1 One page header pattern on every module (title, purpose, actions), localized titles; menu labels match titles; 32 pages aligned (NL admin desktop, FR viewer mobile).
-- [ ] P4 Persona journeys A–E on staging (roles, languages, devices).
+- [x] P4 Persona journeys A–E on staging (A round 4; B–E page sweeps round 5).
 - [x] P5 Security: 39/39 server functions authenticated, no API routes, basic scan clean, 55/55 staging SQL suites (0090 25/25), minimatch fixed, esbuild (drizzle-kit CLI only) analysed and accepted.
 - [x] Forms show their field names (goal, budget, competitor forms); plain words for 'starting point', 'target' and 'spending limit'; persona A goal journey checked EN tablet + NL mobile.
 - [ ] P6 Lifecycle handover review (business → … → optimization).
-- [ ] GitHub sync check routine (script + rule).
+- [x] GitHub sync check routine (script + rule) — round 5.
 ## Round 3 — continuous master development (2026-11-23, staging only)
 - [x] E Connected growth journey: 12 steps from onboarding to "what happens next", per role, unknown when a read fails, contradictions counted; compact on Home, full under the business summary (EN/NL/FR, tested, browser-checked).
 - [x] A Evidence per AI statement: each label opens the cited records (looked up under the viewer's access), what the answer itself says about source/formula/period, and a plain support verdict; no invented confidence. Real staging conversation: 5 credits = usage event = ledger.
@@ -54,7 +65,7 @@
 - [x] C Canonical formulas documented (docs/FINANCIAL_RULES.md); months reconcile with the period summary; refunds in the sale month.
 - [x] F Growth Officer and reports carry campaign AI cost from the same summary.
 - [x] Tests: Vitest, SQL suites 51/51, staging browser checks (owner/admin/member/viewer, EN/NL/FR, desktop/tablet/phone).
-- [ ] Weekly/initiative/strategy/AI-execution/learning report types: not built this round.
+- [x] Weekly/initiative/strategy/AI-execution/learning report types (exist in `reports.ts` / `growth-reports.ts`).
 - [x] Organization overview converts only the current month (today's closing rate); longer periods point to the month-by-month Economics view.
 - [ ] Converted figures on Home and in the Growth Officer context: still per currency (by design so far).
 - [B] Real profit, CAC, ROAS: need real cost of goods, customer references and sales (staging has QA data only).

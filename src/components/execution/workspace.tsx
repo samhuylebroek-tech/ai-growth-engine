@@ -271,6 +271,10 @@ export function ExecutionWorkspace({
           String(due(x)) < today &&
           !["done", "cancelled", "completed", "archived"].includes(x.status))),
   );
+  // "My tasks" is empty only because nothing is assigned to this person (no other filter narrows it): say so, and
+  // offer the team's work, instead of the generic "try another filter".
+  const onlyMineEmpty =
+    filter === "mine" && items.length > 0 && !search && status === "all" && priority === "all";
   useEffect(() => {
     setPage(1);
   }, [search, filter, status, priority, kind, goal, channel]);
@@ -789,7 +793,18 @@ export function ExecutionWorkspace({
                 ))}
             </div>
           )}
-          {!filtered.length && (
+          {!filtered.length && onlyMineEmpty && (
+            <div className="py-12 text-center">
+              <p className="text-sm font-medium">{tx("work.mine.none")}</p>
+              <p className="mx-auto mt-2 max-w-md text-xs text-muted-foreground">
+                {tx("work.mine.hint")}
+              </p>
+              <Button variant="link" onClick={() => setFilter("all")}>
+                {tx("work.mine.showAll")}
+              </Button>
+            </div>
+          )}
+          {!filtered.length && !onlyMineEmpty && (
             <div className="py-12 text-center">
               <p className="text-sm font-medium">
                 {items.length ? tx("work.noMatch") : tx(`work.none.${kind}`)}

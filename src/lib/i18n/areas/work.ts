@@ -154,6 +154,10 @@ export const work = defineArea("work", {
     "work.tryFilter": "Try another filter.",
     "work.createFirst": "Create your first item or review a Growth Officer recommendation.",
     "work.clearFilters": "Clear filters",
+    "work.mine.none": "Nothing is assigned to you",
+    "work.mine.hint":
+      "Tasks you own or help with appear here. The rest of the team's work is under All tasks.",
+    "work.mine.showAll": "Show all tasks",
     "work.savedOnly": "{ws} · Saved only in this workspace.",
     "work.endBeforeStart": "End date precedes start date",
     "work.updated": "Work updated",
@@ -395,6 +399,10 @@ export const work = defineArea("work", {
     "work.tryFilter": "Probeer een andere filter.",
     "work.createFirst": "Maak je eerste item of bekijk een aanbeveling van de Growth Officer.",
     "work.clearFilters": "Filters wissen",
+    "work.mine.none": "Er is niets aan jou toegewezen",
+    "work.mine.hint":
+      "Taken die van jou zijn of waaraan je meewerkt, staan hier. Het overige werk van het team vind je onder Alle taken.",
+    "work.mine.showAll": "Alle taken tonen",
     "work.savedOnly": "{ws} · Alleen bewaard in deze werkruimte.",
     "work.endBeforeStart": "Einddatum ligt vóór de startdatum",
     "work.updated": "Werk bijgewerkt",
@@ -637,6 +645,10 @@ export const work = defineArea("work", {
     "work.createFirst":
       "Créez votre premier élément ou examinez une recommandation du Growth Officer.",
     "work.clearFilters": "Effacer les filtres",
+    "work.mine.none": "Rien ne vous est attribué",
+    "work.mine.hint":
+      "Les tâches dont vous êtes responsable ou auxquelles vous participez apparaissent ici. Le reste du travail de l’équipe se trouve sous Toutes les tâches.",
+    "work.mine.showAll": "Afficher toutes les tâches",
     "work.savedOnly": "{ws} · Enregistré uniquement dans cet espace.",
     "work.endBeforeStart": "La date de fin précède la date de début",
     "work.updated": "Travail mis à jour",

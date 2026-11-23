@@ -56,7 +56,7 @@ export function RecommendationLearning({ d }: { d: BiData }) {
     },
   });
   const proposals = d.proposals as unknown as ProposalRow[];
-  const learnings = q.data ?? [];
+  const learnings = useMemo(() => q.data ?? [], [q.data]);
   const today = new Date().toISOString().slice(0, 10);
   const stages = useMemo(() => {
     const m = new Map<Stage, number>();
