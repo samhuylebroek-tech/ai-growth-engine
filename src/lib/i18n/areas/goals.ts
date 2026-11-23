@@ -208,6 +208,8 @@ export const goals = defineArea("goals", {
     "goals.op.saveFailed": "Initiative update could not be saved.",
     "goals.op.updated": "Initiative updated",
     "goals.op.title": "Ownership & outcome",
+    "goals.fold.show": "Show plan, budget and linked work",
+    "goals.fold.hide": "Hide plan, budget and linked work",
     "goals.op.blocked": "Blocked",
     "goals.op.loading": "Loading initiative operations…",
     "goals.op.loadFailed":
@@ -559,6 +561,8 @@ export const goals = defineArea("goals", {
     "goals.op.saveFailed": "Wijziging van het initiatief kon niet bewaard worden.",
     "goals.op.updated": "Initiatief bijgewerkt",
     "goals.op.title": "Verantwoordelijke & resultaat",
+    "goals.fold.show": "Plan, budget en gekoppeld werk tonen",
+    "goals.fold.hide": "Plan, budget en gekoppeld werk verbergen",
     "goals.op.blocked": "Geblokkeerd",
     "goals.op.loading": "Opvolging van initiatief laden…",
     "goals.op.loadFailed":
@@ -912,6 +916,8 @@ export const goals = defineArea("goals", {
     "goals.op.saveFailed": "La mise à jour de l’initiative n’a pas pu être enregistrée.",
     "goals.op.updated": "Initiative mise à jour",
     "goals.op.title": "Responsable et résultat",
+    "goals.fold.show": "Afficher le plan, le budget et le travail lié",
+    "goals.fold.hide": "Masquer le plan, le budget et le travail lié",
     "goals.op.blocked": "Bloquée",
     "goals.op.loading": "Chargement du suivi de l’initiative…",
     "goals.op.loadFailed":

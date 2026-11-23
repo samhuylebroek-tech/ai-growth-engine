@@ -7,7 +7,7 @@
 - [x] "Performance" renamed "KPIs & targets" (NL/FR) so it no longer reads like Business performance.
 - [x] P1 Home: attention, goal, priorities and active work first; four secondary sections fold (remembered); readable activity previews (no raw AI Markdown); phone 12.7k → 9.6k px.
 - [ ] Home: merge the two "next best actions" lists (business summary + signals).
-- [ ] P1 Goals & budget split reading vs planning (7.4k / 13.2k px).
+- [x] P1 Goals & budget: plan, budget and linked work fold per goal (primary open); 7.4k → 3.4k px desktop.
 - [ ] P2 Growth Officer layout (conclusion/actions first, evidence expandable), Tasks filters, tablet Results tabs.
 - [ ] P3 Small text sizes to token scale; persona re-sweeps after each P1 change.
 ## Round 5 — ultimate master build: CI stabilization + lifecycle validation (2026-11-23, staging only)

@@ -4,7 +4,7 @@ import { Field } from "@/components/app/field";
 import { useI18n } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Target, Wallet } from "lucide-react";
+import { ChevronDown, Plus, Target, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { useOrg } from "@/lib/org-context";
 import { hasRole } from "@/lib/permissions";
@@ -91,6 +91,8 @@ function Planner({
   const qc = useQueryClient();
   const { t: tr, tag } = useI18n();
   const [month, setMonth] = useState(monthStart());
+  // Each goal shows its summary; plan, budget and linked work open on request (the primary goal starts open).
+  const [openGoals, setOpenGoals] = useState<Record<string, boolean>>({});
   const goals = useQuery({
     queryKey: ["growth-goals", wsId],
     queryFn: async () => {
@@ -417,37 +419,71 @@ function Planner({
                   <p className="text-xs text-muted-foreground">{tr("goals.noProgress")}</p>
                 )}
                 <GoalMeasurementLine goal={x} />
-                <GrowthChain orgId={orgId} wsId={wsId} goalId={x.id} />
-                <GrowthPlanPanel
-                  goalId={x.id}
-                  orgId={orgId}
-                  wsId={wsId}
-                  userId={userId}
-                  canEdit={canEdit}
-                  canApprove={canApprove}
-                />
-                <GoalPlanSnapshot
-                  budgetLines={(lines.data ?? []).filter((line) => line.goal_id === x.id)}
-                  linkedWorkCount={
-                    [...(links.data?.projects ?? []), ...(links.data?.campaigns ?? [])].filter(
-                      (work) => work.goal_id === x.id,
-                    ).length
-                  }
-                  month={month}
-                  formatAmount={(amount, currency) =>
-                    new Intl.NumberFormat(tag, { style: "currency", currency }).format(amount)
-                  }
-                />
-                <LinkedWork goalId={x.id} data={links.data} canEdit={canEdit} onLink={link} />
-                {canEdit && x.status === "active" && (
-                  <StrategyPanel
-                    orgId={orgId}
-                    wsId={wsId}
-                    goalId={x.id}
-                    goalTitle={x.title}
-                    userId={userId}
-                  />
-                )}
+                {(() => {
+                  const open =
+                    openGoals[x.id] ??
+                    (x.priority === "primary" || (goals.data ?? []).length === 1);
+                  return (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        aria-expanded={open}
+                        aria-controls={`goal-${x.id}-plan`}
+                        onClick={() => setOpenGoals((m) => ({ ...m, [x.id]: !open }))}
+                      >
+                        <ChevronDown
+                          aria-hidden
+                          className={open ? "" : "-rotate-90 motion-reduce:transition-none"}
+                        />
+                        {open ? tr("goals.fold.hide") : tr("goals.fold.show")}
+                      </Button>
+                      {open && (
+                        <div id={`goal-${x.id}-plan`} className="space-y-2">
+                          <GrowthChain orgId={orgId} wsId={wsId} goalId={x.id} />
+                          <GrowthPlanPanel
+                            goalId={x.id}
+                            orgId={orgId}
+                            wsId={wsId}
+                            userId={userId}
+                            canEdit={canEdit}
+                            canApprove={canApprove}
+                          />
+                          <GoalPlanSnapshot
+                            budgetLines={(lines.data ?? []).filter((line) => line.goal_id === x.id)}
+                            linkedWorkCount={
+                              [
+                                ...(links.data?.projects ?? []),
+                                ...(links.data?.campaigns ?? []),
+                              ].filter((work) => work.goal_id === x.id).length
+                            }
+                            month={month}
+                            formatAmount={(amount, currency) =>
+                              new Intl.NumberFormat(tag, { style: "currency", currency }).format(
+                                amount,
+                              )
+                            }
+                          />
+                          <LinkedWork
+                            goalId={x.id}
+                            data={links.data}
+                            canEdit={canEdit}
+                            onLink={link}
+                          />
+                          {canEdit && x.status === "active" && (
+                            <StrategyPanel
+                              orgId={orgId}
+                              wsId={wsId}
+                              goalId={x.id}
+                              goalTitle={x.title}
+                              userId={userId}
+                            />
+                          )}
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
                 {canEdit && (
                   <div className="flex flex-wrap items-center gap-2">
                     {!x.metric.trim() && (
