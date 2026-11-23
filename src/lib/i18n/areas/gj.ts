@@ -5,7 +5,7 @@ export const gj = defineArea("gj", {
   en: {
     "gj.title": "Your growth journey",
     "gj.intro": "From what we know about your business to your first campaign. Each step opens the page where you do it; nothing is created for you.",
-    "gj.progress": "{done} of {total} steps done",
+    "gj.progress": "{done} of {total} action steps done (reading steps are not counted)",
     "gj.now": "Step {n} of {total}",
     "gj.allDone": "Every step has been taken. Home keeps showing the next most useful action.",
     "gj.show": "Show all steps",
@@ -82,7 +82,7 @@ export const gj = defineArea("gj", {
   nl: {
     "gj.title": "Je groeitraject",
     "gj.intro": "Van wat we over je bedrijf weten tot je eerste campagne. Elke stap opent de pagina waar je het doet; er wordt niets voor je aangemaakt.",
-    "gj.progress": "{done} van {total} stappen klaar",
+    "gj.progress": "{done} van {total} actiestappen klaar (leesstappen tellen niet mee)",
     "gj.now": "Stap {n} van {total}",
     "gj.allDone": "Alle stappen zijn gezet. Home blijft de volgende nuttigste actie tonen.",
     "gj.show": "Alle stappen tonen",
@@ -159,7 +159,7 @@ export const gj = defineArea("gj", {
   fr: {
     "gj.title": "Votre parcours de croissance",
     "gj.intro": "De ce que nous savons de votre entreprise à votre première campagne. Chaque étape ouvre la page où vous la réalisez ; rien n’est créé à votre place.",
-    "gj.progress": "{done} étapes sur {total} terminées",
+    "gj.progress": "{done} étapes d’action sur {total} terminées (les étapes de lecture ne comptent pas)",
     "gj.now": "Étape {n} sur {total}",
     "gj.allDone": "Toutes les étapes sont franchies. L’accueil continue d’afficher l’action la plus utile.",
     "gj.show": "Afficher toutes les étapes",

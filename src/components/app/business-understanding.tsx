@@ -24,24 +24,27 @@ const TONE: Record<UnderstandingStatus, string> = {
   unknown: "border-border bg-muted text-muted-foreground",
 };
 
+/** Conflict decisions of the business (shared by this list and the growth journey). */
+export const conflictEventsOptions = (org: string | undefined, ws: string | undefined) => ({
+  queryKey: ["understanding-conflict-events", org, ws] as const,
+  enabled: !!org && !!ws,
+  queryFn: async () => {
+    const r = await growthDb.from("fact_conflict_events").select("*").eq("org_id", org!).eq("workspace_id", ws!).order("created_at", { ascending: false }).limit(500);
+    if (r.error) throw r.error;
+    return (r.data ?? []) as ConflictEvent[];
+  },
+});
+/** Detected conflicts not yet decided; when decisions could not be read, every detected conflict stays open. */
+export function openConflicts(facts: readonly FactRow[], decided: readonly ConflictEvent[] | undefined) {
+  return detectFactConflicts([...facts]).filter((c) => conflictStatus(c, decided ?? []).status !== "resolved");
+}
+
 export function BusinessUnderstanding({ profile, facts, complete, canConfirm }: { profile: ProfileLike; facts: (FactRow & { created_at?: string | null })[]; complete: boolean; canConfirm: boolean }) {
   const { t } = useI18n();
   const o = useOrg();
   const [all, setAll] = useState(false);
-  const events = useQuery({
-    queryKey: ["understanding-conflict-events", o.org?.id, o.workspace?.id],
-    enabled: !!o.org && !!o.workspace,
-    queryFn: async () => {
-      const r = await growthDb.from("fact_conflict_events").select("*").eq("org_id", o.org!.id).eq("workspace_id", o.workspace!.id).order("created_at", { ascending: false }).limit(500);
-      if (r.error) throw r.error;
-      return (r.data ?? []) as ConflictEvent[];
-    },
-  });
-  const areas = useMemo(() => {
-    const decided = events.data ?? [];
-    const open = detectFactConflicts(facts).filter((c) => conflictStatus(c, decided).status !== "resolved");
-    return businessUnderstanding(profile, facts, open, complete);
-  }, [profile, facts, complete, events.data]);
+  const events = useQuery(conflictEventsOptions(o.org?.id, o.workspace?.id));
+  const areas = useMemo(() => businessUnderstanding(profile, facts, openConflicts(facts, events.data), complete), [profile, facts, complete, events.data]);
   const counts = understandingCounts(areas);
   const attention = areas.filter((a) => a.status !== "confirmed");
   const shown = all ? areas : attention;

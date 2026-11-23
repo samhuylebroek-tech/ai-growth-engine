@@ -14,6 +14,7 @@ import { overallProgress, understandingSummary } from "@/lib/onboarding/answers"
 import { goalMeasurement } from "@/lib/goal-measurement";
 import { growthJourney, STEP_ROLE, type JourneyInput, type JourneyItem, type JourneyState, type JourneyStep } from "@/lib/growth-journey";
 import { useGuidedData } from "@/components/onboarding/guided";
+import { conflictEventsOptions, openConflicts } from "@/components/app/business-understanding";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,7 @@ export function useJourneyInput(): { input: JourneyInput | null; loading: boolea
   const o = useOrg();
   const guided = useGuidedData();
   const org = o.org?.id ?? "", ws = o.workspace?.id ?? "", user = o.userId ?? "";
+  const events = useQuery(conflictEventsOptions(o.org?.id, o.workspace?.id));
   const q = useQuery({
     queryKey: ["growth-journey", org, ws, user],
     enabled: !!org && !!ws && !!user,
@@ -60,7 +62,7 @@ export function useJourneyInput(): { input: JourneyInput | null; loading: boolea
       };
     },
   });
-  if (guided.isLoading || q.isLoading) return { input: null, loading: true };
+  if (guided.isLoading || q.isLoading || events.isLoading) return { input: null, loading: true };
   const g = guided.data;
   const onboarding = g && g.complete ? overallProgress(g.facts) : null;
   const topics = g && g.complete ? understandingSummary(g.profile, g.facts) : null;
@@ -69,7 +71,7 @@ export function useJourneyInput(): { input: JourneyInput | null; loading: boolea
     loading: false,
     input: {
       onboarding: onboarding ? { answered: onboarding.answered, total: onboarding.total } : "unknown",
-      understanding: topics ? { known: topics.filter((x) => x.items.length).length, total: topics.length, unconfirmed: topics.reduce((n, x) => n + x.items.filter((i) => i.status !== "confirmed").length, 0), conflicts: 0 } : "unknown",
+      understanding: topics ? { known: topics.filter((x) => x.items.length).length, total: topics.length, unconfirmed: topics.reduce((n, x) => n + x.items.filter((i) => i.status !== "confirmed").length, 0), conflicts: g ? openConflicts(g.facts.flatMap((f) => (f.id ? [{ ...f, id: f.id }] : [])), events.data).length : 0 } : "unknown",
       conversations: d?.conversations ?? "unknown", opportunities: d?.opportunities ?? "unknown", goals: d?.goals ?? "unknown",
       strategies: d?.strategies ?? "unknown", plans: d?.plans ?? "unknown", campaigns: d?.campaigns ?? "unknown",
       budgetLines: d?.budgetLines ?? "unknown", pendingApprovals: d?.pendingApprovals ?? "unknown",
