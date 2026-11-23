@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PageHeader } from "@/components/app/status";
 import { useI18n } from "@/lib/i18n";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
@@ -72,11 +73,8 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
   const contactName = (id: string | null) => contacts.find(x => x.id === id)?.name;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
-      <header>
-        <h1 className="text-2xl font-semibold">{tx("marketing.crm.title")}</h1>
-        <p className="text-sm text-muted-foreground">{tx("marketing.crm.intro")}</p>
-      </header>
+    <div className="space-y-6">
+      <PageHeader title={tx("marketing.crm.title")} description={tx("marketing.crm.intro")} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {[[tx("marketing.crm.openValue"), money(s.open, tag), tx("marketing.crm.openDeals", { n: s.openCount })], [tx("marketing.crm.wonValue"), money(s.won, tag), tx("marketing.crm.wonN", { n: s.wonCount })], [tx("marketing.crm.lost"), String(s.lostCount), tx("marketing.crm.deals")], [tx("marketing.crm.winRate"), s.winRate === null ? "—" : `${s.winRate}%`, tx("marketing.crm.ofClosed")]].map(([l, v, h]) => (
           <div key={l} className="rounded-lg border bg-card p-3"><p className="text-xs text-muted-foreground">{l}</p><p className="text-xl font-semibold">{v}</p><p className="text-xs text-muted-foreground">{h}</p></div>

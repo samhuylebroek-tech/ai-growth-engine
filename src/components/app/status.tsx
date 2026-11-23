@@ -39,14 +39,21 @@ export function StatusChip({ status, children }: { status: string; children?: Re
   );
 }
 
-export function PageHeader({ title, description, actions }: { title: string; description?: string; actions?: ReactNode }) {
+/**
+ * The one page header: optional back link and context line, the title, one sentence on what the page is for, extra
+ * status (meta) and the page's main actions. Every module uses it so pages read and align the same way.
+ */
+export function PageHeader({ title, description, actions, eyebrow, icon, back, meta }: { title: ReactNode; description?: ReactNode; actions?: ReactNode; eyebrow?: ReactNode; icon?: ReactNode; back?: ReactNode; meta?: ReactNode }) {
   return (
     <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
       <div className="min-w-0">
-        <h1 className="text-2xl font-semibold leading-tight">{title}</h1>
+        {back && <div className="mb-2 text-xs text-muted-foreground">{back}</div>}
+        {eyebrow && <p className="section-label mb-2">{eyebrow}</p>}
+        <h1 className="flex min-w-0 items-center gap-2 text-2xl font-semibold leading-tight">{icon}<span className="min-w-0 break-words">{title}</span></h1>
         {description && <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{description}</p>}
+        {meta && <div className="mt-2 text-xs text-muted-foreground">{meta}</div>}
       </div>
-      {actions}
+      {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
     </div>
   );
 }

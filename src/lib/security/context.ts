@@ -31,8 +31,8 @@ export async function readDocument(sb: DB, scope: WorkspaceScope, id: string) {
  * Unified business context for every AI surface: explicit org/workspace scope on every read,
  * evidence-classified sections, fail-closed on read errors, hard-capped at BUSINESS_CONTEXT_LIMIT.
  */
-export async function workspaceContext(sb: DB, scope: WorkspaceScope, options: { now?: Date } = {}) {
+export async function workspaceContext(sb: DB, scope: WorkspaceScope, options: { now?: Date; focus?: readonly string[] } = {}) {
   const workspace = await requireWorkspace(sb, scope);
   const domains = await readBusinessDomains(sb, scope, workspace);
-  return renderBusinessContext(domains, options.now ?? new Date());
+  return renderBusinessContext(domains, options.now ?? new Date(), options.focus ?? []);
 }

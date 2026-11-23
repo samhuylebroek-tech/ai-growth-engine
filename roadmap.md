@@ -1,4 +1,12 @@
 # AI Growth OS — Task Queue
+## Round 4 — product excellence, intelligence, consistency, validation (2026-11-23, staging only)
+- [x] Verify branch, HEAD, GitHub, staging (HEAD c84969a = GitHub branch, compare identical; staging ledger 57, 58 files: 0057 is the live-only 0088a subset, already in staging via proposal 0088).
+- [ ] P2 Growth Officer: question focus (relevant context first, background trimmed), answer structure (happening / evidence / why / cause / uncertain / next / measure), trade-offs, no needless questions.
+- [ ] P1 One page header pattern on every module (title, purpose, actions), localized titles.
+- [ ] P4 Persona journeys A–E on staging (roles, languages, devices).
+- [ ] P5 Security reassessment incl. 0090 revalidation and the two dev-tool advisories.
+- [ ] P6 Lifecycle handover review (business → … → optimization).
+- [ ] GitHub sync check routine (script + rule).
 ## Round 3 — continuous master development (2026-11-23, staging only)
 - [x] E Connected growth journey: 12 steps from onboarding to "what happens next", per role, unknown when a read fails, contradictions counted; compact on Home, full under the business summary (EN/NL/FR, tested, browser-checked).
 - [x] A Evidence per AI statement: each label opens the cited records (looked up under the viewer's access), what the answer itself says about source/formula/period, and a plain support verdict; no invented confidence. Real staging conversation: 5 credits = usage event = ledger.

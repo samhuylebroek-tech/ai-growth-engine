@@ -46,7 +46,7 @@ function Economics({ orgId, wsId, canRecord, canModel }: { orgId: string; wsId: 
   if (!d || !view) return null;
   const st = (s: string) => t(`ge.status.${s}` as MessageKey);
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6">
+    <div className="max-w-6xl space-y-6">
       <PageHeader title={t("ge.title")} description={t("ge.intro")} />
       <div className="flex flex-wrap gap-3">
         <label className="grid gap-1 text-xs">{t("ge.period")}<select className={sel} value={period} onChange={(e) => setPeriod(e.target.value as PeriodKey)}>

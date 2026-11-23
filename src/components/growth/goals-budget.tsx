@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PageHeader } from "@/components/app/status";
 import { useI18n } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -131,9 +132,8 @@ function Planner({ orgId, wsId, canEdit, canBudget, canApprove, userId }: { orgI
   };
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 p-4 md:p-6">
-      <header><h1 className="text-2xl font-semibold">{tr("goals.title")}</h1>
-        <p className="text-sm text-muted-foreground">{tr("goals.intro")}</p></header>
+    <div className="max-w-6xl space-y-8">
+      <PageHeader title={tr("goals.title")} description={tr("goals.intro")} />
 
       <section className="space-y-3">
         <h2 className="flex items-center gap-2 text-lg font-medium"><Target className="h-5 w-5" /> {tr("goals.businessGoals")}</h2>

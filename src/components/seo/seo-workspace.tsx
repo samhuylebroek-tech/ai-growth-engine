@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PageHeader } from "@/components/app/status";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Search, ListPlus, Plug } from "lucide-react";
@@ -70,8 +71,8 @@ function Seo({ orgId, wsId, userId, canEdit }: { orgId: string; wsId: string; us
     setMade(s => new Set(s).add(key)); toast.success(tx("marketing.seo.taskAdded")); qc.invalidateQueries({ queryKey: ["execution"] });
   };
 
-  return <div className="mx-auto max-w-6xl space-y-8">
-    <header><h1 className="text-2xl font-semibold">SEO</h1><p className="mt-1 text-sm text-muted-foreground">{tx("marketing.seo.intro")}</p></header>
+  return <div className="max-w-6xl space-y-8">
+    <PageHeader title={tx("ph.seo.title")} description={tx("marketing.seo.intro")} />
     <form onSubmit={start} className="flex flex-col gap-3 sm:flex-row">
       <Input aria-label={tx("marketing.seo.site")} inputMode="url" placeholder="https://yourbusiness.com" value={target} onChange={e => setUrl(e.target.value)} maxLength={500} className="min-h-11 flex-1" />
       <Button disabled={!canEdit || busy || !target.trim()} className="min-h-11">{busy ? <Loader2 className="animate-spin" /> : <Search />}{busy ? tx("marketing.seo.checking") : tx("marketing.seo.check")}</Button>

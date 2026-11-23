@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { PageHeader } from "@/components/app/status";
 import { useI18n } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -27,12 +28,8 @@ export function PerformanceBoard() {
 export function PerformanceShell({ children, title, back }: { children: React.ReactNode; title?: string; back?: boolean }) {
   const { t } = useI18n();
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-4 md:p-6">
-      <header className="space-y-1">
-        {back && <Link to="/app/performance" className="text-xs text-muted-foreground hover:text-foreground">{t("performance.allMetrics")}</Link>}
-        <h1 className="flex items-center gap-2 text-2xl font-semibold"><LineChart className="h-6 w-6 shrink-0" /> <span className="min-w-0 break-words">{title ?? t("performance.title")}</span></h1>
-        {!back && <p className="text-sm text-muted-foreground">{t("performance.intro")}</p>}
-      </header>
+    <div className="max-w-6xl space-y-6">
+      <PageHeader back={back && <Link to="/app/performance" className="hover:text-foreground">{t("performance.allMetrics")}</Link>} icon={<LineChart className="h-6 w-6 shrink-0" />} title={title ?? t("performance.title")} {...(!back ? { description: t("performance.intro") } : {})} />
       {children}
     </div>
   );

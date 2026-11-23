@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
+import { PageHeader } from "@/components/app/status";
 import { evidenceQuality, fromClassified } from "@/lib/evidence";
 import { QualityBadge } from "@/components/bi/evidence";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -117,11 +118,8 @@ function Opportunities({ orgId, wsId, canEdit, canAsk }: { orgId: string; wsId: 
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <header>
-        <h1 className="flex items-center gap-2 text-2xl font-semibold"><Lightbulb className="h-6 w-6 text-primary" aria-hidden />{t("opp.title")}</h1>
-        <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{t("opp.intro")}</p>
-      </header>
+    <div className="max-w-5xl space-y-6">
+      <PageHeader icon={<Lightbulb className="h-6 w-6 shrink-0 text-primary" aria-hidden />} title={t("opp.title")} description={t("opp.intro")} />
 
       {notInstalled ? (
         <p role="status" className="rounded-md border border-border bg-muted/40 p-4 text-sm text-muted-foreground">{t("opp.notInstalled")}</p>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PageHeader } from "@/components/app/status";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Archive, ListPlus, Loader2, PenSquare, Plus, RefreshCw, Save } from "lucide-react";
@@ -53,8 +54,8 @@ function Competitors({ orgId, wsId, userId, canEdit }: { orgId: string; wsId: st
     if (r.error) return void toast.error(tx("marketing.comp.updateFailed")); qc.invalidateQueries({ queryKey: ["competitors", wsId] });
   };
 
-  return <div className="mx-auto max-w-6xl space-y-6">
-    <header><h1 className="text-2xl font-semibold">{tx("marketing.comp.title")}</h1><p className="mt-1 text-sm text-muted-foreground">{tx("marketing.comp.intro")}</p></header>
+  return <div className="max-w-6xl space-y-6">
+    <PageHeader title={tx("marketing.comp.title")} description={tx("marketing.comp.intro")} />
     <div className="flex flex-wrap items-center gap-2">
       {canEdit && <Button onClick={() => { setForm(empty); setEditId(null); }}><Plus />{tx("marketing.comp.add")}</Button>}
       <Button variant="ghost" size="sm" onClick={() => setShowArchived(s => !s)}>{showArchived ? tx("marketing.comp.hideArchived") : tx("marketing.comp.showArchived")}</Button>

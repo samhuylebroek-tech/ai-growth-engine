@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { PageHeader } from "@/components/app/status";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Save, History, GitCompare, RotateCcw, Check, X, PenLine } from "lucide-react";
 import { toast } from "sonner";
@@ -46,12 +47,8 @@ function Studio({ orgId, wsId, role, userId }: { orgId: string; wsId: string; ro
     await qc.invalidateQueries({ queryKey: ["content-assets", wsId] }); setSelected(r.data.id);
   };
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4 md:p-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div><h1 className="text-2xl font-semibold">Content Studio</h1>
-          <p className="text-sm text-muted-foreground">{tx("marketing.cs.intro")}</p></div>
-        {canEdit && <Button onClick={create}><Plus className="mr-1 h-4 w-4" />{tx("marketing.cs.new")}</Button>}
-      </div>
+    <div className="space-y-6">
+      <PageHeader title={tx("ph.content.title")} description={tx("marketing.cs.intro")} actions={canEdit && <Button onClick={create}><Plus className="mr-1 h-4 w-4" />{tx("marketing.cs.new")}</Button>} />
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList><TabsTrigger value="library">{tx("marketing.cs.tab.library")}</TabsTrigger><TabsTrigger value="calendar">{tx("marketing.cs.tab.calendar")}</TabsTrigger><TabsTrigger value="profiles">{tx("marketing.cs.tab.profiles")}</TabsTrigger></TabsList>
         <TabsContent value="library" className="grid gap-4 lg:grid-cols-[280px_1fr]">

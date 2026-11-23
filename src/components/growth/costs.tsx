@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PageHeader } from "@/components/app/status";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/lib/org-context";
@@ -58,10 +59,8 @@ function Report({ orgId, wsId, userId }: { orgId: string; wsId: string; userId: 
   const nodes = r[level].filter((x) => x.credits.runs > 0 || (x.budget && Object.keys(x.budget).length > 0) || (x.campaignBudgetEur ?? 0) > 0);
   const Cell = ({ c }: { c: Credits }) => <><td className="px-2 py-1.5 text-right tabular-nums">{n(c.runs)}</td><td className="px-2 py-1.5 text-right tabular-nums">{n(c.consumed)}</td><td className="px-2 py-1.5 text-right tabular-nums">{n(c.reserved)}</td><td className="px-2 py-1.5 text-right tabular-nums">{n(c.released)}</td></>;
   const Stat = ({ k, v, note }: { k: string; v: string; note: string }) => <div className="min-w-0 rounded-lg border bg-card p-3"><p className="text-[11px] font-medium text-muted-foreground">{k}</p><p className="mt-1 break-words text-xl font-semibold tabular-nums">{v}</p><p className="mt-1 text-[11px] text-muted-foreground">{note}</p></div>;
-  return <div className="mx-auto max-w-6xl p-4 sm:p-6">
-    <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{t("cost.eyebrow")}</p>
-    <h1 className="text-2xl font-semibold">{t("cost.title")}</h1>
-    <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{t("cost.intro")}</p>
+  return <div className="max-w-6xl">
+    <PageHeader eyebrow={t("cost.eyebrow")} title={t("cost.title")} description={t("cost.intro")} />
 
     <section aria-label={t("cost.creditsTitle")} className="mt-6">
       <SectionHeading eyebrow={t("cost.creditsEyebrow")} title={t("cost.creditsTitle")} />

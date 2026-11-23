@@ -46,6 +46,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/app/status";
 import { growthDraftKey } from "@/lib/growth-draft";
 import { useNavigate as useWorkNavigate } from "@tanstack/react-router";
 import {
@@ -109,6 +110,9 @@ function blockedTasks(notes: readonly { kind: string; entity_type: string; entit
   const open = new Set(tasks.filter((t) => !["done", "cancelled"].includes(t.status)).map((t) => t.id));
   return new Set(notes.filter((n) => n.kind === "dependency" && n.entity_type === "tasks" && n.related_id && open.has(n.related_id)).map((n) => n.entity_id));
 }
+
+/** One sentence on what each work page is for, shown under its title. */
+const PURPOSE = { tasks: "ph.task", projects: "ph.project", campaigns: "ph.campaign" } as const satisfies Record<WorkKind, string>;
 
 export function ExecutionWorkspace({
   kind,
@@ -244,24 +248,25 @@ export function ExecutionWorkspace({
     dates.push(d);
   return (
     <>
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="section-label mb-2">{tx("work.eyebrow", { ws: o.workspace?.name ?? "" })}</p>
-          <h1 className="text-2xl font-semibold">{tx(`work.kind.${kind}`)}</h1>
-        </div>
-        {editable && (
-          <Button
-            onClick={() => {
-              setNewParent({});
-              setCreate(true);
-            }}
-            size="sm"
-          >
-            <Plus />
-            {tx(`work.new.${kind}`)}
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        eyebrow={tx("work.eyebrow", { ws: o.workspace?.name ?? "" })}
+        title={tx(`work.kind.${kind}`)}
+        description={tx(PURPOSE[kind])}
+        actions={
+          editable && (
+            <Button
+              onClick={() => {
+                setNewParent({});
+                setCreate(true);
+              }}
+              size="sm"
+            >
+              <Plus />
+              {tx(`work.new.${kind}`)}
+            </Button>
+          )
+        }
+      />
       <div className="mb-5 flex flex-wrap gap-1">
         {(kind === "tasks"
           ? ["mine", "team", "all", "today", "upcoming", "overdue", ...(exec.data ? ["ai", "approval", "running", "failed", "blocked", "completed"] : [])]
