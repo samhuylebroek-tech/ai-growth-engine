@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PageHeader } from "@/components/app/status";
+import { Field } from "@/components/app/field";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Archive, ListPlus, Loader2, PenSquare, Plus, RefreshCw, Save } from "lucide-react";
@@ -61,8 +62,8 @@ function Competitors({ orgId, wsId, userId, canEdit }: { orgId: string; wsId: st
       <Button variant="ghost" size="sm" onClick={() => setShowArchived(s => !s)}>{showArchived ? tx("marketing.comp.hideArchived") : tx("marketing.comp.showArchived")}</Button>
     </div>
     {form && <section className="grid gap-3 rounded-md border border-border p-4 sm:grid-cols-2">
-      {(["name", "website", "market", "location", "category"] as const).map(k => <Input key={k} aria-label={tx(`marketing.comp.f.${k}`)} placeholder={tx(`marketing.comp.f.${k}`)} value={form[k]} maxLength={k === "website" ? 500 : 200} onChange={e => setForm({ ...form, [k]: e.target.value })} />)}
-      <Textarea aria-label={tx("marketing.comp.f.notes")} placeholder={tx("marketing.comp.f.notes")} className="sm:col-span-2" maxLength={4000} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
+      {(["name", "website", "market", "location", "category"] as const).map(k => <Field key={k} label={tx(`marketing.comp.f.${k}`)}><Input aria-label={tx(`marketing.comp.f.${k}`)} value={form[k]} maxLength={k === "website" ? 500 : 200} onChange={e => setForm({ ...form, [k]: e.target.value })} /></Field>)}
+      <Field label={tx("marketing.comp.f.notes")} className="sm:col-span-2"><Textarea aria-label={tx("marketing.comp.f.notes")} maxLength={4000} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} /></Field>
       <div className="flex gap-2 sm:col-span-2"><Button disabled={busy || !form.name.trim()} onClick={save}><Save />{tx("marketing.comp.save")}</Button><Button variant="ghost" onClick={() => setForm(null)}>{tx("marketing.comp.cancel")}</Button></div>
     </section>}
     {list.isLoading ? <p className="text-muted-foreground">{tx("marketing.comp.loading")}</p> : list.error ? <p className="text-destructive">{tx("marketing.comp.loadFailed")}</p> : visible.length === 0 ? <p className="rounded-md border border-dashed border-border p-6 text-sm text-muted-foreground">{tx("marketing.comp.none")}</p> :

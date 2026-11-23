@@ -5,6 +5,7 @@
 - [x] P1 One page header pattern on every module (title, purpose, actions), localized titles; menu labels match titles; 32 pages aligned (NL admin desktop, FR viewer mobile).
 - [ ] P4 Persona journeys A–E on staging (roles, languages, devices).
 - [x] P5 Security: 39/39 server functions authenticated, no API routes, basic scan clean, 55/55 staging SQL suites (0090 25/25), minimatch fixed, esbuild (drizzle-kit CLI only) analysed and accepted.
+- [x] Forms show their field names (goal, budget, competitor forms); plain words for 'starting point', 'target' and 'spending limit'; persona A goal journey checked EN tablet + NL mobile.
 - [ ] P6 Lifecycle handover review (business → … → optimization).
 - [ ] GitHub sync check routine (script + rule).
 ## Round 3 — continuous master development (2026-11-23, staging only)
