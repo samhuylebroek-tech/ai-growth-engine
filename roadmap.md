@@ -5,7 +5,8 @@
 - [x] Active tab visible again; current tab scrolls into view on phones; 44 px tab targets.
 - [x] Accessibility: 70 unnamed fields on Goals and 2 on Business knowledge named; Organization overview title shown while loading/failing; AI statement labels and recommendation links meet 24 px target size.
 - [x] "Performance" renamed "KPIs & targets" (NL/FR) so it no longer reads like Business performance.
-- [ ] P1 Home density (6.5k px desktop / 12.7k px phone): first screen answers "what now?", secondary sections folded.
+- [x] P1 Home: attention, goal, priorities and active work first; four secondary sections fold (remembered); readable activity previews (no raw AI Markdown); phone 12.7k → 9.6k px.
+- [ ] Home: merge the two "next best actions" lists (business summary + signals).
 - [ ] P1 Goals & budget split reading vs planning (7.4k / 13.2k px).
 - [ ] P2 Growth Officer layout (conclusion/actions first, evidence expandable), Tasks filters, tablet Results tabs.
 - [ ] P3 Small text sizes to token scale; persona re-sweeps after each P1 change.

@@ -26,7 +26,9 @@ import { useOrg } from "@/lib/org-context";
 import { can } from "@/lib/permissions";
 import { PageHeader, StatusChip } from "@/components/app/status";
 import { GrowthQuestion } from "@/components/app/growth-question";
-import { SectionHeading } from "@/components/app/section-heading";
+import { CollapsibleSection, SectionHeading } from "@/components/app/section-heading";
+import { AiMarkdown } from "@/components/ai/ai-markdown";
+import { plainPreview } from "@/lib/text-preview";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -77,6 +79,8 @@ const SECTIONS = [
   "upcoming",
 ] as const;
 type Section = (typeof SECTIONS)[number];
+/** Sections that fold; they start folded so the first screen stays on attention, the goal and active work. */
+const FOLDABLE: readonly Section[] = ["activity", "results", "opportunities", "upcoming"];
 const name = (key: string) =>
   AGENTS.find((a) => a.key === key)?.name ??
   key.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
@@ -116,6 +120,7 @@ function Overview() {
   const [compact, setCompact] = useState(false);
   const [numbers, setNumbers] = useState(true);
   const [details, setDetails] = useState(false);
+  const [expanded, setExpanded] = useState<Section[]>([]);
   const [guide, setGuide] = useGuide(o.userId);
   const [filter, setFilter] = useState<ActivityKind | "all">("all");
   const [status, setStatus] = useState("all");
@@ -144,6 +149,11 @@ function Overview() {
         setCompact(p.compact === true);
         setNumbers(p.numbers !== false);
         setDetails(p.details === true);
+        setExpanded(
+          Array.isArray(p.expanded)
+            ? p.expanded.filter((s: unknown): s is Section => FOLDABLE.includes(s as Section))
+            : [],
+        );
       }
     } catch {
       /* Invalid display preferences are ignored. */
@@ -152,8 +162,11 @@ function Overview() {
   }, [prefKey]);
   useEffect(() => {
     if (ready && prefKey)
-      localStorage.setItem(prefKey, JSON.stringify({ order, hidden, compact, numbers, details }));
-  }, [ready, prefKey, order, hidden, compact, numbers, details]);
+      localStorage.setItem(
+        prefKey,
+        JSON.stringify({ order, hidden, compact, numbers, details, expanded }),
+      );
+  }, [ready, prefKey, order, hidden, compact, numbers, details, expanded]);
   const d = q.data;
   const w = work.data;
   const confirmed = d?.facts.filter((f) => f.verified) ?? [];
@@ -211,20 +224,42 @@ function Overview() {
     qc.invalidateQueries({ queryKey: ["command-center-initiative-ops"] });
     qc.invalidateQueries({ queryKey: ["business-tiles"] });
   }
+  const sectionHead: Partial<Record<Section, { eyebrow: string; action?: ReactNode }>> = {
+    activity: {
+      eyebrow: t("home.a.eyebrow"),
+      action: (
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/app/activity">
+            {t("home.history")} <ArrowUpRight />
+          </Link>
+        </Button>
+      ),
+    },
+    results: {
+      eyebrow: t("home.r.eyebrow"),
+      action: (
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/app/growth-officer">
+            {t("home.conversations")} <ArrowUpRight />
+          </Link>
+        </Button>
+      ),
+    },
+    opportunities: {
+      eyebrow: t("home.o.eyebrow"),
+      action: (
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/app/intelligence">
+            {t("home.intelligence")} <ArrowUpRight />
+          </Link>
+        </Button>
+      ),
+    },
+    upcoming: { eyebrow: t("home.u.eyebrow") },
+  };
   const sectionContent: Record<Section, ReactNode> = {
     activity: (
       <>
-        <SectionHeading
-          eyebrow={t("home.a.eyebrow")}
-          title={t("home.sec.activity")}
-          action={
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/app/activity">
-                {t("home.history")} <ArrowUpRight />
-              </Link>
-            </Button>
-          }
-        />
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <div className="flex flex-wrap gap-1">
             {(["all", "ai", "documents", "approvals"] as const).map((f) => (
@@ -285,17 +320,6 @@ function Overview() {
     ),
     results: (
       <>
-        <SectionHeading
-          eyebrow={t("home.r.eyebrow")}
-          title={t("home.sec.results")}
-          action={
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/app/growth-officer">
-                {t("home.conversations")} <ArrowUpRight />
-              </Link>
-            </Button>
-          }
-        />
         {w?.runs
           .filter((r) => r.status === "succeeded")
           .slice(0, 4)
@@ -334,17 +358,6 @@ function Overview() {
     ),
     opportunities: (
       <>
-        <SectionHeading
-          eyebrow={t("home.o.eyebrow")}
-          title={t("home.sec.opportunities")}
-          action={
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/app/intelligence">
-                {t("home.intelligence")} <ArrowUpRight />
-              </Link>
-            </Button>
-          }
-        />
         {approvals
           .filter((a) => a.capability_key === "strategy.recommend")
           .slice(0, 2)
@@ -390,12 +403,7 @@ function Overview() {
         </div>
       </>
     ),
-    upcoming: (
-      <>
-        <SectionHeading eyebrow={t("home.u.eyebrow")} title={t("home.sec.upcoming")} />
-        <HomeWork section="upcoming" />
-      </>
-    ),
+    upcoming: <HomeWork section="upcoming" />,
     performance: <HomePerformance />,
     budget: <HomeBudget />,
   };
@@ -496,6 +504,7 @@ function Overview() {
                     setCompact(false);
                     setNumbers(true);
                     setDetails(false);
+                    setExpanded([]);
                   }}
                 >
                   {t("home.reset")}
@@ -579,11 +588,6 @@ function Overview() {
           )}
           <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1.7fr)_minmax(260px,1fr)]">
             <div className="min-w-0 space-y-8">
-              <PrimaryGrowthFocus />
-              <section>
-                <SectionHeading title={t("home.priorities")} />
-                <HomeWork section="priorities" />
-              </section>
               <section className="border-l-2 border-primary pl-4">
                 <SectionHeading
                   eyebrow={
@@ -655,9 +659,11 @@ function Overview() {
                   </Button>
                 )}
               </section>
-              <GrowthSignals />
-              <BusinessCheck />
-              <HomeOpportunities />
+              <PrimaryGrowthFocus />
+              <section>
+                <SectionHeading title={t("home.priorities")} />
+                <HomeWork section="priorities" />
+              </section>
               <section>
                 <SectionHeading
                   eyebrow={t("home.underway")}
@@ -734,11 +740,14 @@ function Overview() {
                   </Button>
                 </div>
               )}
+              <GrowthSignals />
+              <BusinessCheck />
+              <HomeOpportunities />
               {order
                 .filter((s) => !hidden.includes(s))
-                .map((s) => (
-                  <section key={s} className="min-w-0 border-t border-border pt-7">
-                    {work.isLoading && ["activity", "results"].includes(s) ? (
+                .map((s) => {
+                  const body =
+                    work.isLoading && ["activity", "results"].includes(s) ? (
                       <p role="status" className="text-sm text-muted-foreground">
                         {t("home.loadingSec", { s: t(`home.sec.${s}`).toLowerCase() })}
                       </p>
@@ -748,9 +757,28 @@ function Overview() {
                       </p>
                     ) : (
                       sectionContent[s]
-                    )}
-                  </section>
-                ))}
+                    );
+                  const head = sectionHead[s];
+                  return head ? (
+                    <CollapsibleSection
+                      key={s}
+                      id={`home-section-${s}`}
+                      eyebrow={head.eyebrow}
+                      title={t(`home.sec.${s}`)}
+                      action={head.action}
+                      open={expanded.includes(s)}
+                      onOpenChange={(v) =>
+                        setExpanded((e) => (v ? [...e, s] : e.filter((x) => x !== s)))
+                      }
+                    >
+                      {body}
+                    </CollapsibleSection>
+                  ) : (
+                    <section key={s} className="min-w-0 border-t border-border pt-7">
+                      {body}
+                    </section>
+                  );
+                })}
             </div>
             <aside className="min-w-0 space-y-7 border-t border-border pt-7 xl:sticky xl:top-6 xl:border-l xl:border-t-0 xl:pl-7 xl:pt-0">
               <section>
@@ -816,10 +844,18 @@ function Overview() {
           </DialogHeader>
           {selected && (
             <>
-              <StatusChip status={selected.status} />
-              <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-                {fallback(selected.detail, t)}
-              </p>
+              <div>
+                <StatusChip status={selected.status} />
+              </div>
+              {selected.kind === "ai" ? (
+                <div className="prose-chat min-w-0 break-words text-sm leading-relaxed">
+                  <AiMarkdown content={fallback(selected.detail, t)} legend={false} />
+                </div>
+              ) : (
+                <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                  {fallback(selected.detail, t)}
+                </p>
+              )}
               <Button variant="outline" asChild>
                 <Link
                   to={selected.to}
@@ -871,7 +907,7 @@ function ActivityRow({
         </Button>
         {!compact && (
           <p className="mt-1 line-clamp-2 break-words text-xs leading-relaxed text-muted-foreground">
-            {fallback(item.detail, t)}
+            {plainPreview(fallback(item.detail, t))}
           </p>
         )}
         <div className="mt-2 flex flex-wrap items-center gap-2">

@@ -58,7 +58,7 @@ density problem.
 | 7 | Business knowledge "Add fact" used placeholders as the only field names | sweep `unlabeled=2` | Fixed: visible field names (`Field`) |
 | 8 | Organization overview opened without a title for several seconds while loading or on error | sweep `h1=0` | Fixed: title shown in loading and error states |
 | 9 | Statement labels in AI answers (17 px) and "Postpone / Dismiss" links were below the 24 px target size (WCAG 2.2 2.5.8) | sweep `small=27` on Reports, 16 on Business performance | Fixed: larger hit areas without changing the look |
-| 10 | Home is 6.5k px on desktop and 12.7k px on phone (1,100–2,000 words): every section is shown at once | sweep | Open — P1 (next round) |
+| 10 | Home is 6.5k px on desktop and 12.7k px on phone (1,100–2,000 words): every section is shown at once; activity rows showed raw AI Markdown ("## Wat er gebeurt [recommendation] …"); two sections were both called opportunities | sweep, screenshots | Fixed: attention → goal → priorities → active work first; activity, results, recommendations and upcoming fold (choice remembered per user/business); readable previews and labelled answers in the detail; "Strategy recommendations"; guide compact on phone. Phone (member NL) 12.7k → 9.6k px, folded sections 86 px each |
 | 11 | Goals & budget is 7.4k / 13.2k px with 2,600 words: goals, strategy, plans, budget and initiatives on one page | sweep | Open — P1 |
 | 12 | Growth Officer answer structure is good (labels, sections) but evidence and "convert to work" sit below a long answer | live answer screenshot | Open — P2 |
 | 13 | Tasks page shows 13 filter chips that wrap to four rows on phone | phone screenshot | Open — P2 |
@@ -96,8 +96,7 @@ There is one design system; no second one is introduced.
 
 ## Backlog (prioritized)
 
-- P1 Home: keep attention, next step and active work on top; fold secondary sections (how it works, insights,
-  opportunities, upcoming) behind clear headings so the first screen answers "what now?".
+- Done: Home (see finding 10). Next on Home: the business summary and signals still repeat "next best actions"; merge into one list.
 - P1 Goals & budget: split reading (goals and progress) from planning (strategy, plans, budget lines) with in-page
   sections or tabs; keep every action.
 - P2 Growth Officer: conclusion and actions first, evidence expandable, sticky ask box on phone.

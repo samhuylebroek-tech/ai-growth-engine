@@ -58,9 +58,9 @@ export function HowItWorks({
           <X />
         </Button>
       </div>
-      <ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <ol className="mt-4 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-3">
         {STEPS.map((s) => (
-          <li key={s.n} className="flex gap-3 rounded-lg bg-card p-3">
+          <li key={s.n} className="flex gap-2 rounded-lg bg-card p-2.5 sm:gap-3 sm:p-3">
             <span
               aria-hidden
               className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary"
@@ -69,7 +69,8 @@ export function HowItWorks({
             </span>
             <div className="min-w-0">
               <p className="text-sm font-medium">{t(`gx.guide.${s.n}.title` as MessageKey)}</p>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              {/* On phones the six titles carry the story; the explanations appear from tablet width up. */}
+              <p className="mt-1 hidden text-xs leading-relaxed text-muted-foreground sm:block">
                 {t(`gx.guide.${s.n}.text` as MessageKey)}
               </p>
               <Link

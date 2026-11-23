@@ -5,7 +5,7 @@ export const home = defineArea("home", {
   en: {
     "home.sec.activity": "Activity stream",
     "home.sec.results": "Recent results",
-    "home.sec.opportunities": "Growth opportunities",
+    "home.sec.opportunities": "Strategy recommendations",
     "home.sec.upcoming": "Upcoming",
     "home.sec.performance": "Performance overview",
     "home.sec.budget": "Budget this month",
@@ -180,7 +180,7 @@ export const home = defineArea("home", {
   nl: {
     "home.sec.activity": "Activiteiten",
     "home.sec.results": "Recente resultaten",
-    "home.sec.opportunities": "Groeikansen",
+    "home.sec.opportunities": "Strategische aanbevelingen",
     "home.sec.upcoming": "Binnenkort",
     "home.sec.performance": "Overzicht resultaten",
     "home.sec.budget": "Budget deze maand",
@@ -356,7 +356,7 @@ export const home = defineArea("home", {
   fr: {
     "home.sec.activity": "Flux d’activité",
     "home.sec.results": "Résultats récents",
-    "home.sec.opportunities": "Opportunités de croissance",
+    "home.sec.opportunities": "Recommandations stratégiques",
     "home.sec.upcoming": "À venir",
     "home.sec.performance": "Aperçu des résultats",
     "home.sec.budget": "Budget du mois",
