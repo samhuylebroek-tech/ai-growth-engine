@@ -17,10 +17,8 @@ import { SECTIONS, questionById, sectionQuestions, type Question, type SectionId
 import {
   changedAnswers, decodeAnswer, draftsFromFacts, emptyDraft, encodeAnswer, hasContent, isVisible, optionsOf, overallProgress, savedAnswers, sectionProgress, understandingSummary,
   type AnswerFact, type Draft, type ProfileForSummary, type SummaryStatus,
-  firstGrowthSteps, type GrowthPathStep,
 } from "@/lib/onboarding/answers";
 import { labelIn, labelsOf } from "@/lib/onboarding/labels";
-import { growthDraftKey } from "@/lib/growth-draft";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -300,45 +298,7 @@ export function UnderstandingSummary({ data, compact = false }: { data: GuidedDa
           </div>
         ))}
       </dl>
-      {!compact && <FirstGrowthPath missing={topics.filter((x) => !x.items.length).map((x) => x.edit)} />}
     </section>
   );
 }
 
-/** The first growth journey after onboarding: fill gaps, read the situation, ask for the first step, set a goal. */
-function FirstGrowthPath({ missing }: { missing: (SectionId | "basics")[] }) {
-  const { t } = useI18n();
-  const o = useOrg();
-  const navigate = useNavigate();
-  const editor = can(o.workspaceRole, "profile.confirm");
-  function ask() {
-    if (!o.org || !o.workspace) return;
-    try { sessionStorage.setItem(growthDraftKey(o.org.id, o.workspace.id), t("ob.path.ask.question")); } catch { /* private mode: the page opens without a prepared question */ }
-    navigate({ to: "/app/growth-officer" });
-  }
-  const first = missing[0] ?? "basics";
-  const all: Record<GrowthPathStep, { title: string; why: string; action: React.ReactNode }> = {
-    fill: { title: t("ob.path.fill.title"), why: t("ob.path.fill.why", { n: missing.length }), action: <Button size="sm" variant="outline" asChild><Link to="/app/onboarding" search={{ section: first }}>{t("ob.path.fill.cta")}</Link></Button> },
-    situation: { title: t("ob.path.situation.title"), why: t("ob.path.situation.why"), action: <Button size="sm" variant="outline" asChild><Link to="/app/intelligence">{t("ob.path.situation.cta")}</Link></Button> },
-    ask: { title: t("ob.path.ask.title"), why: t("ob.path.ask.why"), action: <Button size="sm" onClick={ask}>{t("ob.path.ask.cta")} <ArrowRight /></Button> },
-    goal: { title: t("ob.path.goal.title"), why: t("ob.path.goal.why"), action: <Button size="sm" variant="outline" asChild><Link to="/app/goals">{t("ob.path.goal.cta")}</Link></Button> },
-  };
-  const steps = firstGrowthSteps((a) => can(o.workspaceRole, a), missing.length).map((key) => ({ key, ...all[key] }));
-  return (
-    <section aria-labelledby="ob-path-title" className="mt-8 rounded-xl border border-border bg-card p-5">
-      <h2 id="ob-path-title" className="text-base font-semibold">{t("ob.path.title")}</h2>
-      <p className="mt-1 text-sm text-muted-foreground">{t("ob.path.intro")}</p>
-      <ol className="mt-4 space-y-4">
-        {steps.map((s, i) => (
-          <li key={s.key} className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
-            <span aria-hidden className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">{i + 1}</span>
-            <div className="min-w-0 flex-1"><p className="text-sm font-medium">{s.title}</p><p className="mt-0.5 text-sm text-muted-foreground">{s.why}</p></div>
-            <div className="shrink-0">{s.action}</div>
-          </li>
-        ))}
-      </ol>
-      {!editor && <p className="mt-4 text-xs text-muted-foreground">{t("ob.path.viewer")}</p>}
-      <div className="mt-4 border-t border-border pt-3"><Button variant="ghost" size="sm" asChild><Link to="/app/onboarding">{t("ob.back")}</Link></Button></div>
-    </section>
-  );
-}

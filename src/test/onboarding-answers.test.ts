@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { ANSWER_KEYS, ANSWER_SOURCE, QUESTIONS, SECTIONS, questionById } from "@/lib/onboarding/questions";
-import { changedAnswers, firstGrowthSteps, decodeAnswer, draftsFromFacts, encodeAnswer, isVisible, optionsOf, overallProgress, savedAnswers, sectionProgress, understandingSummary, type AnswerFact, type Draft } from "@/lib/onboarding/answers";
+import { changedAnswers, decodeAnswer, draftsFromFacts, encodeAnswer, isVisible, optionsOf, overallProgress, savedAnswers, sectionProgress, understandingSummary, type AnswerFact, type Draft } from "@/lib/onboarding/answers";
 import { labelIn, labelsOf } from "@/lib/onboarding/labels";
 import { ob } from "@/lib/i18n/areas/ob";
 import { businessUnderstanding } from "@/lib/business-understanding";
@@ -114,17 +114,3 @@ describe("what AI Growth Engine understands", () => {
   });
 });
 
-describe("first growth steps", () => {
-  const role = (r: "viewer" | "member" | "editor") => (a: string) =>
-    r === "editor" || (r === "member" && a !== "profile.confirm");
-  it("shows a viewer only the growth situation", () => {
-    expect(firstGrowthSteps(role("viewer"), 3)).toEqual(["situation"]);
-  });
-  it("lets a member ask and set a goal but not fill in business answers", () => {
-    expect(firstGrowthSteps(role("member"), 3)).toEqual(["situation", "ask", "goal"]);
-  });
-  it("starts an editor with the missing topics, and drops that step when nothing is missing", () => {
-    expect(firstGrowthSteps(role("editor"), 2)).toEqual(["fill", "situation", "ask", "goal"]);
-    expect(firstGrowthSteps(role("editor"), 0)).toEqual(["situation", "ask", "goal"]);
-  });
-});

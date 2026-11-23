@@ -172,13 +172,3 @@ export function understandingSummary(profile: ProfileForSummary, facts: readonly
   });
 }
 
-export type GrowthPathStep = "fill" | "situation" | "ask" | "goal";
-/** The first growth steps after onboarding, in order, limited to what the viewer's role may do. */
-export function firstGrowthSteps(can: (a: "profile.confirm" | "ai.use" | "profile.edit") => boolean, missingTopics: number): GrowthPathStep[] {
-  const steps: GrowthPathStep[] = [];
-  if (can("profile.confirm") && missingTopics > 0) steps.push("fill");
-  steps.push("situation");
-  if (can("ai.use")) steps.push("ask");
-  if (can("profile.edit")) steps.push("goal");
-  return steps;
-}

@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label";
 import { StatusChip } from "@/components/app/status";
 import { GuidedOverview, SectionForm, UnderstandingSummary, useGuidedData } from "@/components/onboarding/guided";
 import { SECTIONS, type SectionId } from "@/lib/onboarding/questions";
+import { GrowthJourney } from "@/components/growth/growth-journey";
 
 type Step = "basics" | SectionId | "summary";
 const STEPS: readonly string[] = ["basics", ...SECTIONS, "summary"];
@@ -43,7 +44,7 @@ function Onboarding() {
   // Only editors can save the basics, so everyone else opens the read-only overview instead of a form they cannot use.
   const startHere = !data.data.profile?.onboarding_completed_at && can(o.workspaceRole, "profile.confirm");
   if (!section) return startHere ? <BasicsFlow key={scope} /> : <GuidedOverview key={scope} data={data.data} />;
-  if (section === "summary") return <UnderstandingSummary key={scope} data={data.data} />;
+  if (section === "summary") return <div key={scope}><UnderstandingSummary data={data.data} /><div className="mx-auto max-w-3xl"><GrowthJourney /></div></div>;
   return <SectionForm key={`${scope}:${section}`} section={section} data={data.data} />;
 }
 type ReviewFact = DiscoveryFact & { accepted: boolean };

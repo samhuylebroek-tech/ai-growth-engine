@@ -30,6 +30,7 @@ import { ExternalTiles } from "@/components/integrations/external-tiles";
 import { HomeBusinessSummary } from "@/components/bi/home-summary";
 import { useI18n } from "@/lib/i18n";
 import { NextStep } from "@/components/app/next-step";
+import { GrowthJourney } from "@/components/growth/growth-journey";
 import { HowItWorks, useGuide } from "@/components/app/how-it-works";
 import { HelpCircle, BarChart3 } from "lucide-react";
 
@@ -83,6 +84,7 @@ function Overview() {
     {d && <><div className="mb-7 border-y border-border py-4"><div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-xs"><Link to="/app/activity" className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-primary" /><strong className="text-foreground">{w ? w.activeCount : "—"}</strong> {t("home.aiActive")}</Link><Link to="/app/approvals" className="flex items-center gap-2"><CheckSquare className="h-3.5 w-3.5 text-warning" /><strong>{d.approvalCount}</strong> {t("home.awaiting")}</Link><Link to="/app/profile" className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /><strong>{confirmed.length}</strong> {t("home.facts")}</Link><Link to="/app/billing" className="text-muted-foreground sm:ml-auto">{d.balance?.toLocaleString(tag) ?? "—"} {t("home.credits")}</Link></div></div>
     <NextStep counts={{ onboardingDone: !!d.profile?.onboarding_completed_at, confirmedFacts: confirmed.length, unconfirmedFacts: unconfirmed, pendingApprovals: d.approvalCount, highRiskApprovals: approvals.filter(a => a.risk === "high").length, overdueTasks: es?.overdue.length ?? 0 }} />
     <HowItWorks userId={o.userId} open={guide} onOpenChange={setGuide} />
+    <div className="my-6"><GrowthJourney compact /></div>
     {numbers && <HomeBusinessSummary />}
     {numbers && <Button variant="outline" size="sm" className="mb-6" aria-expanded={details} onClick={() => setDetails(v => !v)}><BarChart3 />{details ? t("gx.more.hide") : t("gx.more.show")}</Button>}
     {numbers && details && <><BusinessTiles /><ExecutionTiles /><ExternalTiles /></>}
