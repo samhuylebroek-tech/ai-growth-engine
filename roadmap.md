@@ -1,10 +1,10 @@
 # AI Growth OS — Task Queue
 ## Round 4 — product excellence, intelligence, consistency, validation (2026-11-23, staging only)
 - [x] Verify branch, HEAD, GitHub, staging (HEAD c84969a = GitHub branch, compare identical; staging ledger 57, 58 files: 0057 is the live-only 0088a subset, already in staging via proposal 0088).
-- [ ] P2 Growth Officer: question focus (relevant context first, background trimmed), answer structure (happening / evidence / why / cause / uncertain / next / measure), trade-offs, no needless questions.
-- [ ] P1 One page header pattern on every module (title, purpose, actions), localized titles.
+- [x] P2 Growth Officer: question focus (relevant context first, background shortened before dropping), answer structure (happening / evidence / why / cause / uncertain / next / measure), trade-offs, no needless questions. Real staging runs: NL owner campaigns 7 credits, FR member mobile blocked work 6 credits (= usage events = ledger).
+- [x] P1 One page header pattern on every module (title, purpose, actions), localized titles; menu labels match titles; 32 pages aligned (NL admin desktop, FR viewer mobile).
 - [ ] P4 Persona journeys A–E on staging (roles, languages, devices).
-- [ ] P5 Security reassessment incl. 0090 revalidation and the two dev-tool advisories.
+- [x] P5 Security: 39/39 server functions authenticated, no API routes, basic scan clean, 55/55 staging SQL suites (0090 25/25), minimatch fixed, esbuild (drizzle-kit CLI only) analysed and accepted.
 - [ ] P6 Lifecycle handover review (business → … → optimization).
 - [ ] GitHub sync check routine (script + rule).
 ## Round 3 — continuous master development (2026-11-23, staging only)

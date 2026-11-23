@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PageHeader } from "@/components/app/status";
+import { Field } from "@/components/app/field";
 import { useI18n } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -157,7 +158,7 @@ function Planner({ orgId, wsId, canEdit, canBudget, canApprove, userId }: { orgI
               <LinkedWork goalId={x.id} data={links.data} canEdit={canEdit} onLink={link} />
               {canEdit && x.status === "active" && <StrategyPanel orgId={orgId} wsId={wsId} goalId={x.id} goalTitle={x.title} userId={userId} />}
               {canEdit && <div className="flex flex-wrap items-center gap-2">
-                {!x.metric.trim() && <Input aria-label={tr("goals.metric")} className="h-8 w-40" placeholder={tr("goals.metricPh")} defaultValue="" onBlur={e => { const v = e.target.value.trim(); if (v) void updateGoal(x.id, { metric: v }); }} />}
+                {!x.metric.trim() && <Input aria-label={tr("goals.metric")} className="h-8 w-48" placeholder={`${tr("goals.metric")}: ${tr("goals.metricPh")}`} defaultValue="" onBlur={e => { const v = e.target.value.trim(); if (v) void updateGoal(x.id, { metric: v }); }} />}
                 {x.baseline === null && <Input aria-label={tr("goals.baseline")} className="h-8 w-32" type="number" min={0} placeholder={tr("goals.baseline")} defaultValue="" onBlur={e => { const n = num(e.target.value); if (n !== null) void updateGoal(x.id, { baseline: n }); }} />}
                 {x.target === null && <Input aria-label={tr("goals.target")} className="h-8 w-32" type="number" min={0} placeholder={tr("goals.target")} defaultValue="" onBlur={e => { const n = num(e.target.value); if (n !== null) void updateGoal(x.id, { target: n }); }} />}
                 <Input aria-label={tr("goals.currentValue")} className="h-8 w-32" type="number" min={0} placeholder={tr("goals.currentValue")} defaultValue={x.current_value ?? ""} onBlur={e => { const n = num(e.target.value); if (n !== x.current_value) void updateGoal(x.id, { current_value: n }); }} />
@@ -167,15 +168,16 @@ function Planner({ orgId, wsId, canEdit, canBudget, canApprove, userId }: { orgI
               </div>}
             </div>); })}
         </div>
-        {canEdit && <div className="grid gap-2 rounded-lg border border-dashed p-4 sm:grid-cols-3 lg:grid-cols-6">
-          <Input aria-label={tr("goals.goalName")} placeholder={tr("goals.goalNamePh")} value={g.title} onChange={e => setG({ ...g, title: e.target.value })} className="sm:col-span-2" />
-          <select aria-label={tr("goals.objective")} className={sel} value={g.objective} onChange={e => setG({ ...g, objective: e.target.value })}>{OBJECTIVES.map(k => <option key={k} value={k}>{tr(objKey(k))}</option>)}</select>
-          <Input aria-label={tr("goals.metric")} placeholder={tr("goals.metricPh")} value={g.metric} onChange={e => setG({ ...g, metric: e.target.value })} />
-          <Input aria-label={tr("goals.baseline")} type="number" min={0} placeholder={tr("goals.baseline")} value={g.baseline} onChange={e => setG({ ...g, baseline: e.target.value })} />
-          <Input aria-label={tr("goals.target")} type="number" min={0} placeholder={tr("goals.target")} value={g.target} onChange={e => setG({ ...g, target: e.target.value })} />
-          <Input aria-label={tr("goals.deadline")} type="date" value={g.due} onChange={e => setG({ ...g, due: e.target.value })} />
-          {!!units.data?.length && <select aria-label={tr("goals.brand")} className={sel} value={g.unit} onChange={e => setG({ ...g, unit: e.target.value })}><option value="">{tr("goals.brandWhole")}</option>{units.data.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select>}
-          <Button onClick={addGoal} className="sm:col-span-3 lg:col-span-1"><Plus className="mr-1 h-4 w-4" />{tr("goals.addGoal")}</Button>
+        {canEdit && <div className="grid gap-3 rounded-lg border border-dashed p-4 sm:grid-cols-3 lg:grid-cols-6">
+          <p className="text-xs text-muted-foreground sm:col-span-3 lg:col-span-6">{tr("ph.goal.help")}</p>
+          <Field label={tr("goals.goalName")} className="sm:col-span-2"><Input aria-label={tr("goals.goalName")} placeholder={tr("goals.goalNamePh")} value={g.title} onChange={e => setG({ ...g, title: e.target.value })} /></Field>
+          <Field label={tr("goals.objective")}><select aria-label={tr("goals.objective")} className={`${sel} w-full`} value={g.objective} onChange={e => setG({ ...g, objective: e.target.value })}>{OBJECTIVES.map(k => <option key={k} value={k}>{tr(objKey(k))}</option>)}</select></Field>
+          <Field label={tr("goals.metric")}><Input aria-label={tr("goals.metric")} placeholder={tr("goals.metricPh")} value={g.metric} onChange={e => setG({ ...g, metric: e.target.value })} /></Field>
+          <Field label={tr("goals.baseline")}><Input aria-label={tr("goals.baseline")} type="number" min={0} placeholder={tr("ph.goal.optional")} value={g.baseline} onChange={e => setG({ ...g, baseline: e.target.value })} /></Field>
+          <Field label={tr("goals.target")}><Input aria-label={tr("goals.target")} type="number" min={0} placeholder={tr("ph.goal.optional")} value={g.target} onChange={e => setG({ ...g, target: e.target.value })} /></Field>
+          <Field label={tr("goals.deadline")}><Input aria-label={tr("goals.deadline")} type="date" value={g.due} onChange={e => setG({ ...g, due: e.target.value })} /></Field>
+          {!!units.data?.length && <Field label={tr("goals.brand")}><select aria-label={tr("goals.brand")} className={`${sel} w-full`} value={g.unit} onChange={e => setG({ ...g, unit: e.target.value })}><option value="">{tr("goals.brandWhole")}</option>{units.data.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select></Field>}
+          <div className="flex items-end sm:col-span-3 lg:col-span-1"><Button onClick={addGoal} className="w-full"><Plus className="mr-1 h-4 w-4" />{tr("goals.addGoal")}</Button></div>
         </div>}
       </section>
 
