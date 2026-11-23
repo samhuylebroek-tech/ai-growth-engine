@@ -53,7 +53,7 @@ Open risks (documented, not yet fixed):
 | Audit log | Rows were append-only but not tamper-evident; the browser could write audit rows. | New rows are hash-chained and verifiable by the owner; admin changes are audited by database triggers; direct browser writes revoked. |
 | Emergency stop | Only a per-business pause. | Organization and platform stops added, independent tiers, audited. |
 | Grants | API roles had TRUNCATE/REFERENCES/TRIGGER and could call internal helpers. | Revoked. |
-| Dependencies | seroval, js-yaml, source-map-js advisories. | Updated via overrides. `zod` upgraded to 4.6.6 (GHSA-mrhx-c7xc-m3w5 fixed; build tooling also on 4.6.6). Remaining: two moderate advisories in development-only tools (esbuild dev server, minimatch in lint/type tooling). |
+| Dependencies | seroval, js-yaml, source-map-js advisories. | Updated via overrides. `zod` upgraded to 4.6.6 (GHSA-mrhx-c7xc-m3w5 fixed; build tooling also on 4.6.6). minimatch GHSA-g3hv-75wg-m249 fixed by typescript-eslint ^8.73.0 (minimatch 11.0.x; lint passes). Remaining, accepted: esbuild GHSA-67mh-4wv8-2f99 (moderate, CVSS 5.3) in esbuild 0.18.20, pulled only by the deprecated `@esbuild-kit/esm-loader` inside the drizzle-kit CLI (latest 0.31.11). The flaw is in esbuild's `serve()` development server; drizzle-kit only uses esbuild's transform API to load its config, the app's own dev server is Vite on esbuild 0.25/0.28 (patched), and nothing ships to users. Bun supports only top-level overrides and other packages require esbuild 0.25 and 0.28, so a forced upgrade is not safe; revisit when drizzle-kit drops `@esbuild-kit`. |
 
 Open risks (documented decisions):
 - Rate limits: superseded by proposal 0090 (owner decision changed 2026-11-21: build on staging). See below.
