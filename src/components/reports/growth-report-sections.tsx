@@ -1,6 +1,8 @@
 // Initiative, strategy and recommendation-learning report sections (Phase 9). Reads under the caller's RLS; money comes
 // from the shared Growth economics data and rollup, so these sections show the same amounts as that page. A required
 // read that fails hides the section instead of showing partial figures as complete.
+import { FigureLabel } from "@/components/ai/evidence";
+import type { FigureId } from "@/lib/report-claims";
 import { useQuery } from "@tanstack/react-query";
 import { econOptions } from "@/components/econ/econ-data";
 import { growthDb, isNotInstalled } from "@/lib/pending-schema";
@@ -64,7 +66,7 @@ function InitiativeSection(s: Shared) {
       {lines.length === 0 ? <p className="text-xs text-muted-foreground">{t("grp.init.empty")}</p> : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-xs">
-            <thead className="text-left text-muted-foreground"><tr>{["grp.col.initiative", "grp.col.status", "grp.col.work", "grp.col.overdue", "grp.col.campaigns", "grp.col.spent", "grp.col.reserved", "grp.col.credits", "grp.col.kpi"].map((h) => <th key={h} className="py-1 pr-3 font-normal">{t(tk(h))}</th>)}</tr></thead>
+            <thead className="text-left text-muted-foreground"><tr>{([["grp.col.initiative"], ["grp.col.status", "init.status"], ["grp.col.work", "init.work"], ["grp.col.overdue", "init.overdue"], ["grp.col.campaigns", "init.campaigns"], ["grp.col.spent", "init.spent"], ["grp.col.reserved", "init.reserved"], ["grp.col.credits", "init.credits"], ["grp.col.kpi", "init.kpi"]] as [string, FigureId?][]).map(([h, id]) => <th key={h} className={cn("py-1 pr-3 align-top font-normal", !id && "whitespace-nowrap")}>{t(tk(h))}{id && <FigureLabel stack id={id} period={s.period} />}</th>)}</tr></thead>
             <tbody>{lines.map((l) => (
               <tr key={l.id} className="border-t border-border align-top tabular-nums">
                 <td className="py-1 pr-3">
@@ -106,7 +108,7 @@ function StrategySection(s: Shared) {
         <div key={l.id} className="space-y-1 rounded-md border border-border p-3 text-xs">
           <p className="line-clamp-2 text-sm font-medium">{t("grp.st.head", { title: l.title.replace(/^Growth plan · /, ""), v: l.version })} <span className="font-normal text-muted-foreground">· {l.status === "approved" ? t("grp.st.current") : t("grp.st.superseded")}{l.approvedAt ? ` · ${fmtDay(l.approvedAt)}` : ""}</span></p>
           {l.goalTitle && <p>{t("grp.st.goal", { g: l.goalTitle })}</p>}
-          {l.goal && l.goal.progress !== null && <p className="tabular-nums">{t("grp.st.progress", { p: l.goal.progress, c: l.goal.current ?? t("rep.none"), b: l.goal.baseline ?? t("rep.none"), t: l.goal.target ?? t("rep.none") })}{l.goal.pace ? ` · ${t(tk(`grp.st.pace.${l.goal.pace}`))}` : ""}</p>}
+          {l.goal && l.goal.progress !== null && <p className="tabular-nums"><FigureLabel id="goal.progress" />{" "}{t("grp.st.progress", { p: l.goal.progress, c: l.goal.current ?? t("rep.none"), b: l.goal.baseline ?? t("rep.none"), t: l.goal.target ?? t("rep.none") })}{l.goal.pace ? ` · ${t(tk(`grp.st.pace.${l.goal.pace}`))}` : ""}</p>}
           <p>{t("grp.st.initiatives", { list: Object.entries(l.initiatives).map(([k, n]) => `${n} ${t(tk(`grp.is.${k}`)).toLowerCase()}`).join(", ") || t("rep.none") })}</p>
           {l.initiativesWithoutWork > 0 && <p className="text-warning">{t("grp.st.withoutWork", { n: l.initiativesWithoutWork })}</p>}
           <p className="tabular-nums">{t("grp.st.work", { d: l.work.done, n: l.work.tasks, o: l.work.overdue, c: l.work.campaigns })}</p>
@@ -145,7 +147,7 @@ function LearningSection(s: Shared) {
   const lessons = Object.entries(r.learnings);
   return (
     <section className="space-y-3 text-xs" aria-label={t("grp.l.title")}>
-      <h3 className="text-sm font-semibold">{t("grp.l.title")}</h3>
+      <h3 className="text-sm font-semibold">{t("grp.l.title")}<FigureLabel id="learn.counts" period={s.period} /></h3>
       <dl className="grid grid-cols-2 gap-2 sm:grid-cols-5">
         {tiles.map(([k, v]) => <div key={k} className="rounded border border-border p-2"><dt className="text-muted-foreground">{t(tk(k))}</dt><dd className="font-semibold tabular-nums">{v}</dd></div>)}
       </dl>
@@ -155,7 +157,7 @@ function LearningSection(s: Shared) {
       </dl>
       <p>{lessons.length ? t("grp.l.lessons", { list: lessons.map(([k, n]) => `${n} ${t(tk(`rl.out.${k}`)).toLowerCase()}`).join(", ") }) : t("grp.l.noLessons")}</p>
       {Object.keys(r.evidence).length > 0 && <p>{t("grp.l.evidence", { list: Object.entries(r.evidence).map(([k, n]) => `${n} ${t(tk(`rl.ev.${k}`)).toLowerCase()}`).join(", ") })}</p>}
-      <h4 className="font-medium">{t("grp.l.patterns")}</h4>
+      <h4 className="font-medium">{t("grp.l.patterns")}<FigureLabel id="learn.patterns" period={s.period} /></h4>
       {r.patterns.length === 0 ? <p className="text-muted-foreground">{t("grp.l.noPatterns")}</p> : (
         <ul className="list-disc space-y-1 pl-5">{r.patterns.map((p) => (
           <li key={p.key}>{p.lever.replace(/_/g, " ")}{p.channel ? ` · ${p.channel}` : ""}: {t("rl.patternLine", { n: p.observations, c: p.campaigns, pos: p.positive, neg: p.negative, nc: p.noChange, f: p.from, to: p.to })} · {t(tk(`rl.conf.${p.confidence}`))}</li>

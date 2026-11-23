@@ -17,6 +17,7 @@ import { resolveRefs, support, type EvidenceRecord, type ResolvedRef } from "@/l
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { QUESTIONS } from "@/lib/onboarding/questions";
+import { REPORT_FIGURES, type Figure, type FigureId } from "@/lib/report-claims";
 
 /** Where cited records are looked up; workspaceId null = every business of the organization the viewer may read. */
 export type EvidenceScope = { orgId: string; workspaceId: string | null; asOf?: string | null };
@@ -163,4 +164,29 @@ export function EvidenceLabel({ kind, downgraded = false, text }: { kind: ClaimK
       </PopoverContent>
     </Popover>
   );
+}
+
+/** Label of one report figure, same look and meaning as AI statement labels; opens its source, formula and period. */
+export function FigureLabel({ id, period, stack = false }: { id: FigureId; period?: { from: string; to: string } | undefined; stack?: boolean }) {
+  const { t, locale } = useI18n();
+  const fig: Figure = REPORT_FIGURES[id];
+  const name = t(`cl.${fig.kind}` as MessageKey);
+  const d = (s: string) => new Date(`${s}T12:00:00`).toLocaleDateString(locale);
+  const label = (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button type="button" aria-label={t("evd.figureFor", { label: name })} className={cn(LABEL, CLAIM_TONE[fig.kind], stack ? "mr-0" : "ml-1 mr-0", " cursor-pointer print:border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring")}>{name}</button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-[min(20rem,calc(100vw-2rem))] text-sm">
+        <span className={cn(LABEL, CLAIM_TONE[fig.kind])}>{name}</span>
+        <p className="mt-1 text-xs text-muted-foreground">{t(`cl.d.${fig.kind}` as MessageKey)}</p>
+        <dl className="mt-2 space-y-1 text-xs">
+          <div className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-2"><dt className="text-muted-foreground">{t("evd.f.source")}</dt><dd>{t(`evd.src.${fig.source}` as MessageKey)}</dd></div>
+          {fig.formula && <div className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-2"><dt className="text-muted-foreground">{t("evd.f.formula")}</dt><dd>{t(`evd.fx.${fig.formula}` as MessageKey)}</dd></div>}
+          {period && <div className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-2"><dt className="text-muted-foreground">{t("evd.f.period")}</dt><dd>{d(period.from)} – {d(period.to)}</dd></div>}
+        </dl>
+      </PopoverContent>
+    </Popover>
+  );
+  return stack ? <span className="mt-0.5 block">{label}</span> : label;
 }

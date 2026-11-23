@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ReportEconomics } from "@/components/reports/report-economics";
 import { GrowthReportSection } from "@/components/reports/growth-report-sections";
+import { FigureLabel } from "@/components/ai/evidence";
+import type { FigureId } from "@/lib/report-claims";
 
 const tk = (k: string) => k as MessageKey;
 type QReview = Quality["reviews"][number] & { id: string };
@@ -107,7 +109,7 @@ export function BusinessReports() {
 
         {r.missing.length > 0 && (
           <div className="rounded-md border border-warning/50 p-3 text-xs">
-            <p className="font-medium">{t("rep.missingTitle")}</p>
+            <p className="font-medium">{t("rep.missingTitle")}<FigureLabel id="missing" period={r.current} /></p>
             <ul className="mt-1 list-disc pl-5">{r.missing.map((m) => <li key={m}>{t(`rep.m.${m}` as MessageKey)}</li>)}</ul>
           </div>
         )}
@@ -116,25 +118,25 @@ export function BusinessReports() {
           <section className="space-y-2">
             <h3 className="text-sm font-semibold">{t("rep.finance")}</h3>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[560px] text-xs">
-                <thead className="text-left text-muted-foreground"><tr>{["rep.currency", "rep.sales", "rep.refunds", "rep.net", "rep.prev", "rep.change", "rep.spent", "rep.perSpend"].map((h) => <th key={h} className="py-1 pr-3 font-normal">{t(h as MessageKey)}</th>)}</tr></thead>
+              <table className="w-full min-w-[720px] text-xs">
+                <thead className="text-left text-muted-foreground"><tr>{([["rep.currency"], ["rep.sales", "fin.sales"], ["rep.refunds", "fin.refunds"], ["rep.net", "fin.net"], ["rep.prev", "fin.prev", true], ["rep.change", "fin.change"], ["rep.spent", "fin.spent"], ["rep.perSpend", "fin.perSpend"]] as [string, FigureId?, boolean?][]).map(([h, id, prev]) => <th key={h} className={cn("py-1 pr-3 align-top font-normal", !id && "whitespace-nowrap")}>{t(h as MessageKey)}{id && <FigureLabel stack id={id} period={prev ? r.previous : r.current} />}</th>)}</tr></thead>
                 <tbody>
                   {r.finance.map((f) => (
                     <tr key={f.currency} className="border-t border-border tabular-nums">
-                      <td className="py-1 pr-3">{f.currency}</td>
+                      <td className="whitespace-nowrap py-1 pr-3">{f.currency}</td>
                       <td className="py-1 pr-3">{f.now ? money(f.now.sales, f.currency) : t("rep.none")}</td>
                       <td className="py-1 pr-3">{money(f.refunds, f.currency)}</td>
                       <td className="py-1 pr-3 font-semibold">{money(f.net.now, f.currency)}</td>
                       <td className="py-1 pr-3">{money(f.net.before, f.currency)}</td>
                       <td className={cn("py-1 pr-3", f.net.change < 0 && "text-destructive")}>{pct(f.net)}</td>
                       <td className="py-1 pr-3">{f.spent === null ? t("rep.none") : money(f.spent, f.currency)}</td>
-                      <td className="py-1 pr-3">{f.perSpend === null ? t("rep.none") : `${f.perSpend.toLocaleString(tag)} · ${t("rep.k.computed")}`}</td>
+                      <td className="py-1 pr-3">{f.perSpend === null ? t("rep.none") : f.perSpend.toLocaleString(tag)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            {r.finance.some((f) => f.estimated) && <p className="text-xs text-muted-foreground">{t("rep.estimated")}: {r.finance.filter((f) => f.estimated).map((f) => money(f.estimated!, f.currency)).join(", ")}</p>}
+            {r.finance.some((f) => f.estimated) && <p className="text-xs text-muted-foreground">{t("rep.estimated")}<FigureLabel id="fin.estimated" period={r.current} />: {r.finance.filter((f) => f.estimated).map((f) => money(f.estimated!, f.currency)).join(", ")}</p>}
             <p className="text-xs text-muted-foreground">{t("rep.src.revenue", { n: r.finance.reduce((n, f) => n + (f.now?.entries ?? 0), 0) })}</p>
             {r.finance.some((f) => f.perSpend !== null) && <p className="text-xs text-muted-foreground">{t("rep.perSpendNote")}</p>}
           </section>
@@ -152,7 +154,7 @@ export function BusinessReports() {
 
         {r.show.spend && r.spend && (r.spend.entries > 0 || r.spend.simulated > 0) && (
           <section className="space-y-1 text-xs">
-            <h3 className="text-sm font-semibold">{t("rep.spent")}</h3>
+            <h3 className="text-sm font-semibold">{t("rep.spent")}<FigureLabel id="spend.total" period={r.current} /></h3>
             <p className="tabular-nums">{Object.entries(r.spend.spent).map(([c, n]) => t("rep.spendPrev", { a: money(n, c), b: money(r.spend!.before[c] ?? 0, c) })).join(" · ")}</p>
             {r.spend.simulated > 0 && <p className="text-warning">{t("rep.simSpent", { list: Object.entries(r.spend.simulatedSpent).map(([c, n]) => money(n, c)).join(" · ") })}</p>}
             <p className="text-muted-foreground">{t("rep.src.spend", { n: r.spend.entries + r.spend.simulated, s: r.spend.simulated })}</p>
@@ -164,7 +166,7 @@ export function BusinessReports() {
             <h3 className="text-sm font-semibold">{t("rep.campaigns")}</h3>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[520px] text-xs">
-                <thead className="text-left text-muted-foreground"><tr>{["rep.campaign", "rep.state", "rep.budget", "rep.spentEur", "rep.remaining", "rep.tasks"].map((h) => <th key={h} className="py-1 pr-3 font-normal">{t(h as MessageKey)}</th>)}</tr></thead>
+                <thead className="text-left text-muted-foreground"><tr>{([["rep.campaign"], ["rep.state", "camp.state"], ["rep.budget", "camp.budget"], ["rep.spentEur", "camp.spent"], ["rep.remaining", "camp.remaining"], ["rep.tasks", "camp.tasks"]] as [string, FigureId?][]).map(([h, id]) => <th key={h} className={cn("py-1 pr-3 align-top font-normal", !id && "whitespace-nowrap")}>{t(h as MessageKey)}{id && <FigureLabel stack id={id} />}</th>)}</tr></thead>
                 <tbody>
                   {r.campaigns.map((c) => (
                     <tr key={c.id} className="border-t border-border tabular-nums">
@@ -186,10 +188,11 @@ export function BusinessReports() {
           <section className="space-y-1 text-xs">
             <h3 className="text-sm font-semibold">{t("rep.work")}</h3>
             <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {[["rep.done", `${r.tasks.done.now} (${pct(r.tasks.done)})`], ["rep.created", `${r.tasks.created.now} (${pct(r.tasks.created)})`], ["rep.open", String(r.tasks.open)], ["rep.overdue", String(r.tasks.overdue)]].map(([k, v]) => (
-                <div key={k} className="rounded border border-border p-2"><dt className="text-muted-foreground">{t(k as MessageKey)}</dt><dd className="font-semibold tabular-nums">{v}</dd></div>
+              {([["rep.done", `${r.tasks.done.now} (${pct(r.tasks.done)})`, "task.done"], ["rep.created", `${r.tasks.created.now} (${pct(r.tasks.created)})`, "task.created"], ["rep.open", String(r.tasks.open), "task.open"], ["rep.overdue", String(r.tasks.overdue), "task.overdue"]] as [string, string, FigureId][]).map(([k, v, id]) => (
+                <div key={k} className="rounded border border-border p-2"><dt className="text-muted-foreground">{t(k as MessageKey)}<FigureLabel id={id} period={r.current} /></dt><dd className="font-semibold tabular-nums">{v}</dd></div>
               ))}
             </dl>
+            <p className="text-muted-foreground">{t("rep.changeNote")}<FigureLabel id="task.change" period={r.current} /></p>
             {r.replans && r.replans.pending > 0 && <p>{t("rep.replans", { n: r.replans.pending })}</p>}
             {r.replans && r.replans.approvedInPeriod > 0 && <p>{t("rep.replansApproved", { n: r.replans.approvedInPeriod })}</p>}
           </section>
@@ -199,13 +202,13 @@ export function BusinessReports() {
           <section className="space-y-2 text-xs">
             <h3 className="text-sm font-semibold">{t("rep.ai")}</h3>
             <dl className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-              {[["rep.runs", `${r.runs.total} (${pct(r.runs.totalDelta)})`], ["rep.succeeded", String(r.runs.succeeded)], ["rep.failedRuns", String(r.runs.failed + r.runs.uncertain)], ["rep.waiting", String(r.runs.waiting)], ["rep.credits", String(r.runs.credits)]].map(([k, v]) => (
-                <div key={k} className="rounded border border-border p-2"><dt className="text-muted-foreground">{t(k as MessageKey)}</dt><dd className="font-semibold tabular-nums">{v}</dd></div>
+              {([["rep.runs", `${r.runs.total} (${pct(r.runs.totalDelta)})`, "run.count"], ["rep.succeeded", String(r.runs.succeeded), "run.count"], ["rep.failedRuns", String(r.runs.failed + r.runs.uncertain), "run.count"], ["rep.waiting", String(r.runs.waiting), "run.count"], ["rep.credits", String(r.runs.credits), "run.credits"]] as [string, string, FigureId][]).map(([k, v, id]) => (
+                <div key={k} className="rounded border border-border p-2"><dt className="text-muted-foreground">{t(k as MessageKey)}<FigureLabel id={id} period={r.current} /></dt><dd className="font-semibold tabular-nums">{v}</dd></div>
               ))}
             </dl>
             {r.show.specialists && (
               <table className="w-full text-xs">
-                <thead className="text-left text-muted-foreground"><tr>{["rep.specialist", "rep.runs", "rep.succeeded", "rep.failedRuns", "rep.credits"].map((h) => <th key={h} className="py-1 pr-3 font-normal">{t(h as MessageKey)}</th>)}</tr></thead>
+                <thead className="text-left text-muted-foreground"><tr>{([["rep.specialist"], ["rep.runs", "sp.counts"], ["rep.succeeded", "sp.counts"], ["rep.failedRuns", "sp.counts"], ["rep.credits", "run.credits"]] as [string, FigureId?][]).map(([h, id]) => <th key={h} className={cn("py-1 pr-3 align-top font-normal", !id && "whitespace-nowrap")}>{t(h as MessageKey)}{id && <FigureLabel stack id={id} period={r.current} />}</th>)}</tr></thead>
                 <tbody>{Object.entries(r.runs.perSpecialist).map(([k, v]) => (
                   <tr key={k} className="border-t border-border tabular-nums"><td className="py-1 pr-3">{k.replace(/_/g, " ")}</td><td className="py-1 pr-3">{v.runs}</td><td className="py-1 pr-3">{v.succeeded}</td><td className="py-1 pr-3">{v.failed}</td><td className="py-1 pr-3">{v.credits}</td></tr>
                 ))}</tbody>
@@ -219,12 +222,12 @@ export function BusinessReports() {
             <h3 className="text-sm font-semibold">{t("rep.performance")}</h3>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px] text-xs">
-                <thead className="text-left text-muted-foreground"><tr>{["rep.specialist", "rep.runs", "rep.succeeded", "rep.failedRuns", "rep.credits", "rep.perSuccess", "rep.reviews", "rep.reviewCredits", "rep.avgScore", "rep.unreliable", "rep.accepted", "rep.corrected", "rep.rework", "rep.rejected"].map((h) => <th key={h} className="py-1 pr-3 font-normal">{t(tk(h))}</th>)}</tr></thead>
+                <thead className="text-left text-muted-foreground"><tr>{([["rep.specialist"], ["rep.runs", "sp.counts"], ["rep.succeeded", "sp.counts"], ["rep.failedRuns", "sp.counts"], ["rep.credits", "run.credits"], ["rep.perSuccess", "sp.perSuccess"], ["rep.reviews", "sp.reviews"], ["rep.reviewCredits", "sp.reviews"], ["rep.avgScore", "sp.avgScore"], ["rep.unreliable", "sp.reviews"], ["rep.accepted", "sp.decisions"], ["rep.corrected", "sp.decisions"], ["rep.rework", "sp.decisions"], ["rep.rejected", "sp.decisions"]] as [string, FigureId?][]).map(([h, id]) => <th key={h} className={cn("py-1 pr-3 align-top font-normal", !id && "whitespace-nowrap")}>{t(tk(h))}{id && <FigureLabel stack id={id} period={r.current} />}</th>)}</tr></thead>
                 <tbody>{r.specialists.map((l) => (
                   <tr key={l.specialist} className="border-t border-border tabular-nums">
                     <td className="py-1 pr-3">{l.specialist === "growth_officer" ? "Growth Officer" : t(tk(`run.sp.${l.specialist}`))}</td>
                     <td className="py-1 pr-3">{l.runs}</td><td className="py-1 pr-3">{l.succeeded}</td><td className="py-1 pr-3">{l.failed}</td><td className="py-1 pr-3">{l.credits}</td>
-                    <td className="py-1 pr-3">{l.creditsPerSuccess === null ? t("rep.none") : `${l.creditsPerSuccess.toLocaleString(tag)} · ${t("rep.k.computed")}`}</td>
+                    <td className="py-1 pr-3">{l.creditsPerSuccess === null ? t("rep.none") : l.creditsPerSuccess.toLocaleString(tag)}</td>
                     <td className="py-1 pr-3">{l.reviews}</td><td className="py-1 pr-3">{l.reviews === 0 ? t("rep.none") : `${l.reviewCredits}${l.reviewCreditsUnknown ? ` · ${t("rep.unknownCost", { n: l.reviewCreditsUnknown })}` : ""}`}</td><td className="py-1 pr-3">{l.avgScore === null ? t("rep.none") : `${l.avgScore}/100`}</td>
                     <td className={cn("py-1 pr-3", l.unreliable > 0 && "text-destructive")}>{l.unreliable}</td>
                     <td className="py-1 pr-3">{l.accepted}</td><td className="py-1 pr-3">{l.corrected}</td><td className="py-1 pr-3">{l.rework}</td><td className="py-1 pr-3">{l.rejected}</td>
@@ -239,7 +242,7 @@ export function BusinessReports() {
 
         {r.show.experiments && (type === "experiments" || r.experiments.running + r.experiments.concluded > 0) && (
           <section className="space-y-1 text-xs">
-            <h3 className="text-sm font-semibold">{t("rep.experiments")}</h3>
+            <h3 className="text-sm font-semibold">{t("rep.experiments")}<FigureLabel id="exp.counts" period={r.current} /></h3>
             <dl className="grid grid-cols-2 gap-2 sm:grid-cols-6">
               {[["rep.running", r.experiments.running], ["rep.proposed", r.experiments.proposed], ["rep.concluded", r.experiments.concluded], ["rep.controlled", r.experiments.controlled], ["rep.correlational", r.experiments.correlational], ["rep.inconclusive", r.experiments.inconclusive]].map(([k, v]) => (
                 <div key={k as string} className="rounded border border-border p-2"><dt className="text-muted-foreground">{t(k as MessageKey)}</dt><dd className="font-semibold tabular-nums">{v}</dd></div>
