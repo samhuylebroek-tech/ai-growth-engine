@@ -1,7 +1,7 @@
 # AI Growth OS — Task Queue
 ## Round 5 — ultimate master build: CI stabilization + lifecycle validation (2026-11-23, staging only)
 - [x] GitHub audit: branch product/operating-system-experience-blueprint, local HEAD a280a0c = GitHub branch HEAD (Synchronized), PR #1 open → main; CI 4/5 green, ESLint red.
-- [x] ESLint root cause (reproduced on a clean install of the PR merge commit): 16,266 Prettier findings in 470 files + one `any`; formatted with the project's own settings, generated backend client excluded from formatting, local build cache excluded from lint. Lint: 0 errors, 59 warnings left visible (react-refresh structure, 2 intentional id-keyed effects).
+- [x] ESLint root cause (reproduced on a clean install of the PR merge commit): 16,266 Prettier findings in 470 files + one `any`; formatted with the project's own settings, generated backend client excluded from formatting, local build cache excluded from lint. Lint: 0 errors, 58 warnings left visible (react-refresh structure, 2 intentional id-keyed effects).
 - [x] CI reproducibility: Bun pinned 1.4.4 (= local), checkout v5 (Node 24 warning). Routines: `scripts/ci/format-changed.sh`, read-only `scripts/ci/github-status.ts`.
 - [x] Performance: workspace list and learning list were re-created every render (organization context re-rendered all consumers); memoized.
 - [x] "My tasks" empty state: says nothing is assigned to you and offers all tasks (EN/NL/FR), browser-checked EN/FR.
