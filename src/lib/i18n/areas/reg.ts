@@ -4,19 +4,25 @@ import { defineArea } from "../define";
 export const reg = defineArea("reg", {
   en: {
     "reg.agent.growth_officer.name": "Chief Growth Officer",
-    "reg.agent.growth_officer.desc": "Your main AI partner. Understands your business and coordinates the other agents.",
+    "reg.agent.growth_officer.desc":
+      "Your main AI partner. Understands your business and coordinates the other agents.",
     "reg.agent.business_intelligence.name": "Business Intelligence",
-    "reg.agent.business_intelligence.desc": "Turns documents and your website into structured business facts.",
+    "reg.agent.business_intelligence.desc":
+      "Turns documents and your website into structured business facts.",
     "reg.agent.market_research.name": "Market Research",
-    "reg.agent.market_research.desc": "Evidence-based market hypotheses and research plans. Live market search is not configured.",
+    "reg.agent.market_research.desc":
+      "Evidence-based market hypotheses and research plans. Live market search is not configured.",
     "reg.agent.competitor_intel.name": "Competitor Intelligence",
     "reg.agent.competitor_intel.desc": "Tracks competitors' positioning, pricing and moves.",
     "reg.agent.marketing_strategy.name": "Marketing Strategy",
-    "reg.agent.marketing_strategy.desc": "Prioritized strategies and practical experiments from scoped evidence.",
+    "reg.agent.marketing_strategy.desc":
+      "Prioritized strategies and practical experiments from scoped evidence.",
     "reg.agent.seo.name": "SEO",
-    "reg.agent.seo.desc": "Suggested keyword clusters and page plans. Crawling, ranking and traffic measurements are not configured.",
+    "reg.agent.seo.desc":
+      "Suggested keyword clusters and page plans. Crawling, ranking and traffic measurements are not configured.",
     "reg.agent.content.name": "Content",
-    "reg.agent.content.desc": "Complete content drafts and briefs for review; no external publishing.",
+    "reg.agent.content.desc":
+      "Complete content drafts and briefs for review; no external publishing.",
     "reg.agent.social.name": "Social Media",
     "reg.agent.social.desc": "Plans and schedules social posts.",
     "reg.agent.advertising.name": "Advertising",
@@ -28,11 +34,13 @@ export const reg = defineArea("reg", {
     "reg.cap.profile.read.name": "Read business profile",
     "reg.cap.profile.read.desc": "Read the workspace business profile and verified facts.",
     "reg.cap.documents.extract_facts.name": "Extract facts from documents",
-    "reg.cap.documents.extract_facts.desc": "Read an uploaded document and propose structured business facts.",
+    "reg.cap.documents.extract_facts.desc":
+      "Read an uploaded document and propose structured business facts.",
     "reg.cap.website.analyze.name": "Analyze website",
     "reg.cap.website.analyze.desc": "Fetch the public homepage and summarize positioning.",
     "reg.cap.strategy.recommend.name": "Recommend growth actions",
-    "reg.cap.strategy.recommend.desc": "Produce prioritized recommendations with reasoning and expected impact.",
+    "reg.cap.strategy.recommend.desc":
+      "Produce prioritized recommendations with reasoning and expected impact.",
     "reg.cap.approvals.propose.name": "Propose an action",
     "reg.cap.approvals.propose.desc": "Create an action proposal in the Approval Center.",
     "reg.cap.content.publish.name": "Publish content",
@@ -77,19 +85,25 @@ export const reg = defineArea("reg", {
   },
   nl: {
     "reg.agent.growth_officer.name": "Chief Growth Officer",
-    "reg.agent.growth_officer.desc": "Je belangrijkste AI-partner. Begrijpt je bedrijf en coördineert de andere agenten.",
+    "reg.agent.growth_officer.desc":
+      "Je belangrijkste AI-partner. Begrijpt je bedrijf en coördineert de andere agenten.",
     "reg.agent.business_intelligence.name": "Bedrijfsinzicht",
-    "reg.agent.business_intelligence.desc": "Zet documenten en je website om in gestructureerde bedrijfsfeiten.",
+    "reg.agent.business_intelligence.desc":
+      "Zet documenten en je website om in gestructureerde bedrijfsfeiten.",
     "reg.agent.market_research.name": "Marktonderzoek",
-    "reg.agent.market_research.desc": "Markthypotheses en onderzoeksplannen op basis van bewijs. Live marktonderzoek is niet ingesteld.",
+    "reg.agent.market_research.desc":
+      "Markthypotheses en onderzoeksplannen op basis van bewijs. Live marktonderzoek is niet ingesteld.",
     "reg.agent.competitor_intel.name": "Concurrentie-inzicht",
     "reg.agent.competitor_intel.desc": "Volgt positionering, prijzen en zetten van concurrenten.",
     "reg.agent.marketing_strategy.name": "Marketingstrategie",
-    "reg.agent.marketing_strategy.desc": "Geprioriteerde strategieën en praktische experimenten op basis van afgebakend bewijs.",
+    "reg.agent.marketing_strategy.desc":
+      "Geprioriteerde strategieën en praktische experimenten op basis van afgebakend bewijs.",
     "reg.agent.seo.name": "SEO",
-    "reg.agent.seo.desc": "Voorgestelde zoekwoordclusters en paginaplannen. Crawlen, posities en verkeersmetingen zijn niet ingesteld.",
+    "reg.agent.seo.desc":
+      "Voorgestelde zoekwoordclusters en paginaplannen. Crawlen, posities en verkeersmetingen zijn niet ingesteld.",
     "reg.agent.content.name": "Content",
-    "reg.agent.content.desc": "Volledige contentconcepten en briefings ter beoordeling; geen externe publicatie.",
+    "reg.agent.content.desc":
+      "Volledige contentconcepten en briefings ter beoordeling; geen externe publicatie.",
     "reg.agent.social.name": "Sociale media",
     "reg.agent.social.desc": "Plant en programmeert berichten op sociale media.",
     "reg.agent.advertising.name": "Advertenties",
@@ -99,19 +113,23 @@ export const reg = defineArea("reg", {
     "reg.agent.email.name": "E-mailmarketing",
     "reg.agent.email.desc": "Ontwerpt en verstuurt e-mails doorheen de klantlevenscyclus.",
     "reg.cap.profile.read.name": "Bedrijfsprofiel lezen",
-    "reg.cap.profile.read.desc": "Het bedrijfsprofiel en de geverifieerde feiten van de werkruimte lezen.",
+    "reg.cap.profile.read.desc":
+      "Het bedrijfsprofiel en de geverifieerde feiten van de werkruimte lezen.",
     "reg.cap.documents.extract_facts.name": "Feiten uit documenten halen",
-    "reg.cap.documents.extract_facts.desc": "Een geüpload document lezen en gestructureerde bedrijfsfeiten voorstellen.",
+    "reg.cap.documents.extract_facts.desc":
+      "Een geüpload document lezen en gestructureerde bedrijfsfeiten voorstellen.",
     "reg.cap.website.analyze.name": "Website analyseren",
     "reg.cap.website.analyze.desc": "De publieke homepage ophalen en de positionering samenvatten.",
     "reg.cap.strategy.recommend.name": "Groeiacties aanbevelen",
-    "reg.cap.strategy.recommend.desc": "Geprioriteerde aanbevelingen maken met redenering en verwachte impact.",
+    "reg.cap.strategy.recommend.desc":
+      "Geprioriteerde aanbevelingen maken met redenering en verwachte impact.",
     "reg.cap.approvals.propose.name": "Een actie voorstellen",
     "reg.cap.approvals.propose.desc": "Een actievoorstel aanmaken bij de goedkeuringen.",
     "reg.cap.content.publish.name": "Content publiceren",
     "reg.cap.content.publish.desc": "Een bericht of pagina publiceren op een gekoppeld kanaal.",
     "reg.cap.ads.adjust_budget.name": "Advertentiebudget aanpassen",
-    "reg.cap.ads.adjust_budget.desc": "Een campagnebudget wijzigen op een gekoppeld advertentieaccount.",
+    "reg.cap.ads.adjust_budget.desc":
+      "Een campagnebudget wijzigen op een gekoppeld advertentieaccount.",
     "reg.cap.email.send_campaign.name": "E-mailcampagne versturen",
     "reg.cap.email.send_campaign.desc": "Een campagne versturen via een gekoppelde e-mailprovider.",
     "reg.cap.crm.create_lead.name": "CRM-lead aanmaken",
@@ -150,19 +168,26 @@ export const reg = defineArea("reg", {
   },
   fr: {
     "reg.agent.growth_officer.name": "Chief Growth Officer",
-    "reg.agent.growth_officer.desc": "Votre principal partenaire IA. Comprend votre entreprise et coordonne les autres agents.",
+    "reg.agent.growth_officer.desc":
+      "Votre principal partenaire IA. Comprend votre entreprise et coordonne les autres agents.",
     "reg.agent.business_intelligence.name": "Intelligence d'entreprise",
-    "reg.agent.business_intelligence.desc": "Transforme vos documents et votre site web en faits structurés sur l'entreprise.",
+    "reg.agent.business_intelligence.desc":
+      "Transforme vos documents et votre site web en faits structurés sur l'entreprise.",
     "reg.agent.market_research.name": "Études de marché",
-    "reg.agent.market_research.desc": "Hypothèses de marché et plans de recherche fondés sur des preuves. La recherche de marché en direct n'est pas configurée.",
+    "reg.agent.market_research.desc":
+      "Hypothèses de marché et plans de recherche fondés sur des preuves. La recherche de marché en direct n'est pas configurée.",
     "reg.agent.competitor_intel.name": "Veille concurrentielle",
-    "reg.agent.competitor_intel.desc": "Suit le positionnement, les prix et les mouvements des concurrents.",
+    "reg.agent.competitor_intel.desc":
+      "Suit le positionnement, les prix et les mouvements des concurrents.",
     "reg.agent.marketing_strategy.name": "Stratégie marketing",
-    "reg.agent.marketing_strategy.desc": "Stratégies priorisées et expériences concrètes à partir de preuves ciblées.",
+    "reg.agent.marketing_strategy.desc":
+      "Stratégies priorisées et expériences concrètes à partir de preuves ciblées.",
     "reg.agent.seo.name": "SEO",
-    "reg.agent.seo.desc": "Groupes de mots-clés et plans de pages suggérés. L'exploration, les positions et la mesure du trafic ne sont pas configurées.",
+    "reg.agent.seo.desc":
+      "Groupes de mots-clés et plans de pages suggérés. L'exploration, les positions et la mesure du trafic ne sont pas configurées.",
     "reg.agent.content.name": "Contenu",
-    "reg.agent.content.desc": "Brouillons et briefs complets à relire ; aucune publication externe.",
+    "reg.agent.content.desc":
+      "Brouillons et briefs complets à relire ; aucune publication externe.",
     "reg.agent.social.name": "Réseaux sociaux",
     "reg.agent.social.desc": "Planifie et programme les publications sur les réseaux sociaux.",
     "reg.agent.advertising.name": "Publicité",
@@ -172,19 +197,24 @@ export const reg = defineArea("reg", {
     "reg.agent.email.name": "E-mail marketing",
     "reg.agent.email.desc": "Conçoit et envoie des e-mails tout au long du cycle client.",
     "reg.cap.profile.read.name": "Lire le profil de l'entreprise",
-    "reg.cap.profile.read.desc": "Lire le profil de l'entreprise et les faits vérifiés de l'espace.",
+    "reg.cap.profile.read.desc":
+      "Lire le profil de l'entreprise et les faits vérifiés de l'espace.",
     "reg.cap.documents.extract_facts.name": "Extraire des faits des documents",
-    "reg.cap.documents.extract_facts.desc": "Lire un document importé et proposer des faits structurés.",
+    "reg.cap.documents.extract_facts.desc":
+      "Lire un document importé et proposer des faits structurés.",
     "reg.cap.website.analyze.name": "Analyser le site web",
-    "reg.cap.website.analyze.desc": "Récupérer la page d'accueil publique et résumer le positionnement.",
+    "reg.cap.website.analyze.desc":
+      "Récupérer la page d'accueil publique et résumer le positionnement.",
     "reg.cap.strategy.recommend.name": "Recommander des actions de croissance",
-    "reg.cap.strategy.recommend.desc": "Produire des recommandations priorisées avec leur raisonnement et leur impact attendu.",
+    "reg.cap.strategy.recommend.desc":
+      "Produire des recommandations priorisées avec leur raisonnement et leur impact attendu.",
     "reg.cap.approvals.propose.name": "Proposer une action",
     "reg.cap.approvals.propose.desc": "Créer une proposition d'action dans les approbations.",
     "reg.cap.content.publish.name": "Publier du contenu",
     "reg.cap.content.publish.desc": "Publier un message ou une page sur un canal connecté.",
     "reg.cap.ads.adjust_budget.name": "Ajuster le budget publicitaire",
-    "reg.cap.ads.adjust_budget.desc": "Modifier le budget d'une campagne sur un compte publicitaire connecté.",
+    "reg.cap.ads.adjust_budget.desc":
+      "Modifier le budget d'une campagne sur un compte publicitaire connecté.",
     "reg.cap.email.send_campaign.name": "Envoyer une campagne e-mail",
     "reg.cap.email.send_campaign.desc": "Envoyer une campagne via un fournisseur e-mail connecté.",
     "reg.cap.crm.create_lead.name": "Créer un lead CRM",

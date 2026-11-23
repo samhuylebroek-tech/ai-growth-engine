@@ -13,20 +13,32 @@ describe("classifyInitiativeAttention", () => {
     currentValue: 18,
   };
   it("prioritizes a blocker over deadline and ownership signals", () => {
-    expect(classifyInitiativeAttention({ ...base, dueDate: "2026-11-01", blockerNote: "Waiting for approval" }, "2026-11-17"))
-      .toEqual({ kind: "blocked", reason: "Waiting for approval", rank: 0 });
+    expect(
+      classifyInitiativeAttention(
+        { ...base, dueDate: "2026-11-01", blockerNote: "Waiting for approval" },
+        "2026-11-17",
+      ),
+    ).toEqual({ kind: "blocked", reason: "Waiting for approval", rank: 0 });
   });
   it("marks past deadlines as overdue", () => {
-    expect(classifyInitiativeAttention({ ...base, dueDate: "2026-11-16" }, "2026-11-17")?.kind).toBe("overdue");
+    expect(
+      classifyInitiativeAttention({ ...base, dueDate: "2026-11-16" }, "2026-11-17")?.kind,
+    ).toBe("overdue");
   });
   it("marks deadlines within seven days as due soon", () => {
-    expect(classifyInitiativeAttention({ ...base, dueDate: "2026-11-24" }, "2026-11-17")?.kind).toBe("due_soon");
+    expect(
+      classifyInitiativeAttention({ ...base, dueDate: "2026-11-24" }, "2026-11-17")?.kind,
+    ).toBe("due_soon");
   });
   it("flags active work without an owner", () => {
-    expect(classifyInitiativeAttention({ ...base, ownerId: null }, "2026-11-17")?.kind).toBe("unassigned");
+    expect(classifyInitiativeAttention({ ...base, ownerId: null }, "2026-11-17")?.kind).toBe(
+      "unassigned",
+    );
   });
   it("flags active work without a complete outcome measure", () => {
-    expect(classifyInitiativeAttention({ ...base, baselineValue: null }, "2026-11-17")?.kind).toBe("measurement");
+    expect(classifyInitiativeAttention({ ...base, baselineValue: null }, "2026-11-17")?.kind).toBe(
+      "measurement",
+    );
   });
   it("does not flag completed or cancelled work", () => {
     expect(classifyInitiativeAttention({ ...base, status: "completed" }, "2026-11-17")).toBeNull();
@@ -42,6 +54,6 @@ describe("sortInitiativeAttention", () => {
       { id: "early", rank: 2, dueDate: "2026-11-20" },
       { id: "overdue", rank: 1, dueDate: "2026-11-16" },
     ]);
-    expect(result.map(item => item.id)).toEqual(["blocked", "overdue", "early", "late"]);
+    expect(result.map((item) => item.id)).toEqual(["blocked", "overdue", "early", "late"]);
   });
 });

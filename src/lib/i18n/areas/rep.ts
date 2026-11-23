@@ -7,7 +7,8 @@ export const rep = defineArea("rep", {
     "rep.t.daily": "Daily summary",
     "rep.t.specialists": "Specialist performance",
     "rep.p.1d": "Today (compared with yesterday)",
-    "rep.m.quality_unavailable": "Quality control is not available here, so review scores and decisions are not included.",
+    "rep.m.quality_unavailable":
+      "Quality control is not available here, so review scores and decisions are not included.",
     "rep.performance": "Results and quality per specialist",
     "rep.perSuccess": "Credits per finished result",
     "rep.reviews": "Second reviews",
@@ -17,11 +18,13 @@ export const rep = defineArea("rep", {
     "rep.corrected": "Accepted with corrections",
     "rep.rework": "Rework",
     "rep.rejected": "Rejected",
-    "rep.qualityNote": "Review scores are structured opinions from a second specialist, not proof that results were correct. Decisions are recorded by editors.",
+    "rep.qualityNote":
+      "Review scores are structured opinions from a second specialist, not proof that results were correct. Decisions are recorded by editors.",
     "rep.qualityAll": "All {r} second reviews and {d} decisions of this business were read.",
     "rep.reviewCredits": "Credits for second reviews",
     "rep.unknownCost": "{n} without recorded cost",
-    "rep.desc": "Reports built from the figures recorded in this business. Every number shows where it comes from; nothing is projected.",
+    "rep.desc":
+      "Reports built from the figures recorded in this business. Every number shows where it comes from; nothing is projected.",
     "rep.type": "Report",
     "rep.t.weekly": "Weekly growth report",
     "rep.t.monthly": "Monthly business review",
@@ -40,15 +43,19 @@ export const rep = defineArea("rep", {
     "rep.range": "{a} – {b}, compared with {c} – {d}",
     "rep.print": "Print or save as PDF",
     "rep.loading": "Loading the figures…",
-    "rep.failed": "The report could not be built because a required read failed. Nothing partial is shown.",
+    "rep.failed":
+      "The report could not be built because a required read failed. Nothing partial is shown.",
     "rep.missingTitle": "Missing for a complete report",
-    "rep.m.revenue": "No revenue recorded in this period. Record sales and refunds under Revenue & attribution.",
+    "rep.m.revenue":
+      "No revenue recorded in this period. Record sales and refunds under Revenue & attribution.",
     "rep.m.spend": "No campaign spending recorded in this period.",
-    "rep.m.spend_unavailable": "Campaign spending tracking is not available here, so costs are not included.",
+    "rep.m.spend_unavailable":
+      "Campaign spending tracking is not available here, so costs are not included.",
     "rep.m.runs": "No AI task runs in this period.",
     "rep.m.experiments": "No experiments recorded yet.",
     "rep.m.campaigns": "No campaigns yet.",
-    "rep.m.return_on_spend": "Revenue per recorded spend needs revenue and spending in the same currency.",
+    "rep.m.return_on_spend":
+      "Revenue per recorded spend needs revenue and spending in the same currency.",
     "rep.finance": "Revenue",
     "rep.currency": "Currency",
     "rep.sales": "Sales",
@@ -67,8 +74,10 @@ export const rep = defineArea("rep", {
     "rep.spendPrev": "{a} (previous period: {b})",
     "rep.simSpent": "Simulated test spending, not included above: {list}",
     "rep.simShort": "simulated",
-    "rep.src.spend": "Source: campaign spending ledger ({n} entries in the period, {s} of them simulated test data).",
-    "rep.perSpendNote": "Net revenue divided by recorded campaign spending in the same currency. It is not attributed return: it does not show which spending caused which revenue.",
+    "rep.src.spend":
+      "Source: campaign spending ledger ({n} entries in the period, {s} of them simulated test data).",
+    "rep.perSpendNote":
+      "Net revenue divided by recorded campaign spending in the same currency. It is not attributed return: it does not show which spending caused which revenue.",
     "rep.work": "Work",
     "rep.done": "Tasks marked done (last change in the period)",
     "rep.created": "Tasks created",
@@ -113,20 +122,25 @@ export const rep = defineArea("rep", {
     "rep.econ.na.customer": "Customer references missing",
     "rep.econ.na.spend": "No actual acquisition spending",
     "rep.econ.none": "No sales, spending or costs recorded in this period.",
-    "rep.econ.budget": "Budget: planned {p}, allocated to campaigns {a}, not allocated {u}, actually spent {s}.",
+    "rep.econ.budget":
+      "Budget: planned {p}, allocated to campaigns {a}, not allocated {u}, actually spent {s}.",
     "rep.econ.ai": "AI work: {n} credits ({c} on campaigns, {o} other).",
     "rep.econ.aiCost": "Cost at the price valid when used: {a}.",
     "rep.econ.aiNoPrice": "No credit price applied, so shown in credits only.",
-    "rep.econ.outcomes": "Recommendation outcomes measured: {i} better, {w} worse, {n} unchanged, {x} inconclusive; {d} waiting to be measured.",
-    "rep.econ.note": "Same calculation as the Growth economics page. Attribution: last touch. Refunds count in the month of the sale they belong to, here and in the revenue table above. Simulated and reserved amounts are never counted as spending.",
-    "rep.econ.aiCampaigns": "AI credits per campaign since its start (value at the credit price valid when used, where one applied): {list}",
+    "rep.econ.outcomes":
+      "Recommendation outcomes measured: {i} better, {w} worse, {n} unchanged, {x} inconclusive; {d} waiting to be measured.",
+    "rep.econ.note":
+      "Same calculation as the Growth economics page. Attribution: last touch. Refunds count in the month of the sale they belong to, here and in the revenue table above. Simulated and reserved amounts are never counted as spending.",
+    "rep.econ.aiCampaigns":
+      "AI credits per campaign since its start (value at the credit price valid when used, where one applied): {list}",
   },
   nl: {
     "rep.title": "Bedrijfsrapporten",
     "rep.t.daily": "Dagelijkse samenvatting",
     "rep.t.specialists": "Prestaties van specialisten",
     "rep.p.1d": "Vandaag (vergeleken met gisteren)",
-    "rep.m.quality_unavailable": "Kwaliteitscontrole is hier niet beschikbaar, dus beoordelingsscores en beslissingen ontbreken.",
+    "rep.m.quality_unavailable":
+      "Kwaliteitscontrole is hier niet beschikbaar, dus beoordelingsscores en beslissingen ontbreken.",
     "rep.performance": "Resultaten en kwaliteit per specialist",
     "rep.perSuccess": "Credits per afgerond resultaat",
     "rep.reviews": "Tweede beoordelingen",
@@ -136,11 +150,14 @@ export const rep = defineArea("rep", {
     "rep.corrected": "Aanvaard met correcties",
     "rep.rework": "Opnieuw",
     "rep.rejected": "Afgewezen",
-    "rep.qualityNote": "Beoordelingsscores zijn gestructureerde oordelen van een tweede specialist, geen bewijs dat resultaten klopten. Beslissingen worden door editors vastgelegd.",
-    "rep.qualityAll": "Alle {r} tweede beoordelingen en {d} beslissingen van dit bedrijf werden gelezen.",
+    "rep.qualityNote":
+      "Beoordelingsscores zijn gestructureerde oordelen van een tweede specialist, geen bewijs dat resultaten klopten. Beslissingen worden door editors vastgelegd.",
+    "rep.qualityAll":
+      "Alle {r} tweede beoordelingen en {d} beslissingen van dit bedrijf werden gelezen.",
     "rep.reviewCredits": "Credits voor tweede beoordelingen",
     "rep.unknownCost": "{n} zonder geregistreerde kost",
-    "rep.desc": "Rapporten op basis van de cijfers die in dit bedrijf zijn geregistreerd. Bij elk cijfer staat waar het vandaan komt; er wordt niets voorspeld.",
+    "rep.desc":
+      "Rapporten op basis van de cijfers die in dit bedrijf zijn geregistreerd. Bij elk cijfer staat waar het vandaan komt; er wordt niets voorspeld.",
     "rep.type": "Rapport",
     "rep.t.weekly": "Wekelijks groeirapport",
     "rep.t.monthly": "Maandelijkse bedrijfsreview",
@@ -159,15 +176,19 @@ export const rep = defineArea("rep", {
     "rep.range": "{a} – {b}, vergeleken met {c} – {d}",
     "rep.print": "Afdrukken of opslaan als pdf",
     "rep.loading": "Cijfers laden…",
-    "rep.failed": "Het rapport kon niet worden opgebouwd omdat een noodzakelijke leesactie mislukte. Er wordt niets gedeeltelijks getoond.",
+    "rep.failed":
+      "Het rapport kon niet worden opgebouwd omdat een noodzakelijke leesactie mislukte. Er wordt niets gedeeltelijks getoond.",
     "rep.missingTitle": "Ontbreekt voor een volledig rapport",
-    "rep.m.revenue": "Geen omzet geregistreerd in deze periode. Registreer verkopen en terugbetalingen bij Omzet & attributie.",
+    "rep.m.revenue":
+      "Geen omzet geregistreerd in deze periode. Registreer verkopen en terugbetalingen bij Omzet & attributie.",
     "rep.m.spend": "Geen campagne-uitgaven geregistreerd in deze periode.",
-    "rep.m.spend_unavailable": "Campagne-uitgaven bijhouden is hier niet beschikbaar, dus kosten zijn niet opgenomen.",
+    "rep.m.spend_unavailable":
+      "Campagne-uitgaven bijhouden is hier niet beschikbaar, dus kosten zijn niet opgenomen.",
     "rep.m.runs": "Geen AI-taakuitvoeringen in deze periode.",
     "rep.m.experiments": "Nog geen experimenten geregistreerd.",
     "rep.m.campaigns": "Nog geen campagnes.",
-    "rep.m.return_on_spend": "Omzet per geregistreerde uitgave vereist omzet en uitgaven in dezelfde valuta.",
+    "rep.m.return_on_spend":
+      "Omzet per geregistreerde uitgave vereist omzet en uitgaven in dezelfde valuta.",
     "rep.finance": "Omzet",
     "rep.currency": "Valuta",
     "rep.sales": "Verkopen",
@@ -186,8 +207,10 @@ export const rep = defineArea("rep", {
     "rep.spendPrev": "{a} (vorige periode: {b})",
     "rep.simSpent": "Gesimuleerde testuitgaven, hierboven niet meegeteld: {list}",
     "rep.simShort": "gesimuleerd",
-    "rep.src.spend": "Bron: register campagne-uitgaven, {n} regel(s) in de periode, waarvan {s} gesimuleerde testgegevens.",
-    "rep.perSpendNote": "Netto-omzet gedeeld door geregistreerde campagne-uitgaven in dezelfde valuta. Dit is geen toegewezen rendement: het toont niet welke uitgave welke omzet veroorzaakte.",
+    "rep.src.spend":
+      "Bron: register campagne-uitgaven, {n} regel(s) in de periode, waarvan {s} gesimuleerde testgegevens.",
+    "rep.perSpendNote":
+      "Netto-omzet gedeeld door geregistreerde campagne-uitgaven in dezelfde valuta. Dit is geen toegewezen rendement: het toont niet welke uitgave welke omzet veroorzaakte.",
     "rep.work": "Werk",
     "rep.done": "Taken afgerond (laatste wijziging in de periode)",
     "rep.created": "Taken aangemaakt",
@@ -220,7 +243,8 @@ export const rep = defineArea("rep", {
     "rep.none": "—",
     "rep.econ.title": "Groei-economie",
     "rep.econ.failed": "Groei-economie kon niet worden geladen; er worden geen cijfers getoond.",
-    "rep.econ.incomplete": "Sommige registraties konden niet volledig worden gelezen; totalen kunnen te laag zijn.",
+    "rep.econ.incomplete":
+      "Sommige registraties konden niet volledig worden gelezen; totalen kunnen te laag zijn.",
     "rep.econ.costs": "Bedrijfskosten",
     "rep.econ.gp": "Brutowinst",
     "rep.econ.margin": "Brutomarge",
@@ -232,20 +256,25 @@ export const rep = defineArea("rep", {
     "rep.econ.na.customer": "Klantreferenties ontbreken",
     "rep.econ.na.spend": "Geen werkelijke wervingsuitgaven",
     "rep.econ.none": "Geen verkopen, uitgaven of kosten geregistreerd in deze periode.",
-    "rep.econ.budget": "Budget: gepland {p}, toegewezen aan campagnes {a}, niet toegewezen {u}, werkelijk uitgegeven {s}.",
+    "rep.econ.budget":
+      "Budget: gepland {p}, toegewezen aan campagnes {a}, niet toegewezen {u}, werkelijk uitgegeven {s}.",
     "rep.econ.ai": "AI-werk: {n} credits ({c} voor campagnes, {o} overig).",
     "rep.econ.aiCost": "Kost tegen de prijs die gold bij gebruik: {a}.",
     "rep.econ.aiNoPrice": "Er gold geen creditprijs, dus alleen in credits getoond.",
-    "rep.econ.outcomes": "Gemeten uitkomsten van aanbevelingen: {i} beter, {w} slechter, {n} ongewijzigd, {x} onbeslist; {d} wachten op meting.",
-    "rep.econ.note": "Zelfde berekening als de pagina Groei-economie. Toewijzing: laatste contact. Terugbetalingen tellen in de maand van de verkoop waartoe ze horen, hier en in de omzettabel hierboven. Gesimuleerde en gereserveerde bedragen tellen nooit als uitgaven.",
-    "rep.econ.aiCampaigns": "AI-credits per campagne sinds de start (waarde tegen de creditprijs die toen gold, waar er een gold): {list}",
+    "rep.econ.outcomes":
+      "Gemeten uitkomsten van aanbevelingen: {i} beter, {w} slechter, {n} ongewijzigd, {x} onbeslist; {d} wachten op meting.",
+    "rep.econ.note":
+      "Zelfde berekening als de pagina Groei-economie. Toewijzing: laatste contact. Terugbetalingen tellen in de maand van de verkoop waartoe ze horen, hier en in de omzettabel hierboven. Gesimuleerde en gereserveerde bedragen tellen nooit als uitgaven.",
+    "rep.econ.aiCampaigns":
+      "AI-credits per campagne sinds de start (waarde tegen de creditprijs die toen gold, waar er een gold): {list}",
   },
   fr: {
     "rep.title": "Rapports d’activité",
     "rep.t.daily": "Résumé du jour",
     "rep.t.specialists": "Performance des spécialistes",
     "rep.p.1d": "Aujourd’hui (comparé à hier)",
-    "rep.m.quality_unavailable": "Le contrôle qualité n’est pas disponible ici ; scores de revue et décisions ne sont pas inclus.",
+    "rep.m.quality_unavailable":
+      "Le contrôle qualité n’est pas disponible ici ; scores de revue et décisions ne sont pas inclus.",
     "rep.performance": "Résultats et qualité par spécialiste",
     "rep.perSuccess": "Crédits par résultat terminé",
     "rep.reviews": "Secondes revues",
@@ -255,11 +284,14 @@ export const rep = defineArea("rep", {
     "rep.corrected": "Acceptés avec corrections",
     "rep.rework": "À refaire",
     "rep.rejected": "Refusés",
-    "rep.qualityNote": "Les scores de revue sont des avis structurés d’un second spécialiste, pas la preuve que les résultats étaient justes. Les décisions sont enregistrées par des éditeurs.",
-    "rep.qualityAll": "Les {r} secondes revues et {d} décisions de cette entreprise ont toutes été lues.",
+    "rep.qualityNote":
+      "Les scores de revue sont des avis structurés d’un second spécialiste, pas la preuve que les résultats étaient justes. Les décisions sont enregistrées par des éditeurs.",
+    "rep.qualityAll":
+      "Les {r} secondes revues et {d} décisions de cette entreprise ont toutes été lues.",
     "rep.reviewCredits": "Crédits des secondes revues",
     "rep.unknownCost": "{n} sans coût enregistré",
-    "rep.desc": "Rapports construits à partir des chiffres enregistrés dans cette entreprise. Chaque chiffre indique sa source ; rien n’est projeté.",
+    "rep.desc":
+      "Rapports construits à partir des chiffres enregistrés dans cette entreprise. Chaque chiffre indique sa source ; rien n’est projeté.",
     "rep.type": "Rapport",
     "rep.t.weekly": "Rapport de croissance hebdomadaire",
     "rep.t.monthly": "Revue mensuelle de l’activité",
@@ -278,15 +310,19 @@ export const rep = defineArea("rep", {
     "rep.range": "{a} – {b}, comparé à {c} – {d}",
     "rep.print": "Imprimer ou enregistrer en PDF",
     "rep.loading": "Chargement des chiffres…",
-    "rep.failed": "Le rapport n’a pas pu être construit car une lecture nécessaire a échoué. Rien de partiel n’est affiché.",
+    "rep.failed":
+      "Le rapport n’a pas pu être construit car une lecture nécessaire a échoué. Rien de partiel n’est affiché.",
     "rep.missingTitle": "Manquant pour un rapport complet",
-    "rep.m.revenue": "Aucun chiffre d’affaires enregistré sur cette période. Enregistrez ventes et remboursements dans Chiffre d’affaires & attribution.",
+    "rep.m.revenue":
+      "Aucun chiffre d’affaires enregistré sur cette période. Enregistrez ventes et remboursements dans Chiffre d’affaires & attribution.",
     "rep.m.spend": "Aucune dépense de campagne enregistrée sur cette période.",
-    "rep.m.spend_unavailable": "Le suivi des dépenses de campagne n’est pas disponible ici ; les coûts ne sont pas inclus.",
+    "rep.m.spend_unavailable":
+      "Le suivi des dépenses de campagne n’est pas disponible ici ; les coûts ne sont pas inclus.",
     "rep.m.runs": "Aucune exécution de tâche IA sur cette période.",
     "rep.m.experiments": "Aucune expérience enregistrée.",
     "rep.m.campaigns": "Aucune campagne.",
-    "rep.m.return_on_spend": "Le chiffre d’affaires par dépense enregistrée nécessite chiffre d’affaires et dépenses dans la même devise.",
+    "rep.m.return_on_spend":
+      "Le chiffre d’affaires par dépense enregistrée nécessite chiffre d’affaires et dépenses dans la même devise.",
     "rep.finance": "Chiffre d’affaires",
     "rep.currency": "Devise",
     "rep.sales": "Ventes",
@@ -301,12 +337,15 @@ export const rep = defineArea("rep", {
     "rep.changeNote": "Les pourcentages entre parenthèses comparent avec la période précédente.",
     "rep.k.recorded": "Enregistré",
     "rep.k.computed": "Calculé",
-    "rep.src.revenue": "Source : registre du chiffre d’affaires, {n} ligne(s) enregistrée(s) sur la période.",
+    "rep.src.revenue":
+      "Source : registre du chiffre d’affaires, {n} ligne(s) enregistrée(s) sur la période.",
     "rep.spendPrev": "{a} (période précédente : {b})",
     "rep.simSpent": "Dépenses de test simulées, non incluses ci-dessus : {list}",
     "rep.simShort": "simulé",
-    "rep.src.spend": "Source : registre des dépenses de campagne, {n} ligne(s) sur la période, dont {s} données de test simulées.",
-    "rep.perSpendNote": "Chiffre d’affaires net divisé par les dépenses de campagne enregistrées dans la même devise. Ce n’est pas un rendement attribué : cela ne montre pas quelle dépense a produit quel chiffre d’affaires.",
+    "rep.src.spend":
+      "Source : registre des dépenses de campagne, {n} ligne(s) sur la période, dont {s} données de test simulées.",
+    "rep.perSpendNote":
+      "Chiffre d’affaires net divisé par les dépenses de campagne enregistrées dans la même devise. Ce n’est pas un rendement attribué : cela ne montre pas quelle dépense a produit quel chiffre d’affaires.",
     "rep.work": "Travail",
     "rep.done": "Tâches terminées (dernière modification sur la période)",
     "rep.created": "Tâches créées",
@@ -338,8 +377,10 @@ export const rep = defineArea("rep", {
     "rep.overBudget": "au-delà du budget",
     "rep.none": "—",
     "rep.econ.title": "Économie de la croissance",
-    "rep.econ.failed": "L’économie de la croissance n’a pas pu être chargée ; aucun chiffre n’est affiché.",
-    "rep.econ.incomplete": "Certains enregistrements n’ont pas pu être lus entièrement ; les totaux peuvent être trop bas.",
+    "rep.econ.failed":
+      "L’économie de la croissance n’a pas pu être chargée ; aucun chiffre n’est affiché.",
+    "rep.econ.incomplete":
+      "Certains enregistrements n’ont pas pu être lus entièrement ; les totaux peuvent être trop bas.",
     "rep.econ.costs": "Coûts de l’entreprise",
     "rep.econ.gp": "Marge brute",
     "rep.econ.margin": "Taux de marge",
@@ -351,12 +392,16 @@ export const rep = defineArea("rep", {
     "rep.econ.na.customer": "Références client manquantes",
     "rep.econ.na.spend": "Aucune dépense d’acquisition réelle",
     "rep.econ.none": "Aucune vente, dépense ni coût enregistré sur la période.",
-    "rep.econ.budget": "Budget : prévu {p}, affecté aux campagnes {a}, non affecté {u}, réellement dépensé {s}.",
+    "rep.econ.budget":
+      "Budget : prévu {p}, affecté aux campagnes {a}, non affecté {u}, réellement dépensé {s}.",
     "rep.econ.ai": "Travail IA : {n} crédits ({c} pour les campagnes, {o} autres).",
     "rep.econ.aiCost": "Coût au prix en vigueur lors de l’utilisation : {a}.",
     "rep.econ.aiNoPrice": "Aucun prix du crédit applicable : affiché en crédits uniquement.",
-    "rep.econ.outcomes": "Résultats mesurés des recommandations : {i} meilleurs, {w} moins bons, {n} inchangés, {x} non concluants ; {d} en attente de mesure.",
-    "rep.econ.note": "Même calcul que la page Économie de la croissance. Attribution : dernier contact. Les remboursements comptent dans le mois de la vente concernée, ici comme dans le tableau du CA ci-dessus. Les montants simulés et réservés ne comptent jamais comme dépenses.",
-    "rep.econ.aiCampaigns": "Crédits IA par campagne depuis son lancement (valeur au prix du crédit en vigueur lors de l’utilisation, s’il y en avait un) : {list}",
+    "rep.econ.outcomes":
+      "Résultats mesurés des recommandations : {i} meilleurs, {w} moins bons, {n} inchangés, {x} non concluants ; {d} en attente de mesure.",
+    "rep.econ.note":
+      "Même calcul que la page Économie de la croissance. Attribution : dernier contact. Les remboursements comptent dans le mois de la vente concernée, ici comme dans le tableau du CA ci-dessus. Les montants simulés et réservés ne comptent jamais comme dépenses.",
+    "rep.econ.aiCampaigns":
+      "Crédits IA par campagne depuis son lancement (valeur au prix du crédit en vigueur lors de l’utilisation, s’il y en avait un) : {list}",
   },
 });

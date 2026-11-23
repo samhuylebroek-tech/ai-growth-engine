@@ -10,7 +10,9 @@ const RE = /rate_limited:(ai|upload|seo|connect):(user|workspace|organization|fa
 
 export function parseRateLimit(message: string | null | undefined): RateLimit | null {
   const m = message ? RE.exec(message) : null;
-  return m ? { action: m[1] as LimitAction, scope: m[2] as LimitScope, retryAfter: Number(m[3]) } : null;
+  return m
+    ? { action: m[1] as LimitAction, scope: m[2] as LimitScope, retryAfter: Number(m[3]) }
+    : null;
 }
 
 /** Waiting time rounded up to whole minutes (never shorter than the real wait). */
@@ -23,7 +25,10 @@ export function waitText(seconds: number, t: T): string {
 }
 
 export function rateLimitText(r: RateLimit, t: T): string {
-  const text = t(`lim.${r.scope}`, { what: t(`lim.what.${r.action}`), wait: waitText(r.retryAfter, t) });
+  const text = t(`lim.${r.scope}`, {
+    what: t(`lim.what.${r.action}`),
+    wait: waitText(r.retryAfter, t),
+  });
   return r.action === "ai" ? `${text} ${t("lim.noCredits")}` : text;
 }
 

@@ -5,8 +5,7 @@ import { RevenueAttribution } from "@/components/bi/revenue";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/app/revenue")({
-  head: () =>
-    localHead("revenue"),
+  head: () => localHead("revenue"),
   component: Page,
 });
 

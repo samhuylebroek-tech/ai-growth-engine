@@ -5,8 +5,10 @@ export const mon = defineArea("mon", {
   en: {
     "mon.title": "Business check",
     "mon.eyebrow": "Monitoring log",
-    "mon.intro": "A check records which figures were looked at and what the rules found, and compares it with the previous check. It costs no credits.",
-    "mon.manualOnly": "Checks only run when someone starts them here. There is no automatic background monitoring yet.",
+    "mon.intro":
+      "A check records which figures were looked at and what the rules found, and compares it with the previous check. It costs no credits.",
+    "mon.manualOnly":
+      "Checks only run when someone starts them here. There is no automatic background monitoring yet.",
     "mon.run": "Run check now",
     "mon.running": "Checking…",
     "mon.done": "Check recorded: {n} new, {r} resolved.",
@@ -60,13 +62,16 @@ export const mon = defineArea("mon", {
   nl: {
     "mon.title": "Bedrijfscontrole",
     "mon.eyebrow": "Controlelogboek",
-    "mon.intro": "Een controle legt vast welke gegevens zijn bekeken en wat de regels vonden, en vergelijkt dat met de vorige controle. Kost geen credits.",
-    "mon.manualOnly": "Controles lopen alleen wanneer iemand ze hier start. Er is nog geen automatische controle op de achtergrond.",
+    "mon.intro":
+      "Een controle legt vast welke gegevens zijn bekeken en wat de regels vonden, en vergelijkt dat met de vorige controle. Kost geen credits.",
+    "mon.manualOnly":
+      "Controles lopen alleen wanneer iemand ze hier start. Er is nog geen automatische controle op de achtergrond.",
     "mon.run": "Nu controleren",
     "mon.running": "Bezig met controleren…",
     "mon.done": "Controle vastgelegd: {n} nieuw, {r} opgelost.",
     "mon.doneFirst": "Eerste controle vastgelegd met {n} bevindingen.",
-    "mon.tooSoon": "Er is minder dan een minuut geleden al een controle vastgelegd. Probeer het zo opnieuw.",
+    "mon.tooSoon":
+      "Er is minder dan een minuut geleden al een controle vastgelegd. Probeer het zo opnieuw.",
     "mon.failed": "De controle kon niet worden afgerond; er is niets vastgelegd.",
     "mon.notAllowed": "Alleen leden van dit bedrijf kunnen een controle vastleggen.",
     "mon.never": "Nog geen controle vastgelegd.",
@@ -115,13 +120,16 @@ export const mon = defineArea("mon", {
   fr: {
     "mon.title": "Contrôle de l'entreprise",
     "mon.eyebrow": "Journal de contrôle",
-    "mon.intro": "Un contrôle enregistre les données examinées et les constats des règles, et les compare au contrôle précédent. Aucun crédit utilisé.",
-    "mon.manualOnly": "Les contrôles ne s'exécutent que lorsqu'une personne les lance ici. Il n'y a pas encore de surveillance automatique en arrière-plan.",
+    "mon.intro":
+      "Un contrôle enregistre les données examinées et les constats des règles, et les compare au contrôle précédent. Aucun crédit utilisé.",
+    "mon.manualOnly":
+      "Les contrôles ne s'exécutent que lorsqu'une personne les lance ici. Il n'y a pas encore de surveillance automatique en arrière-plan.",
     "mon.run": "Contrôler maintenant",
     "mon.running": "Contrôle en cours…",
     "mon.done": "Contrôle enregistré : {n} nouveau(x), {r} résolu(s).",
     "mon.doneFirst": "Premier contrôle enregistré avec {n} constat(s).",
-    "mon.tooSoon": "Un contrôle a été enregistré il y a moins d'une minute. Réessayez dans un instant.",
+    "mon.tooSoon":
+      "Un contrôle a été enregistré il y a moins d'une minute. Réessayez dans un instant.",
     "mon.failed": "Le contrôle n'a pas pu aboutir ; rien n'a été enregistré.",
     "mon.notAllowed": "Seuls les membres de cette entreprise peuvent enregistrer un contrôle.",
     "mon.never": "Aucun contrôle enregistré.",

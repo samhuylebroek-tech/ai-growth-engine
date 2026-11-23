@@ -17,11 +17,17 @@ describe("browser tab titles follow the interface language", () => {
     expect(translate("en", "head.goals.t" as MessageKey)).toBe("Goals & budget");
   });
   it("no page sets a fixed English title anymore", () => {
-    const fixed = files("src/routes").filter((f) => /pageHead\(\s*"/.test(readFileSync(f, "utf8")) || /\{ title: "[^"]*AI Growth Engine"/.test(readFileSync(f, "utf8")));
+    const fixed = files("src/routes").filter(
+      (f) =>
+        /pageHead\(\s*"/.test(readFileSync(f, "utf8")) ||
+        /\{ title: "[^"]*AI Growth Engine"/.test(readFileSync(f, "utf8")),
+    );
     expect(fixed.filter((f) => !f.endsWith("__root.tsx"))).toEqual([]);
   });
   it("every localHead key used by a page exists in all three languages", () => {
-    const keys = files("src/routes").flatMap((f) => [...readFileSync(f, "utf8").matchAll(/localHead\("([a-z]+)"\)/g)].map((m) => m[1]!));
+    const keys = files("src/routes").flatMap((f) =>
+      [...readFileSync(f, "utf8").matchAll(/localHead\("([a-z]+)"\)/g)].map((m) => m[1]!),
+    );
     expect(keys.length).toBeGreaterThan(30);
     for (const k of keys)
       for (const l of ["en", "nl", "fr"] as const) {

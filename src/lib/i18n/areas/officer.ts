@@ -31,10 +31,12 @@ export const officer = defineArea("officer", {
     "officer.heroA": "A clear next move.",
     "officer.heroB": "Built around your business.",
     "officer.factsAvailable": "{n} confirmed business facts are available in {name}.",
-    "officer.noFacts": "Your business context is not confirmed yet. I’ll make missing evidence and assumptions explicit.",
+    "officer.noFacts":
+      "Your business context is not confirmed yet. I’ll make missing evidence and assumptions explicit.",
     "officer.working": "Working on your question…",
     "officer.deepTitle": "Deep analysis",
-    "officer.deepBody": "Uses this conversation as context and saves the result in a separate analysis thread. Growth Officer chooses the specialist team automatically. Reserves {n} credits across three bounded calls; actual usage is charged and unused credits are returned. No external action is performed.",
+    "officer.deepBody":
+      "Uses this conversation as context and saves the result in a separate analysis thread. Growth Officer chooses the specialist team automatically. Reserves {n} credits across three bounded calls; actual usage is charged and unused credits are returned. No external action is performed.",
     "officer.questionLabel": "Question for Growth Officer",
     "officer.placeholder": "Ask a question or describe your next goal…",
     "officer.factsScoped": "{n} confirmed facts · this workspace only",
@@ -51,7 +53,8 @@ export const officer = defineArea("officer", {
     "officer.related": "Related work",
     "officer.documents": "Documents",
     "officer.approvals": "Review & approvals",
-    "officer.sideNote": "Results are saved in your conversation. External actions require review; automatic execution is not configured.",
+    "officer.sideNote":
+      "Results are saved in your conversation. External actions require review; automatic execution is not configured.",
     "officer.copied": "Result copied",
     "officer.copyFailed": "Could not copy this result",
     "officer.copy": "Copy result",
@@ -66,7 +69,8 @@ export const officer = defineArea("officer", {
     "officer.analyzing": "Analyzing…",
     "officer.runAnalysis": "Run analysis",
     "officer.specialistContext": "Confirmed business knowledge + selected work.",
-    "officer.specialistNote": "AI credits apply. Research and SEO suggestions are not live rankings or measured traffic. Content stays unpublished.",
+    "officer.specialistNote":
+      "AI credits apply. Research and SEO suggestions are not live rankings or measured traffic. Content stays unpublished.",
     "officer.savedActivity": "Saved activity",
     "officer.preparing": "Preparing your analysis…",
     "officer.savedAnalysis": "Saved analysis · {n} AI credits",
@@ -77,13 +81,16 @@ export const officer = defineArea("officer", {
     "officer.teamPlaceholder": "Compare two perspectives and propose a focused next move…",
     "officer.coordinating": "Coordinating…",
     "officer.coordinateBtn": "Coordinate specialists",
-    "officer.coordNote": "Two specialist analyses + Growth Officer synthesis · maximum {n} credits reserved · unused credits returned · no external actions.",
+    "officer.coordNote":
+      "Two specialist analyses + Growth Officer synthesis · maximum {n} credits reserved · unused credits returned · no external actions.",
     "officer.coordBusy": "Specialists are analyzing, then Growth Officer compares their findings.",
     "officer.coordSaved": "Coordinated analysis saved",
-    "officer.coordFailed": "The request could not finish. Check history before starting another analysis.",
+    "officer.coordFailed":
+      "The request could not finish. Check history before starting another analysis.",
     "officer.savedGone": "Saved analysis is no longer available in this workspace.",
     "officer.openFailed": "Could not open the saved result.",
-    "officer.recPending": "Saved work recovered; uncertain AI usage remains reserved for investigation.",
+    "officer.recPending":
+      "Saved work recovered; uncertain AI usage remains reserved for investigation.",
     "officer.recSucceeded": "Saved analysis recovered without new AI calls.",
     "officer.recReconciled": "Saved usage reconciled. No new AI calls were made.",
     "officer.recFailed": "Recovery could not finish. No new AI request was sent.",
@@ -100,11 +107,13 @@ export const officer = defineArea("officer", {
     "officer.status.failed": "not completed",
     "officer.status.cancelled": "cancelled",
     "officer.deep.title": "Saved deep analysis",
-    "officer.deep.recovered": "Saved Growth Officer analysis recovered. Open it from conversation history.",
+    "officer.deep.recovered":
+      "Saved Growth Officer analysis recovered. Open it from conversation history.",
     "officer.deep.reconciling": "The analysis is still reconciling. No new AI request was started.",
     "officer.deep.checked": "Saved analysis checked. No duplicate AI request was started.",
     "officer.deep.unconfirmed": "Recovery could not be confirmed. No new AI request was started.",
-    "officer.deep.statusFailed": "Recovery status could not be checked. Avoid repeating a request until its saved status is clear.",
+    "officer.deep.statusFailed":
+      "Recovery status could not be checked. Avoid repeating a request until its saved status is clear.",
     "officer.deep.retryStatus": "Retry status check",
     "officer.deep.running": "Deep analysis is still running",
     "officer.deep.needsRecon": "Analysis needs reconciliation",
@@ -140,7 +149,8 @@ export const officer = defineArea("officer", {
     "officer.plan.nothingYet": "Nothing is created until you confirm. No external publishing.",
     "officer.plan.linkGoal": "Link to growth goal",
     "officer.plan.noGoal": "No growth goal",
-    "officer.plan.goalsFailed": "Growth goals could not load. Retry by closing and reopening this review.",
+    "officer.plan.goalsFailed":
+      "Growth goals could not load. Retry by closing and reopening this review.",
     "officer.plan.kind.project": "Project",
     "officer.plan.kind.tasks": "Tasks",
     "officer.plan.kind.campaign": "Campaign",
@@ -202,10 +212,12 @@ export const officer = defineArea("officer", {
     "officer.heroA": "Een duidelijke volgende stap.",
     "officer.heroB": "Afgestemd op je bedrijf.",
     "officer.factsAvailable": "{n} bevestigde bedrijfsfeiten zijn beschikbaar in {name}.",
-    "officer.noFacts": "Je bedrijfscontext is nog niet bevestigd. Ik maak ontbrekend bewijs en aannames expliciet.",
+    "officer.noFacts":
+      "Je bedrijfscontext is nog niet bevestigd. Ik maak ontbrekend bewijs en aannames expliciet.",
     "officer.working": "Bezig met je vraag…",
     "officer.deepTitle": "Diepgaande analyse",
-    "officer.deepBody": "Gebruikt dit gesprek als context en bewaart het resultaat in een aparte analyse. De Growth Officer kiest zelf het team van specialisten. Reserveert {n} tegoed over drie begrensde oproepen; alleen het werkelijke verbruik wordt aangerekend en ongebruikt tegoed komt terug. Er wordt geen externe actie uitgevoerd.",
+    "officer.deepBody":
+      "Gebruikt dit gesprek als context en bewaart het resultaat in een aparte analyse. De Growth Officer kiest zelf het team van specialisten. Reserveert {n} tegoed over drie begrensde oproepen; alleen het werkelijke verbruik wordt aangerekend en ongebruikt tegoed komt terug. Er wordt geen externe actie uitgevoerd.",
     "officer.questionLabel": "Vraag voor de Growth Officer",
     "officer.placeholder": "Stel een vraag of beschrijf je volgende doel…",
     "officer.factsScoped": "{n} bevestigde feiten · alleen deze werkruimte",
@@ -222,7 +234,8 @@ export const officer = defineArea("officer", {
     "officer.related": "Gerelateerd werk",
     "officer.documents": "Documenten",
     "officer.approvals": "Controle & goedkeuringen",
-    "officer.sideNote": "Resultaten worden in je gesprek bewaard. Externe acties vragen een controle; automatisch uitvoeren is niet ingesteld.",
+    "officer.sideNote":
+      "Resultaten worden in je gesprek bewaard. Externe acties vragen een controle; automatisch uitvoeren is niet ingesteld.",
     "officer.copied": "Resultaat gekopieerd",
     "officer.copyFailed": "Kon dit resultaat niet kopiëren",
     "officer.copy": "Resultaat kopiëren",
@@ -237,7 +250,8 @@ export const officer = defineArea("officer", {
     "officer.analyzing": "Analyseren…",
     "officer.runAnalysis": "Analyse starten",
     "officer.specialistContext": "Bevestigde bedrijfskennis + geselecteerd werk.",
-    "officer.specialistNote": "AI-tegoed wordt gebruikt. Onderzoek en SEO-suggesties zijn geen live posities of gemeten bezoekers. Content blijft ongepubliceerd.",
+    "officer.specialistNote":
+      "AI-tegoed wordt gebruikt. Onderzoek en SEO-suggesties zijn geen live posities of gemeten bezoekers. Content blijft ongepubliceerd.",
     "officer.savedActivity": "Bewaarde activiteit",
     "officer.preparing": "Je analyse wordt voorbereid…",
     "officer.savedAnalysis": "Bewaarde analyse · {n} AI-tegoed",
@@ -245,16 +259,21 @@ export const officer = defineArea("officer", {
     "officer.coordTitle": "Gecoördineerde analyse",
     "officer.coordinate": "{name} inschakelen",
     "officer.teamAssignment": "Opdracht voor het team",
-    "officer.teamPlaceholder": "Vergelijk twee invalshoeken en stel een gerichte volgende stap voor…",
+    "officer.teamPlaceholder":
+      "Vergelijk twee invalshoeken en stel een gerichte volgende stap voor…",
     "officer.coordinating": "Coördineren…",
     "officer.coordinateBtn": "Specialisten laten samenwerken",
-    "officer.coordNote": "Twee analyses van specialisten + samenvatting door de Growth Officer · maximaal {n} tegoed gereserveerd · ongebruikt tegoed komt terug · geen externe acties.",
-    "officer.coordBusy": "De specialisten analyseren, daarna vergelijkt de Growth Officer hun bevindingen.",
+    "officer.coordNote":
+      "Twee analyses van specialisten + samenvatting door de Growth Officer · maximaal {n} tegoed gereserveerd · ongebruikt tegoed komt terug · geen externe acties.",
+    "officer.coordBusy":
+      "De specialisten analyseren, daarna vergelijkt de Growth Officer hun bevindingen.",
     "officer.coordSaved": "Gecoördineerde analyse bewaard",
-    "officer.coordFailed": "Het verzoek kon niet afgerond worden. Bekijk de geschiedenis voor je een nieuwe analyse start.",
+    "officer.coordFailed":
+      "Het verzoek kon niet afgerond worden. Bekijk de geschiedenis voor je een nieuwe analyse start.",
     "officer.savedGone": "De bewaarde analyse is niet meer beschikbaar in deze werkruimte.",
     "officer.openFailed": "Kon het bewaarde resultaat niet openen.",
-    "officer.recPending": "Bewaard werk hersteld; onzeker AI-verbruik blijft gereserveerd voor onderzoek.",
+    "officer.recPending":
+      "Bewaard werk hersteld; onzeker AI-verbruik blijft gereserveerd voor onderzoek.",
     "officer.recSucceeded": "Bewaarde analyse hersteld zonder nieuwe AI-oproepen.",
     "officer.recReconciled": "Bewaard verbruik afgestemd. Er zijn geen nieuwe AI-oproepen gedaan.",
     "officer.recFailed": "Herstel kon niet afgerond worden. Er is geen nieuw AI-verzoek verstuurd.",
@@ -271,11 +290,15 @@ export const officer = defineArea("officer", {
     "officer.status.failed": "niet voltooid",
     "officer.status.cancelled": "geannuleerd",
     "officer.deep.title": "Bewaarde diepgaande analyse",
-    "officer.deep.recovered": "Bewaarde analyse van de Growth Officer hersteld. Open ze via je gesprekken.",
-    "officer.deep.reconciling": "De analyse wordt nog afgestemd. Er is geen nieuw AI-verzoek gestart.",
+    "officer.deep.recovered":
+      "Bewaarde analyse van de Growth Officer hersteld. Open ze via je gesprekken.",
+    "officer.deep.reconciling":
+      "De analyse wordt nog afgestemd. Er is geen nieuw AI-verzoek gestart.",
     "officer.deep.checked": "Bewaarde analyse gecontroleerd. Er is geen dubbel AI-verzoek gestart.",
-    "officer.deep.unconfirmed": "Herstel kon niet bevestigd worden. Er is geen nieuw AI-verzoek gestart.",
-    "officer.deep.statusFailed": "De herstelstatus kon niet gecontroleerd worden. Herhaal geen verzoek tot de status duidelijk is.",
+    "officer.deep.unconfirmed":
+      "Herstel kon niet bevestigd worden. Er is geen nieuw AI-verzoek gestart.",
+    "officer.deep.statusFailed":
+      "De herstelstatus kon niet gecontroleerd worden. Herhaal geen verzoek tot de status duidelijk is.",
     "officer.deep.retryStatus": "Status opnieuw controleren",
     "officer.deep.running": "Diepgaande analyse loopt nog",
     "officer.deep.needsRecon": "Analyse moet afgestemd worden",
@@ -308,10 +331,12 @@ export const officer = defineArea("officer", {
     "officer.plan.saveFailed": "Kon het plan niet bewaren",
     "officer.plan.turnInto": "Omzetten naar werk",
     "officer.plan.review": "Uitvoeringsplan nakijken",
-    "officer.plan.nothingYet": "Er wordt niets aangemaakt tot je bevestigt. Niets wordt extern gepubliceerd.",
+    "officer.plan.nothingYet":
+      "Er wordt niets aangemaakt tot je bevestigt. Niets wordt extern gepubliceerd.",
     "officer.plan.linkGoal": "Koppelen aan groeidoel",
     "officer.plan.noGoal": "Geen groeidoel",
-    "officer.plan.goalsFailed": "Groeidoelen konden niet laden. Sluit dit venster en open het opnieuw.",
+    "officer.plan.goalsFailed":
+      "Groeidoelen konden niet laden. Sluit dit venster en open het opnieuw.",
     "officer.plan.kind.project": "Project",
     "officer.plan.kind.tasks": "Taken",
     "officer.plan.kind.campaign": "Campagne",
@@ -373,10 +398,12 @@ export const officer = defineArea("officer", {
     "officer.heroA": "Une prochaine étape claire.",
     "officer.heroB": "Pensée pour votre entreprise.",
     "officer.factsAvailable": "{n} faits confirmés sur l’entreprise sont disponibles dans {name}.",
-    "officer.noFacts": "Le contexte de votre entreprise n’est pas encore confirmé. Je signalerai clairement les preuves manquantes et les hypothèses.",
+    "officer.noFacts":
+      "Le contexte de votre entreprise n’est pas encore confirmé. Je signalerai clairement les preuves manquantes et les hypothèses.",
     "officer.working": "Traitement de votre question…",
     "officer.deepTitle": "Analyse approfondie",
-    "officer.deepBody": "Utilise cette conversation comme contexte et enregistre le résultat dans une analyse distincte. Le Growth Officer choisit automatiquement l’équipe de spécialistes. Réserve {n} crédits sur trois appels limités ; seule la consommation réelle est facturée et les crédits non utilisés sont restitués. Aucune action externe n’est effectuée.",
+    "officer.deepBody":
+      "Utilise cette conversation comme contexte et enregistre le résultat dans une analyse distincte. Le Growth Officer choisit automatiquement l’équipe de spécialistes. Réserve {n} crédits sur trois appels limités ; seule la consommation réelle est facturée et les crédits non utilisés sont restitués. Aucune action externe n’est effectuée.",
     "officer.questionLabel": "Question pour le Growth Officer",
     "officer.placeholder": "Posez une question ou décrivez votre prochain objectif…",
     "officer.factsScoped": "{n} faits confirmés · cet espace uniquement",
@@ -393,7 +420,8 @@ export const officer = defineArea("officer", {
     "officer.related": "Travail associé",
     "officer.documents": "Documents",
     "officer.approvals": "Contrôle et validations",
-    "officer.sideNote": "Les résultats sont enregistrés dans votre conversation. Les actions externes doivent être validées ; l’exécution automatique n’est pas configurée.",
+    "officer.sideNote":
+      "Les résultats sont enregistrés dans votre conversation. Les actions externes doivent être validées ; l’exécution automatique n’est pas configurée.",
     "officer.copied": "Résultat copié",
     "officer.copyFailed": "Impossible de copier ce résultat",
     "officer.copy": "Copier le résultat",
@@ -408,7 +436,8 @@ export const officer = defineArea("officer", {
     "officer.analyzing": "Analyse en cours…",
     "officer.runAnalysis": "Lancer l’analyse",
     "officer.specialistContext": "Connaissances confirmées + travaux sélectionnés.",
-    "officer.specialistNote": "Des crédits IA s’appliquent. Les suggestions d’étude et SEO ne sont ni des positions en direct ni du trafic mesuré. Le contenu reste non publié.",
+    "officer.specialistNote":
+      "Des crédits IA s’appliquent. Les suggestions d’étude et SEO ne sont ni des positions en direct ni du trafic mesuré. Le contenu reste non publié.",
     "officer.savedActivity": "Activité enregistrée",
     "officer.preparing": "Préparation de votre analyse…",
     "officer.savedAnalysis": "Analyse enregistrée · {n} crédits IA",
@@ -416,19 +445,25 @@ export const officer = defineArea("officer", {
     "officer.coordTitle": "Analyse coordonnée",
     "officer.coordinate": "Associer {name}",
     "officer.teamAssignment": "Mission pour l’équipe",
-    "officer.teamPlaceholder": "Comparez deux points de vue et proposez une prochaine étape ciblée…",
+    "officer.teamPlaceholder":
+      "Comparez deux points de vue et proposez une prochaine étape ciblée…",
     "officer.coordinating": "Coordination…",
     "officer.coordinateBtn": "Faire collaborer les spécialistes",
-    "officer.coordNote": "Deux analyses de spécialistes + synthèse du Growth Officer · {n} crédits réservés au maximum · crédits non utilisés restitués · aucune action externe.",
-    "officer.coordBusy": "Les spécialistes analysent, puis le Growth Officer compare leurs conclusions.",
+    "officer.coordNote":
+      "Deux analyses de spécialistes + synthèse du Growth Officer · {n} crédits réservés au maximum · crédits non utilisés restitués · aucune action externe.",
+    "officer.coordBusy":
+      "Les spécialistes analysent, puis le Growth Officer compare leurs conclusions.",
     "officer.coordSaved": "Analyse coordonnée enregistrée",
-    "officer.coordFailed": "La demande n’a pas pu aboutir. Consultez l’historique avant de lancer une autre analyse.",
+    "officer.coordFailed":
+      "La demande n’a pas pu aboutir. Consultez l’historique avant de lancer une autre analyse.",
     "officer.savedGone": "L’analyse enregistrée n’est plus disponible dans cet espace.",
     "officer.openFailed": "Impossible d’ouvrir le résultat enregistré.",
-    "officer.recPending": "Travail récupéré ; la consommation IA incertaine reste réservée pour vérification.",
+    "officer.recPending":
+      "Travail récupéré ; la consommation IA incertaine reste réservée pour vérification.",
     "officer.recSucceeded": "Analyse récupérée sans nouvel appel IA.",
     "officer.recReconciled": "Consommation rapprochée. Aucun nouvel appel IA n’a été effectué.",
-    "officer.recFailed": "La récupération n’a pas abouti. Aucune nouvelle demande IA n’a été envoyée.",
+    "officer.recFailed":
+      "La récupération n’a pas abouti. Aucune nouvelle demande IA n’a été envoyée.",
     "officer.recentCoord": "Historique récent des analyses coordonnées",
     "officer.loadingAnalyses": "Chargement des analyses…",
     "officer.openSaved": "Ouvrir l’analyse enregistrée",
@@ -442,11 +477,15 @@ export const officer = defineArea("officer", {
     "officer.status.failed": "non terminée",
     "officer.status.cancelled": "annulée",
     "officer.deep.title": "Analyse approfondie enregistrée",
-    "officer.deep.recovered": "Analyse du Growth Officer récupérée. Ouvrez-la depuis l’historique des conversations.",
-    "officer.deep.reconciling": "L’analyse est encore en cours de rapprochement. Aucune nouvelle demande IA n’a été lancée.",
+    "officer.deep.recovered":
+      "Analyse du Growth Officer récupérée. Ouvrez-la depuis l’historique des conversations.",
+    "officer.deep.reconciling":
+      "L’analyse est encore en cours de rapprochement. Aucune nouvelle demande IA n’a été lancée.",
     "officer.deep.checked": "Analyse vérifiée. Aucune demande IA en double n’a été lancée.",
-    "officer.deep.unconfirmed": "La récupération n’a pas pu être confirmée. Aucune nouvelle demande IA n’a été lancée.",
-    "officer.deep.statusFailed": "Le statut de récupération n’a pas pu être vérifié. Ne répétez pas la demande tant que son statut n’est pas clair.",
+    "officer.deep.unconfirmed":
+      "La récupération n’a pas pu être confirmée. Aucune nouvelle demande IA n’a été lancée.",
+    "officer.deep.statusFailed":
+      "Le statut de récupération n’a pas pu être vérifié. Ne répétez pas la demande tant que son statut n’est pas clair.",
     "officer.deep.retryStatus": "Revérifier le statut",
     "officer.deep.running": "L’analyse approfondie est toujours en cours",
     "officer.deep.needsRecon": "L’analyse doit être rapprochée",
@@ -475,14 +514,17 @@ export const officer = defineArea("officer", {
     "officer.ctx.kind.approvals": "validation",
     "officer.ctx.kind.activity_events": "activité",
     "officer.plan.checkPlan": "Vérifiez votre plan",
-    "officer.plan.saved": "Plan vérifié enregistré. Les demandes répétées réutilisent le même travail.",
+    "officer.plan.saved":
+      "Plan vérifié enregistré. Les demandes répétées réutilisent le même travail.",
     "officer.plan.saveFailed": "Impossible d’enregistrer le plan",
     "officer.plan.turnInto": "Transformer en travail",
     "officer.plan.review": "Vérifier le plan d’exécution",
-    "officer.plan.nothingYet": "Rien n’est créé avant votre confirmation. Aucune publication externe.",
+    "officer.plan.nothingYet":
+      "Rien n’est créé avant votre confirmation. Aucune publication externe.",
     "officer.plan.linkGoal": "Lier à un objectif de croissance",
     "officer.plan.noGoal": "Aucun objectif de croissance",
-    "officer.plan.goalsFailed": "Les objectifs n’ont pas pu être chargés. Fermez puis rouvrez cette vérification.",
+    "officer.plan.goalsFailed":
+      "Les objectifs n’ont pas pu être chargés. Fermez puis rouvrez cette vérification.",
     "officer.plan.kind.project": "Projet",
     "officer.plan.kind.tasks": "Tâches",
     "officer.plan.kind.campaign": "Campagne",

@@ -3,21 +3,26 @@ import { defineArea } from "../define";
 // Interface texts for the Organization overview (multi-business). Keys start with "org.".
 export const org = defineArea("org", {
   en: {
-    "org.rates.intro": "Combined totals use the European Central Bank's official daily euro reference rates. They are fetched automatically once per working day, stored with their date and source, and never guessed.",
+    "org.rates.intro":
+      "Combined totals use the European Central Bank's official daily euro reference rates. They are fetched automatically once per working day, stored with their date and source, and never guessed.",
     "org.rates.none": "No official rates stored yet, so totals stay per currency.",
-    "org.rates.permanent": "Stored rates are permanent; each day's publication is added with its own date.",
+    "org.rates.permanent":
+      "Stored rates are permanent; each day's publication is added with its own date.",
     "org.rates.refresh": "Check for new ECB rates",
     "org.rates.fetching": "Fetching ECB rates…",
     "org.rates.published": "ECB reference rates published {date}",
     "org.rates.more": "{n} currencies stored for this date.",
     "org.rates.added": "{n} official rates added (ECB, {date})",
     "org.rates.current": "Already up to date (ECB, {date})",
-    "org.rates.syncFailed": "Official rates could not be fetched. Totals keep using the rates already stored.",
+    "org.rates.syncFailed":
+      "Official rates could not be fetched. Totals keep using the rates already stored.",
     "org.loading": "Loading the organization overview…",
     "org.noOrg": "Choose an organization to see its overview.",
     "org.noBusinessesTitle": "No businesses to show",
-    "org.noBusinesses": "You have no access to any business in this organization yet. Ask an owner to give you access.",
-    "org.tooMany": "This organization has more records than the overview can read at once, so no totals are shown rather than incomplete ones. Open a single business instead.",
+    "org.noBusinesses":
+      "You have no access to any business in this organization yet. Ask an owner to give you access.",
+    "org.tooMany":
+      "This organization has more records than the overview can read at once, so no totals are shown rather than incomplete ones. Open a single business instead.",
     "org.loadFailed": "The organization overview could not load. Nothing was changed.",
     "org.title": "Organization overview",
     "org.scope": "{org} · businesses you can open: {n}",
@@ -27,17 +32,20 @@ export const org = defineArea("org", {
     "org.period.year": "This year",
     "org.reportIn": "Reporting currency",
     "org.reportInCur": "Combined in {cur}",
-    "org.isolation": "Each business keeps its own profile, goals, budget, connections, team and Growth Officer. This page only reads the businesses you can open and never moves data between them. Amounts stay in their own currency; a combined total appears only when an official ECB rate covers every currency.",
+    "org.isolation":
+      "Each business keeps its own profile, goals, budget, connections, team and Growth Officer. This page only reads the businesses you can open and never moves data between them. Amounts stay in their own currency; a combined total appears only when an official ECB rate covers every currency.",
     "org.tile.revenue": "Recorded net revenue (sales minus refunds, estimates excluded)",
     "org.revenueOff": "Revenue tracking is not switched on for these businesses yet.",
-    "org.financeAdminsOnly": "Combined financial figures are available to organization administrators.",
+    "org.financeAdminsOnly":
+      "Combined financial figures are available to organization administrators.",
     "org.tile.budget": "Marketing budget spent this month",
     "org.tile.budgetOf": "of {planned} planned",
     "org.tile.credits": "AI task credits this month",
     "org.tile.creditsReserved": "{n} more reserved for work in progress",
     "org.tile.goals": "Goals on track",
     "org.tile.goalsValue": "{on} of {active}",
-    "org.tile.goalsNote": "{behind} behind · {achieved} achieved · {unmeasured} without a measurement",
+    "org.tile.goalsNote":
+      "{behind} behind · {achieved} achieved · {unmeasured} without a measurement",
     "org.tile.approvals": "Waiting for approval",
     "org.tile.approvalsNote": "Across all businesses you can open",
     "org.tile.initiatives": "Strategic initiatives in progress",
@@ -45,7 +53,8 @@ export const org = defineArea("org", {
     "org.tile.attention": "Businesses needing attention",
     "org.tile.attentionNote": "businesses in view: {n}",
     "org.next.title": "Next best organization actions",
-    "org.next.intro": "Businesses needing attention first, then possible conflicts and overlaps between businesses. Calculated from recorded data, without AI credits.",
+    "org.next.intro":
+      "Businesses needing attention first, then possible conflicts and overlaps between businesses. Calculated from recorded data, without AI credits.",
     "org.next.none": "Nothing needs organization-level attention right now.",
     "org.act.attend_business": "Look at {businesses}: {subject}",
     "org.act.campaign_conflict": "Align campaigns aimed at {subject} in {businesses}",
@@ -57,7 +66,8 @@ export const org = defineArea("org", {
     "org.act.shared_audience": "Shared audience “{subject}” in {businesses}",
     "org.openBusiness": "Open {name}",
     "org.compare.title": "Business comparison",
-    "org.compare.intro": "Side by side, ordered by how much attention each business needs. Revenue and budgets are shown per currency.",
+    "org.compare.intro":
+      "Side by side, ordered by how much attention each business needs. Revenue and budgets are shown per currency.",
     "org.col.business": "Business",
     "org.col.revenue": "Actual revenue",
     "org.col.budget": "Budget used",
@@ -81,13 +91,15 @@ export const org = defineArea("org", {
     "org.reason.pending_approvals": "approvals waiting",
     "org.reason.uncertain_runs": "AI runs with an uncertain outcome",
     "org.brands.title": "Revenue by brand and business unit",
-    "org.brands.intro": "Actual revenue per brand or unit inside each business. Sales not linked to a brand stay visible separately.",
+    "org.brands.intro":
+      "Actual revenue per brand or unit inside each business. Sales not linked to a brand stay visible separately.",
     "org.brands.none": "No business has brands or units with revenue in this period.",
     "org.noBrand": "Not linked to a brand",
     "org.unknownBrand": "Brand",
     "org.unknownBusiness": "Business",
     "org.coord.title": "Cross-business coordination",
-    "org.coord.intro": "Possible overlaps and opportunities between your businesses, found by comparing what each one has recorded. They are prompts to check, not conclusions.",
+    "org.coord.intro":
+      "Possible overlaps and opportunities between your businesses, found by comparing what each one has recorded. They are prompts to check, not conclusions.",
     "org.coord.none": "No overlaps or shared opportunities found between these {n} businesses.",
     "org.find.campaign_conflict": "Possible campaign conflict",
     "org.find.budget_overlap": "Possible budget duplication",
@@ -96,13 +108,20 @@ export const org = defineArea("org", {
     "org.find.shared_audience": "Shared audience",
     "org.find.shared_bottleneck": "Common bottleneck",
     "org.find.specialist_contention": "Shared specialist capacity",
-    "org.findHow.campaign_conflict": "Campaigns for the same audience run at the same time on a shared channel. Agree on timing or a joint message.",
-    "org.findHow.budget_overlap": "The same channel is budgeted this month by businesses that share an audience. Check whether buying can be combined.",
-    "org.findHow.duplicate_work": "Open work with nearly the same title exists in more than one business.",
-    "org.findHow.strategy_reuse": "One business achieved a goal with this objective; another is still working on it. Its plan may be reusable.",
-    "org.findHow.shared_audience": "Both businesses list this audience in their confirmed profile: consider cross-selling, shared content or a partnership.",
-    "org.findHow.shared_bottleneck": "Several businesses show the same problem, which may point to a shared cause worth checking.",
-    "org.findHow.specialist_contention": "This specialist has work waiting in several businesses or is close to a monthly limit.",
+    "org.findHow.campaign_conflict":
+      "Campaigns for the same audience run at the same time on a shared channel. Agree on timing or a joint message.",
+    "org.findHow.budget_overlap":
+      "The same channel is budgeted this month by businesses that share an audience. Check whether buying can be combined.",
+    "org.findHow.duplicate_work":
+      "Open work with nearly the same title exists in more than one business.",
+    "org.findHow.strategy_reuse":
+      "One business achieved a goal with this objective; another is still working on it. Its plan may be reusable.",
+    "org.findHow.shared_audience":
+      "Both businesses list this audience in their confirmed profile: consider cross-selling, shared content or a partnership.",
+    "org.findHow.shared_bottleneck":
+      "Several businesses show the same problem, which may point to a shared cause worth checking.",
+    "org.findHow.specialist_contention":
+      "This specialist has work waiting in several businesses or is close to a monthly limit.",
     "org.bottleneck.overdue_tasks": "overdue tasks",
     "org.bottleneck.failed_runs": "failed AI runs",
     "org.convWithheld": "No combined {cur} total: no official rate stored for {pairs}.",
@@ -111,7 +130,8 @@ export const org = defineArea("org", {
     "org.convRate": "{pair} {rate} ({date}, {source})",
     "org.convStale": "rate older than 31 days: {pairs}",
     "org.spec.title": "Shared specialist network",
-    "org.spec.intro": "Which AI specialists work for which business, their waiting work and this month's credits. Settings apply per business and are enforced before every AI task run.",
+    "org.spec.intro":
+      "Which AI specialists work for which business, their waiting work and this month's credits. Settings apply per business and are enforced before every AI task run.",
     "org.spec.off": "Per-business specialist settings are not switched on yet.",
     "org.spec.none": "No specialist has worked for these businesses yet.",
     "org.spec.col.specialist": "Specialist",
@@ -136,33 +156,42 @@ export const org = defineArea("org", {
     "org.spec.saved": "Specialist setting saved",
     "org.spec.current": "Current: {state} · priority {prio} · monthly limit {cap}",
     "org.spec.noCap": "none",
-    "org.spec.default": "No setting yet: the specialist is available at normal priority without its own limit.",
+    "org.spec.default":
+      "No setting yet: the specialist is available at normal priority without its own limit.",
     "org.rates.title": "Exchange rates",
     "org.rates.off": "Exchange rates are not switched on for this organization yet.",
     "org.rates.revenueLink": "Revenue per business is recorded under Revenue & attribution.",
     "org.rates.history": "Import last 90 days",
     "org.rates.historyDone": "{n} rates added for {days} ECB publication days ({first} – {last}).",
     "org.rates.historyNone": "The ECB history ({first} – {last}) was already stored.",
-    "org.rates.historyRefused": "{n} older publication days were not accepted by this environment and were skipped.",
-    "org.rates.historyHint": "Earlier months are converted at their own closing rate, so they need the ECB rates of those days. The ECB publishes its last 90 days.",
-    "org.convByMonth": "Longer periods are converted month by month at each month's own rate: see Economics for the total in {cur}.",
+    "org.rates.historyRefused":
+      "{n} older publication days were not accepted by this environment and were skipped.",
+    "org.rates.historyHint":
+      "Earlier months are converted at their own closing rate, so they need the ECB rates of those days. The ECB publishes its last 90 days.",
+    "org.convByMonth":
+      "Longer periods are converted month by month at each month's own rate: see Economics for the total in {cur}.",
   },
   nl: {
-    "org.rates.intro": "Samengevoegde totalen gebruiken de officiële dagelijkse euroreferentiekoersen van de Europese Centrale Bank. Ze worden één keer per werkdag automatisch opgehaald, met datum en bron bewaard en nooit geschat.",
+    "org.rates.intro":
+      "Samengevoegde totalen gebruiken de officiële dagelijkse euroreferentiekoersen van de Europese Centrale Bank. Ze worden één keer per werkdag automatisch opgehaald, met datum en bron bewaard en nooit geschat.",
     "org.rates.none": "Nog geen officiële koersen bewaard, dus totalen blijven per valuta.",
-    "org.rates.permanent": "Bewaarde koersen zijn blijvend; elke dagpublicatie wordt met een eigen datum toegevoegd.",
+    "org.rates.permanent":
+      "Bewaarde koersen zijn blijvend; elke dagpublicatie wordt met een eigen datum toegevoegd.",
     "org.rates.refresh": "Controleer op nieuwe ECB-koersen",
     "org.rates.fetching": "ECB-koersen ophalen…",
     "org.rates.published": "ECB-referentiekoersen gepubliceerd op {date}",
     "org.rates.more": "{n} valuta's bewaard voor deze datum.",
     "org.rates.added": "{n} officiële koersen toegevoegd (ECB, {date})",
     "org.rates.current": "Al bijgewerkt (ECB, {date})",
-    "org.rates.syncFailed": "Officiële koersen konden niet worden opgehaald. Totalen blijven de al bewaarde koersen gebruiken.",
+    "org.rates.syncFailed":
+      "Officiële koersen konden niet worden opgehaald. Totalen blijven de al bewaarde koersen gebruiken.",
     "org.loading": "Organisatieoverzicht laden…",
     "org.noOrg": "Kies een organisatie om het overzicht te zien.",
     "org.noBusinessesTitle": "Geen bedrijven om te tonen",
-    "org.noBusinesses": "Je hebt nog geen toegang tot een bedrijf in deze organisatie. Vraag een eigenaar om toegang.",
-    "org.tooMany": "Deze organisatie heeft meer gegevens dan het overzicht in één keer kan lezen. Daarom tonen we geen totalen in plaats van onvolledige. Open één bedrijf.",
+    "org.noBusinesses":
+      "Je hebt nog geen toegang tot een bedrijf in deze organisatie. Vraag een eigenaar om toegang.",
+    "org.tooMany":
+      "Deze organisatie heeft meer gegevens dan het overzicht in één keer kan lezen. Daarom tonen we geen totalen in plaats van onvolledige. Open één bedrijf.",
     "org.loadFailed": "Het organisatieoverzicht kon niet laden. Er is niets gewijzigd.",
     "org.title": "Organisatieoverzicht",
     "org.scope": "{org} · bedrijven die je kunt openen: {n}",
@@ -172,10 +201,13 @@ export const org = defineArea("org", {
     "org.period.year": "Dit jaar",
     "org.reportIn": "Rapportagevaluta",
     "org.reportInCur": "Samengevoegd in {cur}",
-    "org.isolation": "Elk bedrijf houdt zijn eigen profiel, doelen, budget, koppelingen, team en Growth Officer. Deze pagina leest alleen de bedrijven die jij kunt openen en verplaatst nooit gegevens tussen bedrijven. Bedragen blijven in hun eigen valuta; een samengevoegd totaal verschijnt alleen als een officiële ECB-koers elke valuta dekt.",
-    "org.tile.revenue": "Geregistreerde netto-omzet (verkopen min terugbetalingen, zonder schattingen)",
+    "org.isolation":
+      "Elk bedrijf houdt zijn eigen profiel, doelen, budget, koppelingen, team en Growth Officer. Deze pagina leest alleen de bedrijven die jij kunt openen en verplaatst nooit gegevens tussen bedrijven. Bedragen blijven in hun eigen valuta; een samengevoegd totaal verschijnt alleen als een officiële ECB-koers elke valuta dekt.",
+    "org.tile.revenue":
+      "Geregistreerde netto-omzet (verkopen min terugbetalingen, zonder schattingen)",
     "org.revenueOff": "Omzetregistratie is voor deze bedrijven nog niet ingeschakeld.",
-    "org.financeAdminsOnly": "Samengevoegde financiële cijfers zijn beschikbaar voor organisatiebeheerders.",
+    "org.financeAdminsOnly":
+      "Samengevoegde financiële cijfers zijn beschikbaar voor organisatiebeheerders.",
     "org.tile.budget": "Marketingbudget besteed deze maand",
     "org.tile.budgetOf": "van {planned} gepland",
     "org.tile.credits": "AI-taakcredits deze maand",
@@ -190,7 +222,8 @@ export const org = defineArea("org", {
     "org.tile.attention": "Bedrijven die aandacht nodig hebben",
     "org.tile.attentionNote": "bedrijven in beeld: {n}",
     "org.next.title": "Volgende beste acties voor de organisatie",
-    "org.next.intro": "Eerst bedrijven die aandacht nodig hebben, daarna mogelijke conflicten en overlap tussen bedrijven. Berekend uit vastgelegde gegevens, zonder AI-credits.",
+    "org.next.intro":
+      "Eerst bedrijven die aandacht nodig hebben, daarna mogelijke conflicten en overlap tussen bedrijven. Berekend uit vastgelegde gegevens, zonder AI-credits.",
     "org.next.none": "Er is nu niets dat aandacht op organisatieniveau vraagt.",
     "org.act.attend_business": "Bekijk {businesses}: {subject}",
     "org.act.campaign_conflict": "Stem campagnes gericht op {subject} af in {businesses}",
@@ -202,7 +235,8 @@ export const org = defineArea("org", {
     "org.act.shared_audience": "Gedeelde doelgroep “{subject}” in {businesses}",
     "org.openBusiness": "Open {name}",
     "org.compare.title": "Bedrijven vergelijken",
-    "org.compare.intro": "Naast elkaar, gesorteerd op hoeveel aandacht elk bedrijf nodig heeft. Omzet en budgetten staan per valuta.",
+    "org.compare.intro":
+      "Naast elkaar, gesorteerd op hoeveel aandacht elk bedrijf nodig heeft. Omzet en budgetten staan per valuta.",
     "org.col.business": "Bedrijf",
     "org.col.revenue": "Werkelijke omzet",
     "org.col.budget": "Budget gebruikt",
@@ -226,13 +260,15 @@ export const org = defineArea("org", {
     "org.reason.pending_approvals": "goedkeuringen wachten",
     "org.reason.uncertain_runs": "AI-uitvoeringen met onzekere uitkomst",
     "org.brands.title": "Omzet per merk en bedrijfsonderdeel",
-    "org.brands.intro": "Werkelijke omzet per merk of onderdeel binnen elk bedrijf. Verkopen zonder merk blijven apart zichtbaar.",
+    "org.brands.intro":
+      "Werkelijke omzet per merk of onderdeel binnen elk bedrijf. Verkopen zonder merk blijven apart zichtbaar.",
     "org.brands.none": "Geen enkel bedrijf heeft merken of onderdelen met omzet in deze periode.",
     "org.noBrand": "Niet aan een merk gekoppeld",
     "org.unknownBrand": "Merk",
     "org.unknownBusiness": "Bedrijf",
     "org.coord.title": "Afstemming tussen bedrijven",
-    "org.coord.intro": "Mogelijke overlap en kansen tussen je bedrijven, gevonden door te vergelijken wat elk bedrijf heeft vastgelegd. Het zijn aanwijzingen om te controleren, geen conclusies.",
+    "org.coord.intro":
+      "Mogelijke overlap en kansen tussen je bedrijven, gevonden door te vergelijken wat elk bedrijf heeft vastgelegd. Het zijn aanwijzingen om te controleren, geen conclusies.",
     "org.coord.none": "Geen overlap of gedeelde kansen gevonden tussen deze {n} bedrijven.",
     "org.find.campaign_conflict": "Mogelijk campagneconflict",
     "org.find.budget_overlap": "Mogelijk dubbel budget",
@@ -241,22 +277,31 @@ export const org = defineArea("org", {
     "org.find.shared_audience": "Gedeelde doelgroep",
     "org.find.shared_bottleneck": "Gemeenschappelijk knelpunt",
     "org.find.specialist_contention": "Gedeelde specialistcapaciteit",
-    "org.findHow.campaign_conflict": "Campagnes voor dezelfde doelgroep lopen tegelijk op een gedeeld kanaal. Spreek timing of een gezamenlijke boodschap af.",
-    "org.findHow.budget_overlap": "Hetzelfde kanaal is deze maand gebudgetteerd door bedrijven met een gedeelde doelgroep. Kijk of inkoop gecombineerd kan worden.",
-    "org.findHow.duplicate_work": "Open werk met bijna dezelfde titel bestaat in meer dan één bedrijf.",
-    "org.findHow.strategy_reuse": "Eén bedrijf behaalde een doel met dit doeltype; een ander werkt er nog aan. Het plan is mogelijk herbruikbaar.",
-    "org.findHow.shared_audience": "Beide bedrijven noemen deze doelgroep in hun bevestigde profiel: denk aan kruisverkoop, gedeelde content of een samenwerking.",
-    "org.findHow.shared_bottleneck": "Meerdere bedrijven tonen hetzelfde probleem; mogelijk een gedeelde oorzaak die het controleren waard is.",
-    "org.findHow.specialist_contention": "Deze specialist heeft wachtend werk in meerdere bedrijven of zit dicht bij een maandlimiet.",
+    "org.findHow.campaign_conflict":
+      "Campagnes voor dezelfde doelgroep lopen tegelijk op een gedeeld kanaal. Spreek timing of een gezamenlijke boodschap af.",
+    "org.findHow.budget_overlap":
+      "Hetzelfde kanaal is deze maand gebudgetteerd door bedrijven met een gedeelde doelgroep. Kijk of inkoop gecombineerd kan worden.",
+    "org.findHow.duplicate_work":
+      "Open werk met bijna dezelfde titel bestaat in meer dan één bedrijf.",
+    "org.findHow.strategy_reuse":
+      "Eén bedrijf behaalde een doel met dit doeltype; een ander werkt er nog aan. Het plan is mogelijk herbruikbaar.",
+    "org.findHow.shared_audience":
+      "Beide bedrijven noemen deze doelgroep in hun bevestigde profiel: denk aan kruisverkoop, gedeelde content of een samenwerking.",
+    "org.findHow.shared_bottleneck":
+      "Meerdere bedrijven tonen hetzelfde probleem; mogelijk een gedeelde oorzaak die het controleren waard is.",
+    "org.findHow.specialist_contention":
+      "Deze specialist heeft wachtend werk in meerdere bedrijven of zit dicht bij een maandlimiet.",
     "org.bottleneck.overdue_tasks": "taken te laat",
     "org.bottleneck.failed_runs": "mislukte AI-uitvoeringen",
-    "org.convWithheld": "Geen samengevoegd totaal in {cur}: geen officiële koers bewaard voor {pairs}.",
+    "org.convWithheld":
+      "Geen samengevoegd totaal in {cur}: geen officiële koers bewaard voor {pairs}.",
     "org.convSingle": "Alle bedragen staan al in {cur}.",
     "org.convTotal": "≈ {v} samen",
     "org.convRate": "{pair} {rate} ({date}, {source})",
     "org.convStale": "koers ouder dan 31 dagen: {pairs}",
     "org.spec.title": "Gedeeld specialistennetwerk",
-    "org.spec.intro": "Welke AI-specialisten voor welk bedrijf werken, hun wachtende werk en de credits van deze maand. Instellingen gelden per bedrijf en worden vóór elke AI-taak gecontroleerd.",
+    "org.spec.intro":
+      "Welke AI-specialisten voor welk bedrijf werken, hun wachtende werk en de credits van deze maand. Instellingen gelden per bedrijf en worden vóór elke AI-taak gecontroleerd.",
     "org.spec.off": "Specialistinstellingen per bedrijf zijn nog niet ingeschakeld.",
     "org.spec.none": "Nog geen specialist heeft voor deze bedrijven gewerkt.",
     "org.spec.col.specialist": "Specialist",
@@ -281,33 +326,43 @@ export const org = defineArea("org", {
     "org.spec.saved": "Specialistinstelling opgeslagen",
     "org.spec.current": "Nu: {state} · prioriteit {prio} · maandlimiet {cap}",
     "org.spec.noCap": "geen",
-    "org.spec.default": "Nog geen instelling: de specialist is beschikbaar met normale prioriteit en zonder eigen limiet.",
+    "org.spec.default":
+      "Nog geen instelling: de specialist is beschikbaar met normale prioriteit en zonder eigen limiet.",
     "org.rates.title": "Wisselkoersen",
     "org.rates.off": "Wisselkoersen zijn voor deze organisatie nog niet ingeschakeld.",
     "org.rates.revenueLink": "Omzet per bedrijf leg je vast onder Omzet & toeschrijving.",
     "org.rates.history": "Laatste 90 dagen importeren",
-    "org.rates.historyDone": "{n} koersen toegevoegd voor {days} ECB-publicatiedagen ({first} – {last}).",
+    "org.rates.historyDone":
+      "{n} koersen toegevoegd voor {days} ECB-publicatiedagen ({first} – {last}).",
     "org.rates.historyNone": "De ECB-geschiedenis ({first} – {last}) was al opgeslagen.",
-    "org.rates.historyRefused": "{n} oudere publicatiedagen werden door deze omgeving niet aanvaard en overgeslagen.",
-    "org.rates.historyHint": "Eerdere maanden worden tegen hun eigen slotkoers omgerekend en hebben dus de ECB-koersen van die dagen nodig. De ECB publiceert haar laatste 90 dagen.",
-    "org.convByMonth": "Langere periodes worden per maand omgerekend tegen de koers van die maand: zie Economie voor het totaal in {cur}.",
+    "org.rates.historyRefused":
+      "{n} oudere publicatiedagen werden door deze omgeving niet aanvaard en overgeslagen.",
+    "org.rates.historyHint":
+      "Eerdere maanden worden tegen hun eigen slotkoers omgerekend en hebben dus de ECB-koersen van die dagen nodig. De ECB publiceert haar laatste 90 dagen.",
+    "org.convByMonth":
+      "Langere periodes worden per maand omgerekend tegen de koers van die maand: zie Economie voor het totaal in {cur}.",
   },
   fr: {
-    "org.rates.intro": "Les totaux regroupés utilisent les taux de référence quotidiens officiels de l’euro publiés par la Banque centrale européenne. Ils sont récupérés automatiquement une fois par jour ouvrable, conservés avec leur date et leur source, et jamais estimés.",
+    "org.rates.intro":
+      "Les totaux regroupés utilisent les taux de référence quotidiens officiels de l’euro publiés par la Banque centrale européenne. Ils sont récupérés automatiquement une fois par jour ouvrable, conservés avec leur date et leur source, et jamais estimés.",
     "org.rates.none": "Aucun taux officiel enregistré : les totaux restent par devise.",
-    "org.rates.permanent": "Les taux enregistrés sont définitifs ; chaque publication quotidienne est ajoutée avec sa propre date.",
+    "org.rates.permanent":
+      "Les taux enregistrés sont définitifs ; chaque publication quotidienne est ajoutée avec sa propre date.",
     "org.rates.refresh": "Vérifier les nouveaux taux BCE",
     "org.rates.fetching": "Récupération des taux BCE…",
     "org.rates.published": "Taux de référence BCE publiés le {date}",
     "org.rates.more": "{n} devises enregistrées pour cette date.",
     "org.rates.added": "{n} taux officiels ajoutés (BCE, {date})",
     "org.rates.current": "Déjà à jour (BCE, {date})",
-    "org.rates.syncFailed": "Les taux officiels n’ont pas pu être récupérés. Les totaux continuent d’utiliser les taux déjà enregistrés.",
+    "org.rates.syncFailed":
+      "Les taux officiels n’ont pas pu être récupérés. Les totaux continuent d’utiliser les taux déjà enregistrés.",
     "org.loading": "Chargement de la vue d’ensemble…",
     "org.noOrg": "Choisissez une organisation pour voir sa vue d’ensemble.",
     "org.noBusinessesTitle": "Aucune entreprise à afficher",
-    "org.noBusinesses": "Vous n’avez encore accès à aucune entreprise de cette organisation. Demandez l’accès à un propriétaire.",
-    "org.tooMany": "Cette organisation contient plus de données que la vue ne peut en lire à la fois ; aucun total n’est affiché plutôt qu’un total incomplet. Ouvrez une seule entreprise.",
+    "org.noBusinesses":
+      "Vous n’avez encore accès à aucune entreprise de cette organisation. Demandez l’accès à un propriétaire.",
+    "org.tooMany":
+      "Cette organisation contient plus de données que la vue ne peut en lire à la fois ; aucun total n’est affiché plutôt qu’un total incomplet. Ouvrez une seule entreprise.",
     "org.loadFailed": "La vue d’ensemble n’a pas pu être chargée. Rien n’a été modifié.",
     "org.title": "Vue d’ensemble de l’organisation",
     "org.scope": "{org} · entreprises que vous pouvez ouvrir : {n}",
@@ -317,10 +372,14 @@ export const org = defineArea("org", {
     "org.period.year": "Cette année",
     "org.reportIn": "Devise de reporting",
     "org.reportInCur": "Regroupé en {cur}",
-    "org.isolation": "Chaque entreprise garde son propre profil, ses objectifs, son budget, ses connexions, son équipe et son Growth Officer. Cette page ne lit que les entreprises que vous pouvez ouvrir et ne déplace jamais de données entre elles. Les montants restent dans leur devise ; un total regroupé n’apparaît que si un taux officiel BCE couvre chaque devise.",
-    "org.tile.revenue": "Chiffre d’affaires net enregistré (ventes moins remboursements, hors estimations)",
-    "org.revenueOff": "Le suivi du chiffre d’affaires n’est pas encore activé pour ces entreprises.",
-    "org.financeAdminsOnly": "Les chiffres financiers regroupés sont réservés aux administrateurs de l’organisation.",
+    "org.isolation":
+      "Chaque entreprise garde son propre profil, ses objectifs, son budget, ses connexions, son équipe et son Growth Officer. Cette page ne lit que les entreprises que vous pouvez ouvrir et ne déplace jamais de données entre elles. Les montants restent dans leur devise ; un total regroupé n’apparaît que si un taux officiel BCE couvre chaque devise.",
+    "org.tile.revenue":
+      "Chiffre d’affaires net enregistré (ventes moins remboursements, hors estimations)",
+    "org.revenueOff":
+      "Le suivi du chiffre d’affaires n’est pas encore activé pour ces entreprises.",
+    "org.financeAdminsOnly":
+      "Les chiffres financiers regroupés sont réservés aux administrateurs de l’organisation.",
     "org.tile.budget": "Budget marketing dépensé ce mois-ci",
     "org.tile.budgetOf": "sur {planned} prévus",
     "org.tile.credits": "Crédits IA des tâches ce mois-ci",
@@ -335,7 +394,8 @@ export const org = defineArea("org", {
     "org.tile.attention": "Entreprises à surveiller",
     "org.tile.attentionNote": "entreprises affichées : {n}",
     "org.next.title": "Prochaines meilleures actions de l’organisation",
-    "org.next.intro": "D’abord les entreprises qui demandent de l’attention, puis les conflits et chevauchements possibles entre entreprises. Calculé à partir des données enregistrées, sans crédits IA.",
+    "org.next.intro":
+      "D’abord les entreprises qui demandent de l’attention, puis les conflits et chevauchements possibles entre entreprises. Calculé à partir des données enregistrées, sans crédits IA.",
     "org.next.none": "Rien ne demande d’attention au niveau de l’organisation pour le moment.",
     "org.act.attend_business": "Examiner {businesses} : {subject}",
     "org.act.campaign_conflict": "Coordonner les campagnes visant {subject} dans {businesses}",
@@ -347,7 +407,8 @@ export const org = defineArea("org", {
     "org.act.shared_audience": "Public commun « {subject} » dans {businesses}",
     "org.openBusiness": "Ouvrir {name}",
     "org.compare.title": "Comparaison des entreprises",
-    "org.compare.intro": "Côte à côte, triées selon l’attention que chaque entreprise demande. Chiffre d’affaires et budgets sont affichés par devise.",
+    "org.compare.intro":
+      "Côte à côte, triées selon l’attention que chaque entreprise demande. Chiffre d’affaires et budgets sont affichés par devise.",
     "org.col.business": "Entreprise",
     "org.col.revenue": "Chiffre d’affaires réel",
     "org.col.budget": "Budget utilisé",
@@ -371,13 +432,16 @@ export const org = defineArea("org", {
     "org.reason.pending_approvals": "approbations en attente",
     "org.reason.uncertain_runs": "exécutions IA au résultat incertain",
     "org.brands.title": "Chiffre d’affaires par marque et unité",
-    "org.brands.intro": "Chiffre d’affaires réel par marque ou unité au sein de chaque entreprise. Les ventes non liées à une marque restent visibles à part.",
-    "org.brands.none": "Aucune entreprise n’a de marques ou d’unités avec du chiffre d’affaires sur cette période.",
+    "org.brands.intro":
+      "Chiffre d’affaires réel par marque ou unité au sein de chaque entreprise. Les ventes non liées à une marque restent visibles à part.",
+    "org.brands.none":
+      "Aucune entreprise n’a de marques ou d’unités avec du chiffre d’affaires sur cette période.",
     "org.noBrand": "Non lié à une marque",
     "org.unknownBrand": "Marque",
     "org.unknownBusiness": "Entreprise",
     "org.coord.title": "Coordination entre entreprises",
-    "org.coord.intro": "Chevauchements et opportunités possibles entre vos entreprises, trouvés en comparant ce que chacune a enregistré. Ce sont des pistes à vérifier, pas des conclusions.",
+    "org.coord.intro":
+      "Chevauchements et opportunités possibles entre vos entreprises, trouvés en comparant ce que chacune a enregistré. Ce sont des pistes à vérifier, pas des conclusions.",
     "org.coord.none": "Aucun chevauchement ni opportunité commune entre ces {n} entreprises.",
     "org.find.campaign_conflict": "Conflit de campagnes possible",
     "org.find.budget_overlap": "Budget peut-être en double",
@@ -386,22 +450,31 @@ export const org = defineArea("org", {
     "org.find.shared_audience": "Public commun",
     "org.find.shared_bottleneck": "Goulot d’étranglement commun",
     "org.find.specialist_contention": "Capacité de spécialiste partagée",
-    "org.findHow.campaign_conflict": "Des campagnes pour le même public tournent en même temps sur un canal commun. Accordez-vous sur le calendrier ou un message commun.",
-    "org.findHow.budget_overlap": "Le même canal est budgété ce mois-ci par des entreprises qui partagent un public. Vérifiez si les achats peuvent être regroupés.",
-    "org.findHow.duplicate_work": "Un travail ouvert au titre presque identique existe dans plusieurs entreprises.",
-    "org.findHow.strategy_reuse": "Une entreprise a atteint un objectif de ce type ; une autre y travaille encore. Son plan est peut-être réutilisable.",
-    "org.findHow.shared_audience": "Les deux entreprises citent ce public dans leur profil confirmé : pensez à la vente croisée, à du contenu commun ou à un partenariat.",
-    "org.findHow.shared_bottleneck": "Plusieurs entreprises montrent le même problème, ce qui peut indiquer une cause commune à vérifier.",
-    "org.findHow.specialist_contention": "Ce spécialiste a du travail en attente dans plusieurs entreprises ou approche d’une limite mensuelle.",
+    "org.findHow.campaign_conflict":
+      "Des campagnes pour le même public tournent en même temps sur un canal commun. Accordez-vous sur le calendrier ou un message commun.",
+    "org.findHow.budget_overlap":
+      "Le même canal est budgété ce mois-ci par des entreprises qui partagent un public. Vérifiez si les achats peuvent être regroupés.",
+    "org.findHow.duplicate_work":
+      "Un travail ouvert au titre presque identique existe dans plusieurs entreprises.",
+    "org.findHow.strategy_reuse":
+      "Une entreprise a atteint un objectif de ce type ; une autre y travaille encore. Son plan est peut-être réutilisable.",
+    "org.findHow.shared_audience":
+      "Les deux entreprises citent ce public dans leur profil confirmé : pensez à la vente croisée, à du contenu commun ou à un partenariat.",
+    "org.findHow.shared_bottleneck":
+      "Plusieurs entreprises montrent le même problème, ce qui peut indiquer une cause commune à vérifier.",
+    "org.findHow.specialist_contention":
+      "Ce spécialiste a du travail en attente dans plusieurs entreprises ou approche d’une limite mensuelle.",
     "org.bottleneck.overdue_tasks": "tâches en retard",
     "org.bottleneck.failed_runs": "exécutions IA échouées",
-    "org.convWithheld": "Pas de total regroupé en {cur} : aucun taux officiel enregistré pour {pairs}.",
+    "org.convWithheld":
+      "Pas de total regroupé en {cur} : aucun taux officiel enregistré pour {pairs}.",
     "org.convSingle": "Tous les montants sont déjà en {cur}.",
     "org.convTotal": "≈ {v} au total",
     "org.convRate": "{pair} {rate} ({date}, {source})",
     "org.convStale": "taux de plus de 31 jours : {pairs}",
     "org.spec.title": "Réseau de spécialistes partagé",
-    "org.spec.intro": "Quels spécialistes IA travaillent pour quelle entreprise, leur travail en attente et les crédits de ce mois. Les réglages s’appliquent par entreprise et sont vérifiés avant chaque tâche IA.",
+    "org.spec.intro":
+      "Quels spécialistes IA travaillent pour quelle entreprise, leur travail en attente et les crédits de ce mois. Les réglages s’appliquent par entreprise et sont vérifiés avant chaque tâche IA.",
     "org.spec.off": "Les réglages de spécialistes par entreprise ne sont pas encore activés.",
     "org.spec.none": "Aucun spécialiste n’a encore travaillé pour ces entreprises.",
     "org.spec.col.specialist": "Spécialiste",
@@ -426,15 +499,21 @@ export const org = defineArea("org", {
     "org.spec.saved": "Réglage du spécialiste enregistré",
     "org.spec.current": "Actuel : {state} · priorité {prio} · limite mensuelle {cap}",
     "org.spec.noCap": "aucune",
-    "org.spec.default": "Pas encore de réglage : le spécialiste est disponible en priorité normale, sans limite propre.",
+    "org.spec.default":
+      "Pas encore de réglage : le spécialiste est disponible en priorité normale, sans limite propre.",
     "org.rates.title": "Taux de change",
     "org.rates.off": "Les taux de change ne sont pas encore activés pour cette organisation.",
-    "org.rates.revenueLink": "Le chiffre d’affaires par entreprise s’enregistre dans Chiffre d’affaires & attribution.",
+    "org.rates.revenueLink":
+      "Le chiffre d’affaires par entreprise s’enregistre dans Chiffre d’affaires & attribution.",
     "org.rates.history": "Importer les 90 derniers jours",
-    "org.rates.historyDone": "{n} taux ajoutés pour {days} jours de publication BCE ({first} – {last}).",
+    "org.rates.historyDone":
+      "{n} taux ajoutés pour {days} jours de publication BCE ({first} – {last}).",
     "org.rates.historyNone": "L’historique BCE ({first} – {last}) était déjà enregistré.",
-    "org.rates.historyRefused": "{n} jours de publication plus anciens n’ont pas été acceptés par cet environnement et ont été ignorés.",
-    "org.rates.historyHint": "Les mois antérieurs sont convertis à leur propre taux de clôture et ont donc besoin des taux BCE de ces jours. La BCE publie ses 90 derniers jours.",
-    "org.convByMonth": "Les périodes plus longues sont converties mois par mois au taux de chaque mois : voir Économie pour le total en {cur}.",
+    "org.rates.historyRefused":
+      "{n} jours de publication plus anciens n’ont pas été acceptés par cet environnement et ont été ignorés.",
+    "org.rates.historyHint":
+      "Les mois antérieurs sont convertis à leur propre taux de clôture et ont donc besoin des taux BCE de ces jours. La BCE publie ses 90 derniers jours.",
+    "org.convByMonth":
+      "Les périodes plus longues sont converties mois par mois au taux de chaque mois : voir Économie pour le total en {cur}.",
   },
 });

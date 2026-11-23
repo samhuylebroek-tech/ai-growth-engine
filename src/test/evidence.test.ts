@@ -18,14 +18,23 @@ const ev = (type: NormalEvidence["type"], o: Partial<NormalEvidence> = {}): Norm
   ...o,
 });
 const link = (type: string | null, o: Record<string, string> = {}) =>
-  ({ type, origin: "user", status: "accepted", role: "supports", source_ref: "ref", ...o }) as never;
+  ({
+    type,
+    origin: "user",
+    status: "accepted",
+    role: "supports",
+    source_ref: "ref",
+    ...o,
+  }) as never;
 
 describe("evidence quality labels", () => {
   it("is strong with a verified fact plus another measurement", () => {
     expect(evidenceQuality([ev("verified_fact"), ev("measured_observation")]).level).toBe("strong");
   });
   it("two measurements without a verified fact are only some evidence", () => {
-    expect(evidenceQuality([ev("measured_observation"), ev("measured_observation")]).level).toBe("some");
+    expect(evidenceQuality([ev("measured_observation"), ev("measured_observation")]).level).toBe(
+      "some",
+    );
   });
   it("estimates alone are limited evidence", () => {
     expect(evidenceQuality([ev("estimate")]).level).toBe("limited");
@@ -36,10 +45,18 @@ describe("evidence quality labels", () => {
     expect(r.reasons).toContain("ai_only");
   });
   it("an AI 'fact' is downgraded to an unverified assumption", () => {
-    expect(fromClassified("verified", "ai")).toMatchObject({ type: "assumption", independent: false, downgradedFrom: "verified_fact" });
+    expect(fromClassified("verified", "ai")).toMatchObject({
+      type: "assumption",
+      independent: false,
+      downgradedFrom: "verified_fact",
+    });
   });
   it("a rule's recorded observation stands as accepted evidence", () => {
-    expect(fromClassified("recorded", "rule")).toMatchObject({ type: "measured_observation", independent: true, accepted: true });
+    expect(fromClassified("recorded", "rule")).toMatchObject({
+      type: "measured_observation",
+      independent: true,
+      accepted: true,
+    });
   });
   it("nothing is information missing", () => {
     expect(evidenceQuality([]).level).toBe("missing");
@@ -49,14 +66,27 @@ describe("evidence quality labels", () => {
     expect(evidenceQuality([ev("verified_fact", { accepted: false })]).level).toBe("hypothesis");
   });
   it("accepted contradicting evidence lowers the label one step", () => {
-    expect(evidenceQuality([ev("verified_fact"), ev("measured_observation"), ev("measured_observation", { role: "contradicts" })]).level).toBe("some");
+    expect(
+      evidenceQuality([
+        ev("verified_fact"),
+        ev("measured_observation"),
+        ev("measured_observation", { role: "contradicts" }),
+      ]).level,
+    ).toBe("some");
   });
   it("a named gap caps strong at some", () => {
-    expect(evidenceQuality([ev("verified_fact"), ev("measured_observation"), ev("missing_information")]).level).toBe("some");
+    expect(
+      evidenceQuality([ev("verified_fact"), ev("measured_observation"), ev("missing_information")])
+        .level,
+    ).toBe("some");
   });
   it("rejected and superseded items are ignored", () => {
-    expect(fromEvidenceItem({ evidence_type: "verified_fact", origin: "user", status: "rejected" })).toBeNull();
-    expect(fromEvidenceItem({ evidence_type: "verified_fact", origin: "user", status: "reevaluated" })).toBeNull();
+    expect(
+      fromEvidenceItem({ evidence_type: "verified_fact", origin: "user", status: "rejected" }),
+    ).toBeNull();
+    expect(
+      fromEvidenceItem({ evidence_type: "verified_fact", origin: "user", status: "reevaluated" }),
+    ).toBeNull();
   });
   it("only completed controlled experiments are strong", () => {
     expect(experimentQuality("completed", "controlled")).toBe("strong");
@@ -75,22 +105,31 @@ describe("improvement proposal gates", () => {
     expect(approvalGates({ ...base, level: "formal", gapReason: "No tracking yet" })).toEqual([]);
   });
   it("AI evidence does not satisfy a formal proposal", () => {
-    expect(approvalGates({ ...base, level: "formal", linked: [link("estimate", { origin: "ai" })] })).toEqual(["needs_independent_evidence"]);
+    expect(
+      approvalGates({ ...base, level: "formal", linked: [link("estimate", { origin: "ai" })] }),
+    ).toEqual(["needs_independent_evidence"]);
   });
   it("an unsourced estimate is not independent; a sourced one is", () => {
     expect(independentCount([link("estimate", { source_ref: "" })]).independent).toBe(0);
     expect(independentCount([link("estimate")]).independent).toBe(1);
   });
   it("an execution proposal needs a record-backed fact or measurement", () => {
-    expect(approvalGates({ ...base, level: "execution", linked: [link("estimate")] })).toEqual(["needs_record_evidence"]);
-    expect(approvalGates({ ...base, level: "execution", linked: [link("measured_observation")] })).toEqual([]);
+    expect(approvalGates({ ...base, level: "execution", linked: [link("estimate")] })).toEqual([
+      "needs_record_evidence",
+    ]);
+    expect(
+      approvalGates({ ...base, level: "execution", linked: [link("measured_observation")] }),
+    ).toEqual([]);
   });
   it("review is required and undecided evidence is flagged", () => {
-    expect(approvalGates({ ...base, level: "formal", reviewed: false, linked: [link("verified_fact", { status: "classified" })] })).toEqual([
-      "unreviewed_evidence",
-      "needs_independent_evidence",
-      "needs_review",
-    ]);
+    expect(
+      approvalGates({
+        ...base,
+        level: "formal",
+        reviewed: false,
+        linked: [link("verified_fact", { status: "classified" })],
+      }),
+    ).toEqual(["unreviewed_evidence", "needs_independent_evidence", "needs_review"]);
   });
   it("stages follow the shared lifecycle", () => {
     expect(proposalStage(null)).toBe("analyzed");

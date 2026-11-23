@@ -2,14 +2,40 @@ import { describe, expect, it } from "vitest";
 import { compareVersions, type ComparableVersion } from "@/lib/strategy-compare";
 
 const v1: ComparableVersion = {
-  id: "a", version: 1, status: "superseded", title: "Lunch offer", summary: "Test a lunch offer.",
-  plan_snapshot: { assumptions: ["Offices nearby order lunch"], risks: ["Costs unknown"], kpis: [{ metric: "Margin per order" }], budget: { amount: 500, currency: "EUR", basis: "estimate" }, outcome: "First paid orders" },
-  initiatives: [{ title: "Price the offer", channel: "", status: "completed" }, { title: "Partner outreach", channel: "email", status: "cancelled" }],
+  id: "a",
+  version: 1,
+  status: "superseded",
+  title: "Lunch offer",
+  summary: "Test a lunch offer.",
+  plan_snapshot: {
+    assumptions: ["Offices nearby order lunch"],
+    risks: ["Costs unknown"],
+    kpis: [{ metric: "Margin per order" }],
+    budget: { amount: 500, currency: "EUR", basis: "estimate" },
+    outcome: "First paid orders",
+  },
+  initiatives: [
+    { title: "Price the offer", channel: "", status: "completed" },
+    { title: "Partner outreach", channel: "email", status: "cancelled" },
+  ],
 };
 const v2: ComparableVersion = {
-  ...v1, id: "b", version: 2, status: "approved", summary: "Test a lunch offer with fixed order terms.",
-  plan_snapshot: { assumptions: ["Offices nearby order lunch"], risks: ["Costs unknown", "Minimum order may deter"], kpis: [{ metric: "Margin per order" }, { metric: "Accepted quotes" }], budget: { amount: 800, currency: "EUR", basis: "estimate" }, outcome: "First paid orders" },
-  initiatives: [{ title: "Price the offer", channel: "", status: "planned" }, { title: "Order terms page", channel: "web", status: "planned" }],
+  ...v1,
+  id: "b",
+  version: 2,
+  status: "approved",
+  summary: "Test a lunch offer with fixed order terms.",
+  plan_snapshot: {
+    assumptions: ["Offices nearby order lunch"],
+    risks: ["Costs unknown", "Minimum order may deter"],
+    kpis: [{ metric: "Margin per order" }, { metric: "Accepted quotes" }],
+    budget: { amount: 800, currency: "EUR", basis: "estimate" },
+    outcome: "First paid orders",
+  },
+  initiatives: [
+    { title: "Price the offer", channel: "", status: "planned" },
+    { title: "Order terms page", channel: "web", status: "planned" },
+  ],
 };
 
 describe("comparing two strategy versions", () => {

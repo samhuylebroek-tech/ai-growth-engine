@@ -18,11 +18,17 @@ describe("validation library", () => {
     expect(z.guid().safeParse("not-an-id").success).toBe(false);
   });
   it("refuses an oversized list against its limit", () => {
-    const r = z.array(z.string()).max(7).safeParse(Array.from({ length: 100_000 }, () => "x"));
+    const r = z
+      .array(z.string())
+      .max(7)
+      .safeParse(Array.from({ length: 100_000 }, () => "x"));
     expect(r.success).toBe(false);
   });
   it("no validator uses the strict UUID check that would refuse those identifiers", () => {
-    const hits = execSync("grep -rlE 'z\\.string\\(\\)\\.uuid\\(\\)|z\\.uuid\\(\\)' src scripts || true", { encoding: "utf8" }).trim();
+    const hits = execSync(
+      "grep -rlE 'z\\.string\\(\\)\\.uuid\\(\\)|z\\.uuid\\(\\)' src scripts || true",
+      { encoding: "utf8" },
+    ).trim();
     expect(hits.split("\n").filter((f) => f && !f.endsWith("zod-upgrade.test.ts"))).toEqual([]);
   });
 });

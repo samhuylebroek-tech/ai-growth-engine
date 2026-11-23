@@ -6,6 +6,12 @@ export default defineConfig({
   tanstackStart: { server: { entry: "server" } },
   vite: {
     cacheDir: "node_modules/.vite-staging",
-    server: { port: 8091, strictPort: true, host: "127.0.0.1", hmr: false, watch: { ignored: ["**/drizzle/**", "**/docs/**", "**/scripts/**"] } },
+    server: {
+      port: 8091,
+      strictPort: true,
+      host: "127.0.0.1",
+      hmr: false,
+      watch: { ignored: ["**/drizzle/**", "**/docs/**", "**/scripts/**"] },
+    },
   },
 });

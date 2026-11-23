@@ -34,30 +34,38 @@ const en = {
   "recovery.status.failed": "not completed",
   // AI recovery
   "recovery.uncertain.title": "The outcome of this request is uncertain",
-  "recovery.uncertain.body": "The connection to the AI service dropped before an answer arrived. The service may still have done (and billed) the work, so the reserved credits cannot be refunded, and no answer was saved. New AI requests stay paused for this organization until this is closed. Closing it counts the reserved credits as used; nothing is sent again.",
+  "recovery.uncertain.body":
+    "The connection to the AI service dropped before an answer arrived. The service may still have done (and billed) the work, so the reserved credits cannot be refunded, and no answer was saved. New AI requests stay paused for this organization until this is closed. Closing it counts the reserved credits as used; nothing is sent again.",
   "recovery.uncertain.accept": "Close and count reserved credits as used",
   "recovery.uncertain.later": "Not now",
-  "recovery.accepted": "Closed · {credits} reserved credits counted as used. New AI requests are possible again.",
+  "recovery.accepted":
+    "Closed · {credits} reserved credits counted as used. New AI requests are possible again.",
   "recovery.acceptFailed": "The request could not be closed. Nothing was sent again.",
   // growth opportunities
   "nav./app/opportunities": "Growth opportunities",
   "opp.title": "Growth opportunities",
-  "opp.intro": "The Growth Officer looks across marketing, sales, retention, partnerships, events, pricing and product for ways this business can earn more. Scores and budgets are AI estimates, never guaranteed results. You decide what becomes a goal.",
+  "opp.intro":
+    "The Growth Officer looks across marketing, sales, retention, partnerships, events, pricing and product for ways this business can earn more. Scores and budgets are AI estimates, never guaranteed results. You decide what becomes a goal.",
   "opp.generate.title": "Find new opportunities",
   "opp.generate.horizon": "Time horizon",
   "opp.generate.days": "{n} days",
   "opp.generate.focus": "Focus (optional)",
-  "opp.generate.focusPlaceholder": "For example: more B2B customers in Flanders, or a better margin on catering",
+  "opp.generate.focusPlaceholder":
+    "For example: more B2B customers in Flanders, or a better margin on catering",
   "opp.generate.button": "Find opportunities",
   "opp.generate.busy": "Analysing your business…",
-  "opp.generate.cost": "Uses AI credits once. Uses your verified facts, goals, budget, pipeline, results, competitors and website check.",
+  "opp.generate.cost":
+    "Uses AI credits once. Uses your verified facts, goals, budget, pipeline, results, competitors and website check.",
   "opp.generate.done": "{n} opportunities found · {credits} AI credits",
-  "opp.generate.notSaved": "The result is preserved but could not be saved yet. Try again with the same request; you will not be charged twice.",
-  "opp.generate.unconfirmed": "The request could not be confirmed. Try again: the same request is never charged twice.",
+  "opp.generate.notSaved":
+    "The result is preserved but could not be saved yet. Try again with the same request; you will not be charged twice.",
+  "opp.generate.unconfirmed":
+    "The request could not be confirmed. Try again: the same request is never charged twice.",
   "opp.viewerNote": "You can view opportunities. Members decide and start new searches.",
   "opp.notInstalled": "Growth opportunities are not switched on for this workspace yet.",
   "opp.loadError": "Could not load opportunities.",
-  "opp.empty": "No opportunities yet. Start a search to let the Growth Officer analyse your business.",
+  "opp.empty":
+    "No opportunities yet. Start a search to let the Growth Officer analyse your business.",
   "opp.emptyFilter": "Nothing matches this filter.",
   "opp.filter.status": "Show",
   "opp.filter.active": "To decide",
@@ -112,7 +120,8 @@ const en = {
   "opp.action.convert": "Make it a goal",
   "opp.action.openGoal": "Open goals",
   "opp.action.ask": "Ask the Growth Officer",
-  "opp.ask.question": "Tell me more about the opportunity “{title}”: what would the first two weeks look like, what would it cost and how do we measure success?",
+  "opp.ask.question":
+    "Tell me more about the opportunity “{title}”: what would the first two weeks look like, what would it cost and how do we measure success?",
   "opp.toast.converted": "Goal created. Plan a strategy for it under Goals & budget.",
   "opp.toast.alreadyConverted": "This opportunity is already a goal.",
   "opp.toast.updated": "Updated",
@@ -293,55 +302,83 @@ const en = {
   "signal.basis.business_profile": "Based on your business profile",
   "signal.basis.budget": "Based on your budget",
   "signal.tasks_overdue.title": "{n} open task(s) are past their deadline, starting with “{task}”",
-  "signal.tasks_overdue.question": "We have {n} overdue task(s), starting with “{task}”. What should we do first: finish, re-plan or drop them?",
-  "signal.tasks_blocked.title": "{n} task(s) wait on unfinished earlier work, starting with “{task}”",
-  "signal.tasks_blocked.question": "“{task}” is waiting on “{pre}”, which is not finished. What is holding up the earlier task, and should we finish it first or re-plan?",
-  "signal.initiative_behind.title": "Initiative “{initiative}” is {days} days past its planned week {week}",
-  "signal.initiative_behind.question": "The initiative “{initiative}” was planned for week {week} and is {days} days behind. What is holding it up and should the plan change?",
+  "signal.tasks_overdue.question":
+    "We have {n} overdue task(s), starting with “{task}”. What should we do first: finish, re-plan or drop them?",
+  "signal.tasks_blocked.title":
+    "{n} task(s) wait on unfinished earlier work, starting with “{task}”",
+  "signal.tasks_blocked.question":
+    "“{task}” is waiting on “{pre}”, which is not finished. What is holding up the earlier task, and should we finish it first or re-plan?",
+  "signal.initiative_behind.title":
+    "Initiative “{initiative}” is {days} days past its planned week {week}",
+  "signal.initiative_behind.question":
+    "The initiative “{initiative}” was planned for week {week} and is {days} days behind. What is holding it up and should the plan change?",
   "signal.runs_failing.title": "{n} task(s) failed with AI more than once",
-  "signal.runs_failing.question": "{n} task(s) failed with an AI specialist more than once. Should we reassign them, add information, or do them ourselves?",
+  "signal.runs_failing.question":
+    "{n} task(s) failed with an AI specialist more than once. Should we reassign them, add information, or do them ourselves?",
   "signal.campaign_budget_over.title": "Campaign “{campaign}” is over its budget ({p}% spent)",
-  "signal.campaign_budget_over.question": "Campaign “{campaign}” has used {p}% of its budget, or its reservations exceed it. Where does the extra spending come from and what should we stop, cut or re-budget?",
+  "signal.campaign_budget_over.question":
+    "Campaign “{campaign}” has used {p}% of its budget, or its reservations exceed it. Where does the extra spending come from and what should we stop, cut or re-budget?",
   "signal.campaign_budget_near.title": "Campaign “{campaign}” has almost used its budget",
   "signal.campaign_emergency_stop.title": "Campaign “{campaign}” has an emergency spending stop",
-  "signal.campaign_emergency_stop.question": "Spending on campaign “{campaign}” was stopped ({reason}). What has to be checked before an editor lifts the stop?",
+  "signal.campaign_emergency_stop.question":
+    "Spending on campaign “{campaign}” was stopped ({reason}). What has to be checked before an editor lifts the stop?",
   "signal.campaign_limit_reached.title": "Campaign “{campaign}” has used {p}% of a spending limit",
-  "signal.campaign_limit_reached.question": "Campaign “{campaign}” is at {p}% of one of its hard spending limits. Further spending will be refused above it. Is the spending delivering, or should the plan or the limit change?",
-  "signal.campaign_spend_forecast.title": "Estimate: campaign “{campaign}” may exceed its total limit",
-  "signal.campaign_spend_forecast.question": "At the current pace of actual spending, campaign “{campaign}” would reach about {p} against a total limit of {b} by its end date. This is a straight-line estimate. What should change?",
-  "signal.campaign_budget_near.question": "Campaign “{campaign}” is close to its budget. Is the spending delivering results, and should we slow down or re-budget?",
+  "signal.campaign_limit_reached.question":
+    "Campaign “{campaign}” is at {p}% of one of its hard spending limits. Further spending will be refused above it. Is the spending delivering, or should the plan or the limit change?",
+  "signal.campaign_spend_forecast.title":
+    "Estimate: campaign “{campaign}” may exceed its total limit",
+  "signal.campaign_spend_forecast.question":
+    "At the current pace of actual spending, campaign “{campaign}” would reach about {p} against a total limit of {b} by its end date. This is a straight-line estimate. What should change?",
+  "signal.campaign_budget_near.question":
+    "Campaign “{campaign}” is close to its budget. Is the spending delivering results, and should we slow down or re-budget?",
   "signal.replan_pending.title": "{n} re-planning proposal(s) wait for a decision",
-  "signal.replan_pending.question": "There are {n} re-planning proposal(s) waiting. Which ones should we approve first, and why?",
+  "signal.replan_pending.question":
+    "There are {n} re-planning proposal(s) waiting. Which ones should we approve first, and why?",
   "signal.runs_waiting.title": "{n} AI run(s) are waiting for approval",
-  "signal.runs_waiting.question": "{n} AI task run(s) are waiting for an admin's approval. Which should go ahead?",
+  "signal.runs_waiting.question":
+    "{n} AI task run(s) are waiting for an admin's approval. Which should go ahead?",
   "signal.runs_uncertain.title": "{n} AI run(s) have an uncertain outcome",
-  "signal.runs_uncertain.question": "{n} AI task run(s) have an uncertain outcome. How do we resolve them without paying twice?",
+  "signal.runs_uncertain.question":
+    "{n} AI task run(s) have an uncertain outcome. How do we resolve them without paying twice?",
   "signal.facts_conflict.title": "Conflicting confirmed facts on {n} topic(s)",
-  "signal.facts_conflict.question": "{n} topic(s) in our business profile have different confirmed values. Which ones matter for our plans, and how do we decide the correct value?",
+  "signal.facts_conflict.question":
+    "{n} topic(s) in our business profile have different confirmed values. Which ones matter for our plans, and how do we decide the correct value?",
   "signal.econ_allocation_exceeded.title": "Actual spending on {c} is above its allocation",
-  "signal.econ_allocation_exceeded.question": "{s} spent, {a} allocated. Should we move budget to it from the business budget, or pause spending?",
+  "signal.econ_allocation_exceeded.question":
+    "{s} spent, {a} allocated. Should we move budget to it from the business budget, or pause spending?",
   "signal.econ_allocation_near.title": "{c} has used most of its allocation",
-  "signal.econ_allocation_near.question": "{s} of {a} spent. Is the rest enough until the campaign ends?",
+  "signal.econ_allocation_near.question":
+    "{s} of {a} spent. Is the rest enough until the campaign ends?",
   "signal.econ_budget_unallocated.title": "{a} of this month's budget is not allocated",
-  "signal.econ_budget_unallocated.question": "Of {total} planned, {a} is not assigned to any campaign. Should part of it go to a campaign?",
+  "signal.econ_budget_unallocated.question":
+    "Of {total} planned, {a} is not assigned to any campaign. Should part of it go to a campaign?",
   "signal.econ_budget_duplicates.title": "{n} group(s) of budget lines look like duplicates",
-  "signal.econ_budget_duplicates.question": "Same channel, month, currency and goal. Are these really separate budgets?",
+  "signal.econ_budget_duplicates.question":
+    "Same channel, month, currency and goal. Are these really separate budgets?",
   "signal.econ_request_rejected.title": "{n} budget request(s) were rejected recently",
-  "signal.econ_request_rejected.question": "Does the campaign still need budget, and should the request be revised?",
+  "signal.econ_request_rejected.question":
+    "Does the campaign still need budget, and should the request be revised?",
   "signal.econ_cost_model_missing.title": "Gross profit ({cur}) cannot be calculated yet",
-  "signal.econ_cost_model_missing.question": "There are sales but no cost model. How do your costs work: per sale, per month, or an estimated margin?",
+  "signal.econ_cost_model_missing.question":
+    "There are sales but no cost model. How do your costs work: per sale, per month, or an estimated margin?",
   "signal.econ_cost_missing.title": "Costs are missing for gross profit ({cur})",
-  "signal.econ_cost_missing.question": "Months without cost: {m}; sales without cost: {n}. Can these costs be recorded?",
+  "signal.econ_cost_missing.question":
+    "Months without cost: {m}; sales without cost: {n}. Can these costs be recorded?",
   "signal.econ_customer_missing.title": "{n} sale(s) ({cur}) have no customer reference",
-  "signal.econ_customer_missing.question": "Without it, CAC and revenue per customer stay unknown. Can a customer reference be added?",
+  "signal.econ_customer_missing.question":
+    "Without it, CAC and revenue per customer stay unknown. Can a customer reference be added?",
   "signal.econ_attribution_missing.title": "{n} sale(s) ({cur}) are not linked to a campaign",
-  "signal.econ_attribution_missing.question": "Campaign ROAS ignores them. Which campaign, if any, touched these sales?",
+  "signal.econ_attribution_missing.question":
+    "Campaign ROAS ignores them. Which campaign, if any, touched these sales?",
   "signal.econ_margin_declining.title": "Gross margin ({cur}) fell from {before}% to {now}%",
-  "signal.econ_margin_declining.question": "Both periods have complete costs. Which costs or prices changed? This shows a change, not its cause.",
+  "signal.econ_margin_declining.question":
+    "Both periods have complete costs. Which costs or prices changed? This shows a change, not its cause.",
   "signal.econ_price_missing.title": "AI work is shown in credits only",
-  "signal.econ_price_missing.question": "{n} credits used this month had no credit price in effect, so they are not converted into money.",
+  "signal.econ_price_missing.question":
+    "{n} credits used this month had no credit price in effect, so they are not converted into money.",
   "signal.recommendation_measure_due.title": "{n} recommendation(s) are ready to be measured",
-  "signal.recommendation_measure_due.question": "For example “{t}”. What happened after it was carried out?",
+  "signal.recommendation_measure_due.question":
+    "For example “{t}”. What happened after it was carried out?",
   "signal.basis.economics": "Based on budget, spending, costs and sales records",
   "signal.basis.ai_work": "Based on AI task runs",
 } as const;
@@ -372,30 +409,39 @@ const nl: Dictionary = {
   "recovery.status.failed": "niet voltooid",
   // AI recovery
   "recovery.uncertain.title": "De uitkomst van dit verzoek is onzeker",
-  "recovery.uncertain.body": "De verbinding met de AI-dienst viel weg voordat er een antwoord kwam. De dienst kan het werk toch uitgevoerd (en aangerekend) hebben, dus het gereserveerde tegoed kan niet terugbetaald worden en er is geen antwoord bewaard. Nieuwe AI-verzoeken blijven gepauzeerd voor deze organisatie tot dit is afgesloten. Afsluiten telt het gereserveerde tegoed als verbruikt; er wordt niets opnieuw verstuurd.",
+  "recovery.uncertain.body":
+    "De verbinding met de AI-dienst viel weg voordat er een antwoord kwam. De dienst kan het werk toch uitgevoerd (en aangerekend) hebben, dus het gereserveerde tegoed kan niet terugbetaald worden en er is geen antwoord bewaard. Nieuwe AI-verzoeken blijven gepauzeerd voor deze organisatie tot dit is afgesloten. Afsluiten telt het gereserveerde tegoed als verbruikt; er wordt niets opnieuw verstuurd.",
   "recovery.uncertain.accept": "Afsluiten en gereserveerd tegoed als verbruikt tellen",
   "recovery.uncertain.later": "Nu niet",
-  "recovery.accepted": "Afgesloten · {credits} gereserveerd tegoed als verbruikt geteld. Nieuwe AI-verzoeken zijn weer mogelijk.",
-  "recovery.acceptFailed": "Het verzoek kon niet afgesloten worden. Er werd niets opnieuw verstuurd.",
+  "recovery.accepted":
+    "Afgesloten · {credits} gereserveerd tegoed als verbruikt geteld. Nieuwe AI-verzoeken zijn weer mogelijk.",
+  "recovery.acceptFailed":
+    "Het verzoek kon niet afgesloten worden. Er werd niets opnieuw verstuurd.",
   // growth opportunities
   "nav./app/opportunities": "Groeikansen",
   "opp.title": "Groeikansen",
-  "opp.intro": "De Growth Officer zoekt in marketing, sales, klantbehoud, partnerships, events, prijzen en product naar manieren waarop dit bedrijf meer kan verdienen. Scores en budgetten zijn AI-schattingen, nooit gegarandeerde resultaten. Jij beslist wat een doel wordt.",
+  "opp.intro":
+    "De Growth Officer zoekt in marketing, sales, klantbehoud, partnerships, events, prijzen en product naar manieren waarop dit bedrijf meer kan verdienen. Scores en budgetten zijn AI-schattingen, nooit gegarandeerde resultaten. Jij beslist wat een doel wordt.",
   "opp.generate.title": "Nieuwe kansen zoeken",
   "opp.generate.horizon": "Tijdshorizon",
   "opp.generate.days": "{n} dagen",
   "opp.generate.focus": "Focus (optioneel)",
-  "opp.generate.focusPlaceholder": "Bijvoorbeeld: meer B2B-klanten in Vlaanderen, of een betere marge op catering",
+  "opp.generate.focusPlaceholder":
+    "Bijvoorbeeld: meer B2B-klanten in Vlaanderen, of een betere marge op catering",
   "opp.generate.button": "Kansen zoeken",
   "opp.generate.busy": "Je bedrijf wordt geanalyseerd…",
-  "opp.generate.cost": "Gebruikt eenmalig AI-tegoed. Gebruikt je bevestigde feiten, doelen, budget, pipeline, resultaten, concurrenten en websitecontrole.",
+  "opp.generate.cost":
+    "Gebruikt eenmalig AI-tegoed. Gebruikt je bevestigde feiten, doelen, budget, pipeline, resultaten, concurrenten en websitecontrole.",
   "opp.generate.done": "{n} kansen gevonden · {credits} AI-tegoed",
-  "opp.generate.notSaved": "Het resultaat is bewaard maar nog niet opgeslagen. Probeer opnieuw met hetzelfde verzoek; je betaalt niet dubbel.",
-  "opp.generate.unconfirmed": "Het verzoek kon niet bevestigd worden. Probeer opnieuw: hetzelfde verzoek wordt nooit dubbel aangerekend.",
+  "opp.generate.notSaved":
+    "Het resultaat is bewaard maar nog niet opgeslagen. Probeer opnieuw met hetzelfde verzoek; je betaalt niet dubbel.",
+  "opp.generate.unconfirmed":
+    "Het verzoek kon niet bevestigd worden. Probeer opnieuw: hetzelfde verzoek wordt nooit dubbel aangerekend.",
   "opp.viewerNote": "Je kunt kansen bekijken. Leden beslissen en starten nieuwe zoekopdrachten.",
   "opp.notInstalled": "Groeikansen zijn nog niet ingeschakeld voor deze werkruimte.",
   "opp.loadError": "Kansen konden niet geladen worden.",
-  "opp.empty": "Nog geen kansen. Start een zoekopdracht zodat de Growth Officer je bedrijf analyseert.",
+  "opp.empty":
+    "Nog geen kansen. Start een zoekopdracht zodat de Growth Officer je bedrijf analyseert.",
   "opp.emptyFilter": "Niets komt overeen met deze filter.",
   "opp.filter.status": "Toon",
   "opp.filter.active": "Te beslissen",
@@ -450,7 +496,8 @@ const nl: Dictionary = {
   "opp.action.convert": "Maak er een doel van",
   "opp.action.openGoal": "Doelen openen",
   "opp.action.ask": "Vraag het de Growth Officer",
-  "opp.ask.question": "Vertel me meer over de kans “{title}”: hoe zien de eerste twee weken eruit, wat kost het en hoe meten we succes?",
+  "opp.ask.question":
+    "Vertel me meer over de kans “{title}”: hoe zien de eerste twee weken eruit, wat kost het en hoe meten we succes?",
   "opp.toast.converted": "Doel aangemaakt. Plan er een strategie voor onder Doelen & budget.",
   "opp.toast.alreadyConverted": "Deze kans is al een doel.",
   "opp.toast.updated": "Bijgewerkt",
@@ -627,55 +674,86 @@ const nl: Dictionary = {
   "signal.basis.business_profile": "Gebaseerd op je bedrijfsprofiel",
   "signal.basis.budget": "Op basis van je budget",
   "signal.tasks_overdue.title": "{n} open taak/taken over de deadline, te beginnen met “{task}”",
-  "signal.tasks_overdue.question": "We hebben {n} verlopen taak/taken, te beginnen met “{task}”. Wat doen we eerst: afronden, herplannen of schrappen?",
-  "signal.tasks_blocked.title": "{n} taak/taken wachten op onafgewerkt eerder werk, te beginnen met “{task}”",
-  "signal.tasks_blocked.question": "“{task}” wacht op “{pre}”, dat nog niet af is. Wat houdt de eerdere taak tegen, en ronden we die eerst af of herplannen we?",
-  "signal.initiative_behind.title": "Initiatief “{initiative}” loopt {days} dagen achter op geplande week {week}",
-  "signal.initiative_behind.question": "Het initiatief “{initiative}” stond gepland voor week {week} en loopt {days} dagen achter. Wat houdt het tegen en moet het plan veranderen?",
+  "signal.tasks_overdue.question":
+    "We hebben {n} verlopen taak/taken, te beginnen met “{task}”. Wat doen we eerst: afronden, herplannen of schrappen?",
+  "signal.tasks_blocked.title":
+    "{n} taak/taken wachten op onafgewerkt eerder werk, te beginnen met “{task}”",
+  "signal.tasks_blocked.question":
+    "“{task}” wacht op “{pre}”, dat nog niet af is. Wat houdt de eerdere taak tegen, en ronden we die eerst af of herplannen we?",
+  "signal.initiative_behind.title":
+    "Initiatief “{initiative}” loopt {days} dagen achter op geplande week {week}",
+  "signal.initiative_behind.question":
+    "Het initiatief “{initiative}” stond gepland voor week {week} en loopt {days} dagen achter. Wat houdt het tegen en moet het plan veranderen?",
   "signal.runs_failing.title": "{n} taak/taken mislukten meer dan eens met AI",
-  "signal.runs_failing.question": "{n} taak/taken mislukten meer dan eens bij een AI-specialist. Wijzen we ze anders toe, vullen we informatie aan of doen we ze zelf?",
-  "signal.campaign_budget_over.title": "Campagne “{campaign}” zit over haar budget ({p}% uitgegeven)",
-  "signal.campaign_budget_over.question": "Campagne “{campaign}” heeft {p}% van haar budget gebruikt, of de reserveringen overschrijden het. Waar komen de extra uitgaven vandaan en wat moeten we stoppen, beperken of herbudgetteren?",
+  "signal.runs_failing.question":
+    "{n} taak/taken mislukten meer dan eens bij een AI-specialist. Wijzen we ze anders toe, vullen we informatie aan of doen we ze zelf?",
+  "signal.campaign_budget_over.title":
+    "Campagne “{campaign}” zit over haar budget ({p}% uitgegeven)",
+  "signal.campaign_budget_over.question":
+    "Campagne “{campaign}” heeft {p}% van haar budget gebruikt, of de reserveringen overschrijden het. Waar komen de extra uitgaven vandaan en wat moeten we stoppen, beperken of herbudgetteren?",
   "signal.campaign_budget_near.title": "Campagne “{campaign}” heeft haar budget bijna opgebruikt",
   "signal.campaign_emergency_stop.title": "Campagne “{campaign}” heeft een noodstop op uitgaven",
-  "signal.campaign_emergency_stop.question": "De uitgaven voor campagne “{campaign}” zijn gestopt ({reason}). Wat moet worden gecontroleerd voordat een editor de stop opheft?",
-  "signal.campaign_limit_reached.title": "Campagne “{campaign}” heeft {p}% van een bestedingslimiet gebruikt",
-  "signal.campaign_limit_reached.question": "Campagne “{campaign}” zit op {p}% van een van haar harde bestedingslimieten. Verdere uitgaven daarboven worden geweigerd. Leveren de uitgaven iets op, of moet het plan of de limiet veranderen?",
-  "signal.campaign_spend_forecast.title": "Schatting: campagne “{campaign}” kan haar totaallimiet overschrijden",
-  "signal.campaign_spend_forecast.question": "In het huidige tempo van werkelijke uitgaven komt campagne “{campaign}” bij de einddatum op ongeveer {p} tegenover een totaallimiet van {b}. Dit is een rechtlijnige schatting. Wat moet er veranderen?",
-  "signal.campaign_budget_near.question": "Campagne “{campaign}” zit dicht bij haar budget. Leveren de uitgaven resultaat op, en moeten we vertragen of herbudgetteren?",
+  "signal.campaign_emergency_stop.question":
+    "De uitgaven voor campagne “{campaign}” zijn gestopt ({reason}). Wat moet worden gecontroleerd voordat een editor de stop opheft?",
+  "signal.campaign_limit_reached.title":
+    "Campagne “{campaign}” heeft {p}% van een bestedingslimiet gebruikt",
+  "signal.campaign_limit_reached.question":
+    "Campagne “{campaign}” zit op {p}% van een van haar harde bestedingslimieten. Verdere uitgaven daarboven worden geweigerd. Leveren de uitgaven iets op, of moet het plan of de limiet veranderen?",
+  "signal.campaign_spend_forecast.title":
+    "Schatting: campagne “{campaign}” kan haar totaallimiet overschrijden",
+  "signal.campaign_spend_forecast.question":
+    "In het huidige tempo van werkelijke uitgaven komt campagne “{campaign}” bij de einddatum op ongeveer {p} tegenover een totaallimiet van {b}. Dit is een rechtlijnige schatting. Wat moet er veranderen?",
+  "signal.campaign_budget_near.question":
+    "Campagne “{campaign}” zit dicht bij haar budget. Leveren de uitgaven resultaat op, en moeten we vertragen of herbudgetteren?",
   "signal.replan_pending.title": "{n} herplanningsvoorstel(len) wachten op een beslissing",
-  "signal.replan_pending.question": "Er wachten {n} herplanningsvoorstel(len). Welke keuren we eerst goed, en waarom?",
+  "signal.replan_pending.question":
+    "Er wachten {n} herplanningsvoorstel(len). Welke keuren we eerst goed, en waarom?",
   "signal.runs_waiting.title": "{n} AI-opdracht(en) wachten op goedkeuring",
-  "signal.runs_waiting.question": "{n} AI-taakopdracht(en) wachten op goedkeuring van een beheerder. Welke mogen door?",
+  "signal.runs_waiting.question":
+    "{n} AI-taakopdracht(en) wachten op goedkeuring van een beheerder. Welke mogen door?",
   "signal.runs_uncertain.title": "{n} AI-opdracht(en) hebben een onzekere uitkomst",
-  "signal.runs_uncertain.question": "{n} AI-taakopdracht(en) hebben een onzekere uitkomst. Hoe handelen we die af zonder dubbel te betalen?",
+  "signal.runs_uncertain.question":
+    "{n} AI-taakopdracht(en) hebben een onzekere uitkomst. Hoe handelen we die af zonder dubbel te betalen?",
   "signal.facts_conflict.title": "Tegenstrijdige bevestigde feiten over {n} onderwerp(en)",
-  "signal.facts_conflict.question": "{n} onderwerp(en) in ons bedrijfsprofiel hebben verschillende bevestigde waarden. Welke zijn belangrijk voor onze plannen en hoe bepalen we de juiste waarde?",
+  "signal.facts_conflict.question":
+    "{n} onderwerp(en) in ons bedrijfsprofiel hebben verschillende bevestigde waarden. Welke zijn belangrijk voor onze plannen en hoe bepalen we de juiste waarde?",
   "signal.econ_allocation_exceeded.title": "Werkelijke uitgaven van {c} liggen boven de toewijzing",
-  "signal.econ_allocation_exceeded.question": "{s} uitgegeven, {a} toegewezen. Verplaatsen we budget vanuit het bedrijfsbudget, of pauzeren we de uitgaven?",
+  "signal.econ_allocation_exceeded.question":
+    "{s} uitgegeven, {a} toegewezen. Verplaatsen we budget vanuit het bedrijfsbudget, of pauzeren we de uitgaven?",
   "signal.econ_allocation_near.title": "{c} heeft het grootste deel van de toewijzing gebruikt",
-  "signal.econ_allocation_near.question": "{s} van {a} uitgegeven. Volstaat de rest tot het einde van de campagne?",
+  "signal.econ_allocation_near.question":
+    "{s} van {a} uitgegeven. Volstaat de rest tot het einde van de campagne?",
   "signal.econ_budget_unallocated.title": "{a} van het budget van deze maand is niet toegewezen",
-  "signal.econ_budget_unallocated.question": "Van {total} gepland is {a} aan geen enkele campagne toegewezen. Moet een deel naar een campagne?",
+  "signal.econ_budget_unallocated.question":
+    "Van {total} gepland is {a} aan geen enkele campagne toegewezen. Moet een deel naar een campagne?",
   "signal.econ_budget_duplicates.title": "{n} groep(en) budgetregels lijken dubbel",
-  "signal.econ_budget_duplicates.question": "Zelfde kanaal, maand, valuta en doel. Zijn dit echt aparte budgetten?",
+  "signal.econ_budget_duplicates.question":
+    "Zelfde kanaal, maand, valuta en doel. Zijn dit echt aparte budgetten?",
   "signal.econ_request_rejected.title": "{n} budgetaanvraag/-aanvragen recent afgewezen",
-  "signal.econ_request_rejected.question": "Heeft de campagne nog budget nodig, en moet de aanvraag worden herzien?",
+  "signal.econ_request_rejected.question":
+    "Heeft de campagne nog budget nodig, en moet de aanvraag worden herzien?",
   "signal.econ_cost_model_missing.title": "Brutowinst ({cur}) kan nog niet worden berekend",
-  "signal.econ_cost_model_missing.question": "Er zijn verkopen maar geen kostenmodel. Hoe werken je kosten: per verkoop, per maand of een geschatte marge?",
+  "signal.econ_cost_model_missing.question":
+    "Er zijn verkopen maar geen kostenmodel. Hoe werken je kosten: per verkoop, per maand of een geschatte marge?",
   "signal.econ_cost_missing.title": "Kosten ontbreken voor de brutowinst ({cur})",
-  "signal.econ_cost_missing.question": "Maanden zonder kost: {m}; verkopen zonder kost: {n}. Kunnen die kosten worden geregistreerd?",
+  "signal.econ_cost_missing.question":
+    "Maanden zonder kost: {m}; verkopen zonder kost: {n}. Kunnen die kosten worden geregistreerd?",
   "signal.econ_customer_missing.title": "{n} verkoop/verkopen ({cur}) zonder klantreferentie",
-  "signal.econ_customer_missing.question": "Zonder klantreferentie blijven CAC en omzet per klant onbekend. Kan een klantreferentie worden toegevoegd?",
-  "signal.econ_attribution_missing.title": "{n} verkoop/verkopen ({cur}) niet gekoppeld aan een campagne",
-  "signal.econ_attribution_missing.question": "Campagne-ROAS houdt er geen rekening mee. Welke campagne raakte deze verkopen, als er een was?",
+  "signal.econ_customer_missing.question":
+    "Zonder klantreferentie blijven CAC en omzet per klant onbekend. Kan een klantreferentie worden toegevoegd?",
+  "signal.econ_attribution_missing.title":
+    "{n} verkoop/verkopen ({cur}) niet gekoppeld aan een campagne",
+  "signal.econ_attribution_missing.question":
+    "Campagne-ROAS houdt er geen rekening mee. Welke campagne raakte deze verkopen, als er een was?",
   "signal.econ_margin_declining.title": "Brutomarge ({cur}) daalde van {before}% naar {now}%",
-  "signal.econ_margin_declining.question": "Beide periodes hebben volledige kosten. Welke kosten of prijzen veranderden? Dit toont een verandering, niet de oorzaak.",
+  "signal.econ_margin_declining.question":
+    "Beide periodes hebben volledige kosten. Welke kosten of prijzen veranderden? Dit toont een verandering, niet de oorzaak.",
   "signal.econ_price_missing.title": "AI-werk wordt alleen in credits getoond",
-  "signal.econ_price_missing.question": "Voor {n} credits die deze maand zijn gebruikt gold geen creditprijs, dus ze worden niet in geld omgezet.",
+  "signal.econ_price_missing.question":
+    "Voor {n} credits die deze maand zijn gebruikt gold geen creditprijs, dus ze worden niet in geld omgezet.",
   "signal.recommendation_measure_due.title": "{n} aanbeveling(en) klaar om te meten",
-  "signal.recommendation_measure_due.question": "Bijvoorbeeld “{t}”. Wat gebeurde er nadat ze werd uitgevoerd?",
+  "signal.recommendation_measure_due.question":
+    "Bijvoorbeeld “{t}”. Wat gebeurde er nadat ze werd uitgevoerd?",
   "signal.basis.economics": "Gebaseerd op budget-, uitgaven-, kosten- en verkoopregistraties",
   "signal.basis.ai_work": "Gebaseerd op AI-taakopdrachten",
 };
@@ -703,30 +781,39 @@ const fr: Dictionary = {
   "recovery.status.failed": "non terminée",
   // AI recovery
   "recovery.uncertain.title": "Le résultat de cette demande est incertain",
-  "recovery.uncertain.body": "La connexion au service d’IA a été interrompue avant la réponse. Le service a peut-être quand même effectué (et facturé) le travail : les crédits réservés ne peuvent donc pas être remboursés et aucune réponse n’a été enregistrée. Les nouvelles demandes d’IA restent suspendues pour cette organisation jusqu’à la clôture. Clôturer compte les crédits réservés comme utilisés ; rien n’est renvoyé.",
+  "recovery.uncertain.body":
+    "La connexion au service d’IA a été interrompue avant la réponse. Le service a peut-être quand même effectué (et facturé) le travail : les crédits réservés ne peuvent donc pas être remboursés et aucune réponse n’a été enregistrée. Les nouvelles demandes d’IA restent suspendues pour cette organisation jusqu’à la clôture. Clôturer compte les crédits réservés comme utilisés ; rien n’est renvoyé.",
   "recovery.uncertain.accept": "Clôturer et compter les crédits réservés comme utilisés",
   "recovery.uncertain.later": "Pas maintenant",
-  "recovery.accepted": "Clôturé · {credits} crédits réservés comptés comme utilisés. Les nouvelles demandes d’IA sont de nouveau possibles.",
+  "recovery.accepted":
+    "Clôturé · {credits} crédits réservés comptés comme utilisés. Les nouvelles demandes d’IA sont de nouveau possibles.",
   "recovery.acceptFailed": "La demande n’a pas pu être clôturée. Rien n’a été renvoyé.",
   // growth opportunities
   "nav./app/opportunities": "Opportunités de croissance",
   "opp.title": "Opportunités de croissance",
-  "opp.intro": "Le Growth Officer explore le marketing, la vente, la fidélisation, les partenariats, les événements, les prix et le produit pour trouver comment cette entreprise peut gagner davantage. Les scores et budgets sont des estimations de l’IA, jamais des résultats garantis. Vous décidez de ce qui devient un objectif.",
+  "opp.intro":
+    "Le Growth Officer explore le marketing, la vente, la fidélisation, les partenariats, les événements, les prix et le produit pour trouver comment cette entreprise peut gagner davantage. Les scores et budgets sont des estimations de l’IA, jamais des résultats garantis. Vous décidez de ce qui devient un objectif.",
   "opp.generate.title": "Chercher de nouvelles opportunités",
   "opp.generate.horizon": "Horizon",
   "opp.generate.days": "{n} jours",
   "opp.generate.focus": "Priorité (facultatif)",
-  "opp.generate.focusPlaceholder": "Par exemple : plus de clients B2B en Flandre, ou une meilleure marge sur le traiteur",
+  "opp.generate.focusPlaceholder":
+    "Par exemple : plus de clients B2B en Flandre, ou une meilleure marge sur le traiteur",
   "opp.generate.button": "Chercher des opportunités",
   "opp.generate.busy": "Analyse de votre entreprise…",
-  "opp.generate.cost": "Utilise une fois des crédits IA. S’appuie sur vos faits vérifiés, objectifs, budget, pipeline, résultats, concurrents et contrôle du site.",
+  "opp.generate.cost":
+    "Utilise une fois des crédits IA. S’appuie sur vos faits vérifiés, objectifs, budget, pipeline, résultats, concurrents et contrôle du site.",
   "opp.generate.done": "{n} opportunités trouvées · {credits} crédits IA",
-  "opp.generate.notSaved": "Le résultat est conservé mais pas encore enregistré. Réessayez avec la même demande ; vous ne paierez pas deux fois.",
-  "opp.generate.unconfirmed": "La demande n’a pas pu être confirmée. Réessayez : la même demande n’est jamais facturée deux fois.",
-  "opp.viewerNote": "Vous pouvez consulter les opportunités. Les membres décident et lancent de nouvelles recherches.",
+  "opp.generate.notSaved":
+    "Le résultat est conservé mais pas encore enregistré. Réessayez avec la même demande ; vous ne paierez pas deux fois.",
+  "opp.generate.unconfirmed":
+    "La demande n’a pas pu être confirmée. Réessayez : la même demande n’est jamais facturée deux fois.",
+  "opp.viewerNote":
+    "Vous pouvez consulter les opportunités. Les membres décident et lancent de nouvelles recherches.",
   "opp.notInstalled": "Les opportunités de croissance ne sont pas encore activées pour cet espace.",
   "opp.loadError": "Impossible de charger les opportunités.",
-  "opp.empty": "Aucune opportunité pour l’instant. Lancez une recherche pour que le Growth Officer analyse votre entreprise.",
+  "opp.empty":
+    "Aucune opportunité pour l’instant. Lancez une recherche pour que le Growth Officer analyse votre entreprise.",
   "opp.emptyFilter": "Rien ne correspond à ce filtre.",
   "opp.filter.status": "Afficher",
   "opp.filter.active": "À décider",
@@ -781,7 +868,8 @@ const fr: Dictionary = {
   "opp.action.convert": "En faire un objectif",
   "opp.action.openGoal": "Ouvrir les objectifs",
   "opp.action.ask": "Demander au Growth Officer",
-  "opp.ask.question": "Parle-moi de l’opportunité « {title} » : à quoi ressembleraient les deux premières semaines, combien cela coûterait-il et comment mesurer le succès ?",
+  "opp.ask.question":
+    "Parle-moi de l’opportunité « {title} » : à quoi ressembleraient les deux premières semaines, combien cela coûterait-il et comment mesurer le succès ?",
   "opp.toast.converted": "Objectif créé. Planifiez une stratégie dans Objectifs & budget.",
   "opp.toast.alreadyConverted": "Cette opportunité est déjà un objectif.",
   "opp.toast.updated": "Mis à jour",
@@ -957,56 +1045,89 @@ const fr: Dictionary = {
   "signal.basis.pipeline": "D’après votre pipeline commercial",
   "signal.basis.business_profile": "D'après votre profil d'entreprise",
   "signal.basis.budget": "D’après votre budget",
-  "signal.tasks_overdue.title": "{n} tâche(s) ouvertes ont dépassé leur échéance, à commencer par « {task} »",
-  "signal.tasks_overdue.question": "Nous avons {n} tâche(s) en retard, à commencer par « {task} ». Que faire d’abord : terminer, replanifier ou abandonner ?",
-  "signal.tasks_blocked.title": "{n} tâche(s) attendent un travail précédent non terminé, à commencer par « {task} »",
-  "signal.tasks_blocked.question": "« {task} » attend « {pre} », qui n’est pas terminée. Qu’est-ce qui bloque la tâche précédente : la terminer d’abord ou replanifier ?",
-  "signal.initiative_behind.title": "L’initiative « {initiative} » a {days} jours de retard sur la semaine {week} prévue",
-  "signal.initiative_behind.question": "L’initiative « {initiative} » était prévue en semaine {week} et a {days} jours de retard. Qu’est-ce qui la bloque et faut-il adapter le plan ?",
+  "signal.tasks_overdue.title":
+    "{n} tâche(s) ouvertes ont dépassé leur échéance, à commencer par « {task} »",
+  "signal.tasks_overdue.question":
+    "Nous avons {n} tâche(s) en retard, à commencer par « {task} ». Que faire d’abord : terminer, replanifier ou abandonner ?",
+  "signal.tasks_blocked.title":
+    "{n} tâche(s) attendent un travail précédent non terminé, à commencer par « {task} »",
+  "signal.tasks_blocked.question":
+    "« {task} » attend « {pre} », qui n’est pas terminée. Qu’est-ce qui bloque la tâche précédente : la terminer d’abord ou replanifier ?",
+  "signal.initiative_behind.title":
+    "L’initiative « {initiative} » a {days} jours de retard sur la semaine {week} prévue",
+  "signal.initiative_behind.question":
+    "L’initiative « {initiative} » était prévue en semaine {week} et a {days} jours de retard. Qu’est-ce qui la bloque et faut-il adapter le plan ?",
   "signal.runs_failing.title": "{n} tâche(s) ont échoué plusieurs fois avec l’IA",
-  "signal.runs_failing.question": "{n} tâche(s) ont échoué plusieurs fois avec un spécialiste IA. Faut-il les réattribuer, compléter les informations ou les faire nous-mêmes ?",
-  "signal.campaign_budget_over.title": "La campagne « {campaign} » dépasse son budget ({p} % dépensé)",
-  "signal.campaign_budget_over.question": "La campagne « {campaign} » a utilisé {p} % de son budget, ou ses réservations le dépassent. D’où viennent les dépenses supplémentaires et que faut-il arrêter, réduire ou rebudgétiser ?",
+  "signal.runs_failing.question":
+    "{n} tâche(s) ont échoué plusieurs fois avec un spécialiste IA. Faut-il les réattribuer, compléter les informations ou les faire nous-mêmes ?",
+  "signal.campaign_budget_over.title":
+    "La campagne « {campaign} » dépasse son budget ({p} % dépensé)",
+  "signal.campaign_budget_over.question":
+    "La campagne « {campaign} » a utilisé {p} % de son budget, ou ses réservations le dépassent. D’où viennent les dépenses supplémentaires et que faut-il arrêter, réduire ou rebudgétiser ?",
   "signal.campaign_budget_near.title": "La campagne « {campaign} » a presque épuisé son budget",
-  "signal.campaign_emergency_stop.title": "La campagne « {campaign} » a un arrêt d’urgence des dépenses",
-  "signal.campaign_emergency_stop.question": "Les dépenses de la campagne « {campaign} » ont été arrêtées ({reason}). Que faut-il vérifier avant qu’un éditeur lève l’arrêt ?",
-  "signal.campaign_limit_reached.title": "La campagne « {campaign} » a utilisé {p} % d’une limite de dépenses",
-  "signal.campaign_limit_reached.question": "La campagne « {campaign} » est à {p} % d’une de ses limites strictes. Les dépenses au-delà seront refusées. Les dépenses produisent-elles des résultats, ou faut-il changer le plan ou la limite ?",
-  "signal.campaign_spend_forecast.title": "Estimation : la campagne « {campaign} » pourrait dépasser sa limite totale",
-  "signal.campaign_spend_forecast.question": "Au rythme actuel des dépenses réelles, la campagne « {campaign} » atteindrait environ {p} pour une limite totale de {b} à sa date de fin. C’est une estimation linéaire. Que faut-il changer ?",
-  "signal.campaign_budget_near.question": "La campagne « {campaign} » approche de son budget. Les dépenses donnent-elles des résultats, et faut-il ralentir ou rebudgétiser ?",
+  "signal.campaign_emergency_stop.title":
+    "La campagne « {campaign} » a un arrêt d’urgence des dépenses",
+  "signal.campaign_emergency_stop.question":
+    "Les dépenses de la campagne « {campaign} » ont été arrêtées ({reason}). Que faut-il vérifier avant qu’un éditeur lève l’arrêt ?",
+  "signal.campaign_limit_reached.title":
+    "La campagne « {campaign} » a utilisé {p} % d’une limite de dépenses",
+  "signal.campaign_limit_reached.question":
+    "La campagne « {campaign} » est à {p} % d’une de ses limites strictes. Les dépenses au-delà seront refusées. Les dépenses produisent-elles des résultats, ou faut-il changer le plan ou la limite ?",
+  "signal.campaign_spend_forecast.title":
+    "Estimation : la campagne « {campaign} » pourrait dépasser sa limite totale",
+  "signal.campaign_spend_forecast.question":
+    "Au rythme actuel des dépenses réelles, la campagne « {campaign} » atteindrait environ {p} pour une limite totale de {b} à sa date de fin. C’est une estimation linéaire. Que faut-il changer ?",
+  "signal.campaign_budget_near.question":
+    "La campagne « {campaign} » approche de son budget. Les dépenses donnent-elles des résultats, et faut-il ralentir ou rebudgétiser ?",
   "signal.replan_pending.title": "{n} proposition(s) de replanification attendent une décision",
-  "signal.replan_pending.question": "{n} proposition(s) de replanification attendent. Lesquelles approuver en premier, et pourquoi ?",
+  "signal.replan_pending.question":
+    "{n} proposition(s) de replanification attendent. Lesquelles approuver en premier, et pourquoi ?",
   "signal.runs_waiting.title": "{n} exécution(s) IA attendent une validation",
-  "signal.runs_waiting.question": "{n} exécution(s) IA attendent la validation d’un administrateur. Lesquelles lancer ?",
+  "signal.runs_waiting.question":
+    "{n} exécution(s) IA attendent la validation d’un administrateur. Lesquelles lancer ?",
   "signal.runs_uncertain.title": "{n} exécution(s) IA ont un résultat incertain",
-  "signal.runs_uncertain.question": "{n} exécution(s) IA ont un résultat incertain. Comment les régler sans payer deux fois ?",
+  "signal.runs_uncertain.question":
+    "{n} exécution(s) IA ont un résultat incertain. Comment les régler sans payer deux fois ?",
   "signal.facts_conflict.title": "Faits confirmés contradictoires sur {n} sujet(s)",
-  "signal.facts_conflict.question": "{n} sujet(s) de notre profil ont des valeurs confirmées différentes. Lesquels comptent pour nos plans, et comment déterminer la bonne valeur ?",
+  "signal.facts_conflict.question":
+    "{n} sujet(s) de notre profil ont des valeurs confirmées différentes. Lesquels comptent pour nos plans, et comment déterminer la bonne valeur ?",
   "signal.econ_allocation_exceeded.title": "Les dépenses réelles de {c} dépassent son affectation",
-  "signal.econ_allocation_exceeded.question": "{s} dépensés, {a} affectés. Réaffecter du budget de l’entreprise, ou suspendre les dépenses ?",
+  "signal.econ_allocation_exceeded.question":
+    "{s} dépensés, {a} affectés. Réaffecter du budget de l’entreprise, ou suspendre les dépenses ?",
   "signal.econ_allocation_near.title": "{c} a utilisé l’essentiel de son affectation",
-  "signal.econ_allocation_near.question": "{s} sur {a} dépensés. Le reste suffit-il jusqu’à la fin de la campagne ?",
+  "signal.econ_allocation_near.question":
+    "{s} sur {a} dépensés. Le reste suffit-il jusqu’à la fin de la campagne ?",
   "signal.econ_budget_unallocated.title": "{a} du budget de ce mois ne sont pas affectés",
-  "signal.econ_budget_unallocated.question": "Sur {total} prévus, {a} ne sont affectés à aucune campagne. En affecter une partie à une campagne ?",
+  "signal.econ_budget_unallocated.question":
+    "Sur {total} prévus, {a} ne sont affectés à aucune campagne. En affecter une partie à une campagne ?",
   "signal.econ_budget_duplicates.title": "{n} groupe(s) de lignes budgétaires semblent en double",
-  "signal.econ_budget_duplicates.question": "Même canal, mois, devise et objectif. S’agit-il vraiment de budgets distincts ?",
+  "signal.econ_budget_duplicates.question":
+    "Même canal, mois, devise et objectif. S’agit-il vraiment de budgets distincts ?",
   "signal.econ_request_rejected.title": "{n} demande(s) de budget refusée(s) récemment",
-  "signal.econ_request_rejected.question": "La campagne a-t-elle encore besoin de budget, faut-il revoir la demande ?",
+  "signal.econ_request_rejected.question":
+    "La campagne a-t-elle encore besoin de budget, faut-il revoir la demande ?",
   "signal.econ_cost_model_missing.title": "La marge brute ({cur}) ne peut pas encore être calculée",
-  "signal.econ_cost_model_missing.question": "Il y a des ventes mais aucun modèle de coûts. Vos coûts sont-ils par vente, par mois ou une marge estimée ?",
+  "signal.econ_cost_model_missing.question":
+    "Il y a des ventes mais aucun modèle de coûts. Vos coûts sont-ils par vente, par mois ou une marge estimée ?",
   "signal.econ_cost_missing.title": "Des coûts manquent pour la marge brute ({cur})",
-  "signal.econ_cost_missing.question": "Mois sans coût : {m} ; ventes sans coût : {n}. Peut-on enregistrer ces coûts ?",
+  "signal.econ_cost_missing.question":
+    "Mois sans coût : {m} ; ventes sans coût : {n}. Peut-on enregistrer ces coûts ?",
   "signal.econ_customer_missing.title": "{n} vente(s) ({cur}) sans référence client",
-  "signal.econ_customer_missing.question": "Sans elle, le CAC et le CA par client restent inconnus. Peut-on ajouter une référence client ?",
+  "signal.econ_customer_missing.question":
+    "Sans elle, le CAC et le CA par client restent inconnus. Peut-on ajouter une référence client ?",
   "signal.econ_attribution_missing.title": "{n} vente(s) ({cur}) non liée(s) à une campagne",
-  "signal.econ_attribution_missing.question": "Le ROAS des campagnes les ignore. Quelle campagne a touché ces ventes, le cas échéant ?",
-  "signal.econ_margin_declining.title": "Le taux de marge ({cur}) est passé de {before} % à {now} %",
-  "signal.econ_margin_declining.question": "Les deux périodes ont des coûts complets. Quels coûts ou prix ont changé ? Cela montre un changement, pas sa cause.",
+  "signal.econ_attribution_missing.question":
+    "Le ROAS des campagnes les ignore. Quelle campagne a touché ces ventes, le cas échéant ?",
+  "signal.econ_margin_declining.title":
+    "Le taux de marge ({cur}) est passé de {before} % à {now} %",
+  "signal.econ_margin_declining.question":
+    "Les deux périodes ont des coûts complets. Quels coûts ou prix ont changé ? Cela montre un changement, pas sa cause.",
   "signal.econ_price_missing.title": "Le travail IA est affiché en crédits uniquement",
-  "signal.econ_price_missing.question": "{n} crédits utilisés ce mois n’avaient aucun prix du crédit en vigueur ; ils ne sont donc pas convertis en argent.",
+  "signal.econ_price_missing.question":
+    "{n} crédits utilisés ce mois n’avaient aucun prix du crédit en vigueur ; ils ne sont donc pas convertis en argent.",
   "signal.recommendation_measure_due.title": "{n} recommandation(s) prête(s) à être mesurée(s)",
-  "signal.recommendation_measure_due.question": "Par exemple « {t} ». Que s’est-il passé après sa mise en œuvre ?",
+  "signal.recommendation_measure_due.question":
+    "Par exemple « {t} ». Que s’est-il passé après sa mise en œuvre ?",
   "signal.basis.economics": "D’après le budget, les dépenses, les coûts et les ventes",
   "signal.basis.ai_work": "D’après les exécutions IA",
 };

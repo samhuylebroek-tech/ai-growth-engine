@@ -48,10 +48,15 @@ describe("duplicate recommendations", () => {
 
 import { connectionErrorText } from "@/lib/integrations/error-text";
 describe("stored connection errors in the reader's language", () => {
-  const t = ((k: string, v?: Record<string, string | number>) => `${k}|${v?.["p"] ?? ""}|${v?.["s"] ?? ""}`) as never;
+  const t = ((k: string, v?: Record<string, string | number>) =>
+    `${k}|${v?.["p"] ?? ""}|${v?.["s"] ?? ""}`) as never;
   it("maps known provider messages and keeps unknown text as stored", () => {
-    expect(connectionErrorText("Stripe no longer accepts the saved access. Reconnect it.", t)).toBe("xa.err.expired|Stripe|");
-    expect(connectionErrorText("HubSpot responded with status 503.", t)).toBe("xa.err.status|HubSpot|503");
+    expect(connectionErrorText("Stripe no longer accepts the saved access. Reconnect it.", t)).toBe(
+      "xa.err.expired|Stripe|",
+    );
+    expect(connectionErrorText("HubSpot responded with status 503.", t)).toBe(
+      "xa.err.status|HubSpot|503",
+    );
     expect(connectionErrorText("Something new happened", t)).toBe("Something new happened");
   });
 });

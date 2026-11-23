@@ -68,7 +68,13 @@ export type NormalEvidence = {
 };
 
 export type Quality = "strong" | "some" | "limited" | "hypothesis" | "missing";
-export const QUALITY_ORDER: readonly Quality[] = ["strong", "some", "limited", "hypothesis", "missing"];
+export const QUALITY_ORDER: readonly Quality[] = [
+  "strong",
+  "some",
+  "limited",
+  "hypothesis",
+  "missing",
+];
 export type QualityReason =
   | "facts"
   | "measurements"
@@ -83,7 +89,13 @@ export type QualityReason =
 export type QualityResult = {
   level: Quality;
   reasons: QualityReason[];
-  counts: { facts: number; measurements: number; estimates: number; assumptions: number; gaps: number };
+  counts: {
+    facts: number;
+    measurements: number;
+    estimates: number;
+    assumptions: number;
+    gaps: number;
+  };
 };
 
 const down = (q: Quality): Quality => QUALITY_ORDER[Math.min(QUALITY_ORDER.indexOf(q) + 1, 3)]!;
@@ -97,15 +109,20 @@ const down = (q: Quality): Quality => QUALITY_ORDER[Math.min(QUALITY_ORDER.index
 export function evidenceQuality(items: readonly NormalEvidence[]): QualityResult {
   const sup = items.filter((e) => e.role === "supports");
   const usable = sup.filter((e) => e.independent && e.accepted);
-  const hard = (e: NormalEvidence) => e.type === "verified_fact" || e.type === "measured_observation";
+  const hard = (e: NormalEvidence) =>
+    e.type === "verified_fact" || e.type === "measured_observation";
   const stale = usable.filter((e) => e.stale && hard(e)).length;
   const facts = usable.filter((e) => e.type === "verified_fact" && !e.stale).length;
   const measurements = usable.filter((e) => e.type === "measured_observation" && !e.stale).length;
   const estimates = usable.filter((e) => e.type === "estimate").length + stale;
   const assumptions = sup.filter((e) => e.type === "assumption" || e.type === "hypothesis").length;
   const gaps = items.filter((e) => e.type === "missing_information").length;
-  const contradicted = items.some((e) => e.role === "contradicts" && e.accepted && e.type !== "missing_information");
-  const unreviewed = sup.some((e) => e.independent && !e.accepted && e.type !== "missing_information");
+  const contradicted = items.some(
+    (e) => e.role === "contradicts" && e.accepted && e.type !== "missing_information",
+  );
+  const unreviewed = sup.some(
+    (e) => e.independent && !e.accepted && e.type !== "missing_information",
+  );
   const aiOnly = sup.length > 0 && sup.every((e) => !e.independent);
   const reasons: QualityReason[] = [];
   let level: Quality;
@@ -155,10 +172,7 @@ export function fromEvidenceItem(
  * (verified / recorded / estimate / assumption / missing). Deterministic rules read records, so their classes
  * stand; anything the AI calls a fact is an unverified claim until a person links the record behind it.
  */
-export function fromClassified(
-  cls: string,
-  origin: "ai" | "rule" | "user",
-): NormalEvidence {
+export function fromClassified(cls: string, origin: "ai" | "rule" | "user"): NormalEvidence {
   const map: Record<string, EvidenceType> = {
     fact: "verified_fact",
     verified: "verified_fact",
@@ -172,7 +186,13 @@ export function fromClassified(
   };
   const claimed = map[cls] ?? "assumption";
   if (origin === "ai" && (claimed === "verified_fact" || claimed === "measured_observation"))
-    return { type: "assumption", independent: false, accepted: false, role: "supports", downgradedFrom: claimed };
+    return {
+      type: "assumption",
+      independent: false,
+      accepted: false,
+      role: "supports",
+      downgradedFrom: claimed,
+    };
   return {
     type: claimed,
     independent: origin !== "ai",
@@ -191,7 +211,12 @@ export function experimentQuality(status: string, strength: string | null): Qual
 
 /** Rule findings are deterministic reads of records: their measured inputs count, model outputs are estimates. */
 export function fromDrafts(drafts: readonly EvidenceDraft[]): NormalEvidence[] {
-  return drafts.map((d) => ({ type: d.type, independent: true, accepted: true, role: "supports" as const }));
+  return drafts.map((d) => ({
+    type: d.type,
+    independent: true,
+    accepted: true,
+    role: "supports" as const,
+  }));
 }
 
 /** What a rule finding records as evidence when it is saved as a proposal (origin "rule"). */
@@ -231,7 +256,10 @@ export type ProposalGateInput = {
   }[];
 };
 /** Independent = accepted, supporting, not AI, and a fact/measurement or a sourced estimate. */
-export function independentCount(linked: ProposalGateInput["linked"]): { independent: number; recordBacked: number } {
+export function independentCount(linked: ProposalGateInput["linked"]): {
+  independent: number;
+  recordBacked: number;
+} {
   const ok = linked.filter(
     (e) => e.role === "supports" && (e.status === "accepted" || e.status === "used_in_decision"),
   );
@@ -243,7 +271,8 @@ export function independentCount(linked: ProposalGateInput["linked"]): { indepen
           e.type === "measured_observation" ||
           (e.type === "estimate" && e.source_ref !== "")),
     ).length,
-    recordBacked: ok.filter((e) => e.type === "verified_fact" || e.type === "measured_observation").length,
+    recordBacked: ok.filter((e) => e.type === "verified_fact" || e.type === "measured_observation")
+      .length,
   };
 }
 /** Everything still standing between an open proposal and an approval, in the order a team resolves it. */
@@ -252,8 +281,10 @@ export function approvalGates(p: ProposalGateInput): Gate[] {
   if (p.level === "observation") return ["observation_never_work"];
   const g: Gate[] = [];
   const { independent, recordBacked } = independentCount(p.linked);
-  if (p.linked.some((e) => e.status === "classified" || e.status === "reviewed")) g.push("unreviewed_evidence");
-  if (p.level === "formal" && independent === 0 && !p.gapReason.trim()) g.push("needs_independent_evidence");
+  if (p.linked.some((e) => e.status === "classified" || e.status === "reviewed"))
+    g.push("unreviewed_evidence");
+  if (p.level === "formal" && independent === 0 && !p.gapReason.trim())
+    g.push("needs_independent_evidence");
   if (p.level === "execution" && recordBacked === 0) g.push("needs_record_evidence");
   if (!p.reviewed) g.push("needs_review");
   return g;

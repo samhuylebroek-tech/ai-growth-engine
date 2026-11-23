@@ -4,9 +4,11 @@ import { defineArea } from "../define";
 export const sa = defineArea("sa", {
   en: {
     "sa.title": "Growth situation",
-    "sa.intro": "A structured picture of the business from its own records, as of {d}. Each finding shows its source and how reliable it is; sections without data say so. No credits are used.",
+    "sa.intro":
+      "A structured picture of the business from its own records, as of {d}. Each finding shows its source and how reliable it is; sections without data say so. No credits are used.",
     "sa.loading": "Building the situation analysis…",
-    "sa.failed": "The situation analysis could not be built because a required read failed. Nothing partial is shown.",
+    "sa.failed":
+      "The situation analysis could not be built because a required read failed. Nothing partial is shown.",
     "sa.priorities": "Recommended priorities",
     "sa.noPriorities": "No urgent problems found in the recorded data.",
     "sa.k.health": "Business health",
@@ -24,7 +26,8 @@ export const sa = defineArea("sa", {
     "sa.st.problem": "problem",
     "sa.st.unknown": "insufficient data",
     "sa.i.facts": "{v} of {n} business facts confirmed",
-    "sa.i.conflicts": "Disputed facts: {o} open, {v} in review, {d} disputed again — only an editor decides",
+    "sa.i.conflicts":
+      "Disputed facts: {o} open, {v} in review, {d} disputed again — only an editor decides",
     "sa.i.opportunities": "{n} open growth opportunities, {s} with high impact",
     "sa.i.experiments_won": "{n} experiment(s) succeeded with real data",
     "sa.i.tasks": "{o} open tasks; {d} finished in the last 30 days",
@@ -72,7 +75,8 @@ export const sa = defineArea("sa", {
     "sa.m.purchase_costs": "purchase costs, so gross margin cannot be calculated",
     "sa.m.spend": "campaign spending tracking",
     "sa.m.deals": "sales pipeline records",
-    "sa.m.customer_refs": "customer references on sales, so retention and customer value cannot be calculated",
+    "sa.m.customer_refs":
+      "customer references on sales, so retention and customer value cannot be calculated",
     "sa.m.budget": "budget lines",
     "sa.st.conflicting": "conflicting information",
     "sa.st.outdated": "outdated information",
@@ -82,7 +86,8 @@ export const sa = defineArea("sa", {
     "sa.i.outdated_data": "{n} area(s) rely on outdated information",
     "sa.s.measurements": "measurements",
     "sa.why": "Why: {r}",
-    "sa.whyGood": "Why: no problem was found in the recorded data. That is not proof of good performance.",
+    "sa.whyGood":
+      "Why: no problem was found in the recorded data. That is not proof of good performance.",
     "sa.whyUnknown": "Why: there are not enough records to judge this area.",
     "sa.confidence": "Confidence: {c}",
     "sa.conf.high": "high",
@@ -90,7 +95,8 @@ export const sa = defineArea("sa", {
     "sa.conf.low": "low",
     "sa.improve": "Would improve confidence: {list}",
     "sa.nextLabel": "Next step",
-    "sa.insufficient": "Most areas have no data yet, so this is not a reliable diagnosis. Fill the missing information first.",
+    "sa.insufficient":
+      "Most areas have no data yet, so this is not a reliable diagnosis. Fill the missing information first.",
     "sa.m.conflict_history": "the conflict history could not be read completely",
     "sa.n.confirm_facts": "Confirm business facts",
     "sa.n.resolve_conflicts": "Decide disputed facts",
@@ -113,7 +119,8 @@ export const sa = defineArea("sa", {
     "sa.n.fill_gaps": "Fill the missing information",
     "sa.p.meta": "Impact {i} · urgency {u} · confidence {c} · effort {e} · result in {t}",
     "sa.p.owner": "Owner: {o} · measure with: {m}",
-    "sa.p.cost": "Cost: no credits (internal follow-up); any AI work is estimated before it starts. Relevant goal: not linked in the records.",
+    "sa.p.cost":
+      "Cost: no credits (internal follow-up); any AI work is estimated before it starts. Relevant goal: not linked in the records.",
     "sa.p.depends": "Depends on: {d}",
     "sa.p.note": "Effort, time and owner are planning estimates of these rules, not measurements.",
     "sa.t.days": "days",
@@ -141,9 +148,11 @@ export const sa = defineArea("sa", {
   },
   nl: {
     "sa.title": "Groeisituatie",
-    "sa.intro": "Een gestructureerd beeld van het bedrijf uit de eigen gegevens, op {d}. Elke bevinding toont de bron en hoe betrouwbaar ze is; onderdelen zonder gegevens zeggen dat. Er worden geen credits gebruikt.",
+    "sa.intro":
+      "Een gestructureerd beeld van het bedrijf uit de eigen gegevens, op {d}. Elke bevinding toont de bron en hoe betrouwbaar ze is; onderdelen zonder gegevens zeggen dat. Er worden geen credits gebruikt.",
     "sa.loading": "Groeisituatie wordt opgebouwd…",
-    "sa.failed": "De groeisituatie kon niet opgebouwd worden omdat een vereiste lezing mislukte. Er wordt niets onvolledigs getoond.",
+    "sa.failed":
+      "De groeisituatie kon niet opgebouwd worden omdat een vereiste lezing mislukte. Er wordt niets onvolledigs getoond.",
     "sa.priorities": "Aanbevolen prioriteiten",
     "sa.noPriorities": "Geen dringende problemen gevonden in de geregistreerde gegevens.",
     "sa.k.health": "Bedrijfsgezondheid",
@@ -161,7 +170,8 @@ export const sa = defineArea("sa", {
     "sa.st.problem": "probleem",
     "sa.st.unknown": "onvoldoende gegevens",
     "sa.i.facts": "{v} van {n} bedrijfsfeiten bevestigd",
-    "sa.i.conflicts": "Betwiste feiten: {o} open, {v} in behandeling, {d} opnieuw betwist — alleen een editor beslist",
+    "sa.i.conflicts":
+      "Betwiste feiten: {o} open, {v} in behandeling, {d} opnieuw betwist — alleen een editor beslist",
     "sa.i.opportunities": "{n} open groeikansen, {s} met hoge impact",
     "sa.i.experiments_won": "{n} experiment(en) geslaagd met echte gegevens",
     "sa.i.tasks": "{o} open taken; {d} afgerond in de laatste 30 dagen",
@@ -209,7 +219,8 @@ export const sa = defineArea("sa", {
     "sa.m.purchase_costs": "inkoopkosten, dus de brutomarge kan niet berekend worden",
     "sa.m.spend": "registratie van campagne-uitgaven",
     "sa.m.deals": "verkooppijplijngegevens",
-    "sa.m.customer_refs": "klantreferenties bij verkopen, dus klantbehoud en klantwaarde kunnen niet berekend worden",
+    "sa.m.customer_refs":
+      "klantreferenties bij verkopen, dus klantbehoud en klantwaarde kunnen niet berekend worden",
     "sa.m.budget": "budgetlijnen",
     "sa.st.conflicting": "tegenstrijdige informatie",
     "sa.st.outdated": "verouderde informatie",
@@ -219,7 +230,8 @@ export const sa = defineArea("sa", {
     "sa.i.outdated_data": "{n} onderde(e)l(en) steunen op verouderde informatie",
     "sa.s.measurements": "metingen",
     "sa.why": "Waarom: {r}",
-    "sa.whyGood": "Waarom: er is geen probleem gevonden in de geregistreerde gegevens. Dat is geen bewijs van goede prestaties.",
+    "sa.whyGood":
+      "Waarom: er is geen probleem gevonden in de geregistreerde gegevens. Dat is geen bewijs van goede prestaties.",
     "sa.whyUnknown": "Waarom: er zijn te weinig gegevens om dit onderdeel te beoordelen.",
     "sa.confidence": "Betrouwbaarheid: {c}",
     "sa.conf.high": "hoog",
@@ -227,7 +239,8 @@ export const sa = defineArea("sa", {
     "sa.conf.low": "laag",
     "sa.improve": "Zou de betrouwbaarheid verhogen: {list}",
     "sa.nextLabel": "Volgende stap",
-    "sa.insufficient": "De meeste onderdelen hebben nog geen gegevens; dit is dus geen betrouwbare diagnose. Vul eerst de ontbrekende informatie aan.",
+    "sa.insufficient":
+      "De meeste onderdelen hebben nog geen gegevens; dit is dus geen betrouwbare diagnose. Vul eerst de ontbrekende informatie aan.",
     "sa.m.conflict_history": "de conflictgeschiedenis kon niet volledig gelezen worden",
     "sa.n.confirm_facts": "Bedrijfsfeiten bevestigen",
     "sa.n.resolve_conflicts": "Over betwiste feiten beslissen",
@@ -248,11 +261,14 @@ export const sa = defineArea("sa", {
     "sa.n.update_budget": "Budget voor deze maand toevoegen",
     "sa.n.review_runs": "AI-werk bekijken",
     "sa.n.fill_gaps": "Ontbrekende informatie aanvullen",
-    "sa.p.meta": "Impact {i} · urgentie {u} · betrouwbaarheid {c} · inspanning {e} · resultaat binnen {t}",
+    "sa.p.meta":
+      "Impact {i} · urgentie {u} · betrouwbaarheid {c} · inspanning {e} · resultaat binnen {t}",
     "sa.p.owner": "Verantwoordelijke: {o} · meten met: {m}",
-    "sa.p.cost": "Kosten: geen credits (interne opvolging); eventueel AI-werk wordt vooraf geschat. Relevant doel: niet gekoppeld in de gegevens.",
+    "sa.p.cost":
+      "Kosten: geen credits (interne opvolging); eventueel AI-werk wordt vooraf geschat. Relevant doel: niet gekoppeld in de gegevens.",
     "sa.p.depends": "Hangt af van: {d}",
-    "sa.p.note": "Inspanning, tijd en verantwoordelijke zijn planningsinschattingen van deze regels, geen metingen.",
+    "sa.p.note":
+      "Inspanning, tijd en verantwoordelijke zijn planningsinschattingen van deze regels, geen metingen.",
     "sa.t.days": "dagen",
     "sa.t.weeks": "weken",
     "sa.t.months": "maanden",
@@ -278,9 +294,11 @@ export const sa = defineArea("sa", {
   },
   fr: {
     "sa.title": "Situation de croissance",
-    "sa.intro": "Une image structurée de l’entreprise à partir de ses propres données, au {d}. Chaque constat indique sa source et sa fiabilité ; les sections sans données le signalent. Aucun crédit n’est utilisé.",
+    "sa.intro":
+      "Une image structurée de l’entreprise à partir de ses propres données, au {d}. Chaque constat indique sa source et sa fiabilité ; les sections sans données le signalent. Aucun crédit n’est utilisé.",
     "sa.loading": "Analyse de la situation en cours…",
-    "sa.failed": "L’analyse n’a pas pu être établie car une lecture requise a échoué. Rien de partiel n’est affiché.",
+    "sa.failed":
+      "L’analyse n’a pas pu être établie car une lecture requise a échoué. Rien de partiel n’est affiché.",
     "sa.priorities": "Priorités recommandées",
     "sa.noPriorities": "Aucun problème urgent dans les données enregistrées.",
     "sa.k.health": "Santé de l’entreprise",
@@ -298,7 +316,8 @@ export const sa = defineArea("sa", {
     "sa.st.problem": "problème",
     "sa.st.unknown": "données insuffisantes",
     "sa.i.facts": "{v} faits sur {n} confirmés",
-    "sa.i.conflicts": "Faits contestés : {o} ouverts, {v} en examen, {d} contestés à nouveau — seul un éditeur tranche",
+    "sa.i.conflicts":
+      "Faits contestés : {o} ouverts, {v} en examen, {d} contestés à nouveau — seul un éditeur tranche",
     "sa.i.opportunities": "{n} opportunités ouvertes, dont {s} à fort impact",
     "sa.i.experiments_won": "{n} expérience(s) réussie(s) avec des données réelles",
     "sa.i.tasks": "{o} tâches ouvertes ; {d} terminées sur 30 jours",
@@ -313,7 +332,8 @@ export const sa = defineArea("sa", {
     "sa.i.budget_line_over": "Ligne budgétaire {c} ce mois : {a} dépensé sur {p} prévu",
     "sa.i.reviews": "{n} seconde(s) revue(s) du travail IA, {u} jugée(s) peu fiable(s)",
     "sa.i.blind_spots": "{n} domaines sans données : l’image est incomplète",
-    "sa.i.disputed_facts": "Des faits contestés peuvent fausser les conseils tant qu’ils ne sont pas tranchés",
+    "sa.i.disputed_facts":
+      "Des faits contestés peuvent fausser les conseils tant qu’ils ne sont pas tranchés",
     "sa.i.budget_risk": "Les dépassements de budget peuvent bloquer la suite des campagnes",
     "sa.src": "Source : {s} · {r}",
     "sa.s.business_knowledge": "connaissances de l’entreprise",
@@ -346,7 +366,8 @@ export const sa = defineArea("sa", {
     "sa.m.purchase_costs": "coûts d’achat : la marge brute ne peut pas être calculée",
     "sa.m.spend": "suivi des dépenses de campagne",
     "sa.m.deals": "données du pipeline",
-    "sa.m.customer_refs": "références client sur les ventes : fidélisation et valeur client non calculables",
+    "sa.m.customer_refs":
+      "références client sur les ventes : fidélisation et valeur client non calculables",
     "sa.m.budget": "lignes budgétaires",
     "sa.st.conflicting": "informations contradictoires",
     "sa.st.outdated": "informations obsolètes",
@@ -356,7 +377,8 @@ export const sa = defineArea("sa", {
     "sa.i.outdated_data": "{n} domaine(s) reposent sur des informations obsolètes",
     "sa.s.measurements": "mesures",
     "sa.why": "Pourquoi : {r}",
-    "sa.whyGood": "Pourquoi : aucun problème trouvé dans les données enregistrées. Ce n’est pas une preuve de bonne performance.",
+    "sa.whyGood":
+      "Pourquoi : aucun problème trouvé dans les données enregistrées. Ce n’est pas une preuve de bonne performance.",
     "sa.whyUnknown": "Pourquoi : il n’y a pas assez de données pour juger ce domaine.",
     "sa.confidence": "Confiance : {c}",
     "sa.conf.high": "élevée",
@@ -364,7 +386,8 @@ export const sa = defineArea("sa", {
     "sa.conf.low": "faible",
     "sa.improve": "Améliorerait la confiance : {list}",
     "sa.nextLabel": "Étape suivante",
-    "sa.insufficient": "La plupart des domaines n’ont pas encore de données : ce n’est pas un diagnostic fiable. Complétez d’abord les informations manquantes.",
+    "sa.insufficient":
+      "La plupart des domaines n’ont pas encore de données : ce n’est pas un diagnostic fiable. Complétez d’abord les informations manquantes.",
     "sa.m.conflict_history": "l’historique des conflits n’a pas pu être lu entièrement",
     "sa.n.confirm_facts": "Confirmer les faits",
     "sa.n.resolve_conflicts": "Trancher les faits contestés",
@@ -387,9 +410,11 @@ export const sa = defineArea("sa", {
     "sa.n.fill_gaps": "Compléter les informations manquantes",
     "sa.p.meta": "Impact {i} · urgence {u} · confiance {c} · effort {e} · résultat en {t}",
     "sa.p.owner": "Responsable : {o} · mesurer avec : {m}",
-    "sa.p.cost": "Coût : aucun crédit (suivi interne) ; tout travail IA est estimé avant de commencer. Objectif concerné : non lié dans les données.",
+    "sa.p.cost":
+      "Coût : aucun crédit (suivi interne) ; tout travail IA est estimé avant de commencer. Objectif concerné : non lié dans les données.",
     "sa.p.depends": "Dépend de : {d}",
-    "sa.p.note": "Effort, délai et responsable sont des estimations de planification de ces règles, pas des mesures.",
+    "sa.p.note":
+      "Effort, délai et responsable sont des estimations de planification de ces règles, pas des mesures.",
     "sa.t.days": "jours",
     "sa.t.weeks": "semaines",
     "sa.t.months": "mois",

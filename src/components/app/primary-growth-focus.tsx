@@ -34,7 +34,10 @@ export function PrimaryGrowthFocus() {
   const progress = goal ? goalProgress(goal.baseline, goal.target, goal.current_value) : null;
 
   return (
-    <section aria-labelledby="growth-focus-title" className="rounded-xl border border-border bg-card p-4 sm:p-5">
+    <section
+      aria-labelledby="growth-focus-title"
+      className="rounded-xl border border-border bg-card p-4 sm:p-5"
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-3">
           <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -42,32 +45,49 @@ export function PrimaryGrowthFocus() {
           </span>
           <div className="min-w-0">
             <p className="section-label mb-1">{t("goals.f.label")}</p>
-            <h2 id="growth-focus-title" className="text-base font-semibold">{t("goals.f.title")}</h2>
+            <h2 id="growth-focus-title" className="text-base font-semibold">
+              {t("goals.f.title")}
+            </h2>
           </div>
         </div>
         <Button variant="ghost" size="sm" asChild>
-          <Link to="/app/goals">{t("goals.title")} <ArrowUpRight /></Link>
+          <Link to="/app/goals">
+            {t("goals.title")} <ArrowUpRight />
+          </Link>
         </Button>
       </div>
 
       {goals.isLoading ? (
-        <p role="status" className="mt-4 text-sm text-muted-foreground">{t("goals.f.loading")}</p>
+        <p role="status" className="mt-4 text-sm text-muted-foreground">
+          {t("goals.f.loading")}
+        </p>
       ) : goals.isError ? (
         <div role="alert" className="mt-4 text-sm text-destructive">
-          {t("goals.f.failed")} <button className="underline" onClick={() => goals.refetch()}>{t("goals.retry")}</button>
+          {t("goals.f.failed")}{" "}
+          <button className="underline" onClick={() => goals.refetch()}>
+            {t("goals.retry")}
+          </button>
         </div>
       ) : goal ? (
         <div className="mt-4">
           <p className="text-lg font-semibold leading-snug">{goal.title}</p>
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
             {goal.metric && <span>{t("goals.f.metric", { m: goal.metric })}</span>}
-            {goal.due_date && <span>{t("goals.f.date", { d: new Date(goal.due_date + "T12:00:00").toLocaleDateString(tag) })}</span>}
+            {goal.due_date && (
+              <span>
+                {t("goals.f.date", {
+                  d: new Date(goal.due_date + "T12:00:00").toLocaleDateString(tag),
+                })}
+              </span>
+            )}
           </div>
           {progress !== null && (
             <div className="mt-4">
               <div className="mb-2 flex items-center justify-between gap-3 text-xs">
                 <span className="text-muted-foreground">{t("goals.f.progress")}</span>
-                <strong className="tabular-nums">{goal.current_value} / {goal.target} {goal.metric}</strong>
+                <strong className="tabular-nums">
+                  {goal.current_value} / {goal.target} {goal.metric}
+                </strong>
               </div>
               <div
                 className="h-2 overflow-hidden rounded-full bg-muted"
@@ -81,14 +101,22 @@ export function PrimaryGrowthFocus() {
               </div>
             </div>
           )}
-          {progress === null && <p className="mt-2 text-xs text-muted-foreground">{t("goals.f.notMeasured")}</p>}
+          {progress === null && (
+            <p className="mt-2 text-xs text-muted-foreground">{t("goals.f.notMeasured")}</p>
+          )}
           <GoalLinkedMetrics goalId={goal.id} />
         </div>
       ) : (
         <div className="mt-4 rounded-lg bg-muted/40 p-3">
           <p className="text-sm font-medium">{t("goals.f.none")}</p>
-          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("goals.f.noneBody")}</p>
-          <Button size="sm" className="mt-3" asChild><Link to="/app/goals">{t("goals.f.setFirst")} <ArrowUpRight /></Link></Button>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            {t("goals.f.noneBody")}
+          </p>
+          <Button size="sm" className="mt-3" asChild>
+            <Link to="/app/goals">
+              {t("goals.f.setFirst")} <ArrowUpRight />
+            </Link>
+          </Button>
         </div>
       )}
 

@@ -1,16 +1,36 @@
 import { describe, expect, it } from "vitest";
-import { checkDue, compareFindings, findingsFrom, inspectedRecords, stableId } from "@/lib/business-check";
+import {
+  checkDue,
+  compareFindings,
+  findingsFrom,
+  inspectedRecords,
+  stableId,
+} from "@/lib/business-check";
 import type { Signal } from "@/lib/signals";
 import type { BusinessDomains } from "@/lib/security/business-context";
 
-const sig = (id: string, code: Signal["code"] = "budget_over_cap", vars: Signal["vars"] = {}): Signal => ({
-  id, code, kind: "risk", impact: "high", urgency: "high", feasibility: "medium", basis: "budget", to: "/app/goals", vars, score: 1,
+const sig = (
+  id: string,
+  code: Signal["code"] = "budget_over_cap",
+  vars: Signal["vars"] = {},
+): Signal => ({
+  id,
+  code,
+  kind: "risk",
+  impact: "high",
+  urgency: "high",
+  feasibility: "medium",
+  basis: "budget",
+  to: "/app/goals",
+  vars,
+  score: 1,
 });
 
 describe("business check frequency", () => {
   const now = new Date("2026-11-20T12:00:00Z");
   it("is never due when switched off", () => expect(checkDue("off", null, now).due).toBe(false));
-  it("is due when no check was recorded yet", () => expect(checkDue("weekly", null, now).due).toBe(true));
+  it("is due when no check was recorded yet", () =>
+    expect(checkDue("weekly", null, now).due).toBe(true));
   it("is due a day, a week or 30 days after the last check", () => {
     expect(checkDue("daily", "2026-11-19T12:00:00Z", now).due).toBe(true);
     expect(checkDue("daily", "2026-11-19T12:00:01Z", now).due).toBe(false);
@@ -49,7 +69,14 @@ describe("inspected records", () => {
         { id: "t3", title: "Done", status: "done", due_date: "2026-11-01" },
       ],
       // t2 waits on the open t1 (blocked); t1 waits on the finished t3 (not blocked).
-      dependencies: { status: "ok", rows: [{ task_id: "t2", depends_on: "t1" }, { task_id: "t1", depends_on: "t3" }], truncated: false },
+      dependencies: {
+        status: "ok",
+        rows: [
+          { task_id: "t2", depends_on: "t1" },
+          { task_id: "t1", depends_on: "t3" },
+        ],
+        truncated: false,
+      },
       revenue: { status: "unavailable" },
       budget: { status: "ok", rows: [{}, {}], truncated: false },
       campaigns: { status: "ok", rows: [], truncated: false },
@@ -57,10 +84,17 @@ describe("inspected records", () => {
       deals: { status: "ok", rows: [{}], truncated: false },
     } as unknown as BusinessDomains;
     const i = inspectedRecords(d, new Date("2026-11-20T00:00:00Z"));
-    expect(i.operations).toMatchObject({ initiative_tasks_open: 2, overdue_tasks: 1, blocked_tasks: 1 });
+    expect(i.operations).toMatchObject({
+      initiative_tasks_open: 2,
+      overdue_tasks: 1,
+      blocked_tasks: 1,
+    });
     expect(i.financial).toEqual({ revenue_entries: null, budget_lines: 2 });
     expect(i.customers["retention_metrics"]).toBeNull();
     // Without a dependency read the blocked count is unknown, never zero.
-    expect(inspectedRecords({ ...d, dependencies: { status: "unavailable" } } as BusinessDomains).operations["blocked_tasks"]).toBeNull();
+    expect(
+      inspectedRecords({ ...d, dependencies: { status: "unavailable" } } as BusinessDomains)
+        .operations["blocked_tasks"],
+    ).toBeNull();
   });
 });

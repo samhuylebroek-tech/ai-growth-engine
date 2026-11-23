@@ -16,14 +16,28 @@ export type EvidenceRecord = {
   date?: string | null;
   updatedAt?: string | null;
 };
-export type ResolvedRef = { ref: RecordRef; status: "found" | "ambiguous" | "not_found"; record?: EvidenceRecord; changedAfter: boolean };
+export type ResolvedRef = {
+  ref: RecordRef;
+  status: "found" | "ambiguous" | "not_found";
+  record?: EvidenceRecord;
+  changedAfter: boolean;
+};
 
-const hex = (id: string) => id.toLowerCase().replace(/[^0-9a-f]/g, "").slice(0, 8);
+const hex = (id: string) =>
+  id
+    .toLowerCase()
+    .replace(/[^0-9a-f]/g, "")
+    .slice(0, 8);
 
-export function resolveRefs(refs: readonly RecordRef[], records: readonly EvidenceRecord[], asOf?: string | null): ResolvedRef[] {
+export function resolveRefs(
+  refs: readonly RecordRef[],
+  records: readonly EvidenceRecord[],
+  asOf?: string | null,
+): ResolvedRef[] {
   return refs.map((ref) => {
     const hits = records.filter((r) => r.type === ref.type && hex(r.id) === ref.short);
-    if (hits.length !== 1) return { ref, status: hits.length ? "ambiguous" : "not_found", changedAfter: false };
+    if (hits.length !== 1)
+      return { ref, status: hits.length ? "ambiguous" : "not_found", changedAfter: false };
     const record = hits[0]!;
     const changed = !!asOf && !!record.updatedAt && record.updatedAt > asOf;
     return { ref, status: "found", record, changedAfter: changed };
@@ -40,7 +54,11 @@ export type Support =
   | "not_result" // estimate, hypothesis or recommendation: never a verified result
   | "missing"; // the statement itself says information is missing
 
-export function support(kind: ClaimKind, resolved: readonly ResolvedRef[], stated: StatedEvidence): Support {
+export function support(
+  kind: ClaimKind,
+  resolved: readonly ResolvedRef[],
+  stated: StatedEvidence,
+): Support {
   if (kind === "missing") return "missing";
   const found = resolved.filter((r) => r.status === "found");
   const statedAny = !!(stated.source || stated.formula || stated.basis || stated.period);

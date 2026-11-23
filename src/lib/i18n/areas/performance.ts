@@ -8,7 +8,8 @@ export const performance = defineArea("performance", {
     "performance.chooseWsShort": "Choose a workspace.",
     "performance.title": "Performance",
     "performance.allMetrics": "← All metrics",
-    "performance.intro": "Define the numbers that matter, then record plans, estimates and results per month. Values here are entered by your team; no analytics, ad or payment source is connected, so nothing is marked as verified. Corrections never overwrite history.",
+    "performance.intro":
+      "Define the numbers that matter, then record plans, estimates and results per month. Values here are entered by your team; no analytics, ad or payment source is connected, so nothing is marked as verified. Corrections never overwrite history.",
     "performance.onTrack": "On track",
     "performance.behind": "Behind plan",
     "performance.waiting": "Waiting for a result",
@@ -22,7 +23,8 @@ export const performance = defineArea("performance", {
     "performance.allInitiatives": "All initiatives",
     "performance.showArchived": "Show archived",
     "performance.loadFailed": "Metrics could not be loaded. Try again in a moment.",
-    "performance.none": "No metrics yet. Add the numbers that show whether your goals are being reached — for example revenue, leads or conversion rate.",
+    "performance.none":
+      "No metrics yet. Add the numbers that show whether your goals are being reached — for example revenue, leads or conversion rate.",
     "performance.noMatch": "No metrics match these filters.",
     "performance.valuesFailed": "Recorded values could not be loaded. Try again in a moment.",
     "performance.nameIt": "Name what you want to measure.",
@@ -59,17 +61,20 @@ export const performance = defineArea("performance", {
     "performance.previous": "Previous result",
     "performance.record": "Record value",
     "performance.details": "Details & history",
-    "performance.chartLabel": "Chart of {n} months: results as bars, plan as a line, estimates dashed",
+    "performance.chartLabel":
+      "Chart of {n} months: results as bars, plan as a line, estimates dashed",
     "performance.enterNumber": "Enter a number.",
     "performance.chooseMonth": "Choose a month.",
-    "performance.dupMonth": "A value already exists for this month. Open the history and choose Correct.",
+    "performance.dupMonth":
+      "A value already exists for this month. Open the history and choose Correct.",
     "performance.invalid": "This value is not valid for this metric.",
     "performance.alreadyCorrected": "That value was already corrected. Correct the latest one.",
     "performance.archivedMetric": "This metric is archived. Restore it to record values.",
     "performance.valueFailed": "Could not save the value. Your entry is kept; try again.",
     "performance.correctionSaved": "Correction saved. The earlier value stays in the history.",
     "performance.valueSaved": "Value saved.",
-    "performance.correcting": "Correcting {kind} for {month}. Month and type stay the same; the earlier value remains in the history.",
+    "performance.correcting":
+      "Correcting {kind} for {month}. Month and type stay the same; the earlier value remains in the history.",
     "performance.type": "Type of value",
     "performance.value": "Value",
     "performance.amountIn": "Amount in {c}",
@@ -80,7 +85,8 @@ export const performance = defineArea("performance", {
     "performance.cancel": "Cancel",
     "performance.loadOne": "This metric could not be loaded. Try again in a moment.",
     "performance.notFound": "Metric not found",
-    "performance.notFoundBody": "This metric does not exist in this workspace, or you no longer have access to it.",
+    "performance.notFoundBody":
+      "This metric does not exist in this workspace, or you no longer have access to it.",
     "performance.updateFailed": "Could not update the metric.",
     "performance.archivedOk": "Metric archived. Its history is kept.",
     "performance.restoredOk": "Metric restored.",
@@ -102,7 +108,8 @@ export const performance = defineArea("performance", {
     "performance.needsName": "A metric needs a name.",
     "performance.changesFailed": "Could not save the changes.",
     "performance.updated": "Metric updated.",
-    "performance.fixedUnit": "Unit and currency stay fixed so earlier values keep their meaning. Define a new metric to measure in another unit.",
+    "performance.fixedUnit":
+      "Unit and currency stay fixed so earlier values keep their meaning. Define a new metric to measure in another unit.",
     "performance.saveChanges": "Save changes",
     "performance.unit.count": "Number",
     "performance.unit.currency": "Money",
@@ -139,7 +146,8 @@ export const performance = defineArea("performance", {
     "performance.a.behind": "Metrics behind plan: {n}",
     "performance.a.behindDetail": "{list} · team-entered results, not verified",
     "performance.a.missing": "Metrics without a {month} result: {n}",
-    "performance.a.missingDetail": "Record last month's results so plans and progress can be compared.",
+    "performance.a.missingDetail":
+      "Record last month's results so plans and progress can be compared.",
     "performance.b.eyebrow": "Manual entries, not synced spend",
     "performance.b.title": "Budget this month",
     "performance.b.link": "Goals & budget",
@@ -164,7 +172,8 @@ export const performance = defineArea("performance", {
     "performance.i.whatWeKnow": "What we know",
     "performance.i.confirmed": "User-confirmed · {s}",
     "performance.i.needsFoundation": "Your strategy needs a verified foundation",
-    "performance.i.awaiting": "{n} claims await review. None are being presented as confirmed business intelligence.",
+    "performance.i.awaiting":
+      "{n} claims await review. None are being presented as confirmed business intelligence.",
     "performance.i.reviewAll": "Review all business knowledge",
     "performance.i.direction": "Strategic direction",
     "performance.i.objectives": "Your objectives",
@@ -189,7 +198,8 @@ export const performance = defineArea("performance", {
     "performance.chooseWsShort": "Kies een werkruimte.",
     "performance.title": "Resultaten",
     "performance.allMetrics": "← Alle maatstaven",
-    "performance.intro": "Bepaal de cijfers die ertoe doen en registreer per maand plannen, ramingen en resultaten. Je team vult deze waarden zelf in; er is geen analyse-, advertentie- of betaalbron gekoppeld, dus niets wordt als geverifieerd gemarkeerd. Correcties overschrijven nooit de geschiedenis.",
+    "performance.intro":
+      "Bepaal de cijfers die ertoe doen en registreer per maand plannen, ramingen en resultaten. Je team vult deze waarden zelf in; er is geen analyse-, advertentie- of betaalbron gekoppeld, dus niets wordt als geverifieerd gemarkeerd. Correcties overschrijven nooit de geschiedenis.",
     "performance.onTrack": "Op schema",
     "performance.behind": "Achter op plan",
     "performance.waiting": "Wacht op een resultaat",
@@ -203,12 +213,15 @@ export const performance = defineArea("performance", {
     "performance.allInitiatives": "Alle initiatieven",
     "performance.showArchived": "Gearchiveerde tonen",
     "performance.loadFailed": "Maatstaven konden niet laden. Probeer het zo meteen opnieuw.",
-    "performance.none": "Nog geen maatstaven. Voeg de cijfers toe die tonen of je doelen gehaald worden — bijvoorbeeld omzet, leads of conversie.",
+    "performance.none":
+      "Nog geen maatstaven. Voeg de cijfers toe die tonen of je doelen gehaald worden — bijvoorbeeld omzet, leads of conversie.",
     "performance.noMatch": "Geen maatstaven voor deze filters.",
-    "performance.valuesFailed": "Geregistreerde waarden konden niet laden. Probeer het zo meteen opnieuw.",
+    "performance.valuesFailed":
+      "Geregistreerde waarden konden niet laden. Probeer het zo meteen opnieuw.",
     "performance.nameIt": "Geef een naam aan wat je wilt meten.",
     "performance.currencyCode": "Gebruik een muntcode van drie letters, bijvoorbeeld EUR.",
-    "performance.conflict": "Er bestaat al een maatstaf met deze naam in een andere eenheid of munt.",
+    "performance.conflict":
+      "Er bestaat al een maatstaf met deze naam in een andere eenheid of munt.",
     "performance.saveFailed": "Kon de maatstaf niet bewaren.",
     "performance.exists": "Deze maatstaf bestaat al.",
     "performance.added": "Maatstaf toegevoegd.",
@@ -240,17 +253,22 @@ export const performance = defineArea("performance", {
     "performance.previous": "Vorig resultaat",
     "performance.record": "Waarde registreren",
     "performance.details": "Details & geschiedenis",
-    "performance.chartLabel": "Grafiek van {n} maanden: resultaten als staven, plan als lijn, ramingen gestippeld",
+    "performance.chartLabel":
+      "Grafiek van {n} maanden: resultaten als staven, plan als lijn, ramingen gestippeld",
     "performance.enterNumber": "Vul een getal in.",
     "performance.chooseMonth": "Kies een maand.",
-    "performance.dupMonth": "Er bestaat al een waarde voor deze maand. Open de geschiedenis en kies Corrigeren.",
+    "performance.dupMonth":
+      "Er bestaat al een waarde voor deze maand. Open de geschiedenis en kies Corrigeren.",
     "performance.invalid": "Deze waarde is niet geldig voor deze maatstaf.",
     "performance.alreadyCorrected": "Die waarde is al gecorrigeerd. Corrigeer de laatste.",
-    "performance.archivedMetric": "Deze maatstaf is gearchiveerd. Zet ze terug om waarden te registreren.",
-    "performance.valueFailed": "Kon de waarde niet bewaren. Je invoer blijft staan; probeer opnieuw.",
+    "performance.archivedMetric":
+      "Deze maatstaf is gearchiveerd. Zet ze terug om waarden te registreren.",
+    "performance.valueFailed":
+      "Kon de waarde niet bewaren. Je invoer blijft staan; probeer opnieuw.",
     "performance.correctionSaved": "Correctie bewaard. De vorige waarde blijft in de geschiedenis.",
     "performance.valueSaved": "Waarde bewaard.",
-    "performance.correcting": "Correctie van {kind} voor {month}. Maand en soort blijven gelijk; de vorige waarde blijft in de geschiedenis.",
+    "performance.correcting":
+      "Correctie van {kind} voor {month}. Maand en soort blijven gelijk; de vorige waarde blijft in de geschiedenis.",
     "performance.type": "Soort waarde",
     "performance.value": "Waarde",
     "performance.amountIn": "Bedrag in {c}",
@@ -261,7 +279,8 @@ export const performance = defineArea("performance", {
     "performance.cancel": "Annuleren",
     "performance.loadOne": "Deze maatstaf kon niet laden. Probeer het zo meteen opnieuw.",
     "performance.notFound": "Maatstaf niet gevonden",
-    "performance.notFoundBody": "Deze maatstaf bestaat niet in deze werkruimte, of je hebt er geen toegang meer toe.",
+    "performance.notFoundBody":
+      "Deze maatstaf bestaat niet in deze werkruimte, of je hebt er geen toegang meer toe.",
     "performance.updateFailed": "Kon de maatstaf niet bijwerken.",
     "performance.archivedOk": "Maatstaf gearchiveerd. De geschiedenis blijft bewaard.",
     "performance.restoredOk": "Maatstaf teruggezet.",
@@ -283,7 +302,8 @@ export const performance = defineArea("performance", {
     "performance.needsName": "Een maatstaf heeft een naam nodig.",
     "performance.changesFailed": "Kon de wijzigingen niet bewaren.",
     "performance.updated": "Maatstaf bijgewerkt.",
-    "performance.fixedUnit": "Eenheid en munt liggen vast zodat vorige waarden hun betekenis houden. Maak een nieuwe maatstaf om in een andere eenheid te meten.",
+    "performance.fixedUnit":
+      "Eenheid en munt liggen vast zodat vorige waarden hun betekenis houden. Maak een nieuwe maatstaf om in een andere eenheid te meten.",
     "performance.saveChanges": "Wijzigingen bewaren",
     "performance.unit.count": "Aantal",
     "performance.unit.currency": "Geld",
@@ -320,7 +340,8 @@ export const performance = defineArea("performance", {
     "performance.a.behind": "Maatstaven achter op plan: {n}",
     "performance.a.behindDetail": "{list} · door team ingevuld, niet geverifieerd",
     "performance.a.missing": "Maatstaven zonder resultaat voor {month}: {n}",
-    "performance.a.missingDetail": "Registreer de resultaten van vorige maand zodat plannen en voortgang vergeleken kunnen worden.",
+    "performance.a.missingDetail":
+      "Registreer de resultaten van vorige maand zodat plannen en voortgang vergeleken kunnen worden.",
     "performance.b.eyebrow": "Handmatig ingevuld, geen gesynchroniseerde uitgaven",
     "performance.b.title": "Budget deze maand",
     "performance.b.link": "Doelen & budget",
@@ -345,7 +366,8 @@ export const performance = defineArea("performance", {
     "performance.i.whatWeKnow": "Wat we weten",
     "performance.i.confirmed": "Bevestigd door gebruiker · {s}",
     "performance.i.needsFoundation": "Je strategie heeft een geverifieerde basis nodig",
-    "performance.i.awaiting": "{n} beweringen wachten op controle. Geen enkele wordt als bevestigd inzicht getoond.",
+    "performance.i.awaiting":
+      "{n} beweringen wachten op controle. Geen enkele wordt als bevestigd inzicht getoond.",
     "performance.i.reviewAll": "Alle bedrijfskennis nakijken",
     "performance.i.direction": "Strategische richting",
     "performance.i.objectives": "Je doelstellingen",
@@ -370,7 +392,8 @@ export const performance = defineArea("performance", {
     "performance.chooseWsShort": "Choisissez un espace.",
     "performance.title": "Résultats",
     "performance.allMetrics": "← Tous les indicateurs",
-    "performance.intro": "Définissez les chiffres qui comptent, puis enregistrez chaque mois plans, estimations et résultats. Ces valeurs sont saisies par votre équipe ; aucune source d’analyse, de publicité ou de paiement n’est connectée, donc rien n’est marqué comme vérifié. Les corrections n’écrasent jamais l’historique.",
+    "performance.intro":
+      "Définissez les chiffres qui comptent, puis enregistrez chaque mois plans, estimations et résultats. Ces valeurs sont saisies par votre équipe ; aucune source d’analyse, de publicité ou de paiement n’est connectée, donc rien n’est marqué comme vérifié. Les corrections n’écrasent jamais l’historique.",
     "performance.onTrack": "Dans les temps",
     "performance.behind": "En retard sur le plan",
     "performance.waiting": "En attente d’un résultat",
@@ -383,13 +406,17 @@ export const performance = defineArea("performance", {
     "performance.filterInitiative": "Filtrer par initiative",
     "performance.allInitiatives": "Toutes les initiatives",
     "performance.showArchived": "Afficher les archivés",
-    "performance.loadFailed": "Les indicateurs n’ont pas pu être chargés. Réessayez dans un instant.",
-    "performance.none": "Aucun indicateur. Ajoutez les chiffres qui montrent si vos objectifs sont atteints — par exemple chiffre d’affaires, prospects ou taux de conversion.",
+    "performance.loadFailed":
+      "Les indicateurs n’ont pas pu être chargés. Réessayez dans un instant.",
+    "performance.none":
+      "Aucun indicateur. Ajoutez les chiffres qui montrent si vos objectifs sont atteints — par exemple chiffre d’affaires, prospects ou taux de conversion.",
     "performance.noMatch": "Aucun indicateur ne correspond à ces filtres.",
-    "performance.valuesFailed": "Les valeurs enregistrées n’ont pas pu être chargées. Réessayez dans un instant.",
+    "performance.valuesFailed":
+      "Les valeurs enregistrées n’ont pas pu être chargées. Réessayez dans un instant.",
     "performance.nameIt": "Nommez ce que vous voulez mesurer.",
     "performance.currencyCode": "Utilisez un code devise à trois lettres, par exemple EUR.",
-    "performance.conflict": "Un indicateur portant ce nom existe déjà avec une autre unité ou devise.",
+    "performance.conflict":
+      "Un indicateur portant ce nom existe déjà avec une autre unité ou devise.",
     "performance.saveFailed": "Impossible d’enregistrer l’indicateur.",
     "performance.exists": "Cet indicateur existe déjà.",
     "performance.added": "Indicateur ajouté.",
@@ -421,17 +448,23 @@ export const performance = defineArea("performance", {
     "performance.previous": "Résultat précédent",
     "performance.record": "Enregistrer une valeur",
     "performance.details": "Détails et historique",
-    "performance.chartLabel": "Graphique sur {n} mois : résultats en barres, plan en ligne, estimations en pointillés",
+    "performance.chartLabel":
+      "Graphique sur {n} mois : résultats en barres, plan en ligne, estimations en pointillés",
     "performance.enterNumber": "Saisissez un nombre.",
     "performance.chooseMonth": "Choisissez un mois.",
-    "performance.dupMonth": "Une valeur existe déjà pour ce mois. Ouvrez l’historique et choisissez Corriger.",
+    "performance.dupMonth":
+      "Une valeur existe déjà pour ce mois. Ouvrez l’historique et choisissez Corriger.",
     "performance.invalid": "Cette valeur n’est pas valide pour cet indicateur.",
     "performance.alreadyCorrected": "Cette valeur a déjà été corrigée. Corrigez la plus récente.",
-    "performance.archivedMetric": "Cet indicateur est archivé. Restaurez-le pour enregistrer des valeurs.",
-    "performance.valueFailed": "Impossible d’enregistrer la valeur. Votre saisie est conservée ; réessayez.",
-    "performance.correctionSaved": "Correction enregistrée. La valeur précédente reste dans l’historique.",
+    "performance.archivedMetric":
+      "Cet indicateur est archivé. Restaurez-le pour enregistrer des valeurs.",
+    "performance.valueFailed":
+      "Impossible d’enregistrer la valeur. Votre saisie est conservée ; réessayez.",
+    "performance.correctionSaved":
+      "Correction enregistrée. La valeur précédente reste dans l’historique.",
     "performance.valueSaved": "Valeur enregistrée.",
-    "performance.correcting": "Correction de {kind} pour {month}. Le mois et le type restent identiques ; la valeur précédente reste dans l’historique.",
+    "performance.correcting":
+      "Correction de {kind} pour {month}. Le mois et le type restent identiques ; la valeur précédente reste dans l’historique.",
     "performance.type": "Type de valeur",
     "performance.value": "Valeur",
     "performance.amountIn": "Montant en {c}",
@@ -442,7 +475,8 @@ export const performance = defineArea("performance", {
     "performance.cancel": "Annuler",
     "performance.loadOne": "Cet indicateur n’a pas pu être chargé. Réessayez dans un instant.",
     "performance.notFound": "Indicateur introuvable",
-    "performance.notFoundBody": "Cet indicateur n’existe pas dans cet espace, ou vous n’y avez plus accès.",
+    "performance.notFoundBody":
+      "Cet indicateur n’existe pas dans cet espace, ou vous n’y avez plus accès.",
     "performance.updateFailed": "Impossible de mettre à jour l’indicateur.",
     "performance.archivedOk": "Indicateur archivé. Son historique est conservé.",
     "performance.restoredOk": "Indicateur restauré.",
@@ -464,7 +498,8 @@ export const performance = defineArea("performance", {
     "performance.needsName": "Un indicateur doit avoir un nom.",
     "performance.changesFailed": "Impossible d’enregistrer les modifications.",
     "performance.updated": "Indicateur mis à jour.",
-    "performance.fixedUnit": "L’unité et la devise restent fixes pour que les valeurs précédentes gardent leur sens. Créez un nouvel indicateur pour mesurer dans une autre unité.",
+    "performance.fixedUnit":
+      "L’unité et la devise restent fixes pour que les valeurs précédentes gardent leur sens. Créez un nouvel indicateur pour mesurer dans une autre unité.",
     "performance.saveChanges": "Enregistrer les modifications",
     "performance.unit.count": "Nombre",
     "performance.unit.currency": "Argent",
@@ -501,7 +536,8 @@ export const performance = defineArea("performance", {
     "performance.a.behind": "Indicateurs en retard sur le plan : {n}",
     "performance.a.behindDetail": "{list} · saisis par l’équipe, non vérifiés",
     "performance.a.missing": "Indicateurs sans résultat pour {month} : {n}",
-    "performance.a.missingDetail": "Enregistrez les résultats du mois dernier pour comparer plans et progression.",
+    "performance.a.missingDetail":
+      "Enregistrez les résultats du mois dernier pour comparer plans et progression.",
     "performance.b.eyebrow": "Saisies manuelles, dépenses non synchronisées",
     "performance.b.title": "Budget du mois",
     "performance.b.link": "Objectifs et budget",
@@ -526,7 +562,8 @@ export const performance = defineArea("performance", {
     "performance.i.whatWeKnow": "Ce que nous savons",
     "performance.i.confirmed": "Confirmé par l’utilisateur · {s}",
     "performance.i.needsFoundation": "Votre stratégie a besoin de fondations vérifiées",
-    "performance.i.awaiting": "{n} affirmations attendent une vérification. Aucune n’est présentée comme une information confirmée.",
+    "performance.i.awaiting":
+      "{n} affirmations attendent une vérification. Aucune n’est présentée comme une information confirmée.",
     "performance.i.reviewAll": "Vérifier toutes les connaissances",
     "performance.i.direction": "Orientation stratégique",
     "performance.i.objectives": "Vos objectifs",

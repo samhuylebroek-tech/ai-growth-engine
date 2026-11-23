@@ -6,11 +6,14 @@ export const ba = defineArea("ba", {
     "ba.title": "Budget allocation to campaigns",
     "ba.dup.title": "Possible duplicate budget lines",
     "ba.dup.group": "{ch} {m} ({c}): {n} lines, {a} planned in total — {labels}",
-    "ba.dup.note": "They stay separate budgets; nothing is merged or removed. Check that both are intended, and tell them apart by their note.",
-    "ba.dup.add": "A budget line for this channel and month already exists ({n}). Tick “This is a separate budget” and add a note to tell them apart.",
+    "ba.dup.note":
+      "They stay separate budgets; nothing is merged or removed. Check that both are intended, and tell them apart by their note.",
+    "ba.dup.add":
+      "A budget line for this channel and month already exists ({n}). Tick “This is a separate budget” and add a note to tell them apart.",
     "ba.dup.confirm": "This is a separate budget",
     "ba.dup.notePh": "Note (e.g. approved by …)",
-    "ba.intro": "Each budget line (channel and month) is shared by all campaigns. A campaign receives money only through an allocation, so the same amount can never be handed out twice.",
+    "ba.intro":
+      "Each budget line (channel and month) is shared by all campaigns. A campaign receives money only through an allocation, so the same amount can never be handed out twice.",
     "ba.notInstalled": "Campaign allocations are not available in this environment yet.",
     "ba.loadFailed": "Budget allocations could not be loaded.",
     "ba.overview": "Business budget · {c}",
@@ -23,9 +26,12 @@ export const ba = defineArea("ba", {
     "ba.remaining": "Remaining (total − spent − reserved)",
     "ba.forecast": "Forecast for the month (estimate)",
     "ba.noForecast": "No forecast: it needs actual spending in the current month.",
-    "ba.overcommitted": "{a} more is allocated than planned on these lines. Lower allocations or raise the budget.",
-    "ba.recordedOnLines": "Also recorded directly on budget lines: {a}. This older figure is shown separately and not added to campaign spending.",
-    "ba.overlap": "This line has spending in the campaign ledger and an amount recorded on the line; they may describe the same money and are not added together.",
+    "ba.overcommitted":
+      "{a} more is allocated than planned on these lines. Lower allocations or raise the budget.",
+    "ba.recordedOnLines":
+      "Also recorded directly on budget lines: {a}. This older figure is shown separately and not added to campaign spending.",
+    "ba.overlap":
+      "This line has spending in the campaign ledger and an amount recorded on the line; they may describe the same money and are not added together.",
     "ba.line": "{ch} · {a} planned",
     "ba.lineEarmark": "Reserved for: {t}",
     "ba.lineUnallocated": "{a} not yet allocated",
@@ -34,7 +40,8 @@ export const ba = defineArea("ba", {
     "ba.simRow": "Simulated: {s} spent, {r} reserved (test data)",
     "ba.form.title": "Change an allocation",
     "ba.form.requestTitle": "Request an allocation change",
-    "ba.form.requestNote": "Your request is reviewed by an editor; nothing changes until it is approved.",
+    "ba.form.requestNote":
+      "Your request is reviewed by an editor; nothing changes until it is approved.",
     "ba.form.mode": "Change",
     "ba.form.set": "Set allocation",
     "ba.form.move": "Move between campaigns",
@@ -58,11 +65,16 @@ export const ba = defineArea("ba", {
     "ba.failed": "The change could not be saved.",
     "ba.stale": "This allocation changed meanwhile. The screen was refreshed; check and try again.",
     "ba.rej.no_change": "Nothing changes: the amount is already allocated.",
-    "ba.rej.campaign_running": "Unused budget can only be released from a finished, cancelled or paused campaign.",
-    "ba.rej.move_more_than_allocated": "You cannot move more than the campaign has allocated on this line.",
-    "ba.rej.below_committed": "Refused: the campaign already spent or reserved {c} on this line; the allocation cannot go below that.",
-    "ba.rej.campaign_closed": "Refused: a finished, cancelled or archived campaign cannot receive more budget.",
-    "ba.rej.earmark_mismatch": "Refused: this budget line is reserved for another goal, initiative or brand than the campaign.",
+    "ba.rej.campaign_running":
+      "Unused budget can only be released from a finished, cancelled or paused campaign.",
+    "ba.rej.move_more_than_allocated":
+      "You cannot move more than the campaign has allocated on this line.",
+    "ba.rej.below_committed":
+      "Refused: the campaign already spent or reserved {c} on this line; the allocation cannot go below that.",
+    "ba.rej.campaign_closed":
+      "Refused: a finished, cancelled or archived campaign cannot receive more budget.",
+    "ba.rej.earmark_mismatch":
+      "Refused: this budget line is reserved for another goal, initiative or brand than the campaign.",
     "ba.rej.exceeds_unallocated": "Refused: only {u} of this line is still unallocated.",
     "ba.rej.stale": "Refused: the allocation changed after the request was made.",
     "ba.requests": "Pending requests",
@@ -88,24 +100,30 @@ export const ba = defineArea("ba", {
     "ba.byGoal": "By goal",
     "ba.noGoal": "No goal",
     "ba.goalRow": "{g}: {a} allocated · {s} spent · {n} campaign(s)",
-    "ba.block.allocation": "Refused: this would bring the campaign to more than its allocation on this budget line ({used} of {max} already used).",
+    "ba.block.allocation":
+      "Refused: this would bring the campaign to more than its allocation on this budget line ({used} of {max} already used).",
     "ba.belowAllocated": "The budget line cannot go below what is allocated to campaigns.",
-    "ba.inUse": "This budget line funds campaigns, so its currency, month or channel cannot change.",
+    "ba.inUse":
+      "This budget line funds campaigns, so its currency, month or channel cannot change.",
     "ba.spendLine": "Paid from budget line",
     "ba.spendLineNone": "Not linked to a budget line",
     "ba.spendLineMismatch": "The budget line must be in the same month and currency as the entry.",
     "ba.funding": "Funding: {list}",
-    "ba.noFunding": "No budget allocated to this campaign yet. An editor can allocate it under Goals & budget.",
+    "ba.noFunding":
+      "No budget allocated to this campaign yet. An editor can allocate it under Goals & budget.",
   },
   nl: {
     "ba.title": "Budgettoewijzing aan campagnes",
     "ba.dup.title": "Mogelijk dubbele budgetregels",
     "ba.dup.group": "{ch} {m} ({c}): {n} regels, samen {a} gepland — {labels}",
-    "ba.dup.note": "Ze blijven aparte budgetten; niets wordt samengevoegd of verwijderd. Controleer of beide bedoeld zijn en onderscheid ze met hun notitie.",
-    "ba.dup.add": "Er bestaat al een budgetregel voor dit kanaal en deze maand ({n}). Vink “Dit is een apart budget” aan en voeg een notitie toe om ze te onderscheiden.",
+    "ba.dup.note":
+      "Ze blijven aparte budgetten; niets wordt samengevoegd of verwijderd. Controleer of beide bedoeld zijn en onderscheid ze met hun notitie.",
+    "ba.dup.add":
+      "Er bestaat al een budgetregel voor dit kanaal en deze maand ({n}). Vink “Dit is een apart budget” aan en voeg een notitie toe om ze te onderscheiden.",
     "ba.dup.confirm": "Dit is een apart budget",
     "ba.dup.notePh": "Notitie (bv. goedgekeurd door …)",
-    "ba.intro": "Elke budgetregel (kanaal en maand) wordt door alle campagnes gedeeld. Een campagne krijgt alleen geld via een toewijzing, zodat hetzelfde bedrag nooit twee keer kan worden uitgedeeld.",
+    "ba.intro":
+      "Elke budgetregel (kanaal en maand) wordt door alle campagnes gedeeld. Een campagne krijgt alleen geld via een toewijzing, zodat hetzelfde bedrag nooit twee keer kan worden uitgedeeld.",
     "ba.notInstalled": "Campagnetoewijzingen zijn in deze omgeving nog niet beschikbaar.",
     "ba.loadFailed": "Budgettoewijzingen konden niet worden geladen.",
     "ba.overview": "Bedrijfsbudget · {c}",
@@ -118,9 +136,12 @@ export const ba = defineArea("ba", {
     "ba.remaining": "Resterend (totaal − uitgegeven − gereserveerd)",
     "ba.forecast": "Prognose voor de maand (schatting)",
     "ba.noForecast": "Geen prognose: daarvoor zijn werkelijke uitgaven in de lopende maand nodig.",
-    "ba.overcommitted": "Er is {a} meer toegewezen dan gepland op deze regels. Verlaag toewijzingen of verhoog het budget.",
-    "ba.recordedOnLines": "Ook rechtstreeks op budgetregels ingevuld: {a}. Dit oudere cijfer staat apart en wordt niet bij campagne-uitgaven opgeteld.",
-    "ba.overlap": "Deze regel heeft uitgaven in het campagneregister én een bedrag op de regel zelf; die kunnen hetzelfde geld beschrijven en worden niet opgeteld.",
+    "ba.overcommitted":
+      "Er is {a} meer toegewezen dan gepland op deze regels. Verlaag toewijzingen of verhoog het budget.",
+    "ba.recordedOnLines":
+      "Ook rechtstreeks op budgetregels ingevuld: {a}. Dit oudere cijfer staat apart en wordt niet bij campagne-uitgaven opgeteld.",
+    "ba.overlap":
+      "Deze regel heeft uitgaven in het campagneregister én een bedrag op de regel zelf; die kunnen hetzelfde geld beschrijven en worden niet opgeteld.",
     "ba.line": "{ch} · {a} gepland",
     "ba.lineEarmark": "Bestemd voor: {t}",
     "ba.lineUnallocated": "{a} nog niet toegewezen",
@@ -129,7 +150,8 @@ export const ba = defineArea("ba", {
     "ba.simRow": "Gesimuleerd: {s} uitgegeven, {r} gereserveerd (testdata)",
     "ba.form.title": "Toewijzing wijzigen",
     "ba.form.requestTitle": "Wijziging van toewijzing aanvragen",
-    "ba.form.requestNote": "Een editor beoordeelt je aanvraag; er verandert niets tot die is goedgekeurd.",
+    "ba.form.requestNote":
+      "Een editor beoordeelt je aanvraag; er verandert niets tot die is goedgekeurd.",
     "ba.form.mode": "Wijziging",
     "ba.form.set": "Toewijzing instellen",
     "ba.form.move": "Verplaatsen tussen campagnes",
@@ -151,13 +173,19 @@ export const ba = defineArea("ba", {
     "ba.applied": "Toewijzing gewijzigd.",
     "ba.requested": "Aanvraag verstuurd ter beoordeling.",
     "ba.failed": "De wijziging kon niet worden opgeslagen.",
-    "ba.stale": "Deze toewijzing is intussen gewijzigd. Het scherm is vernieuwd; controleer en probeer opnieuw.",
+    "ba.stale":
+      "Deze toewijzing is intussen gewijzigd. Het scherm is vernieuwd; controleer en probeer opnieuw.",
     "ba.rej.no_change": "Er verandert niets: dit bedrag is al toegewezen.",
-    "ba.rej.campaign_running": "Ongebruikt budget kan alleen worden vrijgegeven bij een afgeronde, geannuleerde of gepauzeerde campagne.",
-    "ba.rej.move_more_than_allocated": "Je kunt niet meer verplaatsen dan de campagne op deze regel toegewezen heeft.",
-    "ba.rej.below_committed": "Geweigerd: de campagne heeft op deze regel al {c} uitgegeven of gereserveerd; de toewijzing kan niet lager.",
-    "ba.rej.campaign_closed": "Geweigerd: een afgeronde, geannuleerde of gearchiveerde campagne kan geen extra budget krijgen.",
-    "ba.rej.earmark_mismatch": "Geweigerd: deze budgetregel is bestemd voor een ander doel, initiatief of merk dan de campagne.",
+    "ba.rej.campaign_running":
+      "Ongebruikt budget kan alleen worden vrijgegeven bij een afgeronde, geannuleerde of gepauzeerde campagne.",
+    "ba.rej.move_more_than_allocated":
+      "Je kunt niet meer verplaatsen dan de campagne op deze regel toegewezen heeft.",
+    "ba.rej.below_committed":
+      "Geweigerd: de campagne heeft op deze regel al {c} uitgegeven of gereserveerd; de toewijzing kan niet lager.",
+    "ba.rej.campaign_closed":
+      "Geweigerd: een afgeronde, geannuleerde of gearchiveerde campagne kan geen extra budget krijgen.",
+    "ba.rej.earmark_mismatch":
+      "Geweigerd: deze budgetregel is bestemd voor een ander doel, initiatief of merk dan de campagne.",
     "ba.rej.exceeds_unallocated": "Geweigerd: van deze regel is nog maar {u} niet toegewezen.",
     "ba.rej.stale": "Geweigerd: de toewijzing is gewijzigd nadat de aanvraag werd gedaan.",
     "ba.requests": "Openstaande aanvragen",
@@ -183,25 +211,33 @@ export const ba = defineArea("ba", {
     "ba.byGoal": "Per doel",
     "ba.noGoal": "Geen doel",
     "ba.goalRow": "{g}: {a} toegewezen · {s} uitgegeven · {n} campagne(s)",
-    "ba.block.allocation": "Geweigerd: hiermee zou de campagne boven haar toewijzing op deze budgetregel komen ({used} van {max} al gebruikt).",
+    "ba.block.allocation":
+      "Geweigerd: hiermee zou de campagne boven haar toewijzing op deze budgetregel komen ({used} van {max} al gebruikt).",
     "ba.belowAllocated": "De budgetregel kan niet lager dan wat aan campagnes is toegewezen.",
-    "ba.inUse": "Deze budgetregel financiert campagnes; munteenheid, maand of kanaal kunnen niet meer veranderen.",
+    "ba.inUse":
+      "Deze budgetregel financiert campagnes; munteenheid, maand of kanaal kunnen niet meer veranderen.",
     "ba.spendLine": "Betaald uit budgetregel",
     "ba.spendLineNone": "Niet gekoppeld aan een budgetregel",
-    "ba.spendLineMismatch": "De budgetregel moet in dezelfde maand en munteenheid liggen als de boeking.",
+    "ba.spendLineMismatch":
+      "De budgetregel moet in dezelfde maand en munteenheid liggen als de boeking.",
     "ba.funding": "Financiering: {list}",
-    "ba.noFunding": "Nog geen budget toegewezen aan deze campagne. Een editor kan dat doen onder Doelen & budget.",
+    "ba.noFunding":
+      "Nog geen budget toegewezen aan deze campagne. Een editor kan dat doen onder Doelen & budget.",
   },
   fr: {
     "ba.title": "Affectation du budget aux campagnes",
     "ba.dup.title": "Lignes budgétaires possiblement en double",
     "ba.dup.group": "{ch} {m} ({c}) : {n} lignes, {a} prévus au total — {labels}",
-    "ba.dup.note": "Elles restent des budgets séparés ; rien n'est fusionné ni supprimé. Vérifiez que les deux sont voulues et distinguez-les par leur note.",
-    "ba.dup.add": "Une ligne budgétaire existe déjà pour ce canal et ce mois ({n}). Cochez « C'est un budget distinct » et ajoutez une note pour les distinguer.",
+    "ba.dup.note":
+      "Elles restent des budgets séparés ; rien n'est fusionné ni supprimé. Vérifiez que les deux sont voulues et distinguez-les par leur note.",
+    "ba.dup.add":
+      "Une ligne budgétaire existe déjà pour ce canal et ce mois ({n}). Cochez « C'est un budget distinct » et ajoutez une note pour les distinguer.",
     "ba.dup.confirm": "C'est un budget distinct",
     "ba.dup.notePh": "Note (p. ex. approuvé par …)",
-    "ba.intro": "Chaque ligne budgétaire (canal et mois) est partagée par toutes les campagnes. Une campagne ne reçoit de l'argent que par une affectation : le même montant ne peut jamais être attribué deux fois.",
-    "ba.notInstalled": "Les affectations de campagne ne sont pas encore disponibles dans cet environnement.",
+    "ba.intro":
+      "Chaque ligne budgétaire (canal et mois) est partagée par toutes les campagnes. Une campagne ne reçoit de l'argent que par une affectation : le même montant ne peut jamais être attribué deux fois.",
+    "ba.notInstalled":
+      "Les affectations de campagne ne sont pas encore disponibles dans cet environnement.",
     "ba.loadFailed": "Impossible de charger les affectations budgétaires.",
     "ba.overview": "Budget de l'entreprise · {c}",
     "ba.total": "Budget total",
@@ -213,9 +249,12 @@ export const ba = defineArea("ba", {
     "ba.remaining": "Restant (total − dépensé − réservé)",
     "ba.forecast": "Prévision du mois (estimation)",
     "ba.noForecast": "Pas de prévision : il faut des dépenses réelles dans le mois en cours.",
-    "ba.overcommitted": "{a} de plus est affecté que prévu sur ces lignes. Réduisez les affectations ou augmentez le budget.",
-    "ba.recordedOnLines": "Également saisi directement sur les lignes budgétaires : {a}. Ce chiffre plus ancien est affiché à part et n'est pas ajouté aux dépenses des campagnes.",
-    "ba.overlap": "Cette ligne a des dépenses dans le registre des campagnes et un montant saisi sur la ligne ; ils peuvent décrire le même argent et ne sont pas additionnés.",
+    "ba.overcommitted":
+      "{a} de plus est affecté que prévu sur ces lignes. Réduisez les affectations ou augmentez le budget.",
+    "ba.recordedOnLines":
+      "Également saisi directement sur les lignes budgétaires : {a}. Ce chiffre plus ancien est affiché à part et n'est pas ajouté aux dépenses des campagnes.",
+    "ba.overlap":
+      "Cette ligne a des dépenses dans le registre des campagnes et un montant saisi sur la ligne ; ils peuvent décrire le même argent et ne sont pas additionnés.",
     "ba.line": "{ch} · {a} prévu",
     "ba.lineEarmark": "Réservé à : {t}",
     "ba.lineUnallocated": "{a} pas encore affecté",
@@ -224,7 +263,8 @@ export const ba = defineArea("ba", {
     "ba.simRow": "Simulé : {s} dépensé, {r} réservé (données de test)",
     "ba.form.title": "Modifier une affectation",
     "ba.form.requestTitle": "Demander une modification d'affectation",
-    "ba.form.requestNote": "Votre demande est examinée par un éditeur ; rien ne change avant son approbation.",
+    "ba.form.requestNote":
+      "Votre demande est examinée par un éditeur ; rien ne change avant son approbation.",
     "ba.form.mode": "Modification",
     "ba.form.set": "Définir l'affectation",
     "ba.form.move": "Déplacer entre campagnes",
@@ -246,13 +286,19 @@ export const ba = defineArea("ba", {
     "ba.applied": "Affectation modifiée.",
     "ba.requested": "Demande envoyée pour examen.",
     "ba.failed": "La modification n'a pas pu être enregistrée.",
-    "ba.stale": "Cette affectation a changé entre-temps. L'écran a été actualisé ; vérifiez et réessayez.",
+    "ba.stale":
+      "Cette affectation a changé entre-temps. L'écran a été actualisé ; vérifiez et réessayez.",
     "ba.rej.no_change": "Rien ne change : ce montant est déjà affecté.",
-    "ba.rej.campaign_running": "Le budget non utilisé ne peut être libéré que pour une campagne terminée, annulée ou en pause.",
-    "ba.rej.move_more_than_allocated": "Vous ne pouvez pas déplacer plus que ce que la campagne a d'affecté sur cette ligne.",
-    "ba.rej.below_committed": "Refusé : la campagne a déjà dépensé ou réservé {c} sur cette ligne ; l'affectation ne peut pas descendre en dessous.",
-    "ba.rej.campaign_closed": "Refusé : une campagne terminée, annulée ou archivée ne peut pas recevoir plus de budget.",
-    "ba.rej.earmark_mismatch": "Refusé : cette ligne budgétaire est réservée à un autre objectif, initiative ou marque que la campagne.",
+    "ba.rej.campaign_running":
+      "Le budget non utilisé ne peut être libéré que pour une campagne terminée, annulée ou en pause.",
+    "ba.rej.move_more_than_allocated":
+      "Vous ne pouvez pas déplacer plus que ce que la campagne a d'affecté sur cette ligne.",
+    "ba.rej.below_committed":
+      "Refusé : la campagne a déjà dépensé ou réservé {c} sur cette ligne ; l'affectation ne peut pas descendre en dessous.",
+    "ba.rej.campaign_closed":
+      "Refusé : une campagne terminée, annulée ou archivée ne peut pas recevoir plus de budget.",
+    "ba.rej.earmark_mismatch":
+      "Refusé : cette ligne budgétaire est réservée à un autre objectif, initiative ou marque que la campagne.",
     "ba.rej.exceeds_unallocated": "Refusé : il ne reste que {u} non affecté sur cette ligne.",
     "ba.rej.stale": "Refusé : l'affectation a changé après la demande.",
     "ba.requests": "Demandes en attente",
@@ -278,13 +324,18 @@ export const ba = defineArea("ba", {
     "ba.byGoal": "Par objectif",
     "ba.noGoal": "Sans objectif",
     "ba.goalRow": "{g} : {a} affecté · {s} dépensé · {n} campagne(s)",
-    "ba.block.allocation": "Refusé : la campagne dépasserait son affectation sur cette ligne budgétaire ({used} sur {max} déjà utilisés).",
-    "ba.belowAllocated": "La ligne budgétaire ne peut pas descendre sous le montant affecté aux campagnes.",
-    "ba.inUse": "Cette ligne budgétaire finance des campagnes ; sa devise, son mois ou son canal ne peuvent plus changer.",
+    "ba.block.allocation":
+      "Refusé : la campagne dépasserait son affectation sur cette ligne budgétaire ({used} sur {max} déjà utilisés).",
+    "ba.belowAllocated":
+      "La ligne budgétaire ne peut pas descendre sous le montant affecté aux campagnes.",
+    "ba.inUse":
+      "Cette ligne budgétaire finance des campagnes ; sa devise, son mois ou son canal ne peuvent plus changer.",
     "ba.spendLine": "Payé depuis la ligne budgétaire",
     "ba.spendLineNone": "Non lié à une ligne budgétaire",
-    "ba.spendLineMismatch": "La ligne budgétaire doit être du même mois et de la même devise que l'écriture.",
+    "ba.spendLineMismatch":
+      "La ligne budgétaire doit être du même mois et de la même devise que l'écriture.",
     "ba.funding": "Financement : {list}",
-    "ba.noFunding": "Aucun budget affecté à cette campagne pour l'instant. Un éditeur peut le faire sous Objectifs et budget.",
+    "ba.noFunding":
+      "Aucun budget affecté à cette campagne pour l'instant. Un éditeur peut le faire sous Objectifs et budget.",
   },
 });

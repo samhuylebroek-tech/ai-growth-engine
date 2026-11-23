@@ -18,7 +18,8 @@ export const cl = defineArea("cl", {
     "cl.downgraded": "Labelled as a fact but worded as uncertain, so shown as a hypothesis.",
     "cl.legend": "What the labels mean",
     "cl.inAnswer": "In this answer:",
-    "cl.unlabelled": "This answer has no labels. Treat its statements as unverified unless a source is named.",
+    "cl.unlabelled":
+      "This answer has no labels. Treat its statements as unverified unless a source is named.",
   },
   nl: {
     "cl.fact": "Bevestigd feit",
@@ -27,7 +28,8 @@ export const cl = defineArea("cl", {
     "cl.hypothesis": "Hypothese",
     "cl.recommendation": "Aanbeveling",
     "cl.missing": "Ontbrekende informatie",
-    "cl.d.fact": "Gestaafd door een bevestigd bedrijfsfeit of geregistreerde gegevens; de bron staat erbij.",
+    "cl.d.fact":
+      "Gestaafd door een bevestigd bedrijfsfeit of geregistreerde gegevens; de bron staat erbij.",
     "cl.d.calc": "Berekend uit je gegevens, met de formule en periode erbij.",
     "cl.d.estimate": "Een benadering met de basis erbij; geen werkelijk resultaat.",
     "cl.d.hypothesis": "Een mogelijke verklaring of kans die nog niet bevestigd is.",
@@ -36,7 +38,8 @@ export const cl = defineArea("cl", {
     "cl.downgraded": "Als feit gelabeld maar onzeker verwoord, daarom als hypothese getoond.",
     "cl.legend": "Wat de labels betekenen",
     "cl.inAnswer": "In dit antwoord:",
-    "cl.unlabelled": "Dit antwoord heeft geen labels. Beschouw de uitspraken als niet gecontroleerd, tenzij er een bron bij staat.",
+    "cl.unlabelled":
+      "Dit antwoord heeft geen labels. Beschouw de uitspraken als niet gecontroleerd, tenzij er een bron bij staat.",
   },
   fr: {
     "cl.fact": "Fait confirmé",
@@ -45,15 +48,18 @@ export const cl = defineArea("cl", {
     "cl.hypothesis": "Hypothèse",
     "cl.recommendation": "Recommandation",
     "cl.missing": "Information manquante",
-    "cl.d.fact": "Appuyé par un fait confirmé ou des données enregistrées ; la source est indiquée.",
+    "cl.d.fact":
+      "Appuyé par un fait confirmé ou des données enregistrées ; la source est indiquée.",
     "cl.d.calc": "Calculé à partir de vos données, avec la formule et la période indiquées.",
     "cl.d.estimate": "Une valeur approximative avec sa base ; pas un résultat réel.",
     "cl.d.hypothesis": "Une explication ou opportunité possible, non confirmée.",
     "cl.d.recommendation": "Une action proposée. Rien ne se fait sans votre approbation.",
     "cl.d.missing": "Information nécessaire à une réponse fiable, pas encore disponible.",
-    "cl.downgraded": "Indiqué comme fait mais formulé avec incertitude, donc affiché comme hypothèse.",
+    "cl.downgraded":
+      "Indiqué comme fait mais formulé avec incertitude, donc affiché comme hypothèse.",
     "cl.legend": "Ce que signifient les étiquettes",
     "cl.inAnswer": "Dans cette réponse :",
-    "cl.unlabelled": "Cette réponse n'a pas d'étiquettes. Considérez ses affirmations comme non vérifiées, sauf si une source est indiquée.",
+    "cl.unlabelled":
+      "Cette réponse n'a pas d'étiquettes. Considérez ses affirmations comme non vérifiées, sauf si une source est indiquée.",
   },
 });

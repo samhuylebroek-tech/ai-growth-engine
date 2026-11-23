@@ -10,11 +10,28 @@ const env = stagingAppEnv(process.env);
 const { sql } = await connectStaging();
 await sql.end();
 // 2. The publishable key is accepted by the staging project and rejected by the live project.
-const probe = (base: string) => fetch(`${base}/auth/v1/settings`, { headers: { apikey: env["VITE_SUPABASE_PUBLISHABLE_KEY"]! } }).then(r => r.status);
-if ((await probe(STAGING_URL)) !== 200) throw new Error("staging key is not accepted by the staging project");
+const probe = (base: string) =>
+  fetch(`${base}/auth/v1/settings`, {
+    headers: { apikey: env["VITE_SUPABASE_PUBLISHABLE_KEY"]! },
+  }).then((r) => r.status);
+if ((await probe(STAGING_URL)) !== 200)
+  throw new Error("staging key is not accepted by the staging project");
 const liveUrl = process.env["VITE_SUPABASE_URL"];
-if (liveUrl && (await probe(liveUrl.replace(/\/+$/, ""))) === 200) throw new Error("staging key is accepted by the live project; refusing");
+if (liveUrl && (await probe(liveUrl.replace(/\/+$/, ""))) === 200)
+  throw new Error("staging key is accepted by the live project; refusing");
 const log = openSync("/tmp/staging-app.log", "a");
-const child = spawn("bunx", ["--bun", "vite", "dev", "--config", "scripts/staging/vite.config.ts"], { env, stdio: ["ignore", log, log], detached: true });
+const child = spawn(
+  "bunx",
+  ["--bun", "vite", "dev", "--config", "scripts/staging/vite.config.ts"],
+  { env, stdio: ["ignore", log, log], detached: true },
+);
 child.unref();
-console.log(JSON.stringify({ started: true, pid: child.pid, url: "http://127.0.0.1:8091", backend: "staging", log: "/tmp/staging-app.log" }));
+console.log(
+  JSON.stringify({
+    started: true,
+    pid: child.pid,
+    url: "http://127.0.0.1:8091",
+    backend: "staging",
+    log: "/tmp/staging-app.log",
+  }),
+);

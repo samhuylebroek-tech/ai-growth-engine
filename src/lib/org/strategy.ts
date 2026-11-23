@@ -4,32 +4,156 @@
 // a statement to a business outside the analysis.
 import { z } from "zod";
 
-export const EVIDENCE_CLASSES = ["verified", "recorded", "calculated", "estimate", "assumption", "missing"] as const;
+export const EVIDENCE_CLASSES = [
+  "verified",
+  "recorded",
+  "calculated",
+  "estimate",
+  "assumption",
+  "missing",
+] as const;
 /** Opportunity evidence is stored as records checked by SQL `org_valid_evidence`, which has no "calculated" class; an
  * unknown class falls back to "assumption", never to a stronger class. */
-export const OPP_EVIDENCE_CLASSES = ["verified", "recorded", "estimate", "assumption", "missing"] as const;
-export const OPP_KINDS = ["shared_audience", "cross_sell", "upsell", "bundle", "partnership", "joint_campaign", "joint_event", "shared_content", "shared_channel", "operational_synergy", "strategy_reuse", "shared_resources", "specialist_reuse"] as const;
+export const OPP_EVIDENCE_CLASSES = [
+  "verified",
+  "recorded",
+  "estimate",
+  "assumption",
+  "missing",
+] as const;
+export const OPP_KINDS = [
+  "shared_audience",
+  "cross_sell",
+  "upsell",
+  "bundle",
+  "partnership",
+  "joint_campaign",
+  "joint_event",
+  "shared_content",
+  "shared_channel",
+  "operational_synergy",
+  "strategy_reuse",
+  "shared_resources",
+  "specialist_reuse",
+] as const;
 const s = (max: number) => z.string().trim().max(max);
-const evidence = z.object({ text: s(500).min(1), class: z.enum(OPP_EVIDENCE_CLASSES).catch("assumption") });
-const refs = z.array(z.string().trim().regex(/^B\d{1,2}$/)).max(12);
+const evidence = z.object({
+  text: s(500).min(1),
+  class: z.enum(OPP_EVIDENCE_CLASSES).catch("assumption"),
+});
+const refs = z
+  .array(
+    z
+      .string()
+      .trim()
+      .regex(/^B\d{1,2}$/),
+  )
+  .max(12);
 
 export const orgStrategySchema = z.object({
   title: s(200).min(1),
   summary: s(4000).min(1),
-  objectives: z.array(z.object({ objective: s(300).min(1), kpi: s(200).default(""), target: s(200).default(""), basis: z.enum(EVIDENCE_CLASSES).catch("estimate") })).max(8).default([]),
-  business_priorities: z.array(z.object({ business: z.string().regex(/^B\d{1,2}$/), priority: z.number().int().min(1).max(3).catch(2), focus: s(300).min(1), rationale: s(600).default("") })).max(12).default([]),
+  objectives: z
+    .array(
+      z.object({
+        objective: s(300).min(1),
+        kpi: s(200).default(""),
+        target: s(200).default(""),
+        basis: z.enum(EVIDENCE_CLASSES).catch("estimate"),
+      }),
+    )
+    .max(8)
+    .default([]),
+  business_priorities: z
+    .array(
+      z.object({
+        business: z.string().regex(/^B\d{1,2}$/),
+        priority: z.number().int().min(1).max(3).catch(2),
+        focus: s(300).min(1),
+        rationale: s(600).default(""),
+      }),
+    )
+    .max(12)
+    .default([]),
   collaboration: z.array(s(400).min(1)).max(8).default([]),
-  resource_recommendations: z.array(z.object({ type: z.enum(["budget", "specialists", "credits", "shared"]).catch("shared"), businesses: refs.default([]), recommendation: s(400).min(1), reason: s(600).default("") })).max(8).default([]),
-  specialist_needs: z.array(z.object({ specialist: s(60).min(1), businesses: refs.default([]), reason: s(400).default("") })).max(10).default([]),
-  initiatives: z.array(z.object({ title: s(200).min(1), businesses: refs.min(2), shared_objective: s(600).min(1), business_objectives: z.array(z.object({ business: z.string().regex(/^B\d{1,2}$/), objective: s(400).min(1) })).max(12).default([]) })).max(6).default([]),
-  risks: z.array(z.object({ risk: s(400).min(1), businesses: refs.default([]), mitigation: s(400).default("") })).max(8).default([]),
-  kpis: z.array(z.object({ name: s(200).min(1), target: s(200).default(""), business: z.string().regex(/^B\d{1,2}$/).nullable().catch(null).default(null) })).max(12).default([]),
+  resource_recommendations: z
+    .array(
+      z.object({
+        type: z.enum(["budget", "specialists", "credits", "shared"]).catch("shared"),
+        businesses: refs.default([]),
+        recommendation: s(400).min(1),
+        reason: s(600).default(""),
+      }),
+    )
+    .max(8)
+    .default([]),
+  specialist_needs: z
+    .array(
+      z.object({
+        specialist: s(60).min(1),
+        businesses: refs.default([]),
+        reason: s(400).default(""),
+      }),
+    )
+    .max(10)
+    .default([]),
+  initiatives: z
+    .array(
+      z.object({
+        title: s(200).min(1),
+        businesses: refs.min(2),
+        shared_objective: s(600).min(1),
+        business_objectives: z
+          .array(z.object({ business: z.string().regex(/^B\d{1,2}$/), objective: s(400).min(1) }))
+          .max(12)
+          .default([]),
+      }),
+    )
+    .max(6)
+    .default([]),
+  risks: z
+    .array(
+      z.object({
+        risk: s(400).min(1),
+        businesses: refs.default([]),
+        mitigation: s(400).default(""),
+      }),
+    )
+    .max(8)
+    .default([]),
+  kpis: z
+    .array(
+      z.object({
+        name: s(200).min(1),
+        target: s(200).default(""),
+        business: z
+          .string()
+          .regex(/^B\d{1,2}$/)
+          .nullable()
+          .catch(null)
+          .default(null),
+      }),
+    )
+    .max(12)
+    .default([]),
   data_gaps: z.array(s(300).min(1)).max(10).default([]),
-  opportunities: z.array(z.object({
-    kind: z.enum(OPP_KINDS).catch("operational_synergy"), title: s(200).min(1), businesses: refs.min(2), evidence: z.array(evidence).max(8).default([]),
-    expected_impact: s(600).default(""), estimated_cost: s(300).default(""), dependencies: s(600).default(""), risks: s(600).default(""),
-    confidence: z.enum(["low", "medium", "high"]).catch("low"), next_action: s(400).default(""),
-  })).max(8).default([]),
+  opportunities: z
+    .array(
+      z.object({
+        kind: z.enum(OPP_KINDS).catch("operational_synergy"),
+        title: s(200).min(1),
+        businesses: refs.min(2),
+        evidence: z.array(evidence).max(8).default([]),
+        expected_impact: s(600).default(""),
+        estimated_cost: s(300).default(""),
+        dependencies: s(600).default(""),
+        risks: s(600).default(""),
+        confidence: z.enum(["low", "medium", "high"]).catch("low"),
+        next_action: s(400).default(""),
+      }),
+    )
+    .max(8)
+    .default([]),
 });
 export type OrgStrategyRaw = z.infer<typeof orgStrategySchema>;
 
@@ -37,67 +161,189 @@ export type OrgStrategyRaw = z.infer<typeof orgStrategySchema>;
 export function nameRefs<T>(v: T, labels: Readonly<Record<string, string>>): T {
   if (typeof v === "string") return v.replace(/\bB(\d{1,2})\b/g, (m) => labels[m] ?? m) as T;
   if (Array.isArray(v)) return v.map((x) => nameRefs(x, labels)) as T;
-  if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, k === "business_id" || k === "business_ids" || k === "businesses" || k === "refs" ? x : nameRefs(x, labels)])) as T;
+  if (v && typeof v === "object")
+    return Object.fromEntries(
+      Object.entries(v).map(([k, x]) => [
+        k,
+        k === "business_id" || k === "business_ids" || k === "businesses" || k === "refs"
+          ? x
+          : nameRefs(x, labels),
+      ]),
+    ) as T;
   return v;
 }
 
 /** Same order as at generation time: businesses sorted by name, then id. */
 export function assignRefs(bs: readonly { id: string; name: string }[]): Record<string, string> {
   const out: Record<string, string> = {};
-  [...bs].sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id)).forEach((b, i) => { out[`B${i + 1}`] = b.id; });
+  [...bs]
+    .sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id))
+    .forEach((b, i) => {
+      out[`B${i + 1}`] = b.id;
+    });
   return out;
 }
 
 /** Display labels per business id; businesses whose names look the same get a short id suffix so they stay distinguishable. */
 export function businessLabels(bs: readonly { id: string; name: string }[]): Map<string, string> {
   const key = (n: string) => n.trim().toLocaleLowerCase().replace(/\s+/g, " ");
-  const count = new Map<string, number>(); for (const b of bs) count.set(key(b.name), (count.get(key(b.name)) ?? 0) + 1);
-  return new Map(bs.map((b) => [b.id, (count.get(key(b.name)) ?? 0) > 1 ? `${b.name} · ${b.id.slice(0, 4)}` : b.name]));
+  const count = new Map<string, number>();
+  for (const b of bs) count.set(key(b.name), (count.get(key(b.name)) ?? 0) + 1);
+  return new Map(
+    bs.map((b) => [
+      b.id,
+      (count.get(key(b.name)) ?? 0) > 1 ? `${b.name} · ${b.id.slice(0, 4)}` : b.name,
+    ]),
+  );
 }
 
 /** The reference map of a stored strategy: saved with the strategy since 8.1; reconstructed for earlier drafts. */
-export function strategyRefs(body: unknown, businessIds: readonly string[], bs: readonly { id: string; name: string }[]): { refs: Record<string, string>; reconstructed: boolean } {
+export function strategyRefs(
+  body: unknown,
+  businessIds: readonly string[],
+  bs: readonly { id: string; name: string }[],
+): { refs: Record<string, string>; reconstructed: boolean } {
   const saved = body && typeof body === "object" ? (body as Record<string, unknown>)["refs"] : null;
   if (saved && typeof saved === "object" && !Array.isArray(saved)) {
-    const refs = Object.fromEntries(Object.entries(saved as Record<string, unknown>).filter((e): e is [string, string] => /^B\d{1,2}$/.test(e[0]) && typeof e[1] === "string"));
+    const refs = Object.fromEntries(
+      Object.entries(saved as Record<string, unknown>).filter(
+        (e): e is [string, string] => /^B\d{1,2}$/.test(e[0]) && typeof e[1] === "string",
+      ),
+    );
     return { refs, reconstructed: false };
   }
   const known = bs.filter((b) => businessIds.includes(b.id));
-  return { refs: known.length === businessIds.length ? assignRefs(known) : {}, reconstructed: true };
+  return {
+    refs: known.length === businessIds.length ? assignRefs(known) : {},
+    reconstructed: true,
+  };
 }
 
 /** Validates the model's JSON and maps business references to ids; unknown references are removed. */
 export function parseOrgStrategy(raw: string, refMap: Readonly<Record<string, string>>) {
-  const text = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
+  const text = raw
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/```\s*$/, "");
   const parsed = orgStrategySchema.parse(JSON.parse(text));
   const id = (r: string) => refMap[r] ?? null;
   const ids = (rs: readonly string[]) => [...new Set(rs.map(id).filter((x): x is string => !!x))];
   return {
     refs: { ...refMap },
-    title: parsed.title, summary: parsed.summary, objectives: parsed.objectives,
-    business_priorities: parsed.business_priorities.flatMap((p) => (id(p.business) ? [{ business_id: id(p.business)!, priority: p.priority, focus: p.focus, rationale: p.rationale }] : [])),
+    title: parsed.title,
+    summary: parsed.summary,
+    objectives: parsed.objectives,
+    business_priorities: parsed.business_priorities.flatMap((p) =>
+      id(p.business)
+        ? [
+            {
+              business_id: id(p.business)!,
+              priority: p.priority,
+              focus: p.focus,
+              rationale: p.rationale,
+            },
+          ]
+        : [],
+    ),
     collaboration: parsed.collaboration,
-    resource_recommendations: parsed.resource_recommendations.map((r) => ({ ...r, businesses: ids(r.businesses) })),
+    resource_recommendations: parsed.resource_recommendations.map((r) => ({
+      ...r,
+      businesses: ids(r.businesses),
+    })),
     specialist_needs: parsed.specialist_needs.map((r) => ({ ...r, businesses: ids(r.businesses) })),
-    initiatives: parsed.initiatives.map((i) => ({ title: i.title, shared_objective: i.shared_objective, businesses: ids(i.businesses),
-      business_objectives: i.business_objectives.flatMap((b) => (id(b.business) ? [{ business_id: id(b.business)!, objective: b.objective }] : [])) })).filter((i) => i.businesses.length >= 2),
+    initiatives: parsed.initiatives
+      .map((i) => ({
+        title: i.title,
+        shared_objective: i.shared_objective,
+        businesses: ids(i.businesses),
+        business_objectives: i.business_objectives.flatMap((b) =>
+          id(b.business) ? [{ business_id: id(b.business)!, objective: b.objective }] : [],
+        ),
+      }))
+      .filter((i) => i.businesses.length >= 2),
     risks: parsed.risks.map((r) => ({ ...r, businesses: ids(r.businesses) })),
-    kpis: parsed.kpis.map((k) => ({ name: k.name, target: k.target, business_id: k.business ? id(k.business) : null })),
+    kpis: parsed.kpis.map((k) => ({
+      name: k.name,
+      target: k.target,
+      business_id: k.business ? id(k.business) : null,
+    })),
     data_gaps: parsed.data_gaps,
-    opportunities: parsed.opportunities.map((o) => ({ kind: o.kind, title: o.title, business_ids: ids(o.businesses), evidence: o.evidence, expected_impact: o.expected_impact,
-      estimated_cost: o.estimated_cost, dependencies: o.dependencies, risks: o.risks, confidence: o.confidence, next_action: o.next_action })).filter((o) => o.business_ids.length >= 2),
+    opportunities: parsed.opportunities
+      .map((o) => ({
+        kind: o.kind,
+        title: o.title,
+        business_ids: ids(o.businesses),
+        evidence: o.evidence,
+        expected_impact: o.expected_impact,
+        estimated_cost: o.estimated_cost,
+        dependencies: o.dependencies,
+        risks: o.risks,
+        confidence: o.confidence,
+        next_action: o.next_action,
+      }))
+      .filter((o) => o.business_ids.length >= 2),
   };
 }
 export type OrgStrategy = ReturnType<typeof parseOrgStrategy>;
 /** The saved strategy body (opportunities are stored as separate records). */
-export const orgStrategyBodySchema = orgStrategySchema.omit({ opportunities: true, business_priorities: true, resource_recommendations: true, specialist_needs: true, initiatives: true, risks: true, kpis: true }).extend({
-  business_priorities: z.array(z.object({ business_id: z.string(), priority: z.number(), focus: z.string(), rationale: z.string() })).default([]),
-  resource_recommendations: z.array(z.object({ type: z.string(), businesses: z.array(z.string()), recommendation: z.string(), reason: z.string() })).default([]),
-  specialist_needs: z.array(z.object({ specialist: z.string(), businesses: z.array(z.string()), reason: z.string() })).default([]),
-  initiatives: z.array(z.object({ title: z.string(), shared_objective: z.string(), businesses: z.array(z.string()), business_objectives: z.array(z.object({ business_id: z.string(), objective: z.string() })).default([]) })).default([]),
-  risks: z.array(z.object({ risk: z.string(), businesses: z.array(z.string()), mitigation: z.string() })).default([]),
-  kpis: z.array(z.object({ name: z.string(), target: z.string(), business_id: z.string().nullable() })).default([]),
-}).partial({ title: true, summary: true });
+export const orgStrategyBodySchema = orgStrategySchema
+  .omit({
+    opportunities: true,
+    business_priorities: true,
+    resource_recommendations: true,
+    specialist_needs: true,
+    initiatives: true,
+    risks: true,
+    kpis: true,
+  })
+  .extend({
+    business_priorities: z
+      .array(
+        z.object({
+          business_id: z.string(),
+          priority: z.number(),
+          focus: z.string(),
+          rationale: z.string(),
+        }),
+      )
+      .default([]),
+    resource_recommendations: z
+      .array(
+        z.object({
+          type: z.string(),
+          businesses: z.array(z.string()),
+          recommendation: z.string(),
+          reason: z.string(),
+        }),
+      )
+      .default([]),
+    specialist_needs: z
+      .array(
+        z.object({ specialist: z.string(), businesses: z.array(z.string()), reason: z.string() }),
+      )
+      .default([]),
+    initiatives: z
+      .array(
+        z.object({
+          title: z.string(),
+          shared_objective: z.string(),
+          businesses: z.array(z.string()),
+          business_objectives: z
+            .array(z.object({ business_id: z.string(), objective: z.string() }))
+            .default([]),
+        }),
+      )
+      .default([]),
+    risks: z
+      .array(
+        z.object({ risk: z.string(), businesses: z.array(z.string()), mitigation: z.string() }),
+      )
+      .default([]),
+    kpis: z
+      .array(z.object({ name: z.string(), target: z.string(), business_id: z.string().nullable() }))
+      .default([]),
+  })
+  .partial({ title: true, summary: true });
 export type OrgStrategyBody = z.infer<typeof orgStrategyBodySchema>;
 
 export const ORG_STRATEGY_INSTRUCTIONS = `You are the Organization Growth Officer inside AI Growth Engine. The organization runs several independent businesses; each already has its own Growth Officer and its own approved strategies. Your job is the level above them: coordinate the businesses and find what no single business would see.
@@ -118,20 +364,65 @@ Return ONLY JSON:
 const LANGUAGE_NAME = { en: "English", nl: "Dutch", fr: "French" } as const;
 export type OrgBriefBusiness = { ref: string; name: string; context: string };
 /** The organization-level summary the model reads, built from the same deterministic view the Command Center shows. */
-export function orgBrief(input: { orgName: string; horizonMonths: number; focus: string; locale: keyof typeof LANGUAGE_NAME; overview: string }) {
+export function orgBrief(input: {
+  orgName: string;
+  horizonMonths: number;
+  focus: string;
+  locale: keyof typeof LANGUAGE_NAME;
+  overview: string;
+}) {
   return `Organization: ${input.orgName}\nPlanning horizon: ${input.horizonMonths} months\nWrite in: ${LANGUAGE_NAME[input.locale]}\nOwner focus: ${input.focus || "none given"}\n\nOrganization overview (computed by the platform from the businesses' records; amounts per currency):\n${input.overview}`;
 }
 
 type Money = Record<string, number>;
-const money = (m: Money) => Object.keys(m).length ? Object.entries(m).sort(([a], [b]) => a.localeCompare(b)).map(([c, v]) => `${v} ${c}`).join(" + ") : "none";
-export type OverviewRow = { id: string; name: string; reportingCurrency: string; revenue: Money; estimated: Money; planned: Money; spent: Money; creditsUsed: number; creditsReserved: number;
-  goals: { active: number; achieved: number; onTrack: number; behind: number; unmeasured: number }; openTasks: number; overdueTasks: number; pendingApprovals: number; failedRuns: number; uncertainRuns: number; reasons: string[] };
+const money = (m: Money) =>
+  Object.keys(m).length
+    ? Object.entries(m)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([c, v]) => `${v} ${c}`)
+        .join(" + ")
+    : "none";
+export type OverviewRow = {
+  id: string;
+  name: string;
+  reportingCurrency: string;
+  revenue: Money;
+  estimated: Money;
+  planned: Money;
+  spent: Money;
+  creditsUsed: number;
+  creditsReserved: number;
+  goals: { active: number; achieved: number; onTrack: number; behind: number; unmeasured: number };
+  openTasks: number;
+  overdueTasks: number;
+  pendingApprovals: number;
+  failedRuns: number;
+  uncertainRuns: number;
+  reasons: string[];
+};
 /** Plain-text organization overview for the model, every figure labelled with what it is. Businesses are referenced as B1…Bn. */
 export function overviewText(x: {
-  rows: readonly OverviewRow[]; refOf: (id: string) => string; period: string;
-  profiles: ReadonlyMap<string, { audiences: string[]; offerings: string[]; markets: string[]; businessModel: string | null; industry: string | null; confirmed: boolean }>;
+  rows: readonly OverviewRow[];
+  refOf: (id: string) => string;
+  period: string;
+  profiles: ReadonlyMap<
+    string,
+    {
+      audiences: string[];
+      offerings: string[];
+      markets: string[];
+      businessModel: string | null;
+      industry: string | null;
+      confirmed: boolean;
+    }
+  >;
   findings: readonly { code: string; businesses: string[]; subject: string }[];
-  opportunities: readonly { kind: string; businesses: string[]; subject: string; confidence: string }[];
+  opportunities: readonly {
+    kind: string;
+    businesses: string[];
+    subject: string;
+    confidence: string;
+  }[];
   recs: readonly { kind: string; summary: string }[];
   monitor: readonly { code: string; severity: string; businesses: string[] }[];
   specialists: readonly { specialist: string; code: string; businesses: string[]; open: number }[];
@@ -140,22 +431,67 @@ export function overviewText(x: {
 }) {
   const refs = (ids: readonly string[]) => ids.map(x.refOf).join(", ");
   const lines: string[] = [];
-  lines.push(`Reporting period for revenue: ${x.period}. Budgets and credits: current month. Revenue counts imported and team-entered sales (net of refunds); estimates are listed apart and are not revenue.`);
+  lines.push(
+    `Reporting period for revenue: ${x.period}. Budgets and credits: current month. Revenue counts imported and team-entered sales (net of refunds); estimates are listed apart and are not revenue.`,
+  );
   for (const r of x.rows) {
-    const p = x.profiles.get(r.id); const c = x.capacity.find((k) => k.id === r.id);
+    const p = x.profiles.get(r.id);
+    const c = x.capacity.find((k) => k.id === r.id);
     lines.push(`\n${x.refOf(r.id)} = ${r.name} (reporting currency ${r.reportingCurrency})`);
-    lines.push(`- Profile (${p?.confirmed ? "confirmed by the team" : "not yet confirmed"}): model ${p?.businessModel ?? "unknown"}; industry ${p?.industry ?? "unknown"}; offerings ${p?.offerings.join(", ") || "not recorded"}; audiences ${p?.audiences.join(", ") || "not recorded"}; markets ${p?.markets.join(", ") || "not recorded"}`);
-    lines.push(`- Revenue (recorded/imported): ${money(r.revenue)}; estimated (not revenue): ${money(r.estimated)}`);
-    lines.push(`- Budget this month: planned ${money(r.planned)}, spent (team-entered) ${money(r.spent)}`);
-    lines.push(`- Goals: ${r.goals.active} active (${r.goals.onTrack} on track, ${r.goals.behind} behind, ${r.goals.unmeasured} without measurement), ${r.goals.achieved} achieved; approved growth plans: ${c?.approvedPlans ?? 0}`);
-    lines.push(`- Work: ${r.openTasks} open tasks, ${r.overdueTasks} overdue, ${r.pendingApprovals} pending approvals; AI credits this month ${r.creditsUsed} used, ${r.creditsReserved} reserved; failed AI runs ${r.failedRuns}, uncertain ${r.uncertainRuns}`);
-    lines.push(`- Execution capacity: ${c ? `autonomy mode ${c.mode ?? "default"}${c.paused ? ", AI execution paused" : ""}` : "default settings"}`);
+    lines.push(
+      `- Profile (${p?.confirmed ? "confirmed by the team" : "not yet confirmed"}): model ${p?.businessModel ?? "unknown"}; industry ${p?.industry ?? "unknown"}; offerings ${p?.offerings.join(", ") || "not recorded"}; audiences ${p?.audiences.join(", ") || "not recorded"}; markets ${p?.markets.join(", ") || "not recorded"}`,
+    );
+    lines.push(
+      `- Revenue (recorded/imported): ${money(r.revenue)}; estimated (not revenue): ${money(r.estimated)}`,
+    );
+    lines.push(
+      `- Budget this month: planned ${money(r.planned)}, spent (team-entered) ${money(r.spent)}`,
+    );
+    lines.push(
+      `- Goals: ${r.goals.active} active (${r.goals.onTrack} on track, ${r.goals.behind} behind, ${r.goals.unmeasured} without measurement), ${r.goals.achieved} achieved; approved growth plans: ${c?.approvedPlans ?? 0}`,
+    );
+    lines.push(
+      `- Work: ${r.openTasks} open tasks, ${r.overdueTasks} overdue, ${r.pendingApprovals} pending approvals; AI credits this month ${r.creditsUsed} used, ${r.creditsReserved} reserved; failed AI runs ${r.failedRuns}, uncertain ${r.uncertainRuns}`,
+    );
+    lines.push(
+      `- Execution capacity: ${c ? `autonomy mode ${c.mode ?? "default"}${c.paused ? ", AI execution paused" : ""}` : "default settings"}`,
+    );
   }
-  if (x.findings.length) lines.push(`\nCoordination findings (platform rules, to check): ${x.findings.slice(0, 12).map((f) => `${f.code} [${refs(f.businesses)}] ${f.subject}`).join("; ")}`);
-  if (x.opportunities.length) lines.push(`\nRule-detected opportunity hypotheses: ${x.opportunities.slice(0, 10).map((o) => `${o.kind} [${refs(o.businesses)}] ${o.subject} (confidence ${o.confidence})`).join("; ")}`);
-  if (x.recs.length) lines.push(`\nResource recommendations from platform rules: ${x.recs.slice(0, 8).map((r) => `${r.kind}: ${r.summary}`).join("; ")}`);
-  if (x.monitor.length) lines.push(`\nMonitoring signals: ${x.monitor.slice(0, 12).map((m) => `${m.code} (${m.severity}) [${refs(m.businesses)}]`).join("; ")}`);
-  if (x.specialists.length) lines.push(`\nShared specialists: ${x.specialists.slice(0, 10).map((s) => `${s.specialist} ${s.code} [${refs(s.businesses)}] open ${s.open}`).join("; ")}`);
+  if (x.findings.length)
+    lines.push(
+      `\nCoordination findings (platform rules, to check): ${x.findings
+        .slice(0, 12)
+        .map((f) => `${f.code} [${refs(f.businesses)}] ${f.subject}`)
+        .join("; ")}`,
+    );
+  if (x.opportunities.length)
+    lines.push(
+      `\nRule-detected opportunity hypotheses: ${x.opportunities
+        .slice(0, 10)
+        .map((o) => `${o.kind} [${refs(o.businesses)}] ${o.subject} (confidence ${o.confidence})`)
+        .join("; ")}`,
+    );
+  if (x.recs.length)
+    lines.push(
+      `\nResource recommendations from platform rules: ${x.recs
+        .slice(0, 8)
+        .map((r) => `${r.kind}: ${r.summary}`)
+        .join("; ")}`,
+    );
+  if (x.monitor.length)
+    lines.push(
+      `\nMonitoring signals: ${x.monitor
+        .slice(0, 12)
+        .map((m) => `${m.code} (${m.severity}) [${refs(m.businesses)}]`)
+        .join("; ")}`,
+    );
+  if (x.specialists.length)
+    lines.push(
+      `\nShared specialists: ${x.specialists
+        .slice(0, 10)
+        .map((s) => `${s.specialist} ${s.code} [${refs(s.businesses)}] open ${s.open}`)
+        .join("; ")}`,
+    );
   lines.push(`\nCurrently approved organization strategy: ${x.approvedOrgStrategy ?? "none"}`);
   return lines.join("\n");
 }

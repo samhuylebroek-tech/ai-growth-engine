@@ -1,17 +1,32 @@
 // Recorded business checks (proposal 0076), pure part. A check snapshots which records were inspected per area
 // and which deterministic findings (src/lib/signals.ts) were produced; the database computes what changed since
 // the previous check. No AI is called. Frequencies only mark a check as due: nothing runs in the background.
-import { allKnownTasks, type BusinessDomains, type DomainRead } from "@/lib/security/business-context";
+import {
+  allKnownTasks,
+  type BusinessDomains,
+  type DomainRead,
+} from "@/lib/security/business-context";
 import { blockedTasks } from "@/lib/task-blocking";
 import type { Signal } from "@/lib/signals";
 
 export type Frequency = "off" | "daily" | "weekly" | "monthly";
-export type CheckKind = "manual" | "daily" | "weekly" | "monthly" | "after_campaign" | "after_experiment";
-export type Finding = { id: string; code: string; kind: Signal["kind"]; impact: Signal["impact"]; vars: Record<string, string | number> };
+export type CheckKind =
+  "manual" | "daily" | "weekly" | "monthly" | "after_campaign" | "after_experiment";
+export type Finding = {
+  id: string;
+  code: string;
+  kind: Signal["kind"];
+  impact: Signal["impact"];
+  vars: Record<string, string | number>;
+};
 /** Count per record type; null means the records could not be read, which is never shown as zero. */
-export type Inspected = Record<"financial" | "marketing" | "sales" | "customers" | "operations", Record<string, number | null>>;
+export type Inspected = Record<
+  "financial" | "marketing" | "sales" | "customers" | "operations",
+  Record<string, number | null>
+>;
 
-const count = <T,>(r: DomainRead<T> | undefined): number | null => (!r ? null : r.status === "ok" ? r.rows.length : null);
+const count = <T>(r: DomainRead<T> | undefined): number | null =>
+  !r ? null : r.status === "ok" ? r.rows.length : null;
 const RETENTION = /retent|churn|repeat|terugke|herhaal|returning|fidél|récurr|abonn|subscri/i;
 
 export function inspectedRecords(d: BusinessDomains, now: Date = new Date()): Inspected {
@@ -25,14 +40,24 @@ export function inspectedRecords(d: BusinessDomains, now: Date = new Date()): In
   ]);
   return {
     financial: { revenue_entries: count(d.revenue), budget_lines: count(d.budget) },
-    marketing: { campaigns: count(d.campaigns), metrics: metrics ? metrics.length : null, content: count(d.content) },
+    marketing: {
+      campaigns: count(d.campaigns),
+      metrics: metrics ? metrics.length : null,
+      content: count(d.content),
+    },
     sales: { deals: count(d.deals), opportunities: count(d.opportunities) },
-    customers: { retention_metrics: metrics ? metrics.filter((m) => RETENTION.test(m.label)).length : null },
+    customers: {
+      retention_metrics: metrics ? metrics.filter((m) => RETENTION.test(m.label)).length : null,
+    },
     operations: {
       initiative_tasks_open: open.length,
       overdue_tasks: d.overdueTasks && d.overdueTasks.status !== "ok" ? null : late.size,
       // Blocked = waits on an unfinished task (there is no "blocked" status); unknown when dependencies were not read.
-      blocked_tasks: !d.dependencies ? null : d.dependencies.status !== "ok" ? null : blockedTasks(allKnownTasks(d), d.dependencies.rows, today).length,
+      blocked_tasks: !d.dependencies
+        ? null
+        : d.dependencies.status !== "ok"
+          ? null
+          : blockedTasks(allKnownTasks(d), d.dependencies.rows, today).length,
       ai_runs: runs ? runs.length : null,
       experiments: count(d.experiments),
     },
@@ -62,10 +87,18 @@ export function findingsFrom(signals: readonly Signal[]): Finding[] {
 }
 
 const DAY = 86_400_000;
-const PERIOD: Record<Exclude<Frequency, "off">, number> = { daily: DAY, weekly: 7 * DAY, monthly: 30 * DAY };
+const PERIOD: Record<Exclude<Frequency, "off">, number> = {
+  daily: DAY,
+  weekly: 7 * DAY,
+  monthly: 30 * DAY,
+};
 
 /** Whether a check is due under the chosen frequency (never when off; always when no check exists yet). */
-export function checkDue(frequency: Frequency, lastAt: string | null, now: Date = new Date()): { due: boolean; next: string | null } {
+export function checkDue(
+  frequency: Frequency,
+  lastAt: string | null,
+  now: Date = new Date(),
+): { due: boolean; next: string | null } {
   if (frequency === "off") return { due: false, next: null };
   if (!lastAt) return { due: true, next: null };
   const next = new Date(new Date(lastAt).getTime() + PERIOD[frequency]);
@@ -85,8 +118,13 @@ export function compareFindings(latest: readonly Finding[], previous: readonly F
 
 export function parseFindings(raw: unknown): Finding[] {
   if (!Array.isArray(raw)) return [];
-  return raw.filter(
-    (f): f is Finding =>
-      !!f && typeof f === "object" && typeof (f as Finding).id === "string" && typeof (f as Finding).code === "string",
-  ).map((f) => ({ ...f, vars: f.vars && typeof f.vars === "object" ? f.vars : {} }));
+  return raw
+    .filter(
+      (f): f is Finding =>
+        !!f &&
+        typeof f === "object" &&
+        typeof (f as Finding).id === "string" &&
+        typeof (f as Finding).code === "string",
+    )
+    .map((f) => ({ ...f, vars: f.vars && typeof f.vars === "object" ? f.vars : {} }));
 }

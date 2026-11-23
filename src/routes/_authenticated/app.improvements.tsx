@@ -5,8 +5,7 @@ import { Improvements } from "@/components/bi/improvements";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/app/improvements")({
-  head: () =>
-    localHead("improvements"),
+  head: () => localHead("improvements"),
   component: Page,
 });
 

@@ -1,7 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { LEVERS, leverCoverage, leverLines } from "@/lib/growth-levers";
 
-const empty = { facts: [], metricLabels: [], revenueRows: 0, attributedTouches: 0, deals: 0, budgetLines: 0, campaigns: 0, experiments: 0, competitorObservations: 0 };
+const empty = {
+  facts: [],
+  metricLabels: [],
+  revenueRows: 0,
+  attributedTouches: 0,
+  deals: 0,
+  budgetLines: 0,
+  campaigns: 0,
+  experiments: 0,
+  competitorObservations: 0,
+};
 
 describe("growth lever coverage", () => {
   it("checks all fifteen levers", () => {
@@ -16,7 +26,10 @@ describe("growth lever coverage", () => {
   it("only counts confirmed facts, and recognises Dutch and French metric names", () => {
     const c = leverCoverage({
       ...empty,
-      facts: [{ key: "Prijs per box", verified: false }, { key: "Verwijzingsprogramma", verified: true }],
+      facts: [
+        { key: "Prijs per box", verified: false },
+        { key: "Verwijzingsprogramma", verified: true },
+      ],
       metricLabels: ["Terugkerende klanten", "Taux de conversion"],
     });
     const by = Object.fromEntries(c.map((x) => [x.lever, x.have]));

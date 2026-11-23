@@ -2,8 +2,17 @@ import { describe, expect, it } from "vitest";
 import { statedEvidence } from "@/lib/claims";
 import { resolveRefs, support, type EvidenceRecord } from "@/lib/evidence-refs";
 
-const fact = (id: string, verified: boolean, updatedAt?: string): EvidenceRecord => ({ type: "fact", id, title: "Customers", verified, ...(updatedAt ? { updatedAt } : {}) });
-const s = (text: string, records: EvidenceRecord[], asOf?: string) => { const e = statedEvidence(text); return resolveRefs(e.refs, records, asOf); };
+const fact = (id: string, verified: boolean, updatedAt?: string): EvidenceRecord => ({
+  type: "fact",
+  id,
+  title: "Customers",
+  verified,
+  ...(updatedAt ? { updatedAt } : {}),
+});
+const s = (text: string, records: EvidenceRecord[], asOf?: string) => {
+  const e = statedEvidence(text);
+  return resolveRefs(e.refs, records, asOf);
+};
 
 describe("evidence behind a statement", () => {
   it("links a cited, confirmed fact", () => {
@@ -21,10 +30,15 @@ describe("evidence behind a statement", () => {
     expect(support("fact", r, statedEvidence("(source: #F-1a2b3c4d)"))).toBe("broken");
   });
   it("two records sharing the short reference are ambiguous", () => {
-    expect(s("#F-1a2b3c4d", [fact("1a2b3c4d-1", true), fact("1a2b3c4d-2", true)])[0]?.status).toBe("ambiguous");
+    expect(s("#F-1a2b3c4d", [fact("1a2b3c4d-1", true), fact("1a2b3c4d-2", true)])[0]?.status).toBe(
+      "ambiguous",
+    );
   });
   it("flags a record changed after the answer", () => {
-    expect(s("#F-1a2b3c4d", [fact("1a2b3c4d", true, "2026-11-20T10:00:00Z")], "2026-11-19T10:00:00Z")[0]?.changedAfter).toBe(true);
+    expect(
+      s("#F-1a2b3c4d", [fact("1a2b3c4d", true, "2026-11-20T10:00:00Z")], "2026-11-19T10:00:00Z")[0]
+        ?.changedAfter,
+    ).toBe(true);
   });
   it("a fact with only a source written by the AI is 'stated', with nothing at all 'none'", () => {
     expect(support("fact", [], statedEvidence("(source: business profile)"))).toBe("stated");
@@ -32,7 +46,13 @@ describe("evidence behind a statement", () => {
   });
   it("estimates, hypotheses and recommendations are never results; missing stays missing", () => {
     expect(support("estimate", [], statedEvidence("(basis: x)"))).toBe("not_result");
-    expect(support("recommendation", s("#F-1a2b3c4d", [fact("1a2b3c4d", true)]), statedEvidence("#F-1a2b3c4d"))).toBe("not_result");
+    expect(
+      support(
+        "recommendation",
+        s("#F-1a2b3c4d", [fact("1a2b3c4d", true)]),
+        statedEvidence("#F-1a2b3c4d"),
+      ),
+    ).toBe("not_result");
     expect(support("missing", [], statedEvidence(""))).toBe("missing");
   });
 });

@@ -5,7 +5,8 @@ import { readFileSync } from "node:fs";
 import { connectStaging } from "./db";
 
 const [proposal, assertions] = process.argv.slice(2);
-if (!proposal || !assertions) throw new Error("usage: try-proposal.ts <proposal.sql> <assertions.sql>");
+if (!proposal || !assertions)
+  throw new Error("usage: try-proposal.ts <proposal.sql> <assertions.sql>");
 const { sql } = await connectStaging();
 let detail = "";
 try {
@@ -14,8 +15,13 @@ try {
     await tx.unsafe(readFileSync(assertions, "utf8"));
     throw new Error("__no_result_raised");
   });
-} catch (e) { detail = String((e as Error).message ?? e).replace(/\s+/g, " ").slice(0, 300); }
-const [after] = await sql`select (select count(*)::int from drizzle.__drizzle_migrations) as ledger`;
+} catch (e) {
+  detail = String((e as Error).message ?? e)
+    .replace(/\s+/g, " ")
+    .slice(0, 300);
+}
+const [after] =
+  await sql`select (select count(*)::int from drizzle.__drizzle_migrations) as ledger`;
 await sql.end();
 const ok = /_RESULT pass=\d+ fail=0\b/.test(detail);
 console.log(`${ok ? "PASS" : "FAIL"} ${proposal} ${detail}`);

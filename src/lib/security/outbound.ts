@@ -8,7 +8,10 @@ export function registeredHost(raw: string | null | undefined): string | null {
   if (!s) return null;
   try {
     const u = new URL(/^https?:\/\//i.test(s) ? s : `https://${s}`);
-    const h = u.hostname.toLowerCase().replace(/\.$/, "").replace(/^www\./, "");
+    const h = u.hostname
+      .toLowerCase()
+      .replace(/\.$/, "")
+      .replace(/^www\./, "");
     return h.includes(".") ? h : null;
   } catch {
     return null;
@@ -16,7 +19,10 @@ export function registeredHost(raw: string | null | undefined): string | null {
 }
 
 /** True when the target's host is a registered host or one of its subdomains. */
-export function isRegisteredTarget(target: string, registered: (string | null | undefined)[]): boolean {
+export function isRegisteredTarget(
+  target: string,
+  registered: (string | null | undefined)[],
+): boolean {
   const host = registeredHost(target);
   if (!host) return false;
   return registered.map(registeredHost).some((r) => !!r && (host === r || host.endsWith(`.${r}`)));

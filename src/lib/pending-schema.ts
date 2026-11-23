@@ -88,7 +88,12 @@ export type SecurityOverview = {
   stops: { scope: string; org: string | null; reason: string; started_at: string }[];
   generated_at: string;
 };
-export type DocumentCapacity = { included: boolean; limit: number | null; used: number; stored_files: number };
+export type DocumentCapacity = {
+  included: boolean;
+  limit: number | null;
+  used: number;
+  stored_files: number;
+};
 export type ExecutionCycleRow = {
   id: string;
   org_id: string;
@@ -522,49 +527,126 @@ export type EvidenceItemRow = {
 };
 /** Proposal 0075: insert-only history of a fact conflict (snapshot of every value at that moment). */
 export type FactConflictEventRow = {
-  id: string; org_id: string; workspace_id: string; topic: string;
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  topic: string;
   kind: "review_started" | "resolved" | "reopened";
-  kept_fact_id: string | null; kept_value: string | null;
-  snapshot: { id: string; value: string; source_type: string; source_ref: string | null; verified: boolean; created_at: string }[];
-  note: string; actor_id: string; created_at: string;
+  kept_fact_id: string | null;
+  kept_value: string | null;
+  snapshot: {
+    id: string;
+    value: string;
+    source_type: string;
+    source_ref: string | null;
+    verified: boolean;
+    created_at: string;
+  }[];
+  note: string;
+  actor_id: string;
+  created_at: string;
 };
 /** Proposal 0075: insert-only decision about a next best action. */
 export type RecommendationDecisionRow = {
-  id: string; org_id: string; workspace_id: string; item_key: string;
-  decision: "postponed" | "dismissed" | "restored"; until: string | null; fingerprint: string;
-  note: string; actor_id: string; created_at: string;
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  item_key: string;
+  decision: "postponed" | "dismissed" | "restored";
+  until: string | null;
+  fingerprint: string;
+  note: string;
+  actor_id: string;
+  created_at: string;
 };
 /** Proposal 0076: a recorded business check (monitoring snapshot) and the per-business check frequency. */
 export type BusinessCheckRow = {
-  id: string; org_id: string; workspace_id: string;
+  id: string;
+  org_id: string;
+  workspace_id: string;
   kind: "manual" | "daily" | "weekly" | "monthly" | "after_campaign" | "after_experiment";
-  subject_id: string | null; inspected: Json; findings: Json;
-  summary: { findings?: number; new?: number; still_open?: number; resolved?: number; first?: boolean } | Json;
-  previous_id: string | null; actor_id: string; created_at: string;
+  subject_id: string | null;
+  inspected: Json;
+  findings: Json;
+  summary:
+    | { findings?: number; new?: number; still_open?: number; resolved?: number; first?: boolean }
+    | Json;
+  previous_id: string | null;
+  actor_id: string;
+  created_at: string;
 };
 /** Proposal 0077: re-planning proposals (insert-only) and their decisions; campaign spend ledger (insert-only). */
-export type ReplanReason = "overdue" | "blocked" | "failed" | "dependency_late" | "awaiting_approval" | "no_owner" | "less_relevant" | "over_budget";
+export type ReplanReason =
+  | "overdue"
+  | "blocked"
+  | "failed"
+  | "dependency_late"
+  | "awaiting_approval"
+  | "no_owner"
+  | "less_relevant"
+  | "over_budget";
 export type ReplanOption = {
-  key: "a" | "b" | "c"; kind: "new_deadline" | "shift_chain" | "raise_priority" | "lower_priority";
-  due_date?: string | null; priority?: "low" | "medium" | "high" | "urgent" | null; shifts?: { task_id: string; due_date: string; after?: string; moves?: boolean }[];
+  key: "a" | "b" | "c";
+  kind: "new_deadline" | "shift_chain" | "raise_priority" | "lower_priority";
+  due_date?: string | null;
+  priority?: "low" | "medium" | "high" | "urgent" | null;
+  shifts?: { task_id: string; due_date: string; after?: string; moves?: boolean }[];
 };
 export type TaskReplanProposalRow = {
-  id: string; org_id: string; workspace_id: string; task_id: string; request_key: string; origin: "rule" | "team";
-  reasons: ReplanReason[]; options: ReplanOption[];
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  task_id: string;
+  request_key: string;
+  origin: "rule" | "team";
+  reasons: ReplanReason[];
+  options: ReplanOption[];
   snapshot: { due_date: string | null; priority: string; status: string; updated_at: string };
-  impact: { affected?: string[]; campaign_end?: string | null; campaign_end_exceeded?: boolean; invalid_order?: string[] };
-  risk: "low" | "medium" | "high"; credit_impact: number; rationale: string; created_by: string; created_at: string;
+  impact: {
+    affected?: string[];
+    campaign_end?: string | null;
+    campaign_end_exceeded?: boolean;
+    invalid_order?: string[];
+  };
+  risk: "low" | "medium" | "high";
+  credit_impact: number;
+  rationale: string;
+  created_by: string;
+  created_at: string;
 };
 export type TaskReplanDecisionRow = {
-  id: string; org_id: string; workspace_id: string; proposal_id: string; decision: "approved" | "rejected" | "postponed";
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  proposal_id: string;
+  decision: "approved" | "rejected" | "postponed";
   option_key: "a" | "b" | "c" | null;
-  applied: { before?: { due_date: string | null; priority: string }; after?: { due_date: string | null; priority: string }; adjusted?: boolean; shifted?: { task_id: string; from: string | null; to: string }[] };
-  note: string; actor_id: string; created_at: string;
+  applied: {
+    before?: { due_date: string | null; priority: string };
+    after?: { due_date: string | null; priority: string };
+    adjusted?: boolean;
+    shifted?: { task_id: string; from: string | null; to: string }[];
+  };
+  note: string;
+  actor_id: string;
+  created_at: string;
 };
 export type CampaignSpendRow = {
-  id: string; org_id: string; workspace_id: string; campaign_id: string; kind: "spend" | "commitment" | "release" | "correction";
-  amount: number | string; currency: string; occurred_on: string; data_class: "manual" | "simulated"; source_ref: string;
-  relates_to: string | null; note: string; request_key: string; created_by: string; created_at: string;
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  campaign_id: string;
+  kind: "spend" | "commitment" | "release" | "correction";
+  amount: number | string;
+  currency: string;
+  occurred_on: string;
+  data_class: "manual" | "simulated";
+  source_ref: string;
+  relates_to: string | null;
+  note: string;
+  request_key: string;
+  created_by: string;
+  created_at: string;
   /** Proposal 0084: the budget line (channel and month) the entry was paid from; absent before 0084. */
   budget_line_id?: string | null;
   /** Proposal 0085: cost category; absent before 0085 (then marketing). */
@@ -572,78 +654,234 @@ export type CampaignSpendRow = {
 };
 /** Proposal 0085: business-level cost (never a campaign cost), insert-only with linked corrections. */
 export type BusinessCostRow = {
-  id: string; org_id: string; workspace_id: string; category: "cogs" | "software" | "agency" | "marketing" | "other_operating";
-  kind: "cost" | "correction"; amount: number | string; currency: string; period_start: string; period_end: string;
-  data_class: "manual" | "estimated" | "simulated" | "imported"; initiative_id: string | null; revenue_event_id: string | null;
-  relates_to: string | null; source_ref: string; note: string; request_key: string; created_by: string; created_at: string;
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  category: "cogs" | "software" | "agency" | "marketing" | "other_operating";
+  kind: "cost" | "correction";
+  amount: number | string;
+  currency: string;
+  period_start: string;
+  period_end: string;
+  data_class: "manual" | "estimated" | "simulated" | "imported";
+  initiative_id: string | null;
+  revenue_event_id: string | null;
+  relates_to: string | null;
+  source_ref: string;
+  note: string;
+  request_key: string;
+  created_by: string;
+  created_at: string;
 };
 /** Proposal 0085: versioned cost model per business. */
 export type BusinessCostModelRow = {
-  id: string; org_id: string; workspace_id: string; model: "per_sale" | "per_period" | "margin_estimate" | "none";
-  margin_rate: number | string | null; effective_from: string; note: string; request_key: string; created_by: string; created_at: string;
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  model: "per_sale" | "per_period" | "margin_estimate" | "none";
+  margin_rate: number | string | null;
+  effective_from: string;
+  note: string;
+  request_key: string;
+  created_by: string;
+  created_at: string;
 };
 /** Proposal 0085: insert-only credit price versions (Platform Owner). */
 export type CreditPriceVersionRow = {
-  id: string; scope: "platform" | "plan"; plan_key: string | null; currency: string; price_per_credit: number | string;
-  effective_from: string; methodology: string; created_by: string; created_at: string;
+  id: string;
+  scope: "platform" | "plan";
+  plan_key: string | null;
+  currency: string;
+  price_per_credit: number | string;
+  effective_from: string;
+  methodology: string;
+  created_by: string;
+  created_at: string;
 };
 /** Proposal 0085: insert-only recommendation learning. */
 export type RecommendationLearningRow = {
-  id: string; org_id: string; workspace_id: string; proposal_id: string;
-  outcome_class: "positive" | "negative" | "no_change" | "inconclusive" | "insufficient_data" | "not_executed" | "partially_executed" | "measurement_unavailable";
-  evidence_class: "actual" | "estimated" | "simulated"; lever: string; channel: string; business_model: string;
-  measured_change_pct: number | string | null; expected_impact: string; expected_cost: number | string | null; actual_cost: number | string | null;
-  currency: string | null; expected_credits: number | null; actual_credits: number; uncertain_runs: number; days_to_result: number | null;
-  task_status: string; execution_quality: "good" | "acceptable" | "poor" | "unknown"; lesson: string; request_key: string; recorded_by: string; created_at: string;
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  proposal_id: string;
+  outcome_class:
+    | "positive"
+    | "negative"
+    | "no_change"
+    | "inconclusive"
+    | "insufficient_data"
+    | "not_executed"
+    | "partially_executed"
+    | "measurement_unavailable";
+  evidence_class: "actual" | "estimated" | "simulated";
+  lever: string;
+  channel: string;
+  business_model: string;
+  measured_change_pct: number | string | null;
+  expected_impact: string;
+  expected_cost: number | string | null;
+  actual_cost: number | string | null;
+  currency: string | null;
+  expected_credits: number | null;
+  actual_credits: number;
+  uncertain_runs: number;
+  days_to_result: number | null;
+  task_status: string;
+  execution_quality: "good" | "acceptable" | "poor" | "unknown";
+  lesson: string;
+  request_key: string;
+  recorded_by: string;
+  created_at: string;
 };
 /** Proposal 0084: current allocation of one budget line to one campaign. */
 export type CampaignBudgetAllocationRow = {
-  id: string; org_id: string; workspace_id: string; budget_line_id: string; campaign_id: string; currency: string;
-  amount: number | string; status: "active" | "cancelled"; updated_by: string; created_at: string; updated_at: string;
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  budget_line_id: string;
+  campaign_id: string;
+  currency: string;
+  amount: number | string;
+  status: "active" | "cancelled";
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
 };
-export type BudgetAllocationRejection = "no_change" | "campaign_running" | "move_more_than_allocated" | "below_committed" | "campaign_closed" | "earmark_mismatch" | "exceeds_unallocated" | "stale";
+export type BudgetAllocationRejection =
+  | "no_change"
+  | "campaign_running"
+  | "move_more_than_allocated"
+  | "below_committed"
+  | "campaign_closed"
+  | "earmark_mismatch"
+  | "exceeds_unallocated"
+  | "stale";
 /** Proposal 0084: insert-only allocation history, including refused attempts. */
 export type BudgetAllocationEventRow = {
-  id: string; org_id: string; workspace_id: string; budget_line_id: string; campaign_id: string; to_campaign_id: string | null;
-  kind: "allocate" | "increase" | "decrease" | "move" | "cancel" | "release_unused"; outcome: "applied" | "rejected";
-  rejection: BudgetAllocationRejection | null; previous_amount: number | string; new_amount: number | string; difference: number | string;
-  currency: string; line_planned: number | string; unallocated_before: number | string; reason: string; request_key: string;
-  change_request_id: string | null; actor_id: string; created_at: string;
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  budget_line_id: string;
+  campaign_id: string;
+  to_campaign_id: string | null;
+  kind: "allocate" | "increase" | "decrease" | "move" | "cancel" | "release_unused";
+  outcome: "applied" | "rejected";
+  rejection: BudgetAllocationRejection | null;
+  previous_amount: number | string;
+  new_amount: number | string;
+  difference: number | string;
+  currency: string;
+  line_planned: number | string;
+  unallocated_before: number | string;
+  reason: string;
+  request_key: string;
+  change_request_id: string | null;
+  actor_id: string;
+  created_at: string;
 };
 /** Proposal 0084: a member's request to change an allocation; applied only by an editor's decision. */
 export type BudgetChangeRequestRow = {
-  id: string; org_id: string; workspace_id: string; kind: "set" | "move" | "cancel" | "release_unused"; budget_line_id: string;
-  campaign_id: string; to_campaign_id: string | null; amount: number | string | null; seen_amount: number | string | null; reason: string;
-  status: "pending" | "applied" | "rejected" | "failed"; result: Json | null; request_key: string; requested_by: string;
-  decided_by: string | null; decided_at: string | null; decision_note: string | null; created_at: string;
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  kind: "set" | "move" | "cancel" | "release_unused";
+  budget_line_id: string;
+  campaign_id: string;
+  to_campaign_id: string | null;
+  amount: number | string | null;
+  seen_amount: number | string | null;
+  reason: string;
+  status: "pending" | "applied" | "rejected" | "failed";
+  result: Json | null;
+  request_key: string;
+  requested_by: string;
+  decided_by: string | null;
+  decided_at: string | null;
+  decision_note: string | null;
+  created_at: string;
 };
 /** Proposal 0083: insert-only campaign status history. */
 export type CampaignStatusEventRow = {
-  id: string; org_id: string; workspace_id: string; campaign_id: string; from_status: string; to_status: string;
-  reason: string; detail: Json; actor_id: string; created_at: string;
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  campaign_id: string;
+  from_status: string;
+  to_status: string;
+  reason: string;
+  detail: Json;
+  actor_id: string;
+  created_at: string;
 };
 /** Proposal 0083: hard spending limits per campaign (one row per campaign). */
 export type CampaignSpendLimitsRow = {
-  org_id: string; workspace_id: string; campaign_id: string; currency: string;
-  daily_max: number | string | null; weekly_max: number | string | null; monthly_max: number | string | null;
-  lifetime_max: number | string | null; reserve_amount: number | string | null; alert_thresholds: number[];
-  emergency_stop: boolean; stop_reason: string; updated_by: string; updated_at: string;
+  org_id: string;
+  workspace_id: string;
+  campaign_id: string;
+  currency: string;
+  daily_max: number | string | null;
+  weekly_max: number | string | null;
+  monthly_max: number | string | null;
+  lifetime_max: number | string | null;
+  reserve_amount: number | string | null;
+  alert_thresholds: number[];
+  emergency_stop: boolean;
+  stop_reason: string;
+  updated_by: string;
+  updated_at: string;
 };
 export type CampaignSpendLimitEventRow = {
-  id: string; org_id: string; workspace_id: string; campaign_id: string; kind: "limits" | "stop_on" | "stop_off";
-  before: Json | null; after: Json; reason: string; request_key: string; actor_id: string; created_at: string;
+  id: string;
+  org_id: string;
+  workspace_id: string;
+  campaign_id: string;
+  kind: "limits" | "stop_on" | "stop_off";
+  before: Json | null;
+  after: Json;
+  reason: string;
+  request_key: string;
+  actor_id: string;
+  created_at: string;
 };
 /** Proposal 0083: strategic links, KPI and outcome columns on campaigns. */
 export type CampaignOsColumns = {
-  strategy_id: string | null; initiative_id: string | null; hypothesis: string; expected_contribution: string; risks: string;
-  risk_level: "low" | "medium" | "high"; primary_kpi: string; kpi_unit: string;
-  kpi_baseline: number | null; kpi_target: number | null; kpi_actual: number | null;
+  strategy_id: string | null;
+  initiative_id: string | null;
+  hypothesis: string;
+  expected_contribution: string;
+  risks: string;
+  risk_level: "low" | "medium" | "high";
+  primary_kpi: string;
+  kpi_unit: string;
+  kpi_baseline: number | null;
+  kpi_target: number | null;
+  kpi_actual: number | null;
   outcome: "not_evaluated" | "achieved" | "partially_achieved" | "not_achieved" | "unknown";
-  results_unavailable_reason: string; approved_by: string | null; approved_at: string | null;
+  results_unavailable_reason: string;
+  approved_by: string | null;
+  approved_at: string | null;
 };
-type CampaignOsWritable = Partial<Pick<CampaignOsColumns, "strategy_id" | "initiative_id" | "hypothesis" | "expected_contribution" | "risks" | "risk_level" | "primary_kpi" | "kpi_unit" | "kpi_baseline" | "kpi_target">>;
+type CampaignOsWritable = Partial<
+  Pick<
+    CampaignOsColumns,
+    | "strategy_id"
+    | "initiative_id"
+    | "hypothesis"
+    | "expected_contribution"
+    | "risks"
+    | "risk_level"
+    | "primary_kpi"
+    | "kpi_unit"
+    | "kpi_baseline"
+    | "kpi_target"
+  >
+>;
 export type BusinessCheckSettingsRow = {
-  workspace_id: string; org_id: string; frequency: "off" | "daily" | "weekly" | "monthly"; updated_by: string; updated_at: string;
+  workspace_id: string;
+  org_id: string;
+  frequency: "off" | "daily" | "weekly" | "monthly";
+  updated_by: string;
+  updated_at: string;
 };
 export type EvidenceEventRow = {
   id: number;
@@ -814,36 +1052,114 @@ export type OpportunityRow = {
 };
 
 /** Proposal 0070: organization growth intelligence (staging only until approved). */
-export type OrgEvidence = { text: string; class: "verified" | "recorded" | "estimate" | "assumption" | "missing" };
+export type OrgEvidence = {
+  text: string;
+  class: "verified" | "recorded" | "estimate" | "assumption" | "missing";
+};
 export type OrgStrategyRow = {
-  id: string; org_id: string; request_id: string; version: number; business_ids: string[]; title: string; summary: string;
-  horizon_months: number; body: Json; status: "draft" | "approved" | "superseded" | "rejected"; created_by: string; created_at: string;
-  decided_by: string | null; decided_at: string | null; decision_note: string;
+  id: string;
+  org_id: string;
+  request_id: string;
+  version: number;
+  business_ids: string[];
+  title: string;
+  summary: string;
+  horizon_months: number;
+  body: Json;
+  status: "draft" | "approved" | "superseded" | "rejected";
+  created_by: string;
+  created_at: string;
+  decided_by: string | null;
+  decided_at: string | null;
+  decision_note: string;
 };
 export type OrgOpportunityRow = {
-  id: string; org_id: string; strategy_id: string | null; origin: "rule" | "ai"; rule_key: string | null; kind: string; title: string;
-  business_ids: string[]; evidence: Json; expected_impact: string; estimated_cost: string; dependencies: string; risks: string;
-  confidence: "low" | "medium" | "high"; next_action: string; status: "hypothesis" | "validating" | "validated" | "dismissed" | "converted";
-  created_by: string; created_at: string; updated_at: string; decided_by: string | null; decided_at: string | null; decision_note: string;
+  id: string;
+  org_id: string;
+  strategy_id: string | null;
+  origin: "rule" | "ai";
+  rule_key: string | null;
+  kind: string;
+  title: string;
+  business_ids: string[];
+  evidence: Json;
+  expected_impact: string;
+  estimated_cost: string;
+  dependencies: string;
+  risks: string;
+  confidence: "low" | "medium" | "high";
+  next_action: string;
+  status: "hypothesis" | "validating" | "validated" | "dismissed" | "converted";
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  decided_by: string | null;
+  decided_at: string | null;
+  decision_note: string;
 };
 export type OrgInitiativeRow = {
-  id: string; org_id: string; request_key: string; opportunity_id: string | null; strategy_id: string | null; title: string; shared_objective: string;
-  success_metrics: Json; required_specialists: string[]; owner_id: string | null; business_ids: string[];
-  status: "awaiting_commitments" | "committed" | "declined" | "active" | "completed" | "cancelled"; created_by: string; created_at: string; updated_at: string;
+  id: string;
+  org_id: string;
+  request_key: string;
+  opportunity_id: string | null;
+  strategy_id: string | null;
+  title: string;
+  shared_objective: string;
+  success_metrics: Json;
+  required_specialists: string[];
+  owner_id: string | null;
+  business_ids: string[];
+  status: "awaiting_commitments" | "committed" | "declined" | "active" | "completed" | "cancelled";
+  created_by: string;
+  created_at: string;
+  updated_at: string;
 };
 export type OrgCommitmentRow = {
-  id: string; initiative_id: string; org_id: string; workspace_id: string; business_objective: string; budget_amount: number; currency: string;
-  tasks: Json; status: "pending" | "approved" | "declined"; project_id: string | null; decided_by: string | null; decided_at: string | null;
-  decision_note: string; created_at: string;
+  id: string;
+  initiative_id: string;
+  org_id: string;
+  workspace_id: string;
+  business_objective: string;
+  budget_amount: number;
+  currency: string;
+  tasks: Json;
+  status: "pending" | "approved" | "declined";
+  project_id: string | null;
+  decided_by: string | null;
+  decided_at: string | null;
+  decision_note: string;
+  created_at: string;
 };
 export type OrgAllocationRow = {
-  id: string; org_id: string; request_key: string; kind: "budget_shift" | "specialist_capacity"; title: string; reasoning: string; payload: Json;
-  business_ids: string[]; status: "pending" | "applied" | "rejected" | "withdrawn"; result: Json | null; created_by: string; created_at: string;
-  decided_by: string | null; decided_at: string | null; decision_note: string;
+  id: string;
+  org_id: string;
+  request_key: string;
+  kind: "budget_shift" | "specialist_capacity";
+  title: string;
+  reasoning: string;
+  payload: Json;
+  business_ids: string[];
+  status: "pending" | "applied" | "rejected" | "withdrawn";
+  result: Json | null;
+  created_by: string;
+  created_at: string;
+  decided_by: string | null;
+  decided_at: string | null;
+  decision_note: string;
 };
 type PendingTables = {
-  metric_baselines: { Row: BaselineRow & { org_id: string; workspace_id: string }; Insert: never; Update: never; Relationships: [] };
-  metric_targets: { Row: TargetRow & { org_id: string; workspace_id: string }; Insert: never; Update: never; Relationships: [] };
+  metric_baselines: {
+    Row: BaselineRow & { org_id: string; workspace_id: string };
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  metric_targets: {
+    Row: TargetRow & { org_id: string; workspace_id: string };
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
   growth_opportunities: {
     Row: OpportunityRow;
     Insert: Partial<OpportunityRow>;
@@ -954,40 +1270,145 @@ type PendingTables = {
   external_actions: { Row: ExternalActionRow; Insert: never; Update: never; Relationships: [] };
   business_units: { Row: BusinessUnitRow; Insert: never; Update: never; Relationships: [] };
   exchange_rates: { Row: ExchangeRateRow; Insert: never; Update: never; Relationships: [] };
-  specialist_allocations: { Row: SpecialistAllocationRow; Insert: never; Update: never; Relationships: [] };
+  specialist_allocations: {
+    Row: SpecialistAllocationRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
   org_strategies: { Row: OrgStrategyRow; Insert: never; Update: never; Relationships: [] };
   org_opportunities: { Row: OrgOpportunityRow; Insert: never; Update: never; Relationships: [] };
   org_initiatives: { Row: OrgInitiativeRow; Insert: never; Update: never; Relationships: [] };
-  org_initiative_commitments: { Row: OrgCommitmentRow; Insert: never; Update: never; Relationships: [] };
-  org_allocation_proposals: { Row: OrgAllocationRow; Insert: never; Update: never; Relationships: [] };
+  org_initiative_commitments: {
+    Row: OrgCommitmentRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  org_allocation_proposals: {
+    Row: OrgAllocationRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
   revenue_events: { Row: RevenueEventRow; Insert: never; Update: never; Relationships: [] };
   attribution_touchpoints: { Row: TouchpointRow; Insert: never; Update: never; Relationships: [] };
   growth_experiments: { Row: ExperimentRow; Insert: never; Update: never; Relationships: [] };
   optimization_proposals: { Row: ProposalRow; Insert: never; Update: never; Relationships: [] };
   evidence_items: { Row: EvidenceItemRow; Insert: never; Update: never; Relationships: [] };
   evidence_events: { Row: EvidenceEventRow; Insert: never; Update: never; Relationships: [] };
-  fact_conflict_events: { Row: FactConflictEventRow; Insert: never; Update: never; Relationships: [] };
-  recommendation_decisions: { Row: RecommendationDecisionRow; Insert: never; Update: never; Relationships: [] };
+  fact_conflict_events: {
+    Row: FactConflictEventRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  recommendation_decisions: {
+    Row: RecommendationDecisionRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
   business_checks: { Row: BusinessCheckRow; Insert: never; Update: never; Relationships: [] };
-  business_check_settings: { Row: BusinessCheckSettingsRow; Insert: never; Update: never; Relationships: [] };
-  task_replan_proposals: { Row: TaskReplanProposalRow; Insert: never; Update: never; Relationships: [] };
-  task_replan_decisions: { Row: TaskReplanDecisionRow; Insert: never; Update: never; Relationships: [] };
-  campaign_spend_entries: { Row: CampaignSpendRow; Insert: never; Update: never; Relationships: [] };
-  campaign_budget_allocations: { Row: CampaignBudgetAllocationRow; Insert: never; Update: never; Relationships: [] };
+  business_check_settings: {
+    Row: BusinessCheckSettingsRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  task_replan_proposals: {
+    Row: TaskReplanProposalRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  task_replan_decisions: {
+    Row: TaskReplanDecisionRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  campaign_spend_entries: {
+    Row: CampaignSpendRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  campaign_budget_allocations: {
+    Row: CampaignBudgetAllocationRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
   business_cost_entries: { Row: BusinessCostRow; Insert: never; Update: never; Relationships: [] };
-  business_cost_models: { Row: BusinessCostModelRow; Insert: never; Update: never; Relationships: [] };
-  credit_price_versions: { Row: CreditPriceVersionRow; Insert: never; Update: never; Relationships: [] };
-  recommendation_learnings: { Row: RecommendationLearningRow; Insert: never; Update: never; Relationships: [] };
-  budget_allocation_events: { Row: BudgetAllocationEventRow; Insert: never; Update: never; Relationships: [] };
-  budget_change_requests: { Row: BudgetChangeRequestRow; Insert: never; Update: never; Relationships: [] };
-  campaign_status_events: { Row: CampaignStatusEventRow; Insert: never; Update: never; Relationships: [] };
-  campaign_spend_limits: { Row: CampaignSpendLimitsRow; Insert: never; Update: never; Relationships: [] };
-  campaign_spend_limit_events: { Row: CampaignSpendLimitEventRow; Insert: never; Update: never; Relationships: [] };
+  business_cost_models: {
+    Row: BusinessCostModelRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  credit_price_versions: {
+    Row: CreditPriceVersionRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  recommendation_learnings: {
+    Row: RecommendationLearningRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  budget_allocation_events: {
+    Row: BudgetAllocationEventRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  budget_change_requests: {
+    Row: BudgetChangeRequestRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  campaign_status_events: {
+    Row: CampaignStatusEventRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  campaign_spend_limits: {
+    Row: CampaignSpendLimitsRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  campaign_spend_limit_events: {
+    Row: CampaignSpendLimitEventRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
   experiment_events: { Row: ExperimentEventRow; Insert: never; Update: never; Relationships: [] };
   specialist_reviews: { Row: SpecialistReviewRow; Insert: never; Update: never; Relationships: [] };
-  specialist_result_decisions: { Row: SpecialistDecisionRow; Insert: never; Update: never; Relationships: [] };
-  task_replan_analyses: { Row: TaskReplanAnalysisRow; Insert: never; Update: never; Relationships: [] };
-  experiment_observations: { Row: ExperimentObservationRow; Insert: never; Update: never; Relationships: [] };
+  specialist_result_decisions: {
+    Row: SpecialistDecisionRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  task_replan_analyses: {
+    Row: TaskReplanAnalysisRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  experiment_observations: {
+    Row: ExperimentObservationRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
   proposal_evidence: { Row: ProposalEvidenceRow; Insert: never; Update: never; Relationships: [] };
   simulated_provider_records: {
     Row: SimRecordRow;
@@ -1027,12 +1448,13 @@ type PendingOrgMembers = {
   Relationships: OrgMembers["Relationships"];
 };
 /** Proposal 0068: optional brand/unit link on goals, campaigns and budget lines (same business only). */
-type UnitLinked<T extends { Row: object; Insert: object; Update: object; Relationships: unknown }> = {
-  Row: T["Row"] & { unit_id: string | null };
-  Insert: T["Insert"] & { unit_id?: string | null };
-  Update: T["Update"] & { unit_id?: string | null };
-  Relationships: T["Relationships"];
-};
+type UnitLinked<T extends { Row: object; Insert: object; Update: object; Relationships: unknown }> =
+  {
+    Row: T["Row"] & { unit_id: string | null };
+    Insert: T["Insert"] & { unit_id?: string | null };
+    Update: T["Update"] & { unit_id?: string | null };
+    Relationships: T["Relationships"];
+  };
 type BusinessProfiles = GeneratedTables["business_profiles"];
 type PendingBusinessProfiles = {
   Row: BusinessProfiles["Row"] & { reporting_currency: string };
@@ -1064,11 +1486,29 @@ type PendingFunctions = {
     Returns: Json;
   };
   set_metric_baseline: {
-    Args: { _metric: string; _request: string; _measurement: string | null; _value: number | null; _period_start: string | null; _period_end: string | null; _source: string | null; _note: string };
+    Args: {
+      _metric: string;
+      _request: string;
+      _measurement: string | null;
+      _value: number | null;
+      _period_start: string | null;
+      _period_end: string | null;
+      _source: string | null;
+      _note: string;
+    };
     Returns: Json;
   };
   set_metric_target: {
-    Args: { _metric: string; _request: string; _value: number | null; _target_date: string | null; _period_kind: string | null; _owner: string | null; _note: string; _withdraw?: boolean };
+    Args: {
+      _metric: string;
+      _request: string;
+      _value: number | null;
+      _target_date: string | null;
+      _period_kind: string | null;
+      _owner: string | null;
+      _note: string;
+      _withdraw?: boolean;
+    };
     Returns: Json;
   };
   set_growth_opportunity_status: {
@@ -1299,69 +1739,217 @@ type PendingFunctions = {
     Returns: Json;
   };
   import_official_rates_verified: {
-    Args: { _org: string; _date: string; _rates: { currency: string; rate: string }[]; _proof: string };
+    Args: {
+      _org: string;
+      _date: string;
+      _rates: { currency: string; rate: string }[];
+      _proof: string;
+    };
     Returns: number;
   };
   set_business_currency: { Args: { _workspace: string; _currency: string }; Returns: string };
   record_exchange_rate: {
-    Args: { _org: string; _base: string; _quote: string; _rate: number; _date: string; _source: string };
+    Args: {
+      _org: string;
+      _base: string;
+      _quote: string;
+      _rate: number;
+      _date: string;
+      _source: string;
+    };
     Returns: string;
   };
   record_org_opportunity: { Args: { _org: string; _p: Json }; Returns: Json };
-  set_org_opportunity_status: { Args: { _id: string; _status: string; _note: string }; Returns: Json };
+  set_org_opportunity_status: {
+    Args: { _id: string; _status: string; _note: string };
+    Returns: Json;
+  };
   propose_org_initiative: { Args: { _org: string; _request: string; _p: Json }; Returns: Json };
   decide_org_commitment: { Args: { _id: string; _approve: boolean; _note: string }; Returns: Json };
   set_org_initiative_status: { Args: { _id: string; _status: string }; Returns: Json };
-  propose_org_allocation: { Args: { _org: string; _request: string; _kind: string; _title: string; _reasoning: string; _payload: Json }; Returns: Json };
-  decide_org_allocation: { Args: { _id: string; _decision: "apply" | "reject" | "withdraw"; _note: string }; Returns: Json };
+  propose_org_allocation: {
+    Args: {
+      _org: string;
+      _request: string;
+      _kind: string;
+      _title: string;
+      _reasoning: string;
+      _payload: Json;
+    };
+    Returns: Json;
+  };
+  decide_org_allocation: {
+    Args: { _id: string; _decision: "apply" | "reject" | "withdraw"; _note: string };
+    Returns: Json;
+  };
   org_credit_overview: { Args: { _org: string; _month: string }; Returns: Json };
-  move_budget: { Args: { _from: string; _to: string; _amount: number; _seen_from: number; _seen_to: number }; Returns: Json };
-  resolve_fact_conflict: { Args: { _keep: string; _others: string[]; _note: string }; Returns: Json };
-  mark_fact_conflict: { Args: { _workspace: string; _topic: string; _kind: "review_started" | "reopened"; _note: string }; Returns: string };
+  move_budget: {
+    Args: { _from: string; _to: string; _amount: number; _seen_from: number; _seen_to: number };
+    Returns: Json;
+  };
+  resolve_fact_conflict: {
+    Args: { _keep: string; _others: string[]; _note: string };
+    Returns: Json;
+  };
+  mark_fact_conflict: {
+    Args: {
+      _workspace: string;
+      _topic: string;
+      _kind: "review_started" | "reopened";
+      _note: string;
+    };
+    Returns: string;
+  };
   decide_recommendation: {
-    Args: { _workspace: string; _key: string; _decision: "postponed" | "dismissed" | "restored"; _until: string | null; _fingerprint: string; _note: string };
+    Args: {
+      _workspace: string;
+      _key: string;
+      _decision: "postponed" | "dismissed" | "restored";
+      _until: string | null;
+      _fingerprint: string;
+      _note: string;
+    };
     Returns: string;
   };
   record_business_check: {
-    Args: { _workspace: string; _kind: BusinessCheckRow["kind"]; _subject: string | null; _inspected: Json; _findings: Json };
+    Args: {
+      _workspace: string;
+      _kind: BusinessCheckRow["kind"];
+      _subject: string | null;
+      _inspected: Json;
+      _findings: Json;
+    };
     Returns: Json;
   };
-  propose_task_replan: { Args: { _workspace: string; _request: string; _task: string; _p: Json }; Returns: Json };
+  propose_task_replan: {
+    Args: { _workspace: string; _request: string; _task: string; _p: Json };
+    Returns: Json;
+  };
   decide_task_replan: {
-    Args: { _proposal: string; _decision: TaskReplanDecisionRow["decision"]; _option: string | null; _due: string | null; _note: string };
+    Args: {
+      _proposal: string;
+      _decision: TaskReplanDecisionRow["decision"];
+      _option: string | null;
+      _due: string | null;
+      _note: string;
+    };
     Returns: Json;
   };
-  record_campaign_spend: { Args: { _workspace: string; _request: string; _campaign: string; _p: Json }; Returns: Json };
-  change_campaign_allocation: { Args: { _workspace: string; _request: string; _p: Json }; Returns: Json };
-  request_budget_change: { Args: { _workspace: string; _request: string; _p: Json }; Returns: Json };
+  record_campaign_spend: {
+    Args: { _workspace: string; _request: string; _campaign: string; _p: Json };
+    Returns: Json;
+  };
+  change_campaign_allocation: {
+    Args: { _workspace: string; _request: string; _p: Json };
+    Returns: Json;
+  };
+  request_budget_change: {
+    Args: { _workspace: string; _request: string; _p: Json };
+    Returns: Json;
+  };
   decide_budget_change: { Args: { _id: string; _approve: boolean; _note: string }; Returns: Json };
   record_business_cost: { Args: { _workspace: string; _request: string; _p: Json }; Returns: Json };
-  set_cost_model: { Args: { _workspace: string; _request: string; _model: string; _margin_rate: number | null; _effective_from: string; _note: string }; Returns: Json };
-  set_credit_price: { Args: { _scope: string; _plan: string | null; _currency: string; _price: number; _effective_from: string; _methodology: string }; Returns: string };
-  record_recommendation_learning: { Args: { _proposal: string; _request: string; _p: Json }; Returns: Json };
+  set_cost_model: {
+    Args: {
+      _workspace: string;
+      _request: string;
+      _model: string;
+      _margin_rate: number | null;
+      _effective_from: string;
+      _note: string;
+    };
+    Returns: Json;
+  };
+  set_credit_price: {
+    Args: {
+      _scope: string;
+      _plan: string | null;
+      _currency: string;
+      _price: number;
+      _effective_from: string;
+      _methodology: string;
+    };
+    Returns: string;
+  };
+  record_recommendation_learning: {
+    Args: { _proposal: string; _request: string; _p: Json };
+    Returns: Json;
+  };
   /** Proposal 0086: the credit prices that apply to the caller (platform + own plans), without reasons or authors. */
   /** Proposal 0088: security hardening. */
   verify_audit_chain: { Args: Record<string, never>; Returns: Json };
   security_overview: { Args: { _days: number }; Returns: Json };
-  record_security_event: { Args: { _kind: "owner_access_denied" | "owner_mfa_required" | "credit_price_denied" | "platform_stop_denied"; _detail: Json }; Returns: boolean };
-  set_org_execution_stop: { Args: { _org: string; _stop: boolean; _reason: string }; Returns: Json };
+  record_security_event: {
+    Args: {
+      _kind:
+        | "owner_access_denied"
+        | "owner_mfa_required"
+        | "credit_price_denied"
+        | "platform_stop_denied";
+      _detail: Json;
+    };
+    Returns: boolean;
+  };
+  set_org_execution_stop: {
+    Args: { _org: string; _stop: boolean; _reason: string };
+    Returns: Json;
+  };
   set_platform_execution_stop: { Args: { _stop: boolean; _reason: string }; Returns: Json };
   document_capacity: { Args: { _org: string }; Returns: Json };
   session_mfa_verified: { Args: Record<string, never>; Returns: boolean };
-  credit_prices_in_effect: { Args: Record<string, never>; Returns: { scope: string; plan_key: string | null; currency: string; price_per_credit: number; effective_from: string }[] };
-  transition_campaign: { Args: { _workspace: string; _campaign: string; _to: string; _p?: Json }; Returns: Json };
-  set_campaign_spend_limits: { Args: { _workspace: string; _request: string; _campaign: string; _p: Json }; Returns: Json };
-  set_business_check_frequency: { Args: { _workspace: string; _frequency: BusinessCheckSettingsRow["frequency"] }; Returns: undefined };
-  decide_org_strategy: { Args: { _id: string; _decision: "approve" | "reject" | "retire"; _note: string }; Returns: Json };
-  begin_org_ai_request_verified: { Args: { _org: string; _workspace: string; _request: string; _input: Json; _proof: string }; Returns: Json };
-  finish_org_strategy_verified: { Args: { _id: string; _reply: string; _strategy: Json; _proof: string }; Returns: Json };
+  credit_prices_in_effect: {
+    Args: Record<string, never>;
+    Returns: {
+      scope: string;
+      plan_key: string | null;
+      currency: string;
+      price_per_credit: number;
+      effective_from: string;
+    }[];
+  };
+  transition_campaign: {
+    Args: { _workspace: string; _campaign: string; _to: string; _p?: Json };
+    Returns: Json;
+  };
+  set_campaign_spend_limits: {
+    Args: { _workspace: string; _request: string; _campaign: string; _p: Json };
+    Returns: Json;
+  };
+  set_business_check_frequency: {
+    Args: { _workspace: string; _frequency: BusinessCheckSettingsRow["frequency"] };
+    Returns: undefined;
+  };
+  decide_org_strategy: {
+    Args: { _id: string; _decision: "approve" | "reject" | "retire"; _note: string };
+    Returns: Json;
+  };
+  begin_org_ai_request_verified: {
+    Args: { _org: string; _workspace: string; _request: string; _input: Json; _proof: string };
+    Returns: Json;
+  };
+  finish_org_strategy_verified: {
+    Args: { _id: string; _reply: string; _strategy: Json; _proof: string };
+    Returns: Json;
+  };
   set_specialist_allocation: {
-    Args: { _workspace: string; _specialist: string; _enabled: boolean; _priority: number; _cap: number | null };
+    Args: {
+      _workspace: string;
+      _specialist: string;
+      _enabled: boolean;
+      _priority: number;
+      _cap: number | null;
+    };
     Returns: Json;
   };
   /** Proposal 0067 adds the editor role, which the generated enum does not know yet. */
-  create_invitation: { Args: { _org: string; _email: string; _role: OrgRoleWithEditor }; Returns: string };
-  set_workspace_member: { Args: { _workspace: string; _user: string; _role?: OrgRoleWithEditor }; Returns: undefined };
+  create_invitation: {
+    Args: { _org: string; _email: string; _role: OrgRoleWithEditor };
+    Returns: string;
+  };
+  set_workspace_member: {
+    Args: { _workspace: string; _user: string; _role?: OrgRoleWithEditor };
+    Returns: undefined;
+  };
   create_business_unit: {
     Args: { _workspace: string; _kind: string; _name: string; _parent: string | null };
     Returns: Json;
@@ -1415,12 +2003,34 @@ type PendingFunctions = {
   propose_experiment: { Args: { _workspace: string; _request: string; _p: Json }; Returns: Json };
   design_experiment: { Args: { _workspace: string; _request: string; _p: Json }; Returns: Json };
   specialist_review_required: { Args: { _run: string }; Returns: boolean };
-  record_specialist_review_verified: { Args: { _run: string; _request: string; _reviewer: string; _single: string; _review: Json; _proof: string }; Returns: Json };
-  decide_specialist_result: { Args: { _run: string; _decision: string; _note: string; _corrections: string }; Returns: Json };
-  record_replan_analysis_verified: { Args: { _proposal: string; _request: string; _single: string; _analysis: Json; _proof: string }; Returns: Json };
-  revise_experiment_design: { Args: { _experiment: string; _version: number; _p: Json }; Returns: Json };
+  record_specialist_review_verified: {
+    Args: {
+      _run: string;
+      _request: string;
+      _reviewer: string;
+      _single: string;
+      _review: Json;
+      _proof: string;
+    };
+    Returns: Json;
+  };
+  decide_specialist_result: {
+    Args: { _run: string; _decision: string; _note: string; _corrections: string };
+    Returns: Json;
+  };
+  record_replan_analysis_verified: {
+    Args: { _proposal: string; _request: string; _single: string; _analysis: Json; _proof: string };
+    Returns: Json;
+  };
+  revise_experiment_design: {
+    Args: { _experiment: string; _version: number; _p: Json };
+    Returns: Json;
+  };
   move_experiment: { Args: { _experiment: string; _action: string; _data: Json }; Returns: Json };
-  record_experiment_observation: { Args: { _experiment: string; _request: string; _p: Json }; Returns: Json };
+  record_experiment_observation: {
+    Args: { _experiment: string; _request: string; _p: Json };
+    Returns: Json;
+  };
   advance_experiment: {
     Args: {
       _experiment: string;
@@ -1472,7 +2082,15 @@ type PendingFunctions = {
 
 export type PendingDatabase = Omit<Database, "public"> & {
   public: Omit<Public, "Tables" | "Functions"> & {
-    Tables: Omit<GeneratedTables, "budget_lines" | "growth_goals" | "campaigns" | "business_profiles" | "organization_members" | keyof PendingTables> &
+    Tables: Omit<
+      GeneratedTables,
+      | "budget_lines"
+      | "growth_goals"
+      | "campaigns"
+      | "business_profiles"
+      | "organization_members"
+      | keyof PendingTables
+    > &
       PendingTables & {
         budget_lines: PendingBudgetLines;
         growth_goals: UnitLinked<GeneratedTables["growth_goals"]>;

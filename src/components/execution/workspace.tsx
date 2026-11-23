@@ -70,7 +70,12 @@ import { CampaignIntelPanel } from "@/components/execution/campaign-intel-panel"
 import { CampaignAiTeam } from "@/components/execution/campaign-ai-team";
 import { CampaignLifecycle } from "@/components/execution/campaign-lifecycle";
 import { CampaignStrategy, campaignLinkOptions } from "@/components/execution/campaign-strategy";
-import { CAMPAIGN_STATUSES, INITIAL_CAMPAIGN_STATUSES, campaignPhase, linkGaps } from "@/lib/campaign-lifecycle";
+import {
+  CAMPAIGN_STATUSES,
+  INITIAL_CAMPAIGN_STATUSES,
+  campaignPhase,
+  linkGaps,
+} from "@/lib/campaign-lifecycle";
 import { growthDb as lifecycleDb, isNotInstalled as lifecycleMissing } from "@/lib/pending-schema";
 import { campaignSpendOptions } from "@/components/execution/replan-data";
 import { spendSummary } from "@/lib/campaign-spend";
@@ -96,23 +101,55 @@ function useCampaignLifecycle(enabled: boolean) {
     staleTime: 10 * 60_000,
     retry: false,
     queryFn: async () => {
-      const r = await lifecycleDb.from("campaign_status_events").select("id").eq("workspace_id", o.workspace?.id ?? "").limit(1);
-      if (r.error) { if (lifecycleMissing(r.error)) return false; throw r.error; }
+      const r = await lifecycleDb
+        .from("campaign_status_events")
+        .select("id")
+        .eq("workspace_id", o.workspace?.id ?? "")
+        .limit(1);
+      if (r.error) {
+        if (lifecycleMissing(r.error)) return false;
+        throw r.error;
+      }
       return true;
     },
   });
   return q.data === true;
 }
 const campaignChannels = (x: WorkItem): string[] => ("budget_eur" in x ? x.channels : []);
-const campaignStatusList = (lifecycle: boolean): readonly string[] => (lifecycle ? CAMPAIGN_STATUSES : STATUSES.campaigns);
+const campaignStatusList = (lifecycle: boolean): readonly string[] =>
+  lifecycle ? CAMPAIGN_STATUSES : STATUSES.campaigns;
 
-function blockedTasks(notes: readonly { kind: string; entity_type: string; entity_id: string; related_id: string | null }[], tasks: readonly { id: string; status: string }[]) {
-  const open = new Set(tasks.filter((t) => !["done", "cancelled"].includes(t.status)).map((t) => t.id));
-  return new Set(notes.filter((n) => n.kind === "dependency" && n.entity_type === "tasks" && n.related_id && open.has(n.related_id)).map((n) => n.entity_id));
+function blockedTasks(
+  notes: readonly {
+    kind: string;
+    entity_type: string;
+    entity_id: string;
+    related_id: string | null;
+  }[],
+  tasks: readonly { id: string; status: string }[],
+) {
+  const open = new Set(
+    tasks.filter((t) => !["done", "cancelled"].includes(t.status)).map((t) => t.id),
+  );
+  return new Set(
+    notes
+      .filter(
+        (n) =>
+          n.kind === "dependency" &&
+          n.entity_type === "tasks" &&
+          n.related_id &&
+          open.has(n.related_id),
+      )
+      .map((n) => n.entity_id),
+  );
 }
 
 /** One sentence on what each work page is for, shown under its title. */
-const PURPOSE = { tasks: "ph.task", projects: "ph.project", campaigns: "ph.campaign" } as const satisfies Record<WorkKind, string>;
+const PURPOSE = {
+  tasks: "ph.task",
+  projects: "ph.project",
+  campaigns: "ph.campaign",
+} as const satisfies Record<WorkKind, string>;
 
 export function ExecutionWorkspace({
   kind,
@@ -125,7 +162,8 @@ export function ExecutionWorkspace({
   const qc = useQueryClient();
   const navigate = useNavigate();
   const { t: tx, tag } = useI18n();
-  const lbl = (s: string) => (`work.l.${s}` in MESSAGES.en ? tx(`work.l.${s}` as MessageKey) : label(s));
+  const lbl = (s: string) =>
+    `work.l.${s}` in MESSAGES.en ? tx(`work.l.${s}` as MessageKey) : label(s);
   const q = useQuery(executionOptions(o.org?.id, o.workspace?.id, o.userId));
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -137,8 +175,14 @@ export function ExecutionWorkspace({
   const [channel, setChannel] = useState("all");
   const lifecycle = useCampaignLifecycle(kind === "campaigns");
   const statusList = kind === "campaigns" ? campaignStatusList(lifecycle) : STATUSES[kind];
-  const campaignSpend = useQuery({ ...campaignSpendOptions(o.org?.id, o.workspace?.id), enabled: kind === "campaigns" && !!o.org && !!o.workspace });
-  const links = useQuery({ ...campaignLinkOptions(o.workspace?.id), enabled: kind === "campaigns" && !!o.workspace });
+  const campaignSpend = useQuery({
+    ...campaignSpendOptions(o.org?.id, o.workspace?.id),
+    enabled: kind === "campaigns" && !!o.org && !!o.workspace,
+  });
+  const links = useQuery({
+    ...campaignLinkOptions(o.workspace?.id),
+    enabled: kind === "campaigns" && !!o.workspace,
+  });
   const goals = links.data?.goals ?? [];
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
   const [create, setCreate] = useState(false);
@@ -158,7 +202,14 @@ export function ExecutionWorkspace({
       .map((n) => n.entity_id),
   );
   const today = localDay();
-  const exec = useQuery({ ...taskExecutionOptions(o.org?.id, o.workspace?.id, o.workspaceRole !== "viewer" && o.workspaceRole !== null), enabled: kind === "tasks" && !!o.org && !!o.workspace });
+  const exec = useQuery({
+    ...taskExecutionOptions(
+      o.org?.id,
+      o.workspace?.id,
+      o.workspaceRole !== "viewer" && o.workspaceRole !== null,
+    ),
+    enabled: kind === "tasks" && !!o.org && !!o.workspace,
+  });
   const execRuns = runsByTask(exec.data?.runs ?? []);
   const execProfiles = new Map((exec.data?.profiles ?? []).map((p) => [p.task_id, p]));
   const blockedIds = blockedTasks(q.data?.notes ?? [], q.data?.tasks ?? []);
@@ -166,8 +217,26 @@ export function ExecutionWorkspace({
   const campaignAtRisk = (x: WorkItem) => {
     if (!("results" in x)) return false;
     if (x.status === "needs_attention") return true;
-    const money = campaignSpend.data ? spendSummary(Number(x.budget_eur), campaignSpend.data.filter((r) => r.campaign_id === x.id)) : undefined;
-    return campaignHealth({ status: x.status, start_date: x.start_date, end_date: x.end_date, goal_id: x.goal_id, results: x.results }, (q.data?.tasks ?? []).filter((t) => t.campaign_id === x.id), today, money).state === "at_risk";
+    const money = campaignSpend.data
+      ? spendSummary(
+          Number(x.budget_eur),
+          campaignSpend.data.filter((r) => r.campaign_id === x.id),
+        )
+      : undefined;
+    return (
+      campaignHealth(
+        {
+          status: x.status,
+          start_date: x.start_date,
+          end_date: x.end_date,
+          goal_id: x.goal_id,
+          results: x.results,
+        },
+        (q.data?.tasks ?? []).filter((t) => t.campaign_id === x.id),
+        today,
+        money,
+      ).state === "at_risk"
+    );
   };
   const channels = kind === "campaigns" ? [...new Set(items.flatMap(campaignChannels))].sort() : [];
   const filtered = items.filter(
@@ -182,7 +251,9 @@ export function ExecutionWorkspace({
       (filter === "all" ||
         (filter === "awaiting" && x.status === "awaiting_approval") ||
         (filter === "at_risk" && campaignAtRisk(x)) ||
-        (filter === "unlinked" && "goal_id" in x && linkGaps({ goal_id: x.goal_id }).includes("no_goal")) ||
+        (filter === "unlinked" &&
+          "goal_id" in x &&
+          linkGaps({ goal_id: x.goal_id }).includes("no_goal")) ||
         (filter === "team" && (x.owner_id !== null || assignees.has(x.id))) ||
         (filter === "mine" && (x.owner_id === o.userId || assignees.has(x.id))) ||
         (filter === "today" && due(x) === today) ||
@@ -190,7 +261,9 @@ export function ExecutionWorkspace({
         (filter === "approval" && runState(x.id) === "awaiting_approval") ||
         (filter === "running" && ["queued", "running"].includes(runState(x.id) ?? "")) ||
         (filter === "failed" && ["failed", "uncertain"].includes(runState(x.id) ?? "")) ||
-        (filter === "blocked" && blockedIds.has(x.id) && !["done", "cancelled"].includes(x.status)) ||
+        (filter === "blocked" &&
+          blockedIds.has(x.id) &&
+          !["done", "cancelled"].includes(x.status)) ||
         (filter === "completed" && x.status === "done") ||
         (filter === "upcoming" && !!due(x) && String(due(x)) > today) ||
         (filter === "overdue" &&
@@ -198,13 +271,23 @@ export function ExecutionWorkspace({
           String(due(x)) < today &&
           !["done", "cancelled", "completed", "archived"].includes(x.status))),
   );
-  useEffect(() => { setPage(1); }, [search, filter, status, priority, kind, goal, channel]);
+  useEffect(() => {
+    setPage(1);
+  }, [search, filter, status, priority, kind, goal, channel]);
   const paged = pageSlice(filtered, page);
   // With the campaign lifecycle the board groups campaigns by phase; status changes happen on the campaign page.
   const phaseBoard = kind === "campaigns" && lifecycle;
   const boardColumns = phaseBoard
-    ? (["preparing", "running", "paused", "finished"] as const).map((p) => ({ key: p, label: tx(`cos.phase.${p}`), match: (x: WorkItem) => campaignPhase(x.status) === p }))
-    : STATUSES[kind].map((st) => ({ key: st, label: lbl(st), match: (x: WorkItem) => x.status === st }));
+    ? (["preparing", "running", "paused", "finished"] as const).map((p) => ({
+        key: p,
+        label: tx(`cos.phase.${p}`),
+        match: (x: WorkItem) => campaignPhase(x.status) === p,
+      }))
+    : STATUSES[kind].map((st) => ({
+        key: st,
+        label: lbl(st),
+        match: (x: WorkItem) => x.status === st,
+      }));
   async function refresh() {
     await qc.invalidateQueries({ queryKey: ["execution"] });
   }
@@ -269,9 +352,24 @@ export function ExecutionWorkspace({
       />
       <div className="mb-5 flex flex-wrap gap-1">
         {(kind === "tasks"
-          ? ["mine", "team", "all", "today", "upcoming", "overdue", ...(exec.data ? ["ai", "approval", "running", "failed", "blocked", "completed"] : [])]
+          ? [
+              "mine",
+              "team",
+              "all",
+              "today",
+              "upcoming",
+              "overdue",
+              ...(exec.data ? ["ai", "approval", "running", "failed", "blocked", "completed"] : []),
+            ]
           : kind === "campaigns"
-            ? ["all", ...(lifecycle ? ["awaiting"] : []), "at_risk", "unlinked", "upcoming", "overdue"]
+            ? [
+                "all",
+                ...(lifecycle ? ["awaiting"] : []),
+                "at_risk",
+                "unlinked",
+                "upcoming",
+                "overdue",
+              ]
             : ["all", "today", "upcoming", "overdue"]
         ).map((f) => (
           <Button
@@ -289,13 +387,28 @@ export function ExecutionWorkspace({
                   ? tx(`work.all.${kind}`)
                   : ["ai", "approval", "running", "failed", "blocked", "completed"].includes(f)
                     ? tx(`run.f.${f}` as MessageKey)
-                    : f === "awaiting" ? tx("cos.f.awaiting") : f === "at_risk" ? tx("cos.f.atRisk") : f === "unlinked" ? tx("cos.f.unlinked")
-                    : lbl(f)}
+                    : f === "awaiting"
+                      ? tx("cos.f.awaiting")
+                      : f === "at_risk"
+                        ? tx("cos.f.atRisk")
+                        : f === "unlinked"
+                          ? tx("cos.f.unlinked")
+                          : lbl(f)}
           </Button>
         ))}
       </div>
       {kind === "tasks" && <ExecutionBar />}
-      {kind === "tasks" && q.data && <NextActions data={q.data} runs={exec.data?.runs ?? []} profiles={execProfiles} onOpen={(id) => { const x = q.data?.tasks.find((y) => y.id === id); if (x) open(x); }} />}
+      {kind === "tasks" && q.data && (
+        <NextActions
+          data={q.data}
+          runs={exec.data?.runs ?? []}
+          profiles={execProfiles}
+          onOpen={(id) => {
+            const x = q.data?.tasks.find((y) => y.id === id);
+            if (x) open(x);
+          }}
+        />
+      )}
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <div className="relative min-w-36 flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -328,19 +441,39 @@ export function ExecutionWorkspace({
         >
           <option value="all">{tx("work.allPriorities")}</option>
           {PRIORITIES.map((s) => (
-            <option key={s} value={s}>{lbl(s)}</option>
+            <option key={s} value={s}>
+              {lbl(s)}
+            </option>
           ))}
         </select>
         {kind === "campaigns" && goals.length > 0 && (
-          <select aria-label={tx("cos.f.goal")} className={inputClass} value={goal} onChange={(e) => setGoal(e.target.value)}>
+          <select
+            aria-label={tx("cos.f.goal")}
+            className={inputClass}
+            value={goal}
+            onChange={(e) => setGoal(e.target.value)}
+          >
             <option value="all">{tx("cos.f.allGoals")}</option>
-            {goals.map((g) => <option key={g.id} value={g.id}>{g.title}</option>)}
+            {goals.map((g) => (
+              <option key={g.id} value={g.id}>
+                {g.title}
+              </option>
+            ))}
           </select>
         )}
         {kind === "campaigns" && channels.length > 0 && (
-          <select aria-label={tx("cos.f.channel")} className={inputClass} value={channel} onChange={(e) => setChannel(e.target.value)}>
+          <select
+            aria-label={tx("cos.f.channel")}
+            className={inputClass}
+            value={channel}
+            onChange={(e) => setChannel(e.target.value)}
+          >
             <option value="all">{tx("cos.f.allChannels")}</option>
-            {channels.map((c) => <option key={c} value={c}>{c}</option>)}
+            {channels.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
           </select>
         )}
         <div className="flex">
@@ -407,12 +540,28 @@ export function ExecutionWorkspace({
                       {name(x.owner_id)} · {lbl(x.priority)}
                       {due(x) && ` · ${new Date(`${due(x)}T12:00:00`).toLocaleDateString(tag)}`}
                     </p>
-                    {kind === "campaigns" && <CampaignHealthLine item={x} tasks={q.data?.tasks ?? []} today={today} />}
+                    {kind === "campaigns" && (
+                      <CampaignHealthLine item={x} tasks={q.data?.tasks ?? []} today={today} />
+                    )}
                     {kind === "tasks" && (execProfiles.has(x.id) || blockedIds.has(x.id)) && (
                       <p className="mt-1 flex flex-wrap gap-1 text-xs">
-                        {execProfiles.has(x.id) && <span className="rounded border px-1.5 py-0.5 text-muted-foreground">{tx(`run.sp.${execProfiles.get(x.id)!.specialist_key}` as MessageKey)}</span>}
-                        {runState(x.id) && <span className={cn("rounded border px-1.5 py-0.5", runTone(runState(x.id)!))}>{tx(`run.st.${runState(x.id)}` as MessageKey)}</span>}
-                        {blockedIds.has(x.id) && !["done", "cancelled"].includes(x.status) && <span className="rounded border border-warning/50 px-1.5 py-0.5 text-warning">{tx("run.f.blocked")}</span>}
+                        {execProfiles.has(x.id) && (
+                          <span className="rounded border px-1.5 py-0.5 text-muted-foreground">
+                            {tx(`run.sp.${execProfiles.get(x.id)!.specialist_key}` as MessageKey)}
+                          </span>
+                        )}
+                        {runState(x.id) && (
+                          <span
+                            className={cn("rounded border px-1.5 py-0.5", runTone(runState(x.id)!))}
+                          >
+                            {tx(`run.st.${runState(x.id)}` as MessageKey)}
+                          </span>
+                        )}
+                        {blockedIds.has(x.id) && !["done", "cancelled"].includes(x.status) && (
+                          <span className="rounded border border-warning/50 px-1.5 py-0.5 text-warning">
+                            {tx("run.f.blocked")}
+                          </span>
+                        )}
                       </p>
                     )}
                   </div>
@@ -450,7 +599,33 @@ export function ExecutionWorkspace({
               ))}
             </div>
           )}
-          {view === "list" && <div className="my-4 flex items-center justify-between gap-3"><p className="text-xs text-muted-foreground">{tx("work.paging", { n: paged.total, p: paged.page, of: paged.pages })}</p><div className="flex gap-1"><Button variant="outline" size="icon" aria-label={tx("work.prevPage")} disabled={paged.page === 1} onClick={() => setPage(paged.page - 1)}><ChevronLeft /></Button><Button variant="outline" size="icon" aria-label={tx("work.nextPage")} disabled={paged.page === paged.pages} onClick={() => setPage(paged.page + 1)}><ChevronRight /></Button></div></div>}
+          {view === "list" && (
+            <div className="my-4 flex items-center justify-between gap-3">
+              <p className="text-xs text-muted-foreground">
+                {tx("work.paging", { n: paged.total, p: paged.page, of: paged.pages })}
+              </p>
+              <div className="flex gap-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label={tx("work.prevPage")}
+                  disabled={paged.page === 1}
+                  onClick={() => setPage(paged.page - 1)}
+                >
+                  <ChevronLeft />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label={tx("work.nextPage")}
+                  disabled={paged.page === paged.pages}
+                  onClick={() => setPage(paged.page + 1)}
+                >
+                  <ChevronRight />
+                </Button>
+              </div>
+            </div>
+          )}
           {view === "kanban" && (
             <div className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
               {boardColumns.map((col) => (
@@ -462,40 +637,48 @@ export function ExecutionWorkspace({
                     </span>
                   </h2>
                   <div className="space-y-3">
-                    {filtered
-                      .filter(col.match)
-                      .map((x) => (
-                        <article key={x.id} className="rounded-lg border border-border bg-card p-3">
-                          <Button
-                            variant="link"
-                            className="h-auto whitespace-normal p-0 text-left text-sm text-foreground"
-                            onClick={() => open(x)}
-                          >
-                            {x.title}
-                          </Button>
-                          <p className="mt-3 text-xs text-muted-foreground">
-                            {name(x.owner_id)} · {lbl(x.priority)}
+                    {filtered.filter(col.match).map((x) => (
+                      <article key={x.id} className="rounded-lg border border-border bg-card p-3">
+                        <Button
+                          variant="link"
+                          className="h-auto whitespace-normal p-0 text-left text-sm text-foreground"
+                          onClick={() => open(x)}
+                        >
+                          {x.title}
+                        </Button>
+                        <p className="mt-3 text-xs text-muted-foreground">
+                          {name(x.owner_id)} · {lbl(x.priority)}
+                        </p>
+                        {due(x) && (
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            {tx("work.dueX", {
+                              d: new Date(`${due(x)}T12:00:00`).toLocaleDateString(tag),
+                            })}
                           </p>
-                          {due(x) && (
-                            <p className="mt-2 text-xs text-muted-foreground">{tx("work.dueX", { d: new Date(`${due(x)}T12:00:00`).toLocaleDateString(tag) })}</p>
-                          )}
-                          {phaseBoard && <p className="mt-2 text-xs"><span className="rounded border border-border px-1.5 py-0.5">{lbl(x.status)}</span></p>}
-                          {editable && !phaseBoard && (
-                            <select
-                              className={`${inputClass} mt-3 w-full`}
-                              aria-label={tx("work.statusFor", { t: x.title })}
-                              value={x.status}
-                              onChange={(e) => updateStatus(x, e.target.value)}
-                            >
-                              {STATUSES[kind].map((v) => (
-                                <option key={v} value={v}>
-                                  {lbl(v)}
-                                </option>
-                              ))}
-                            </select>
-                          )}
-                        </article>
-                      ))}
+                        )}
+                        {phaseBoard && (
+                          <p className="mt-2 text-xs">
+                            <span className="rounded border border-border px-1.5 py-0.5">
+                              {lbl(x.status)}
+                            </span>
+                          </p>
+                        )}
+                        {editable && !phaseBoard && (
+                          <select
+                            className={`${inputClass} mt-3 w-full`}
+                            aria-label={tx("work.statusFor", { t: x.title })}
+                            value={x.status}
+                            onChange={(e) => updateStatus(x, e.target.value)}
+                          >
+                            {STATUSES[kind].map((v) => (
+                              <option key={v} value={v}>
+                                {lbl(v)}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+                      </article>
+                    ))}
                   </div>
                 </section>
               ))}
@@ -512,7 +695,9 @@ export function ExecutionWorkspace({
                 >
                   <ChevronLeft />
                 </Button>
-                <h2 className="text-sm font-semibold">{month.toLocaleDateString(tag, { month: "long", year: "numeric" })}</h2>
+                <h2 className="text-sm font-semibold">
+                  {month.toLocaleDateString(tag, { month: "long", year: "numeric" })}
+                </h2>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -523,14 +708,18 @@ export function ExecutionWorkspace({
                 </Button>
               </div>
               <div className="grid grid-cols-7 border-l border-t border-border">
-                {[0, 1, 2, 3, 4, 5, 6].map((i) => new Date(2024, 0, 1 + i).toLocaleDateString(tag, { weekday: "short" })).map((d) => (
-                  <div
-                    key={d}
-                    className="border-b border-r border-border py-2 text-center text-[10px] text-muted-foreground"
-                  >
-                    {d}
-                  </div>
-                ))}
+                {[0, 1, 2, 3, 4, 5, 6]
+                  .map((i) =>
+                    new Date(2024, 0, 1 + i).toLocaleDateString(tag, { weekday: "short" }),
+                  )
+                  .map((d) => (
+                    <div
+                      key={d}
+                      className="border-b border-r border-border py-2 text-center text-[10px] text-muted-foreground"
+                    >
+                      {d}
+                    </div>
+                  ))}
                 {dates.map((d) => (
                   <div
                     key={d.toISOString()}
@@ -581,7 +770,13 @@ export function ExecutionWorkspace({
                     className="grid gap-2 border-l-2 border-primary py-4 pl-4 sm:grid-cols-[180px_1fr]"
                   >
                     <p className="text-xs text-muted-foreground">
-                      {x.start_date ? new Date(`${x.start_date}T12:00:00`).toLocaleDateString(tag) : tx("work.noStart")} → {due(x) ? new Date(`${due(x)}T12:00:00`).toLocaleDateString(tag) : tx("work.noDeadline")}
+                      {x.start_date
+                        ? new Date(`${x.start_date}T12:00:00`).toLocaleDateString(tag)
+                        : tx("work.noStart")}{" "}
+                      →{" "}
+                      {due(x)
+                        ? new Date(`${due(x)}T12:00:00`).toLocaleDateString(tag)
+                        : tx("work.noDeadline")}
                     </p>
                     <Button
                       variant="link"
@@ -600,9 +795,7 @@ export function ExecutionWorkspace({
                 {items.length ? tx("work.noMatch") : tx(`work.none.${kind}`)}
               </p>
               <p className="mt-2 text-xs text-muted-foreground">
-                {items.length
-                  ? tx("work.tryFilter")
-                  : tx("work.createFirst")}
+                {items.length ? tx("work.tryFilter") : tx("work.createFirst")}
               </p>
               {items.length > 0 && (
                 <Button
@@ -692,7 +885,8 @@ export function WorkForm({
   const q = useQuery(executionOptions(o.org?.id, o.workspace?.id, o.userId));
   const qc = useQueryClient();
   const { t: tx } = useI18n();
-  const lbl = (s: string) => (`work.l.${s}` in MESSAGES.en ? tx(`work.l.${s}` as MessageKey) : label(s));
+  const lbl = (s: string) =>
+    `work.l.${s}` in MESSAGES.en ? tx(`work.l.${s}` as MessageKey) : label(s);
   const [form, setForm] = useState(() => ({
     title: item?.title ?? "",
     description: item?.description ?? "",
@@ -727,8 +921,17 @@ export function WorkForm({
     enabled: kind === "campaigns" && !!o.workspace,
     retry: retryUnlessNotInstalled,
     queryFn: async () => {
-      const r = await growthDb.from("business_units").select("id,name").eq("workspace_id", o.workspace?.id ?? "").eq("archived", false).order("name").limit(200);
-      if (r.error) { if (isNotInstalled(r.error)) return []; throw r.error; }
+      const r = await growthDb
+        .from("business_units")
+        .select("id,name")
+        .eq("workspace_id", o.workspace?.id ?? "")
+        .eq("archived", false)
+        .order("name")
+        .limit(200);
+      if (r.error) {
+        if (isNotInstalled(r.error)) return [];
+        throw r.error;
+      }
       return r.data ?? [];
     },
   });
@@ -739,7 +942,12 @@ export function WorkForm({
   const lifecycle = useCampaignLifecycle(kind === "campaigns");
   const lifecycleForm = kind === "campaigns" && lifecycle;
   useEffect(() => {
-    if (lifecycleForm && !item) setForm((f) => ((INITIAL_CAMPAIGN_STATUSES as readonly string[]).includes(f.status) ? f : { ...f, status: "draft" }));
+    if (lifecycleForm && !item)
+      setForm((f) =>
+        (INITIAL_CAMPAIGN_STATUSES as readonly string[]).includes(f.status)
+          ? f
+          : { ...f, status: "draft" },
+      );
   }, [lifecycleForm, item]);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -784,14 +992,12 @@ export function WorkForm({
               .eq("id", item.id)
               .eq("org_id", o.org.id)
               .eq("workspace_id", o.workspace.id)
-          : await supabase
-              .from("tasks")
-              .insert({
-                ...values,
-                org_id: o.org.id,
-                workspace_id: o.workspace.id,
-                created_by: o.userId,
-              });
+          : await supabase.from("tasks").insert({
+              ...values,
+              org_id: o.org.id,
+              workspace_id: o.workspace.id,
+              created_by: o.userId,
+            });
       } else if (kind === "projects") {
         const values = {
           ...common,
@@ -806,14 +1012,12 @@ export function WorkForm({
               .eq("id", item.id)
               .eq("org_id", o.org.id)
               .eq("workspace_id", o.workspace.id)
-          : await supabase
-              .from("projects")
-              .insert({
-                ...values,
-                org_id: o.org.id,
-                workspace_id: o.workspace.id,
-                created_by: o.userId,
-              });
+          : await supabase.from("projects").insert({
+              ...values,
+              org_id: o.org.id,
+              workspace_id: o.workspace.id,
+              created_by: o.userId,
+            });
       } else {
         const values = {
           ...common,
@@ -827,7 +1031,9 @@ export function WorkForm({
             .map((x) => x.trim())
             .filter(Boolean),
           results: form.results,
-          ...(form.unit_id || (item as { unit_id?: string | null } | undefined)?.unit_id ? { unit_id: form.unit_id || null } : {}),
+          ...(form.unit_id || (item as { unit_id?: string | null } | undefined)?.unit_id
+            ? { unit_id: form.unit_id || null }
+            : {}),
         };
         r = item
           ? await growthDb
@@ -836,14 +1042,12 @@ export function WorkForm({
               .eq("id", item.id)
               .eq("org_id", o.org.id)
               .eq("workspace_id", o.workspace.id)
-          : await growthDb
-              .from("campaigns")
-              .insert({
-                ...values,
-                org_id: o.org.id,
-                workspace_id: o.workspace.id,
-                created_by: o.userId,
-              });
+          : await growthDb.from("campaigns").insert({
+              ...values,
+              org_id: o.org.id,
+              workspace_id: o.workspace.id,
+              created_by: o.userId,
+            });
       }
       if (r.error) throw r.error;
       await qc.invalidateQueries({ queryKey: ["execution"] });
@@ -907,14 +1111,26 @@ export function WorkForm({
         />
       </label>
       {kind !== "tasks" && field("objective", tx("work.f.objective"))}
-      {lifecycleForm && !item && <p className="text-xs text-muted-foreground">{tx("cos.newStatus")}</p>}
+      {lifecycleForm && !item && (
+        <p className="text-xs text-muted-foreground">{tx("cos.newStatus")}</p>
+      )}
       <div className="grid gap-3 sm:grid-cols-2">
         {lifecycleForm && item ? (
-          <p className="space-y-1 text-xs">{tx("work.f.status")}<span className="block rounded-md border border-border px-3 py-2">{lbl(item.status)}</span></p>
-        ) : select(
-          "status",
-          tx("work.f.status"),
-          (lifecycleForm ? INITIAL_CAMPAIGN_STATUSES : STATUSES[kind]).map((s) => ({ value: s, label: lbl(s) })),
+          <p className="space-y-1 text-xs">
+            {tx("work.f.status")}
+            <span className="block rounded-md border border-border px-3 py-2">
+              {lbl(item.status)}
+            </span>
+          </p>
+        ) : (
+          select(
+            "status",
+            tx("work.f.status"),
+            (lifecycleForm ? INITIAL_CAMPAIGN_STATUSES : STATUSES[kind]).map((s) => ({
+              value: s,
+              label: lbl(s),
+            })),
+          )
         )}
         {select(
           "priority",
@@ -972,7 +1188,11 @@ export function WorkForm({
             {field("audience", tx("work.f.audience"))}
             {field("budget_eur", tx("work.f.budget"), "number")}
             {field("channels", tx("work.f.channels"))}
-            {!!units.data?.length && select("unit_id", tx("work.f.brand"), [{ value: "", label: tx("work.f.brandWhole") }, ...units.data.map((u) => ({ value: u.id, label: u.name }))])}
+            {!!units.data?.length &&
+              select("unit_id", tx("work.f.brand"), [
+                { value: "", label: tx("work.f.brandWhole") },
+                ...units.data.map((u) => ({ value: u.id, label: u.name })),
+              ])}
           </>
         )}
       </div>
@@ -1012,7 +1232,8 @@ function WorkDetails({
   const q = useQuery(executionOptions(o.org?.id, o.workspace?.id, o.userId));
   const [tab, setTab] = useState("overview");
   const { t: tx, tag } = useI18n();
-  const lbl = (s: string) => (`work.l.${s}` in MESSAGES.en ? tx(`work.l.${s}` as MessageKey) : label(s));
+  const lbl = (s: string) =>
+    `work.l.${s}` in MESSAGES.en ? tx(`work.l.${s}` as MessageKey) : label(s);
   const [text, setText] = useState("");
   const [related, setRelated] = useState("");
   const [deadline, setDeadline] = useState("");
@@ -1033,19 +1254,17 @@ function WorkDetails({
     if (!o.org || !o.workspace || busy) return;
     setBusy(true);
     try {
-      const r = await supabase
-        .from("execution_notes")
-        .insert({
-          org_id: o.org.id,
-          workspace_id: o.workspace.id,
-          entity_type: kind,
-          entity_id: item.id,
-          kind: noteKind,
-          title: text,
-          body: noteKind === "comment" ? text : "",
-          created_by: o.userId,
-          ...extra,
-        });
+      const r = await supabase.from("execution_notes").insert({
+        org_id: o.org.id,
+        workspace_id: o.workspace.id,
+        entity_type: kind,
+        entity_id: item.id,
+        kind: noteKind,
+        title: text,
+        body: noteKind === "comment" ? text : "",
+        created_by: o.userId,
+        ...extra,
+      });
       if (r.error) throw r.error;
       setText("");
       setRelated("");
@@ -1080,18 +1299,16 @@ function WorkDetails({
         .from("execution-files")
         .upload(path, file, { upsert: false });
       if (u.error) throw u.error;
-      const n = await supabase
-        .from("execution_notes")
-        .insert({
-          org_id: o.org.id,
-          workspace_id: o.workspace.id,
-          entity_type: kind,
-          entity_id: item.id,
-          kind: "asset",
-          title: file.name,
-          storage_path: path,
-          created_by: o.userId,
-        });
+      const n = await supabase.from("execution_notes").insert({
+        org_id: o.org.id,
+        workspace_id: o.workspace.id,
+        entity_type: kind,
+        entity_id: item.id,
+        kind: "asset",
+        title: file.name,
+        storage_path: path,
+        created_by: o.userId,
+      });
       if (n.error) {
         await supabase.storage.from("execution-files").remove([path]);
         throw n.error;
@@ -1100,7 +1317,13 @@ function WorkDetails({
       toast.success(tx("work.attached"));
     } catch (e) {
       const m = (e as { message?: string } | null)?.message ?? "";
-      toast.error(parseRateLimit(m) ? limitAware(m, tx as never) : e instanceof Error ? e.message : tx("work.uploadFailed"));
+      toast.error(
+        parseRateLimit(m)
+          ? limitAware(m, tx as never)
+          : e instanceof Error
+            ? e.message
+            : tx("work.uploadFailed"),
+      );
     } finally {
       setBusy(false);
     }
@@ -1171,18 +1394,46 @@ function WorkDetails({
       )}
       {tab === "overview" && (
         <>
-          {kind === "campaigns" && <CampaignHealthLine item={item} tasks={q.data?.tasks ?? []} today={localDay()} detailed />}
+          {kind === "campaigns" && (
+            <CampaignHealthLine
+              item={item}
+              tasks={q.data?.tasks ?? []}
+              today={localDay()}
+              detailed
+            />
+          )}
           {kind === "campaigns" && "budget_eur" in item && (
             <CampaignLifecycle
               campaign={item}
               statusLabel={lbl}
-              name={(id) => q.data?.members.find((m) => m.user_id === id)?.display_name ?? (id ? tx("work.teammate") : tx("work.unassigned"))}
+              name={(id) =>
+                q.data?.members.find((m) => m.user_id === id)?.display_name ??
+                (id ? tx("work.teammate") : tx("work.unassigned"))
+              }
             />
           )}
-          {kind === "campaigns" && "budget_eur" in item && <CampaignStrategy key={`${item.id}:${item.updated_at}`} campaign={item} />}
-          {kind === "campaigns" && "budget_eur" in item && <CampaignSpend campaignId={item.id} budgetEur={Number(item.budget_eur)} dates={{ start_date: item.start_date, end_date: item.end_date }} />}
-          {kind === "campaigns" && "budget_eur" in item && <CampaignAiTeam campaignId={item.id} tasks={q.data?.tasks ?? []} />}
-          {kind === "campaigns" && "budget_eur" in item && <CampaignIntelPanel campaign={item} tasks={q.data?.tasks ?? []} campaigns={(q.data?.campaigns ?? []).filter((c): c is typeof item => "budget_eur" in c)} />}
+          {kind === "campaigns" && "budget_eur" in item && (
+            <CampaignStrategy key={`${item.id}:${item.updated_at}`} campaign={item} />
+          )}
+          {kind === "campaigns" && "budget_eur" in item && (
+            <CampaignSpend
+              campaignId={item.id}
+              budgetEur={Number(item.budget_eur)}
+              dates={{ start_date: item.start_date, end_date: item.end_date }}
+            />
+          )}
+          {kind === "campaigns" && "budget_eur" in item && (
+            <CampaignAiTeam campaignId={item.id} tasks={q.data?.tasks ?? []} />
+          )}
+          {kind === "campaigns" && "budget_eur" in item && (
+            <CampaignIntelPanel
+              campaign={item}
+              tasks={q.data?.tasks ?? []}
+              campaigns={(q.data?.campaigns ?? []).filter(
+                (c): c is typeof item => "budget_eur" in c,
+              )}
+            />
+          )}
           <WorkForm item={item} kind={kind} onSaved={() => refresh()} />
           {kind === "tasks" && "agent_key" in item && item.agent_key && editable && (
             <Button variant="outline" onClick={runAgent}>
@@ -1214,12 +1465,18 @@ function WorkDetails({
       )}
       {tab === "replan" && kind === "tasks" && <TaskReplan taskId={item.id} />}
       {tab === "ai" && kind === "tasks" && (
-        <TaskAIWork task={item as { id: string; title: string; description: string; status: string }} blocked={blockedTasks(q.data?.notes ?? [], q.data?.tasks ?? []).has(item.id)} />
+        <TaskAIWork
+          task={item as { id: string; title: string; description: string; status: string }}
+          blocked={blockedTasks(q.data?.notes ?? [], q.data?.tasks ?? []).has(item.id)}
+        />
       )}
       {tab === "tasks" && (
         <>
           <p className="text-xs text-muted-foreground">
-            {tx(kind === "tasks" ? "work.progressSub" : "work.progressTasks", { n: tasks.length, p: taskProgress(tasks) })}
+            {tx(kind === "tasks" ? "work.progressSub" : "work.progressTasks", {
+              n: tasks.length,
+              p: taskProgress(tasks),
+            })}
           </p>
           {tasks.map((t) => (
             <div
@@ -1228,7 +1485,10 @@ function WorkDetails({
             >
               <span className="min-w-0 break-words text-sm">{t.title}</span>
               <span className="shrink-0 text-xs text-muted-foreground">
-                {lbl(t.status)} · {t.due_date ? new Date(`${t.due_date}T12:00:00`).toLocaleDateString(tag) : tx("work.noDeadline")}
+                {lbl(t.status)} ·{" "}
+                {t.due_date
+                  ? new Date(`${t.due_date}T12:00:00`).toLocaleDateString(tag)
+                  : tx("work.noDeadline")}
               </span>
             </div>
           ))}
@@ -1310,7 +1570,9 @@ function WorkDetails({
                   <Check className={n.completed ? "text-success" : "text-muted-foreground"} />
                 </Button>
                 <span className="min-w-0 flex-1 break-words text-sm">{n.title}</span>
-                <span className="text-xs">{n.due_date ? new Date(`${n.due_date}T12:00:00`).toLocaleDateString(tag) : ""}</span>
+                <span className="text-xs">
+                  {n.due_date ? new Date(`${n.due_date}T12:00:00`).toLocaleDateString(tag) : ""}
+                </span>
               </div>
             ))}
           {editable && (
@@ -1341,14 +1603,19 @@ function WorkDetails({
       {tab === "team" && (
         <>
           <p className="text-xs text-muted-foreground">
-            {tx("work.responsible", { n: q.data?.members.find((m) => m.user_id === item.owner_id)?.display_name ?? tx("work.unassigned") })}
+            {tx("work.responsible", {
+              n:
+                q.data?.members.find((m) => m.user_id === item.owner_id)?.display_name ??
+                tx("work.unassigned"),
+            })}
           </p>
           {notes
             .filter((n) => n.kind === "member")
             .map((n) => (
               <div key={n.id} className="flex items-center justify-between py-2">
                 <span className="text-sm">
-                  {q.data?.members.find((m) => m.user_id === n.user_id)?.display_name ?? tx("work.teammate")}
+                  {q.data?.members.find((m) => m.user_id === n.user_id)?.display_name ??
+                    tx("work.teammate")}
                 </span>
                 {editable && (
                   <Button
@@ -1456,7 +1723,10 @@ function WorkDetails({
                   {n.body}
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  {n.due_date ? new Date(`${n.due_date}T12:00:00`).toLocaleDateString(tag) : tx("work.noScheduled")} · {tx("work.draftNotPublished")}
+                  {n.due_date
+                    ? new Date(`${n.due_date}T12:00:00`).toLocaleDateString(tag)
+                    : tx("work.noScheduled")}{" "}
+                  · {tx("work.draftNotPublished")}
                 </p>
                 {editable && (
                   <Button
@@ -1598,9 +1868,7 @@ function WorkDetails({
               </Button>
             </>
           )}
-          <p className="text-xs text-muted-foreground">
-            {tx("work.internalOnly")}
-          </p>
+          <p className="text-xs text-muted-foreground">{tx("work.internalOnly")}</p>
         </>
       )}
       {tab === "history" &&
@@ -1615,7 +1883,8 @@ function WorkDetails({
                   : ""}
               </p>
               <p className="mt-1 text-muted-foreground">
-                {q.data?.members.find((m) => m.user_id === e.actor_id)?.display_name ?? tx("work.teammate")}{" "}
+                {q.data?.members.find((m) => m.user_id === e.actor_id)?.display_name ??
+                  tx("work.teammate")}{" "}
                 · {new Date(e.created_at).toLocaleString(tag)}
               </p>
             </div>
@@ -1625,29 +1894,77 @@ function WorkDetails({
 }
 
 /** Progress state and warnings for one campaign, from its own record and tasks (no spend per campaign is recorded). */
-function CampaignHealthLine({ item, tasks, today, detailed = false }: { item: WorkItem; tasks: { campaign_id: string | null; status: string; due_date: string | null }[]; today: string; detailed?: boolean }) {
+function CampaignHealthLine({
+  item,
+  tasks,
+  today,
+  detailed = false,
+}: {
+  item: WorkItem;
+  tasks: { campaign_id: string | null; status: string; due_date: string | null }[];
+  today: string;
+  detailed?: boolean;
+}) {
   const { t: tx } = useI18n();
   const o = useOrg();
-  const spend = useQuery({ ...campaignSpendOptions(o.org?.id, o.workspace?.id), enabled: !!o.org && !!o.workspace && "results" in item });
+  const spend = useQuery({
+    ...campaignSpendOptions(o.org?.id, o.workspace?.id),
+    enabled: !!o.org && !!o.workspace && "results" in item,
+  });
   if (!("results" in item)) return null;
   // Budget warnings only when the spend ledger was read completely; otherwise none are claimed.
-  const money = spend.data ? spendSummary(Number(item.budget_eur), spend.data.filter((r) => r.campaign_id === item.id)) : undefined;
+  const money = spend.data
+    ? spendSummary(
+        Number(item.budget_eur),
+        spend.data.filter((r) => r.campaign_id === item.id),
+      )
+    : undefined;
   const h = campaignHealth(
-    { status: item.status, start_date: item.start_date, end_date: item.end_date, goal_id: item.goal_id, results: item.results },
+    {
+      status: item.status,
+      start_date: item.start_date,
+      end_date: item.end_date,
+      goal_id: item.goal_id,
+      results: item.results,
+    },
     tasks.filter((t) => t.campaign_id === item.id),
     today,
     money,
   );
-  const tone = h.state === "at_risk" ? "border-destructive/40 text-destructive" : h.state === "needs_attention" ? "border-warning/50 text-warning" : h.state === "on_track" || h.state === "evaluated" ? "border-success/40 text-success" : "text-muted-foreground";
+  const tone =
+    h.state === "at_risk"
+      ? "border-destructive/40 text-destructive"
+      : h.state === "needs_attention"
+        ? "border-warning/50 text-warning"
+        : h.state === "on_track" || h.state === "evaluated"
+          ? "border-success/40 text-success"
+          : "text-muted-foreground";
   return (
-    <div className={cn("min-w-0 text-xs", detailed ? "rounded-md border border-border bg-card p-3" : "mt-1")}>
+    <div
+      className={cn(
+        "min-w-0 text-xs",
+        detailed ? "rounded-md border border-border bg-card p-3" : "mt-1",
+      )}
+    >
       <p className="flex flex-wrap items-center gap-1">
-        <span className={cn("rounded border px-1.5 py-0.5", tone)}>{tx(`work.health.${h.state}` as MessageKey)}</span>
+        <span className={cn("rounded border px-1.5 py-0.5", tone)}>
+          {tx(`work.health.${h.state}` as MessageKey)}
+        </span>
         {h.warnings.slice(0, detailed ? 7 : 2).map((w) => (
-          <span key={w} className="rounded border px-1.5 py-0.5 text-muted-foreground">{tx(`work.health.w.${w}` as MessageKey, { n: h.overdue })}</span>
+          <span key={w} className="rounded border px-1.5 py-0.5 text-muted-foreground">
+            {tx(`work.health.w.${w}` as MessageKey, { n: h.overdue })}
+          </span>
         ))}
       </p>
-      {detailed && <p className="mt-2 text-muted-foreground">{tx("work.health.basis", { d: h.done, n: h.total, p: h.elapsed === null ? "?" : Math.round(h.elapsed * 100) })}</p>}
+      {detailed && (
+        <p className="mt-2 text-muted-foreground">
+          {tx("work.health.basis", {
+            d: h.done,
+            n: h.total,
+            p: h.elapsed === null ? "?" : Math.round(h.elapsed * 100),
+          })}
+        </p>
+      )}
     </div>
   );
 }

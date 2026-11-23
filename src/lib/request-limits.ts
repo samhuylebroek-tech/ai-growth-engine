@@ -8,13 +8,20 @@ export const MAX_BODY_BYTES = 1_000_000;
 
 export type BodyLimitRefusal = { status: 411 | 413; reason: string };
 
-export function bodyLimitRefusal(method: string, headers: Pick<Headers, "get">, handlerType: "serverFn" | "router", max = MAX_BODY_BYTES): BodyLimitRefusal | null {
+export function bodyLimitRefusal(
+  method: string,
+  headers: Pick<Headers, "get">,
+  handlerType: "serverFn" | "router",
+  max = MAX_BODY_BYTES,
+): BodyLimitRefusal | null {
   const m = method.toUpperCase();
   if (m === "GET" || m === "HEAD" || m === "OPTIONS") return null;
   const raw = headers.get("content-length");
   if (raw === null || raw.trim() === "") {
     // A body sent in chunks has no length; only server functions are refused, pages never take a body.
-    return handlerType === "serverFn" && headers.get("transfer-encoding") !== null ? { status: 411, reason: "body length required" } : null;
+    return handlerType === "serverFn" && headers.get("transfer-encoding") !== null
+      ? { status: 411, reason: "body length required" }
+      : null;
   }
   if (!/^\d+$/.test(raw.trim())) return { status: 413, reason: "invalid body length" };
   return Number(raw) > max ? { status: 413, reason: "body too large" } : null;

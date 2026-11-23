@@ -10,17 +10,20 @@ export const orch = defineArea("orch", {
     "orch.resume": "Resume AI work",
     "orch.pauseReason": "Reason (optional)",
     "orch.pauseConfirm": "Pause now",
-    "orch.pauseHint": "No AI task run will be queued or started in this workspace until an admin resumes. A call that is already running finishes or times out.",
+    "orch.pauseHint":
+      "No AI task run will be queued or started in this workspace until an admin resumes. A call that is already running finishes or times out.",
     "orch.pausedToast": "AI work paused",
     "orch.resumedToast": "AI work resumed",
     "orch.runCycle": "Run a cycle",
-    "orch.runCycleHint": "The Growth Officer ranks ready tasks and runs at most {n} at a time within your limits.",
+    "orch.runCycleHint":
+      "The Growth Officer ranks ready tasks and runs at most {n} at a time within your limits.",
     "orch.dueTitle": "A scheduled cycle is due",
     "orch.dueBody": "Due since {when}. Scheduled cycles start only when an admin confirms.",
     "orch.startScheduled": "Start scheduled cycle",
     "orch.cyclePlanned": "Cycle planned: {q} to run, {a} waiting for approval, {s} skipped",
     "orch.cycleDone": "Cycle finished: {ok} done, {failed} not completed, {credits} credits",
-    "orch.cycleNothing": "Nothing could run in this cycle. The cycle history shows why for each task.",
+    "orch.cycleNothing":
+      "Nothing could run in this cycle. The cycle history shows why for each task.",
     "orch.cyclesTitle": "Execution cycles",
     "orch.noCycles": "No cycles yet.",
     "orch.unknownTask": "Task",
@@ -75,10 +78,12 @@ export const orch = defineArea("orch", {
     "orch.schedule.daily": "Every day",
     "orch.schedule.weekdays": "Weekdays",
     "orch.scheduleHour": "At",
-    "orch.scheduleNote": "When a cycle is due, admins see it here and start it with one click. Nothing runs while nobody is signed in.",
+    "orch.scheduleNote":
+      "When a cycle is due, admins see it here and start it with one click. Nothing runs while nobody is signed in.",
     "orch.nbaEyebrow": "Growth Officer",
     "orch.nbaTitle": "Next best actions",
-    "orch.nbaNote": "Ranked from task priority, deadlines, goals, plan links and dependencies. No AI or credits used.",
+    "orch.nbaNote":
+      "Ranked from task priority, deadlines, goals, plan links and dependencies. No AI or credits used.",
     "orch.kind.resolve": "Close the uncertain AI outcome",
     "orch.kind.approve": "Approve or reject the AI run",
     "orch.kind.review": "Review the specialist's result",
@@ -107,17 +112,21 @@ export const orch = defineArea("orch", {
     "orch.resume": "AI-werk hervatten",
     "orch.pauseReason": "Reden (optioneel)",
     "orch.pauseConfirm": "Nu pauzeren",
-    "orch.pauseHint": "Er wordt geen AI-taakopdracht meer klaargezet of gestart in deze werkruimte tot een beheerder hervat. Een opdracht die al loopt, rondt af of verloopt.",
+    "orch.pauseHint":
+      "Er wordt geen AI-taakopdracht meer klaargezet of gestart in deze werkruimte tot een beheerder hervat. Een opdracht die al loopt, rondt af of verloopt.",
     "orch.pausedToast": "AI-werk gepauzeerd",
     "orch.resumedToast": "AI-werk hervat",
     "orch.runCycle": "Cyclus uitvoeren",
-    "orch.runCycleHint": "De Growth Officer rangschikt klaarstaande taken en voert er maximaal {n} tegelijk uit binnen je limieten.",
+    "orch.runCycleHint":
+      "De Growth Officer rangschikt klaarstaande taken en voert er maximaal {n} tegelijk uit binnen je limieten.",
     "orch.dueTitle": "Een geplande cyclus staat klaar",
     "orch.dueBody": "Klaar sinds {when}. Geplande cycli starten pas als een beheerder bevestigt.",
     "orch.startScheduled": "Geplande cyclus starten",
-    "orch.cyclePlanned": "Cyclus gepland: {q} uit te voeren, {a} wachtend op goedkeuring, {s} overgeslagen",
+    "orch.cyclePlanned":
+      "Cyclus gepland: {q} uit te voeren, {a} wachtend op goedkeuring, {s} overgeslagen",
     "orch.cycleDone": "Cyclus klaar: {ok} afgerond, {failed} niet voltooid, {credits} tegoed",
-    "orch.cycleNothing": "Niets kon draaien in deze cyclus. De cyclusgeschiedenis toont per taak waarom.",
+    "orch.cycleNothing":
+      "Niets kon draaien in deze cyclus. De cyclusgeschiedenis toont per taak waarom.",
     "orch.cyclesTitle": "Uitvoeringscycli",
     "orch.noCycles": "Nog geen cycli.",
     "orch.unknownTask": "Taak",
@@ -140,7 +149,8 @@ export const orch = defineArea("orch", {
     "orch.reason.paused": "AI-werk is gepauzeerd",
     "orch.reason.closed": "taak al afgesloten",
     "orch.reason.no_specialist": "geen specialist toegewezen",
-    "orch.reason.external": "externe actie: vereist een gekoppeld systeem en uitdrukkelijke goedkeuring",
+    "orch.reason.external":
+      "externe actie: vereist een gekoppeld systeem en uitdrukkelijke goedkeuring",
     "orch.reason.analysis_only": "werkruimte staat alleen analyse toe",
     "orch.reason.specialist_not_allowed": "specialist niet toegestaan in deze werkruimte",
     "orch.reason.over_run_cap": "boven de tegoedlimiet per opdracht",
@@ -172,10 +182,12 @@ export const orch = defineArea("orch", {
     "orch.schedule.daily": "Elke dag",
     "orch.schedule.weekdays": "Werkdagen",
     "orch.scheduleHour": "Om",
-    "orch.scheduleNote": "Als een cyclus klaarstaat, zien beheerders dat hier en starten ze die met één klik. Er draait niets als niemand is aangemeld.",
+    "orch.scheduleNote":
+      "Als een cyclus klaarstaat, zien beheerders dat hier en starten ze die met één klik. Er draait niets als niemand is aangemeld.",
     "orch.nbaEyebrow": "Growth Officer",
     "orch.nbaTitle": "Beste volgende stappen",
-    "orch.nbaNote": "Gerangschikt op taakprioriteit, deadlines, doelen, planlinks en afhankelijkheden. Geen AI of tegoed gebruikt.",
+    "orch.nbaNote":
+      "Gerangschikt op taakprioriteit, deadlines, doelen, planlinks en afhankelijkheden. Geen AI of tegoed gebruikt.",
     "orch.kind.resolve": "Sluit de onzekere AI-uitkomst af",
     "orch.kind.approve": "Keur de AI-opdracht goed of af",
     "orch.kind.review": "Beoordeel het resultaat van de specialist",
@@ -204,17 +216,22 @@ export const orch = defineArea("orch", {
     "orch.resume": "Reprendre le travail IA",
     "orch.pauseReason": "Raison (facultatif)",
     "orch.pauseConfirm": "Mettre en pause",
-    "orch.pauseHint": "Aucune exécution IA ne sera mise en file ni démarrée dans cet espace jusqu’à la reprise par un administrateur. Un appel déjà en cours se termine ou expire.",
+    "orch.pauseHint":
+      "Aucune exécution IA ne sera mise en file ni démarrée dans cet espace jusqu’à la reprise par un administrateur. Un appel déjà en cours se termine ou expire.",
     "orch.pausedToast": "Travail IA mis en pause",
     "orch.resumedToast": "Travail IA repris",
     "orch.runCycle": "Lancer un cycle",
-    "orch.runCycleHint": "Le Growth Officer classe les tâches prêtes et en exécute au plus {n} à la fois dans vos limites.",
+    "orch.runCycleHint":
+      "Le Growth Officer classe les tâches prêtes et en exécute au plus {n} à la fois dans vos limites.",
     "orch.dueTitle": "Un cycle planifié est dû",
-    "orch.dueBody": "Dû depuis {when}. Les cycles planifiés ne démarrent qu’après confirmation d’un administrateur.",
+    "orch.dueBody":
+      "Dû depuis {when}. Les cycles planifiés ne démarrent qu’après confirmation d’un administrateur.",
     "orch.startScheduled": "Démarrer le cycle planifié",
-    "orch.cyclePlanned": "Cycle planifié : {q} à exécuter, {a} en attente de validation, {s} ignorée(s)",
+    "orch.cyclePlanned":
+      "Cycle planifié : {q} à exécuter, {a} en attente de validation, {s} ignorée(s)",
     "orch.cycleDone": "Cycle terminé : {ok} terminée(s), {failed} non abouties, {credits} crédits",
-    "orch.cycleNothing": "Rien n’a pu s’exécuter dans ce cycle. L’historique indique pourquoi pour chaque tâche.",
+    "orch.cycleNothing":
+      "Rien n’a pu s’exécuter dans ce cycle. L’historique indique pourquoi pour chaque tâche.",
     "orch.cyclesTitle": "Cycles d’exécution",
     "orch.noCycles": "Aucun cycle pour l’instant.",
     "orch.unknownTask": "Tâche",
@@ -237,7 +254,8 @@ export const orch = defineArea("orch", {
     "orch.reason.paused": "travail IA en pause",
     "orch.reason.closed": "tâche déjà clôturée",
     "orch.reason.no_specialist": "aucun spécialiste assigné",
-    "orch.reason.external": "action externe : nécessite un système connecté et une validation explicite",
+    "orch.reason.external":
+      "action externe : nécessite un système connecté et une validation explicite",
     "orch.reason.analysis_only": "l’espace n’autorise que l’analyse",
     "orch.reason.specialist_not_allowed": "spécialiste non autorisé dans cet espace",
     "orch.reason.over_run_cap": "au-dessus de la limite de crédits par exécution",
@@ -269,10 +287,12 @@ export const orch = defineArea("orch", {
     "orch.schedule.daily": "Tous les jours",
     "orch.schedule.weekdays": "Jours ouvrés",
     "orch.scheduleHour": "À",
-    "orch.scheduleNote": "Quand un cycle est dû, les administrateurs le voient ici et le lancent en un clic. Rien ne s’exécute si personne n’est connecté.",
+    "orch.scheduleNote":
+      "Quand un cycle est dû, les administrateurs le voient ici et le lancent en un clic. Rien ne s’exécute si personne n’est connecté.",
     "orch.nbaEyebrow": "Growth Officer",
     "orch.nbaTitle": "Prochaines meilleures actions",
-    "orch.nbaNote": "Classées selon la priorité, les échéances, les objectifs, les liens au plan et les dépendances. Sans IA ni crédits.",
+    "orch.nbaNote":
+      "Classées selon la priorité, les échéances, les objectifs, les liens au plan et les dépendances. Sans IA ni crédits.",
     "orch.kind.resolve": "Clôturez le résultat IA incertain",
     "orch.kind.approve": "Validez ou refusez l’exécution IA",
     "orch.kind.review": "Examinez le résultat du spécialiste",

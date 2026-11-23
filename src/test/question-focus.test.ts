@@ -5,9 +5,26 @@ import { renderBusinessContext, type BusinessDomains } from "@/lib/security/busi
 const NOW = new Date("2026-11-23T12:00:00Z");
 const empty = () => ({ status: "ok" as const, rows: [], truncated: false });
 const base = (): BusinessDomains => ({
-  workspace: { id: "w", name: "W" }, objectives: null, facts: [], goals: [], recommendations: [], plans: empty(), initiatives: [],
-  operations: [], projects: [], tasks: [], budget: empty(), deals: empty(), competitors: empty(), observations: [], seo: empty(),
-  content: empty(), versions: [], decisions: [], campaigns: empty(), connections: empty(),
+  workspace: { id: "w", name: "W" },
+  objectives: null,
+  facts: [],
+  goals: [],
+  recommendations: [],
+  plans: empty(),
+  initiatives: [],
+  operations: [],
+  projects: [],
+  tasks: [],
+  budget: empty(),
+  deals: empty(),
+  competitors: empty(),
+  observations: [],
+  seo: empty(),
+  content: empty(),
+  versions: [],
+  decisions: [],
+  campaigns: empty(),
+  connections: empty(),
 });
 
 describe("question focus (keyword rules, EN/NL/FR)", () => {
@@ -33,7 +50,9 @@ describe("question focus (keyword rules, EN/NL/FR)", () => {
   });
   it("gives no focus to a question without topic words, or to a broad one", () => {
     expect(questionFocus("Hallo, hoe gaat het?").sections).toEqual([]);
-    const broad = questionFocus("Budget, campagne, taken, KPI, klanten en concurrenten: geef een overzicht");
+    const broad = questionFocus(
+      "Budget, campagne, taken, KPI, klanten en concurrenten: geef een overzicht",
+    );
     expect(broad.topics.length).toBe(0);
     expect(MAX_FOCUS_TOPICS).toBe(4);
   });
@@ -42,8 +61,24 @@ describe("question focus (keyword rules, EN/NL/FR)", () => {
 describe("focused business context", () => {
   const domains = (): BusinessDomains => ({
     ...base(),
-    competitors: { status: "ok", truncated: false, rows: [{ id: "c1", name: "Rival BV", website: "https://rival.example" }] },
-    campaigns: { status: "ok", truncated: false, rows: Array.from({ length: 30 }, (_, i) => ({ title: `Campaign ${i} ${"x".repeat(40)}`, status: "active", category: "ads", budget_eur: 100, results: "", start_date: null, end_date: null })) },
+    competitors: {
+      status: "ok",
+      truncated: false,
+      rows: [{ id: "c1", name: "Rival BV", website: "https://rival.example" }],
+    },
+    campaigns: {
+      status: "ok",
+      truncated: false,
+      rows: Array.from({ length: 30 }, (_, i) => ({
+        title: `Campaign ${i} ${"x".repeat(40)}`,
+        status: "active",
+        category: "ads",
+        budget_eur: 100,
+        results: "",
+        start_date: null,
+        end_date: null,
+      })),
+    },
   });
   it("without focus renders exactly as before, with no focus line", () => {
     expect(renderBusinessContext(domains(), NOW)).toBe(renderBusinessContext(domains(), NOW, []));
@@ -52,11 +87,19 @@ describe("focused business context", () => {
   it("puts the question's sections right after identity and facts, and names them", () => {
     const out = renderBusinessContext(domains(), NOW, ["campaigns-and-performance"]);
     expect(out).toContain("QUESTION FOCUS");
-    expect(out.indexOf("## CAMPAIGNS AND PERFORMANCE DATA")).toBeLessThan(out.indexOf("## COMPETITOR INTELLIGENCE"));
-    expect(out.indexOf("## VERIFIED BUSINESS FACTS")).toBeLessThan(out.indexOf("## CAMPAIGNS AND PERFORMANCE DATA"));
+    expect(out.indexOf("## CAMPAIGNS AND PERFORMANCE DATA")).toBeLessThan(
+      out.indexOf("## COMPETITOR INTELLIGENCE"),
+    );
+    expect(out.indexOf("## VERIFIED BUSINESS FACTS")).toBeLessThan(
+      out.indexOf("## CAMPAIGNS AND PERFORMANCE DATA"),
+    );
   });
   it("gives a focused section more room than it gets unfocused", () => {
-    const section = (s: string) => s.slice(s.indexOf("## CAMPAIGNS AND PERFORMANCE DATA"), s.indexOf("</untrusted>", s.indexOf("## CAMPAIGNS AND PERFORMANCE DATA")));
+    const section = (s: string) =>
+      s.slice(
+        s.indexOf("## CAMPAIGNS AND PERFORMANCE DATA"),
+        s.indexOf("</untrusted>", s.indexOf("## CAMPAIGNS AND PERFORMANCE DATA")),
+      );
     const plain = section(renderBusinessContext(domains(), NOW));
     const focused = section(renderBusinessContext(domains(), NOW, ["campaigns-and-performance"]));
     expect(focused.length).toBeGreaterThan(plain.length);
@@ -65,18 +108,62 @@ describe("focused business context", () => {
     const long = "y".repeat(110);
     const big: BusinessDomains = {
       ...domains(),
-      facts: Array.from({ length: 40 }, (_, i) => ({ id: `f${i}`, key: `fact ${i}`, value: long, source_type: "manual", verified: true })),
-      goals: Array.from({ length: 30 }, (_, i) => ({ id: `g${i}`, title: `Goal ${i} ${long}`, objective: long, metric: "leads", baseline: 1, target: 2, current_value: 1, due_date: null, priority: "high", status: "active" })),
-      deals: { status: "ok", truncated: false, rows: Array.from({ length: 30 }, () => ({ stage: "lead", value: 10, currency: "EUR", expected_close: null, closed_at: null, updated_at: null, goal_id: null })) },
-      recommendations: Array.from({ length: 30 }, (_, i) => ({ title: `Recommendation ${i} ${long}`, status: "open" })),
-      tasks: Array.from({ length: 40 }, (_, i) => ({ id: `t${i}`, project_id: null, title: `Task ${i} ${long}`, status: "todo", priority: "high", due_date: "2026-11-01", owner_id: null })),
+      facts: Array.from({ length: 40 }, (_, i) => ({
+        id: `f${i}`,
+        key: `fact ${i}`,
+        value: long,
+        source_type: "manual",
+        verified: true,
+      })),
+      goals: Array.from({ length: 30 }, (_, i) => ({
+        id: `g${i}`,
+        title: `Goal ${i} ${long}`,
+        objective: long,
+        metric: "leads",
+        baseline: 1,
+        target: 2,
+        current_value: 1,
+        due_date: null,
+        priority: "high",
+        status: "active",
+      })),
+      deals: {
+        status: "ok",
+        truncated: false,
+        rows: Array.from({ length: 30 }, () => ({
+          stage: "lead",
+          value: 10,
+          currency: "EUR",
+          expected_close: null,
+          closed_at: null,
+          updated_at: null,
+          goal_id: null,
+        })),
+      },
+      recommendations: Array.from({ length: 30 }, (_, i) => ({
+        title: `Recommendation ${i} ${long}`,
+        status: "open",
+      })),
+      tasks: Array.from({ length: 40 }, (_, i) => ({
+        id: `t${i}`,
+        project_id: null,
+        title: `Task ${i} ${long}`,
+        status: "todo",
+        priority: "high",
+        due_date: "2026-11-01",
+        owner_id: null,
+      })),
     };
     const out = renderBusinessContext(big, NOW, ["campaigns-and-performance"]);
     expect(out.length).toBeLessThanOrEqual(12_000);
     const campaigns = out.slice(out.indexOf("## CAMPAIGNS AND PERFORMANCE DATA"));
-    expect(campaigns.split("\n")[1]).not.toContain("(omitted to keep the context within size limits)");
+    expect(campaigns.split("\n")[1]).not.toContain(
+      "(omitted to keep the context within size limits)",
+    );
     expect(campaigns).toContain("Campaign 3");
-    expect(out).toMatch(/PREVIOUS RECOMMENDATIONS[^\n]*\n<untrusted source="recommendations">\n[^\n]*\n\(\+29 more omitted for length\)/);
+    expect(out).toMatch(
+      /PREVIOUS RECOMMENDATIONS[^\n]*\n<untrusted source="recommendations">\n[^\n]*\n\(\+29 more omitted for length\)/,
+    );
   });
   it("shows the start of a section whose first line alone is too long, instead of nothing", async () => {
     const { fitLines } = await import("@/lib/security/business-context");

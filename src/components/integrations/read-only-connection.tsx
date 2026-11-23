@@ -103,7 +103,12 @@ export function ReadOnlyConnection({
       const r = await fn();
       if (r.ok) done(r.data);
       // A refused key is explained in the user's language; other server messages are shown as given.
-      else toast.error("code" in r && r.code ? tx(`pages.int.probe.${r.code}` as MessageKey, { name }) : connectionErrorText(r.error, tx));
+      else
+        toast.error(
+          "code" in r && r.code
+            ? tx(`pages.int.probe.${r.code}` as MessageKey, { name })
+            : connectionErrorText(r.error, tx),
+        );
     } catch {
       toast.error(tx("pages.int.notComplete"));
     } finally {

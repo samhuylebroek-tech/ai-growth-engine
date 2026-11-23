@@ -5,11 +5,13 @@ export const cost = defineArea("cost", {
   en: {
     "cost.loading": "Loading costs…",
     "cost.chooseWs": "Choose a workspace to see its costs.",
-    "cost.notInstalled": "Cost tracking for AI task runs is not switched on for this workspace yet.",
+    "cost.notInstalled":
+      "Cost tracking for AI task runs is not switched on for this workspace yet.",
     "cost.failed": "Costs could not load. Nothing is shown rather than an incomplete total.",
     "cost.eyebrow": "Financial overview",
     "cost.title": "Costs & ROI",
-    "cost.intro": "AI credits are traced from each task run up to its project, campaign, initiative, plan and goal. Marketing budgets you entered and business revenue are shown separately and never added to credits.",
+    "cost.intro":
+      "AI credits are traced from each task run up to its project, campaign, initiative, plan and goal. Marketing budgets you entered and business revenue are shown separately and never added to credits.",
     "cost.creditsEyebrow": "AI credits",
     "cost.creditsTitle": "Credits at a glance",
     "cost.available": "Available (organization)",
@@ -42,8 +44,10 @@ export const cost = defineArea("cost", {
     "cost.campaignBudget": "{v} planned",
     "cost.noBudget": "No budget entered",
     "cost.empty": "No costs at this level yet.",
-    "cost.plansOff": "Growth Plans are not switched on for this workspace, so there are no plans or initiatives to show.",
-    "cost.levelsNote": "A task counts once per level, even when it belongs to both a project and a campaign of the same goal. Amounts in different currencies are never added together.",
+    "cost.plansOff":
+      "Growth Plans are not switched on for this workspace, so there are no plans or initiatives to show.",
+    "cost.levelsNote":
+      "A task counts once per level, even when it belongs to both a project and a campaign of the same goal. Amounts in different currencies are never added together.",
     "cost.unlinked": "{n} task(s) with AI costs belong to no project or campaign.",
     "cost.catEyebrow": "Kept separate",
     "cost.catTitle": "Financial categories",
@@ -52,24 +56,30 @@ export const cost = defineArea("cost", {
     "cost.cat.aiCredits": "AI usage credits",
     "cost.catNote.aiCredits": "Shown above, from recorded runs and usage.",
     "cost.cat.adSpend": "Advertising spend",
-    "cost.catNote.adSpend": "Only what you enter in Goals & budget. No ad platform is connected, so no spend is verified.",
+    "cost.catNote.adSpend":
+      "Only what you enter in Goals & budget. No ad platform is connected, so no spend is verified.",
     "cost.cat.software": "External software costs",
     "cost.catNote.software": "Not tracked yet.",
     "cost.cat.other": "Other operating costs",
     "cost.catNote.other": "Not tracked yet.",
     "cost.cat.revenue": "Revenue attributed to activities",
-    "cost.catNote.revenue": "Not attributed: no attribution source is connected. Imported revenue appears under Performance, but it is not assigned to a campaign or task.",
+    "cost.catNote.revenue":
+      "Not attributed: no attribution source is connected. Imported revenue appears under Performance, but it is not assigned to a campaign or task.",
     "cost.cat.roi": "ROI",
-    "cost.catNote.roi": "Not calculated: it needs revenue attributed to the same activity and its verified costs.",
+    "cost.catNote.roi":
+      "Not calculated: it needs revenue attributed to the same activity and its verified costs.",
   },
   nl: {
     "cost.loading": "Kosten laden…",
     "cost.chooseWs": "Kies een werkruimte om de kosten te zien.",
-    "cost.notInstalled": "Kostenopvolging voor AI-taakopdrachten is nog niet ingeschakeld voor deze werkruimte.",
-    "cost.failed": "De kosten konden niet laden. Er wordt niets getoond in plaats van een onvolledig totaal.",
+    "cost.notInstalled":
+      "Kostenopvolging voor AI-taakopdrachten is nog niet ingeschakeld voor deze werkruimte.",
+    "cost.failed":
+      "De kosten konden niet laden. Er wordt niets getoond in plaats van een onvolledig totaal.",
     "cost.eyebrow": "Financieel overzicht",
     "cost.title": "Kosten & rendement",
-    "cost.intro": "AI-tegoed wordt gevolgd van elke taakopdracht tot het project, de campagne, het initiatief, het plan en het doel. Ingevoerde marketingbudgetten en bedrijfsomzet staan apart en worden nooit bij het tegoed opgeteld.",
+    "cost.intro":
+      "AI-tegoed wordt gevolgd van elke taakopdracht tot het project, de campagne, het initiatief, het plan en het doel. Ingevoerde marketingbudgetten en bedrijfsomzet staan apart en worden nooit bij het tegoed opgeteld.",
     "cost.creditsEyebrow": "AI-tegoed",
     "cost.creditsTitle": "Tegoed in één oogopslag",
     "cost.available": "Beschikbaar (organisatie)",
@@ -81,7 +91,8 @@ export const cost = defineArea("cost", {
     "cost.wsReserved": "Gereserveerd voor open opdrachten",
     "cost.wsReservedNote": "Schattingen vastgehouden tot de opdrachten klaar zijn.",
     "cost.wsReleased": "Vrijgegeven",
-    "cost.wsReleasedNote": "Ongebruikte schattingen van {n} mislukte, geannuleerde of afgewezen opdracht(en).",
+    "cost.wsReleasedNote":
+      "Ongebruikte schattingen van {n} mislukte, geannuleerde of afgewezen opdracht(en).",
     "cost.na": "Niet beschikbaar",
     "cost.levelsEyebrow": "Groeihiërarchie",
     "cost.levelsTitle": "Tegoed per niveau",
@@ -102,8 +113,10 @@ export const cost = defineArea("cost", {
     "cost.campaignBudget": "{v} gepland",
     "cost.noBudget": "Geen budget ingevoerd",
     "cost.empty": "Nog geen kosten op dit niveau.",
-    "cost.plansOff": "Groeiplannen zijn niet ingeschakeld voor deze werkruimte, dus er zijn geen plannen of initiatieven.",
-    "cost.levelsNote": "Een taak telt één keer per niveau, ook als ze bij een project én een campagne van hetzelfde doel hoort. Bedragen in verschillende munten worden nooit opgeteld.",
+    "cost.plansOff":
+      "Groeiplannen zijn niet ingeschakeld voor deze werkruimte, dus er zijn geen plannen of initiatieven.",
+    "cost.levelsNote":
+      "Een taak telt één keer per niveau, ook als ze bij een project én een campagne van hetzelfde doel hoort. Bedragen in verschillende munten worden nooit opgeteld.",
     "cost.unlinked": "{n} taak/taken met AI-kosten horen bij geen project of campagne.",
     "cost.catEyebrow": "Apart gehouden",
     "cost.catTitle": "Financiële categorieën",
@@ -112,24 +125,30 @@ export const cost = defineArea("cost", {
     "cost.cat.aiCredits": "AI-gebruikstegoed",
     "cost.catNote.aiCredits": "Hierboven getoond, uit geregistreerde opdrachten en gebruik.",
     "cost.cat.adSpend": "Advertentie-uitgaven",
-    "cost.catNote.adSpend": "Alleen wat je invoert bij Doelen & budget. Er is geen advertentieplatform gekoppeld, dus geen uitgave is geverifieerd.",
+    "cost.catNote.adSpend":
+      "Alleen wat je invoert bij Doelen & budget. Er is geen advertentieplatform gekoppeld, dus geen uitgave is geverifieerd.",
     "cost.cat.software": "Kosten externe software",
     "cost.catNote.software": "Nog niet opgevolgd.",
     "cost.cat.other": "Andere bedrijfskosten",
     "cost.catNote.other": "Nog niet opgevolgd.",
     "cost.cat.revenue": "Omzet toegewezen aan activiteiten",
-    "cost.catNote.revenue": "Niet toegewezen: er is geen attributiebron gekoppeld. Geïmporteerde omzet staat bij Prestaties, maar wordt niet aan een campagne of taak toegewezen.",
+    "cost.catNote.revenue":
+      "Niet toegewezen: er is geen attributiebron gekoppeld. Geïmporteerde omzet staat bij Prestaties, maar wordt niet aan een campagne of taak toegewezen.",
     "cost.cat.roi": "Rendement (ROI)",
-    "cost.catNote.roi": "Niet berekend: daarvoor is omzet nodig die aan dezelfde activiteit is toegewezen, plus geverifieerde kosten.",
+    "cost.catNote.roi":
+      "Niet berekend: daarvoor is omzet nodig die aan dezelfde activiteit is toegewezen, plus geverifieerde kosten.",
   },
   fr: {
     "cost.loading": "Chargement des coûts…",
     "cost.chooseWs": "Choisissez un espace pour voir ses coûts.",
-    "cost.notInstalled": "Le suivi des coûts des exécutions IA n’est pas encore activé pour cet espace.",
-    "cost.failed": "Les coûts n’ont pas pu se charger. Rien n’est affiché plutôt qu’un total incomplet.",
+    "cost.notInstalled":
+      "Le suivi des coûts des exécutions IA n’est pas encore activé pour cet espace.",
+    "cost.failed":
+      "Les coûts n’ont pas pu se charger. Rien n’est affiché plutôt qu’un total incomplet.",
     "cost.eyebrow": "Vue financière",
     "cost.title": "Coûts et rendement",
-    "cost.intro": "Les crédits IA sont suivis de chaque exécution jusqu’au projet, à la campagne, à l’initiative, au plan et à l’objectif. Les budgets marketing saisis et le chiffre d’affaires sont présentés à part et jamais ajoutés aux crédits.",
+    "cost.intro":
+      "Les crédits IA sont suivis de chaque exécution jusqu’au projet, à la campagne, à l’initiative, au plan et à l’objectif. Les budgets marketing saisis et le chiffre d’affaires sont présentés à part et jamais ajoutés aux crédits.",
     "cost.creditsEyebrow": "Crédits IA",
     "cost.creditsTitle": "Les crédits en bref",
     "cost.available": "Disponibles (organisation)",
@@ -141,7 +160,8 @@ export const cost = defineArea("cost", {
     "cost.wsReserved": "Réservés pour les exécutions ouvertes",
     "cost.wsReservedNote": "Estimations retenues jusqu’à la fin des exécutions.",
     "cost.wsReleased": "Libérés",
-    "cost.wsReleasedNote": "Estimations non utilisées de {n} exécution(s) échouée(s), annulée(s) ou refusée(s).",
+    "cost.wsReleasedNote":
+      "Estimations non utilisées de {n} exécution(s) échouée(s), annulée(s) ou refusée(s).",
     "cost.na": "Non disponible",
     "cost.levelsEyebrow": "Hiérarchie de croissance",
     "cost.levelsTitle": "Crédits par niveau",
@@ -162,8 +182,10 @@ export const cost = defineArea("cost", {
     "cost.campaignBudget": "{v} prévu",
     "cost.noBudget": "Aucun budget saisi",
     "cost.empty": "Pas encore de coûts à ce niveau.",
-    "cost.plansOff": "Les plans de croissance ne sont pas activés pour cet espace : aucun plan ni initiative à afficher.",
-    "cost.levelsNote": "Une tâche compte une fois par niveau, même si elle appartient à un projet et à une campagne du même objectif. Les montants en devises différentes ne sont jamais additionnés.",
+    "cost.plansOff":
+      "Les plans de croissance ne sont pas activés pour cet espace : aucun plan ni initiative à afficher.",
+    "cost.levelsNote":
+      "Une tâche compte une fois par niveau, même si elle appartient à un projet et à une campagne du même objectif. Les montants en devises différentes ne sont jamais additionnés.",
     "cost.unlinked": "{n} tâche(s) avec des coûts IA n’appartiennent à aucun projet ni campagne.",
     "cost.catEyebrow": "Tenus séparés",
     "cost.catTitle": "Catégories financières",
@@ -172,14 +194,17 @@ export const cost = defineArea("cost", {
     "cost.cat.aiCredits": "Crédits d’usage IA",
     "cost.catNote.aiCredits": "Présentés ci-dessus, d’après les exécutions et l’usage enregistrés.",
     "cost.cat.adSpend": "Dépenses publicitaires",
-    "cost.catNote.adSpend": "Uniquement ce que vous saisissez dans Objectifs & budget. Aucune régie n’est connectée : aucune dépense n’est vérifiée.",
+    "cost.catNote.adSpend":
+      "Uniquement ce que vous saisissez dans Objectifs & budget. Aucune régie n’est connectée : aucune dépense n’est vérifiée.",
     "cost.cat.software": "Coûts de logiciels externes",
     "cost.catNote.software": "Pas encore suivis.",
     "cost.cat.other": "Autres coûts d’exploitation",
     "cost.catNote.other": "Pas encore suivis.",
     "cost.cat.revenue": "Chiffre d’affaires attribué aux activités",
-    "cost.catNote.revenue": "Non attribué : aucune source d’attribution n’est connectée. Le chiffre d’affaires importé figure dans Performance, sans être affecté à une campagne ou une tâche.",
+    "cost.catNote.revenue":
+      "Non attribué : aucune source d’attribution n’est connectée. Le chiffre d’affaires importé figure dans Performance, sans être affecté à une campagne ou une tâche.",
     "cost.cat.roi": "ROI",
-    "cost.catNote.roi": "Non calculé : il faut un chiffre d’affaires attribué à la même activité et ses coûts vérifiés.",
+    "cost.catNote.roi":
+      "Non calculé : il faut un chiffre d’affaires attribué à la même activité et ses coûts vérifiés.",
   },
 });

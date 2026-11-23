@@ -1,7 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { daysToSample, designGaps, evaluateExperiment, experimentActions, sampleSizePerGroup } from "@/lib/experiment-stats";
+import {
+  daysToSample,
+  designGaps,
+  evaluateExperiment,
+  experimentActions,
+  sampleSizePerGroup,
+} from "@/lib/experiment-stats";
 
-const obs = (vn: number, vc: number, cn: number, cc: number, data_class = "manual") => ({ variant_n: vn, variant_conversions: vc, control_n: cn, control_conversions: cc, data_class });
+const obs = (vn: number, vc: number, cn: number, cc: number, data_class = "manual") => ({
+  variant_n: vn,
+  variant_conversions: vc,
+  control_n: cn,
+  control_conversions: cc,
+  data_class,
+});
 
 describe("sample size (alpha 5% two-sided, power 80%)", () => {
   it("matches the database reference values", () => {
@@ -29,7 +41,10 @@ describe("evaluation never claims significance too early", () => {
     expect(e.allowed).toContain("successful");
   });
   it("planned sample reached without a difference allows unsuccessful but not successful", () => {
-    const e = evaluateExperiment({ method: "ab_test", sample_per_group: 100 }, obs(100, 10, 100, 10));
+    const e = evaluateExperiment(
+      { method: "ab_test", sample_per_group: 100 },
+      obs(100, 10, 100, 10),
+    );
     expect(e.verdict).toBe("no_difference");
     expect(e.allowed).toEqual(["unsuccessful", "inconclusive"]);
   });
@@ -39,10 +54,15 @@ describe("evaluation never claims significance too early", () => {
     expect(e.allowed).toEqual(["unsuccessful", "inconclusive"]);
   });
   it("before/after is correlational, whatever the numbers", () => {
-    expect(evaluateExperiment({ method: "before_after" }, obs(1000, 300, 1000, 100)).verdict).toBe("correlational");
+    expect(evaluateExperiment({ method: "before_after" }, obs(1000, 300, 1000, 100)).verdict).toBe(
+      "correlational",
+    );
   });
   it("reports the difference with a 95% interval and the guardrail", () => {
-    const e = evaluateExperiment({ method: "ab_test", sample_per_group: 100, guardrail_min_rate: 8 }, obs(100, 5, 100, 10, "simulated"));
+    const e = evaluateExperiment(
+      { method: "ab_test", sample_per_group: 100, guardrail_min_rate: 8 },
+      obs(100, 5, 100, 10, "simulated"),
+    );
     expect(e.difference).toBe(-5);
     expect(e.interval?.[0]).toBeLessThan(-5);
     expect(e.interval?.[1]).toBeGreaterThan(-5);
@@ -70,8 +90,22 @@ describe("lifecycle actions follow the database", () => {
     expect(experimentActions("completed", admin, true)).toEqual([]);
   });
   it("a controlled design needs a control group and a sample size before approval", () => {
-    expect(designGaps({ method: "ab_test", primary_kpi: "x", success_criteria: "s", stop_criteria: "t" })).toEqual(["control", "sample"]);
-    expect(designGaps({ method: "before_after", primary_kpi: "x", success_criteria: "s", stop_criteria: "t" })).toEqual([]);
+    expect(
+      designGaps({
+        method: "ab_test",
+        primary_kpi: "x",
+        success_criteria: "s",
+        stop_criteria: "t",
+      }),
+    ).toEqual(["control", "sample"]);
+    expect(
+      designGaps({
+        method: "before_after",
+        primary_kpi: "x",
+        success_criteria: "s",
+        stop_criteria: "t",
+      }),
+    ).toEqual([]);
   });
   it("estimates duration from daily traffic", () => {
     expect(daysToSample(3841, 300)).toBe(13);

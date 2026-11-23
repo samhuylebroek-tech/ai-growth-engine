@@ -1,7 +1,17 @@
 import { z } from "zod";
 
 /** Revenue domains the Opportunity Engine may propose in; "other" covers anything new. */
-export const OPPORTUNITY_DOMAINS = ["marketing", "lead_generation", "sales", "retention", "partnerships", "events_offline", "monetization", "product_growth", "other"] as const;
+export const OPPORTUNITY_DOMAINS = [
+  "marketing",
+  "lead_generation",
+  "sales",
+  "retention",
+  "partnerships",
+  "events_offline",
+  "monetization",
+  "product_growth",
+  "other",
+] as const;
 export type OpportunityDomain = (typeof OPPORTUNITY_DOMAINS)[number];
 export const EVIDENCE_CLASSES = ["fact", "estimate", "hypothesis"] as const;
 export type EvidenceClass = (typeof EVIDENCE_CLASSES)[number];
@@ -9,64 +19,138 @@ export const OPPORTUNITY_HORIZONS = [30, 90, 180, 365] as const;
 export const MAX_OPPORTUNITIES = 5;
 
 // Over-long model fields are truncated rather than rejected so paid output is not lost.
-const text = (max: number) => z.string().trim().min(1).transform((s) => s.slice(0, max));
-const optText = (max: number) => z.string().default("").transform((s) => s.trim().slice(0, max));
+const text = (max: number) =>
+  z
+    .string()
+    .trim()
+    .min(1)
+    .transform((s) => s.slice(0, max));
+const optText = (max: number) =>
+  z
+    .string()
+    .default("")
+    .transform((s) => s.trim().slice(0, max));
 const score = z.coerce.number().transform((n) => Math.min(5, Math.max(1, Math.round(n))));
-const list = (max: number, len: number) => z.array(z.string()).default([]).transform((a) => a.map((s) => s.trim()).filter(Boolean).slice(0, max).map((s) => s.slice(0, len)));
-const money = z.union([z.number(), z.null()]).optional().transform((n) => (n == null || !Number.isFinite(n) || n < 0 ? null : Math.round(n)));
+const list = (max: number, len: number) =>
+  z
+    .array(z.string())
+    .default([])
+    .transform((a) =>
+      a
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .slice(0, max)
+        .map((s) => s.slice(0, len)),
+    );
+const money = z
+  .union([z.number(), z.null()])
+  .optional()
+  .transform((n) => (n == null || !Number.isFinite(n) || n < 0 ? null : Math.round(n)));
 
-export const opportunitySchema = z.object({
-  title: z.string().trim().min(3).transform((s) => s.slice(0, 200)),
-  domain: z.string().transform((d): OpportunityDomain => ((OPPORTUNITY_DOMAINS as readonly string[]).includes(d) ? (d as OpportunityDomain) : "other")),
-  summary: text(1500),
-  analysis: optText(3000),
-  audience: optText(500),
-  expected_impact: optText(800),
-  impact: score, feasibility: score, cost: score, time_to_value: score, risk: score,
-  complexity: z.enum(["low", "medium", "high"]).catch("medium"),
-  budget_min: money, budget_max: money,
-  currency: z.string().regex(/^[A-Z]{3}$/).catch("EUR"),
-  horizon_days: z.coerce.number().transform((n) => Math.min(730, Math.max(7, Math.round(n)))),
-  resources: list(8, 200), integrations: list(8, 80), risks: list(8, 400),
-  kpis: z.array(z.object({ metric: text(160), target: text(300) })).default([]).transform((a) => a.slice(0, 6)),
-  evidence: z.array(z.object({ statement: text(400), class: z.enum(EVIDENCE_CLASSES).catch("hypothesis") })).default([]).transform((a) => a.slice(0, 10)),
-  confidence: z.enum(["low", "medium", "high"]).catch("low"),
-}).transform((o) => (o.budget_min != null && o.budget_max != null && o.budget_min > o.budget_max ? { ...o, budget_min: o.budget_max, budget_max: o.budget_min } : o));
+export const opportunitySchema = z
+  .object({
+    title: z
+      .string()
+      .trim()
+      .min(3)
+      .transform((s) => s.slice(0, 200)),
+    domain: z
+      .string()
+      .transform((d): OpportunityDomain =>
+        (OPPORTUNITY_DOMAINS as readonly string[]).includes(d) ? (d as OpportunityDomain) : "other",
+      ),
+    summary: text(1500),
+    analysis: optText(3000),
+    audience: optText(500),
+    expected_impact: optText(800),
+    impact: score,
+    feasibility: score,
+    cost: score,
+    time_to_value: score,
+    risk: score,
+    complexity: z.enum(["low", "medium", "high"]).catch("medium"),
+    budget_min: money,
+    budget_max: money,
+    currency: z
+      .string()
+      .regex(/^[A-Z]{3}$/)
+      .catch("EUR"),
+    horizon_days: z.coerce.number().transform((n) => Math.min(730, Math.max(7, Math.round(n)))),
+    resources: list(8, 200),
+    integrations: list(8, 80),
+    risks: list(8, 400),
+    kpis: z
+      .array(z.object({ metric: text(160), target: text(300) }))
+      .default([])
+      .transform((a) => a.slice(0, 6)),
+    evidence: z
+      .array(
+        z.object({ statement: text(400), class: z.enum(EVIDENCE_CLASSES).catch("hypothesis") }),
+      )
+      .default([])
+      .transform((a) => a.slice(0, 10)),
+    confidence: z.enum(["low", "medium", "high"]).catch("low"),
+  })
+  .transform((o) =>
+    o.budget_min != null && o.budget_max != null && o.budget_min > o.budget_max
+      ? { ...o, budget_min: o.budget_max, budget_max: o.budget_min }
+      : o,
+  );
 export type Opportunity = z.infer<typeof opportunitySchema>;
 
 /**
  * Priority weighs impact most, then feasibility; low cost, short time-to-value and low risk add.
  * Range 8–40. Scores are the model's estimates and are shown as such.
  */
-export function priorityScore(o: Pick<Opportunity, "impact" | "feasibility" | "cost" | "time_to_value" | "risk">): number {
+export function priorityScore(
+  o: Pick<Opportunity, "impact" | "feasibility" | "cost" | "time_to_value" | "risk">,
+): number {
   return o.impact * 3 + o.feasibility * 2 + (6 - o.cost) + (6 - o.time_to_value) + (6 - o.risk);
 }
 
-export function rankOpportunities<T extends Pick<Opportunity, "impact" | "feasibility" | "cost" | "time_to_value" | "risk">>(items: T[]): T[] {
+export function rankOpportunities<
+  T extends Pick<Opportunity, "impact" | "feasibility" | "cost" | "time_to_value" | "risk">,
+>(items: T[]): T[] {
   return [...items].sort((a, b) => priorityScore(b) - priorityScore(a));
 }
 
 /** Parses model JSON (optionally fenced), validates each item, drops invalid ones and ranks the rest. */
 export function parseOpportunities(raw: string): Opportunity[] {
-  const s = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
+  const s = raw
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/```\s*$/, "");
   const json = JSON.parse(s) as unknown;
   const arr = z.object({ opportunities: z.array(z.unknown()) }).parse(json).opportunities;
-  const valid = arr.map((item) => opportunitySchema.safeParse(item)).filter((r) => r.success).map((r) => r.data);
+  const valid = arr
+    .map((item) => opportunitySchema.safeParse(item))
+    .filter((r) => r.success)
+    .map((r) => r.data);
   const seen = new Set<string>();
-  const unique = valid.filter((o) => { const k = o.title.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; });
+  const unique = valid.filter((o) => {
+    const k = o.title.toLowerCase();
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
   if (!unique.length) throw new Error("No valid opportunities");
   return rankOpportunities(unique).slice(0, MAX_OPPORTUNITIES);
 }
 
 export const opportunityRequestSchema = z.object({
-  orgId: z.guid(), workspaceId: z.guid(), requestKey: z.guid(),
+  orgId: z.guid(),
+  workspaceId: z.guid(),
+  requestKey: z.guid(),
   horizonDays: z.union([z.literal(30), z.literal(90), z.literal(180), z.literal(365)]),
   focus: z.string().trim().max(500).default(""),
   locale: z.enum(["en", "nl", "fr"]).default("en"),
 });
 const LANGUAGE_NAME = { en: "English", nl: "Dutch", fr: "French" } as const;
 
-export function opportunityBrief(input: { horizonDays: number; focus: string; locale: keyof typeof LANGUAGE_NAME }, connectors: string[]) {
+export function opportunityBrief(
+  input: { horizonDays: number; focus: string; locale: keyof typeof LANGUAGE_NAME },
+  connectors: string[],
+) {
   return [
     `Write every human-readable text value in ${LANGUAGE_NAME[input.locale]}; keep JSON keys and enum values in English.`,
     `Time horizon: ${input.horizonDays} days`,

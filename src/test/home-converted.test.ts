@@ -3,7 +3,15 @@ import { needsConversion, periodCurrencies } from "@/components/bi/home-converte
 
 describe("converted figures on Home", () => {
   it("are shown when the period has money in two currencies", () => {
-    const c = periodCurrencies({ revenue: [{ currency: "EUR", occurred_at: "2026-10-03T10:00:00Z" }], spend: [{ currency: "USD", occurred_on: "2026-10-05" }], costs: [] }, "2026-10-01", "2026-10-31");
+    const c = periodCurrencies(
+      {
+        revenue: [{ currency: "EUR", occurred_at: "2026-10-03T10:00:00Z" }],
+        spend: [{ currency: "USD", occurred_on: "2026-10-05" }],
+        costs: [],
+      },
+      "2026-10-01",
+      "2026-10-31",
+    );
     expect(c).toEqual(["EUR", "USD"]);
     expect(needsConversion(c, "EUR")).toBe(true);
   });
@@ -15,6 +23,16 @@ describe("converted figures on Home", () => {
     expect(needsConversion(["GBP"], "EUR")).toBe(true);
   });
   it("ignore money outside the period", () => {
-    expect(periodCurrencies({ revenue: [{ currency: "USD", occurred_at: "2026-09-30T23:00:00Z" }], spend: [], costs: [] }, "2026-10-01", "2026-10-31")).toEqual([]);
+    expect(
+      periodCurrencies(
+        {
+          revenue: [{ currency: "USD", occurred_at: "2026-09-30T23:00:00Z" }],
+          spend: [],
+          costs: [],
+        },
+        "2026-10-01",
+        "2026-10-31",
+      ),
+    ).toEqual([]);
   });
 });

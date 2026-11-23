@@ -5,8 +5,7 @@ export const Route = createFileRoute("/_authenticated/app/campaigns")({
   validateSearch: (s: Record<string, unknown>): { item?: string | undefined } => ({
     item: typeof s["item"] === "string" ? s["item"] : undefined,
   }),
-  head: () =>
-    localHead("campaigns"),
+  head: () => localHead("campaigns"),
   component: Campaigns,
 });
 function Campaigns() {

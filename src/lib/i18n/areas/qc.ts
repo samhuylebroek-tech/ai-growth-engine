@@ -4,21 +4,26 @@ import { defineArea } from "../define";
 export const qc = defineArea("qc", {
   en: {
     "qc.title": "Quality control",
-    "qc.disclaimer": "A quality score is a structured opinion about this result, not proof that its facts are correct.",
+    "qc.disclaimer":
+      "A quality score is a structured opinion about this result, not proof that its facts are correct.",
     "qc.figures": "{n} figure(s) in this result need a source or a check.",
-    "qc.required": "Important result: an independent second review is required before it can be accepted.",
+    "qc.required":
+      "Important result: an independent second review is required before it can be accepted.",
     "qc.reviewer": "Second reviewer (a different specialist)",
     "qc.suggested": "suggested",
     "qc.request": "Request second review (uses AI credits, charged by actual use)",
     "qc.requested": "Review saved: score {s}/100, {v}. {c} credits used.",
-    "qc.unconfirmed": "The review could not be confirmed. Recover saved work before trying again; it will not be charged twice.",
+    "qc.unconfirmed":
+      "The review could not be confirmed. Recover saved work before trying again; it will not be charged twice.",
     "qc.by": "Review by {r} · {d}",
     "qc.score": "Score {s}/100 from {n} assessed dimensions",
-    "qc.scoreHow": "The score is the average of the dimension scores (1–5) converted to 0–100; dimensions that do not apply are left out.",
+    "qc.scoreHow":
+      "The score is the average of the dimension scores (1–5) converted to 0–100; dimensions that do not apply are left out.",
     "qc.v.acceptable": "acceptable",
     "qc.v.needs_changes": "needs changes",
     "qc.v.unreliable": "unreliable",
-    "qc.uncritical": "This review found nothing and gave top scores everywhere; it may not be critical enough, so it counts as \"needs changes\".",
+    "qc.uncritical":
+      'This review found nothing and gave top scores everywhere; it may not be critical enough, so it counts as "needs changes".',
     "qc.na": "not applicable",
     "qc.findings": "Findings",
     "qc.sev.info": "Info",
@@ -48,26 +53,32 @@ export const qc = defineArea("qc", {
     "qc.decidedNote": "Reason: {n}",
     "qc.decidedCorr": "Corrections: {c}",
     "qc.editorOnly": "Someone with editor rights or higher records the final decision.",
-    "qc.unreliableBlock": "The second review found this result unreliable: accept it only with corrections, or ask for rework.",
+    "qc.unreliableBlock":
+      "The second review found this result unreliable: accept it only with corrections, or ask for rework.",
     "qc.none": "No second review yet.",
   },
   nl: {
     "qc.title": "Kwaliteitscontrole",
-    "qc.disclaimer": "Een kwaliteitsscore is een gestructureerd oordeel over dit resultaat, geen bewijs dat de feiten kloppen.",
+    "qc.disclaimer":
+      "Een kwaliteitsscore is een gestructureerd oordeel over dit resultaat, geen bewijs dat de feiten kloppen.",
     "qc.figures": "{n} cijfer(s) in dit resultaat hebben een bron of controle nodig.",
-    "qc.required": "Belangrijk resultaat: een onafhankelijke tweede beoordeling is nodig voordat het aanvaard kan worden.",
+    "qc.required":
+      "Belangrijk resultaat: een onafhankelijke tweede beoordeling is nodig voordat het aanvaard kan worden.",
     "qc.reviewer": "Tweede beoordelaar (een andere specialist)",
     "qc.suggested": "voorgesteld",
     "qc.request": "Tweede beoordeling vragen (gebruikt AI-credits volgens het werkelijke verbruik)",
     "qc.requested": "Beoordeling bewaard: score {s}/100, {v}. {c} credits gebruikt.",
-    "qc.unconfirmed": "De beoordeling kon niet bevestigd worden. Herstel bewaard werk voordat je het opnieuw probeert; er wordt niet dubbel aangerekend.",
+    "qc.unconfirmed":
+      "De beoordeling kon niet bevestigd worden. Herstel bewaard werk voordat je het opnieuw probeert; er wordt niet dubbel aangerekend.",
     "qc.by": "Beoordeling door {r} · {d}",
     "qc.score": "Score {s}/100 op basis van {n} beoordeelde dimensies",
-    "qc.scoreHow": "De score is het gemiddelde van de dimensiescores (1–5), omgerekend naar 0–100; dimensies die niet van toepassing zijn tellen niet mee.",
+    "qc.scoreHow":
+      "De score is het gemiddelde van de dimensiescores (1–5), omgerekend naar 0–100; dimensies die niet van toepassing zijn tellen niet mee.",
     "qc.v.acceptable": "aanvaardbaar",
     "qc.v.needs_changes": "aanpassingen nodig",
     "qc.v.unreliable": "onbetrouwbaar",
-    "qc.uncritical": "Deze beoordeling vond niets en gaf overal de hoogste score; ze is mogelijk niet kritisch genoeg en telt daarom als \"aanpassingen nodig\".",
+    "qc.uncritical":
+      'Deze beoordeling vond niets en gaf overal de hoogste score; ze is mogelijk niet kritisch genoeg en telt daarom als "aanpassingen nodig".',
     "qc.na": "niet van toepassing",
     "qc.findings": "Bevindingen",
     "qc.sev.info": "Info",
@@ -97,26 +108,32 @@ export const qc = defineArea("qc", {
     "qc.decidedNote": "Reden: {n}",
     "qc.decidedCorr": "Correcties: {c}",
     "qc.editorOnly": "Iemand met editorrechten of hoger legt de eindbeslissing vast.",
-    "qc.unreliableBlock": "De tweede beoordeling vond dit resultaat onbetrouwbaar: aanvaard het alleen met correcties, of laat het opnieuw doen.",
+    "qc.unreliableBlock":
+      "De tweede beoordeling vond dit resultaat onbetrouwbaar: aanvaard het alleen met correcties, of laat het opnieuw doen.",
     "qc.none": "Nog geen tweede beoordeling.",
   },
   fr: {
     "qc.title": "Contrôle qualité",
-    "qc.disclaimer": "Un score de qualité est un avis structuré sur ce résultat, pas la preuve que ses faits sont exacts.",
+    "qc.disclaimer":
+      "Un score de qualité est un avis structuré sur ce résultat, pas la preuve que ses faits sont exacts.",
     "qc.figures": "{n} chiffre(s) de ce résultat demandent une source ou une vérification.",
-    "qc.required": "Résultat important : une seconde revue indépendante est requise avant de pouvoir l’accepter.",
+    "qc.required":
+      "Résultat important : une seconde revue indépendante est requise avant de pouvoir l’accepter.",
     "qc.reviewer": "Second relecteur (un autre spécialiste)",
     "qc.suggested": "suggéré",
     "qc.request": "Demander une seconde revue (utilise des crédits IA selon l’usage réel)",
     "qc.requested": "Revue enregistrée : score {s}/100, {v}. {c} crédits utilisés.",
-    "qc.unconfirmed": "La revue n’a pas pu être confirmée. Récupérez le travail enregistré avant de réessayer ; rien ne sera facturé deux fois.",
+    "qc.unconfirmed":
+      "La revue n’a pas pu être confirmée. Récupérez le travail enregistré avant de réessayer ; rien ne sera facturé deux fois.",
     "qc.by": "Revue par {r} · {d}",
     "qc.score": "Score {s}/100 sur {n} dimensions évaluées",
-    "qc.scoreHow": "Le score est la moyenne des notes par dimension (1–5) ramenée à 0–100 ; les dimensions non applicables sont exclues.",
+    "qc.scoreHow":
+      "Le score est la moyenne des notes par dimension (1–5) ramenée à 0–100 ; les dimensions non applicables sont exclues.",
     "qc.v.acceptable": "acceptable",
     "qc.v.needs_changes": "à corriger",
     "qc.v.unreliable": "peu fiable",
-    "qc.uncritical": "Cette revue n’a rien trouvé et a donné la note maximale partout ; elle n’est peut-être pas assez critique et compte donc comme « à corriger ».",
+    "qc.uncritical":
+      "Cette revue n’a rien trouvé et a donné la note maximale partout ; elle n’est peut-être pas assez critique et compte donc comme « à corriger ».",
     "qc.na": "non applicable",
     "qc.findings": "Constats",
     "qc.sev.info": "Info",
@@ -145,8 +162,10 @@ export const qc = defineArea("qc", {
     "qc.decided": "Décision : {d} · {date}",
     "qc.decidedNote": "Raison : {n}",
     "qc.decidedCorr": "Corrections : {c}",
-    "qc.editorOnly": "Une personne ayant des droits d’éditeur ou plus enregistre la décision finale.",
-    "qc.unreliableBlock": "La seconde revue juge ce résultat peu fiable : acceptez-le seulement avec corrections, ou faites-le refaire.",
+    "qc.editorOnly":
+      "Une personne ayant des droits d’éditeur ou plus enregistre la décision finale.",
+    "qc.unreliableBlock":
+      "La seconde revue juge ce résultat peu fiable : acceptez-le seulement avec corrections, ou faites-le refaire.",
     "qc.none": "Pas encore de seconde revue.",
   },
 });

@@ -29,7 +29,8 @@ export const own = defineArea("own", {
     "own.marginNote":
       "Margin = configured plan price − estimated AI provider cost. Platform cost allocation is not yet included.",
     "own.cp.title": "Credit prices",
-    "own.cp.desc": "A credit has no money value until a price is set here. Each price applies from its start time; credits already used keep the price that applied when they were used. Prices are never edited or deleted — a new version replaces the old one.",
+    "own.cp.desc":
+      "A credit has no money value until a price is set here. Each price applies from its start time; credits already used keep the price that applied when they were used. Prices are never edited or deleted — a new version replaces the old one.",
     "own.cp.new": "New price version",
     "own.cp.scope": "Applies to",
     "own.cp.scope.platform": "All organizations (platform)",
@@ -40,20 +41,24 @@ export const own = defineArea("own", {
     "own.cp.price": "Price per credit",
     "own.cp.when": "Applies from",
     "own.cp.method": "How this price was determined",
-    "own.cp.methodHint": "e.g. average provider cost per credit over the last quarter plus platform costs",
+    "own.cp.methodHint":
+      "e.g. average provider cost per credit over the last quarter plus platform costs",
     "own.cp.problem.plan_required": "Choose the plan this price applies to.",
     "own.cp.problem.plan_not_allowed": "A platform price cannot name a plan.",
     "own.cp.problem.currency": "Use a three-letter currency code, such as EUR.",
     "own.cp.problem.price": "The price must be above 0 and below 1,000.",
-    "own.cp.problem.backdated": "The start time cannot be in the past: used credits keep their price.",
+    "own.cp.problem.backdated":
+      "The start time cannot be in the past: used credits keep their price.",
     "own.cp.problem.methodology": "Describe how the price was determined (3–500 characters).",
     "own.cp.impact": "Expected effect",
     "own.cp.impactCredits": "Credits used in the last 30 days in this scope: {n}.",
     "own.cp.impactChange": "A comparable month would cost {next} instead of {now} ({d}).",
     "own.cp.impactNoCurrent": "No price applies now; a comparable month would be valued at {next}.",
-    "own.cp.impactNote": "Estimate only, based on past usage. Credits already used are not repriced.",
+    "own.cp.impactNote":
+      "Estimate only, based on past usage. Credits already used are not repriced.",
     "own.cp.impactTruncated": "Usage was too large to read completely; the estimate is too low.",
-    "own.cp.confirm": "I confirm this price, its start time and that it cannot be edited or deleted afterwards.",
+    "own.cp.confirm":
+      "I confirm this price, its start time and that it cannot be edited or deleted afterwards.",
     "own.cp.save": "Save price version",
     "own.cp.saving": "Saving…",
     "own.cp.saved": "Price version saved and recorded in the audit log.",
@@ -70,9 +75,11 @@ export const own = defineArea("own", {
     "own.cp.status.scheduled": "Scheduled",
     "own.cp.status.superseded": "Replaced",
     "own.cp.err.forbidden": "Only the Platform Owner can view and set credit prices.",
-    "own.cp.err.mfa_required": "Credit prices need a session confirmed with your authenticator app.",
+    "own.cp.err.mfa_required":
+      "Credit prices need a session confirmed with your authenticator app.",
     "own.cp.err.backdated": "The start time is in the past; choose a later time.",
-    "own.cp.err.invalid": "The price was refused: check the values, or a version with the same start time already exists.",
+    "own.cp.err.invalid":
+      "The price was refused: check the values, or a version with the same start time already exists.",
     "own.cp.err.failed": "The price could not be saved. Nothing was changed.",
     "own.cp.err.load_failed": "Credit prices could not be loaded.",
     "own.cp.err.not_installed": "Credit pricing is not installed in this environment.",
@@ -104,7 +111,8 @@ export const own = defineArea("own", {
     "own.marginNote":
       "Marge = ingestelde abonnementsprijs − geschatte kosten van de AI-aanbieder. Platformkosten zijn nog niet meegerekend.",
     "own.cp.title": "Creditprijzen",
-    "own.cp.desc": "Een credit heeft geen geldwaarde tot hier een prijs is ingesteld. Elke prijs geldt vanaf het starttijdstip; al gebruikte credits behouden de prijs die toen gold. Prijzen worden nooit bewerkt of verwijderd — een nieuwe versie vervangt de oude.",
+    "own.cp.desc":
+      "Een credit heeft geen geldwaarde tot hier een prijs is ingesteld. Elke prijs geldt vanaf het starttijdstip; al gebruikte credits behouden de prijs die toen gold. Prijzen worden nooit bewerkt of verwijderd — een nieuwe versie vervangt de oude.",
     "own.cp.new": "Nieuwe prijsversie",
     "own.cp.scope": "Geldt voor",
     "own.cp.scope.platform": "Alle organisaties (platform)",
@@ -115,26 +123,34 @@ export const own = defineArea("own", {
     "own.cp.price": "Prijs per credit",
     "own.cp.when": "Geldt vanaf",
     "own.cp.method": "Hoe deze prijs is bepaald",
-    "own.cp.methodHint": "bv. gemiddelde providerkost per credit vorig kwartaal plus platformkosten",
+    "own.cp.methodHint":
+      "bv. gemiddelde providerkost per credit vorig kwartaal plus platformkosten",
     "own.cp.problem.plan_required": "Kies het abonnement waarvoor deze prijs geldt.",
     "own.cp.problem.plan_not_allowed": "Een platformprijs kan geen abonnement noemen.",
     "own.cp.problem.currency": "Gebruik een valutacode van drie letters, zoals EUR.",
     "own.cp.problem.price": "De prijs moet boven 0 en onder 1.000 liggen.",
-    "own.cp.problem.backdated": "Het starttijdstip mag niet in het verleden liggen: gebruikte credits behouden hun prijs.",
+    "own.cp.problem.backdated":
+      "Het starttijdstip mag niet in het verleden liggen: gebruikte credits behouden hun prijs.",
     "own.cp.problem.methodology": "Beschrijf hoe de prijs is bepaald (3–500 tekens).",
     "own.cp.impact": "Verwacht effect",
     "own.cp.impactCredits": "Credits gebruikt in de laatste 30 dagen binnen dit bereik: {n}.",
     "own.cp.impactChange": "Een vergelijkbare maand zou {next} kosten in plaats van {now} ({d}).",
-    "own.cp.impactNoCurrent": "Er geldt nu geen prijs; een vergelijkbare maand zou {next} waard zijn.",
-    "own.cp.impactNote": "Alleen een schatting op basis van eerder gebruik. Al gebruikte credits worden niet herprijsd.",
-    "own.cp.impactTruncated": "Het gebruik was te groot om volledig te lezen; de schatting is te laag.",
-    "own.cp.confirm": "Ik bevestig deze prijs, het starttijdstip en dat ze achteraf niet kan worden bewerkt of verwijderd.",
+    "own.cp.impactNoCurrent":
+      "Er geldt nu geen prijs; een vergelijkbare maand zou {next} waard zijn.",
+    "own.cp.impactNote":
+      "Alleen een schatting op basis van eerder gebruik. Al gebruikte credits worden niet herprijsd.",
+    "own.cp.impactTruncated":
+      "Het gebruik was te groot om volledig te lezen; de schatting is te laag.",
+    "own.cp.confirm":
+      "Ik bevestig deze prijs, het starttijdstip en dat ze achteraf niet kan worden bewerkt of verwijderd.",
     "own.cp.save": "Prijsversie opslaan",
     "own.cp.saving": "Opslaan…",
     "own.cp.saved": "Prijsversie opgeslagen en vastgelegd in het auditlogboek.",
     "own.cp.history": "Prijsgeschiedenis",
-    "own.cp.none": "Er is geen creditprijs ingesteld. Al het AI-werk wordt alleen in credits getoond.",
-    "own.cp.historyNote": "Eindigt wanneer de volgende versie voor hetzelfde bereik en dezelfde valuta begint.",
+    "own.cp.none":
+      "Er is geen creditprijs ingesteld. Al het AI-werk wordt alleen in credits getoond.",
+    "own.cp.historyNote":
+      "Eindigt wanneer de volgende versie voor hetzelfde bereik en dezelfde valuta begint.",
     "own.cp.col.scope": "Geldt voor",
     "own.cp.col.price": "Per credit",
     "own.cp.col.from": "Vanaf",
@@ -145,9 +161,11 @@ export const own = defineArea("own", {
     "own.cp.status.scheduled": "Gepland",
     "own.cp.status.superseded": "Vervangen",
     "own.cp.err.forbidden": "Alleen de Platform Owner kan creditprijzen bekijken en instellen.",
-    "own.cp.err.mfa_required": "Voor creditprijzen moet je sessie bevestigd zijn met je authenticator-app.",
+    "own.cp.err.mfa_required":
+      "Voor creditprijzen moet je sessie bevestigd zijn met je authenticator-app.",
     "own.cp.err.backdated": "Het starttijdstip ligt in het verleden; kies een later tijdstip.",
-    "own.cp.err.invalid": "De prijs werd geweigerd: controleer de waarden, of er bestaat al een versie met hetzelfde starttijdstip.",
+    "own.cp.err.invalid":
+      "De prijs werd geweigerd: controleer de waarden, of er bestaat al een versie met hetzelfde starttijdstip.",
     "own.cp.err.failed": "De prijs kon niet worden opgeslagen. Er is niets gewijzigd.",
     "own.cp.err.load_failed": "Creditprijzen konden niet worden geladen.",
     "own.cp.err.not_installed": "Creditprijzen zijn niet geïnstalleerd in deze omgeving.",
@@ -179,7 +197,8 @@ export const own = defineArea("own", {
     "own.marginNote":
       "Marge = prix d'abonnement configuré − coût estimé du fournisseur d'IA. Les coûts de la plateforme ne sont pas encore inclus.",
     "own.cp.title": "Prix des crédits",
-    "own.cp.desc": "Un crédit n’a pas de valeur monétaire tant qu’aucun prix n’est défini ici. Chaque prix s’applique à partir de son début ; les crédits déjà utilisés gardent le prix en vigueur lors de leur utilisation. Les prix ne sont jamais modifiés ni supprimés — une nouvelle version remplace l’ancienne.",
+    "own.cp.desc":
+      "Un crédit n’a pas de valeur monétaire tant qu’aucun prix n’est défini ici. Chaque prix s’applique à partir de son début ; les crédits déjà utilisés gardent le prix en vigueur lors de leur utilisation. Les prix ne sont jamais modifiés ni supprimés — une nouvelle version remplace l’ancienne.",
     "own.cp.new": "Nouvelle version de prix",
     "own.cp.scope": "S’applique à",
     "own.cp.scope.platform": "Toutes les organisations (plateforme)",
@@ -190,26 +209,34 @@ export const own = defineArea("own", {
     "own.cp.price": "Prix par crédit",
     "own.cp.when": "S’applique à partir du",
     "own.cp.method": "Comment ce prix a été déterminé",
-    "own.cp.methodHint": "p. ex. coût fournisseur moyen par crédit au dernier trimestre plus coûts de plateforme",
+    "own.cp.methodHint":
+      "p. ex. coût fournisseur moyen par crédit au dernier trimestre plus coûts de plateforme",
     "own.cp.problem.plan_required": "Choisissez l’abonnement concerné.",
     "own.cp.problem.plan_not_allowed": "Un prix de plateforme ne peut pas viser un abonnement.",
     "own.cp.problem.currency": "Utilisez un code devise de trois lettres, comme EUR.",
     "own.cp.problem.price": "Le prix doit être supérieur à 0 et inférieur à 1 000.",
-    "own.cp.problem.backdated": "Le début ne peut pas être dans le passé : les crédits utilisés gardent leur prix.",
+    "own.cp.problem.backdated":
+      "Le début ne peut pas être dans le passé : les crédits utilisés gardent leur prix.",
     "own.cp.problem.methodology": "Décrivez comment le prix a été déterminé (3 à 500 caractères).",
     "own.cp.impact": "Effet attendu",
     "own.cp.impactCredits": "Crédits utilisés ces 30 derniers jours dans ce périmètre : {n}.",
     "own.cp.impactChange": "Un mois comparable coûterait {next} au lieu de {now} ({d}).",
-    "own.cp.impactNoCurrent": "Aucun prix ne s’applique actuellement ; un mois comparable serait valorisé à {next}.",
-    "own.cp.impactNote": "Estimation basée sur l’usage passé uniquement. Les crédits déjà utilisés ne sont pas revalorisés.",
-    "own.cp.impactTruncated": "L’usage était trop important pour être lu entièrement ; l’estimation est trop basse.",
-    "own.cp.confirm": "Je confirme ce prix, son début et qu’il ne pourra plus être modifié ni supprimé.",
+    "own.cp.impactNoCurrent":
+      "Aucun prix ne s’applique actuellement ; un mois comparable serait valorisé à {next}.",
+    "own.cp.impactNote":
+      "Estimation basée sur l’usage passé uniquement. Les crédits déjà utilisés ne sont pas revalorisés.",
+    "own.cp.impactTruncated":
+      "L’usage était trop important pour être lu entièrement ; l’estimation est trop basse.",
+    "own.cp.confirm":
+      "Je confirme ce prix, son début et qu’il ne pourra plus être modifié ni supprimé.",
     "own.cp.save": "Enregistrer la version",
     "own.cp.saving": "Enregistrement…",
     "own.cp.saved": "Version enregistrée et consignée dans le journal d’audit.",
     "own.cp.history": "Historique des prix",
-    "own.cp.none": "Aucun prix du crédit n’est défini. Tout le travail IA est affiché en crédits uniquement.",
-    "own.cp.historyNote": "Se termine quand la version suivante du même périmètre et de la même devise commence.",
+    "own.cp.none":
+      "Aucun prix du crédit n’est défini. Tout le travail IA est affiché en crédits uniquement.",
+    "own.cp.historyNote":
+      "Se termine quand la version suivante du même périmètre et de la même devise commence.",
     "own.cp.col.scope": "Périmètre",
     "own.cp.col.price": "Par crédit",
     "own.cp.col.from": "Du",
@@ -219,12 +246,16 @@ export const own = defineArea("own", {
     "own.cp.status.active": "En vigueur",
     "own.cp.status.scheduled": "Programmé",
     "own.cp.status.superseded": "Remplacé",
-    "own.cp.err.forbidden": "Seul le Platform Owner peut consulter et définir les prix des crédits.",
-    "own.cp.err.mfa_required": "Les prix des crédits exigent une session confirmée par votre application d’authentification.",
+    "own.cp.err.forbidden":
+      "Seul le Platform Owner peut consulter et définir les prix des crédits.",
+    "own.cp.err.mfa_required":
+      "Les prix des crédits exigent une session confirmée par votre application d’authentification.",
     "own.cp.err.backdated": "Le début est dans le passé ; choisissez une heure ultérieure.",
-    "own.cp.err.invalid": "Le prix a été refusé : vérifiez les valeurs, ou une version avec le même début existe déjà.",
+    "own.cp.err.invalid":
+      "Le prix a été refusé : vérifiez les valeurs, ou une version avec le même début existe déjà.",
     "own.cp.err.failed": "Le prix n’a pas pu être enregistré. Rien n’a été modifié.",
     "own.cp.err.load_failed": "Les prix des crédits n’ont pas pu être chargés.",
-    "own.cp.err.not_installed": "La tarification des crédits n’est pas installée dans cet environnement.",
+    "own.cp.err.not_installed":
+      "La tarification des crédits n’est pas installée dans cet environnement.",
   },
 });

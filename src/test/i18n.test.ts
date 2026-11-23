@@ -12,7 +12,9 @@ describe("interface languages", () => {
     }
   });
   it("keeps each screen area's keys under its own prefix, so areas never overwrite each other", () => {
-    for (const a of AREAS) for (const l of LOCALES) for (const k of Object.keys(a[l])) expect(k.startsWith(`${a.prefix}.`)).toBe(true);
+    for (const a of AREAS)
+      for (const l of LOCALES)
+        for (const k of Object.keys(a[l])) expect(k.startsWith(`${a.prefix}.`)).toBe(true);
   });
   it("translates every navigation destination and group", () => {
     for (const g of NAVIGATION) {

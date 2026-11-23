@@ -4,9 +4,11 @@ import { defineArea } from "../define";
 export const ci = defineArea("ci", {
   en: {
     "ci.title": "Campaign diagnosis",
-    "ci.intro": "Built from what is recorded for this campaign: spending, linked metrics, attributed revenue and tasks. Missing figures are shown as missing, never as zero. No credits are used.",
+    "ci.intro":
+      "Built from what is recorded for this campaign: spending, linked metrics, attributed revenue and tasks. Missing figures are shown as missing, never as zero. No credits are used.",
     "ci.loading": "Reading the campaign figures…",
-    "ci.failed": "The diagnosis could not be built because a required read failed. Nothing partial is shown.",
+    "ci.failed":
+      "The diagnosis could not be built because a required read failed. Nothing partial is shown.",
     "ci.figures": "Figures",
     "ci.f.budget": "Budget",
     "ci.f.spent": "Spent",
@@ -59,46 +61,61 @@ export const ci = defineArea("ci", {
     "ci.p.no_goal": "Not linked to a business goal",
     "ci.p.overlap": "Overlaps with {list} (same channel, same period)",
     "ci.advice": "Suggested improvements",
-    "ci.a.define_kpis": "Define the KPIs for this campaign (for example leads and conversions) and link them as metrics.",
-    "ci.a.measure_results": "Record the campaign's results so far, or connect a source that reports them.",
-    "ci.a.improve_conversion": "Review the call-to-action and landing page, and test a variant in an experiment.",
-    "ci.a.review_budget_split": "Compare cost per lead per channel and review how the budget is split.",
-    "ci.a.review_budget": "Review the remaining budget against the planned work before spending more.",
+    "ci.a.define_kpis":
+      "Define the KPIs for this campaign (for example leads and conversions) and link them as metrics.",
+    "ci.a.measure_results":
+      "Record the campaign's results so far, or connect a source that reports them.",
+    "ci.a.improve_conversion":
+      "Review the call-to-action and landing page, and test a variant in an experiment.",
+    "ci.a.review_budget_split":
+      "Compare cost per lead per channel and review how the budget is split.",
+    "ci.a.review_budget":
+      "Review the remaining budget against the planned work before spending more.",
     "ci.a.review_audience": "Describe and check the target audience for this campaign.",
-    "ci.a.compare_channels": "Compare the overlapping campaigns on the same channel and decide whether to combine or separate them.",
+    "ci.a.compare_channels":
+      "Compare the overlapping campaigns on the same channel and decide whether to combine or separate them.",
     "ci.a.adjust_message": "Rework the campaign message and call-to-action.",
-    "ci.a.connect_source": "Record real results or connect a data source; simulated figures are not evidence.",
+    "ci.a.connect_source":
+      "Record real results or connect a data source; simulated figures are not evidence.",
     "ci.a.link_goal": "Link this campaign to the business goal it serves.",
     "ci.a.replan_tasks": "Re-plan the late tasks from their Re-plan tab.",
-    "ci.a.evaluate_campaign": "Evaluate the campaign: record what was achieved and what was learned.",
+    "ci.a.evaluate_campaign":
+      "Evaluate the campaign: record what was achieved and what was learned.",
     "ci.problem": "Problem: {p}",
     "ci.situation": "Current: {s}",
     "ci.evidence": "Evidence: {s}",
-    "ci.uncertainty": "Uncertainty: entered results are not verified; missing figures cannot be judged.",
-    "ci.impact": "Expected impact: aims to improve {k}; the size cannot be estimated from the recorded data.",
+    "ci.uncertainty":
+      "Uncertainty: entered results are not verified; missing figures cannot be judged.",
+    "ci.impact":
+      "Expected impact: aims to improve {k}; the size cannot be estimated from the recorded data.",
     "ci.impactNone": "Expected impact: better information for decisions; no figure is predicted.",
     "ci.cost": "Cost: creating the task is free; letting the {s} work on it uses AI credits.",
     "ci.costNone": "Cost: no credits.",
     "ci.risk": "Risk: {r}",
-    "ci.approval": "Approval: this only creates an internal task; nothing changes in ads, budgets or outside systems.",
+    "ci.approval":
+      "Approval: this only creates an internal task; nothing changes in ads, budgets or outside systems.",
     "ci.createTask": "Create task",
     "ci.taskExists": "Task already created",
     "ci.created": "Task created for this campaign.",
     "ci.createFailed": "The task could not be created.",
-    "ci.simLine": "Simulated test entries ({n}): {s} spent, {r} reserved. Not real spending; left out of every figure, problem and advice.",
+    "ci.simLine":
+      "Simulated test entries ({n}): {s} spent, {r} reserved. Not real spending; left out of every figure, problem and advice.",
     "ci.simWarn.budget_near": "With the simulation the budget would be almost used.",
     "ci.simWarn.budget_over": "With the simulation the budget would be exceeded.",
     "ci.simWarn.committed_over": "With the simulation reservations would exceed the budget.",
     "ci.simWarn.spend_without_budget": "The simulation records spending without a budget.",
     "ci.simAll": "simulated, not real spending",
     "ci.simSome": "includes simulated entries",
-    "ci.rulesNote": "Problems come from fixed rules over recorded figures; they point to evidence, not to a cause.",
+    "ci.rulesNote":
+      "Problems come from fixed rules over recorded figures; they point to evidence, not to a cause.",
   },
   nl: {
     "ci.title": "Campagnediagnose",
-    "ci.intro": "Opgebouwd uit wat voor deze campagne geregistreerd is: uitgaven, gekoppelde meetwaarden, toegewezen omzet en taken. Ontbrekende cijfers worden als ontbrekend getoond, nooit als nul. Er worden geen credits gebruikt.",
+    "ci.intro":
+      "Opgebouwd uit wat voor deze campagne geregistreerd is: uitgaven, gekoppelde meetwaarden, toegewezen omzet en taken. Ontbrekende cijfers worden als ontbrekend getoond, nooit als nul. Er worden geen credits gebruikt.",
     "ci.loading": "Campagnecijfers worden gelezen…",
-    "ci.failed": "De diagnose kon niet opgebouwd worden omdat een vereiste lezing mislukte. Er wordt niets onvolledigs getoond.",
+    "ci.failed":
+      "De diagnose kon niet opgebouwd worden omdat een vereiste lezing mislukte. Er wordt niets onvolledigs getoond.",
     "ci.figures": "Cijfers",
     "ci.f.budget": "Budget",
     "ci.f.spent": "Uitgegeven",
@@ -147,50 +164,67 @@ export const ci = defineArea("ci", {
     "ci.p.rising_cost": "Kosten per lead stegen meer dan 20% in de laatste periode",
     "ci.p.no_leads": "Geen leads gemeten na de helft van de periode",
     "ci.p.no_audience": "Geen doelgroep beschreven",
-    "ci.p.weak_evidence": "Alleen gesimuleerde of niet-gemeten informatie: geen echte marketingresultaten",
+    "ci.p.weak_evidence":
+      "Alleen gesimuleerde of niet-gemeten informatie: geen echte marketingresultaten",
     "ci.p.no_goal": "Niet gekoppeld aan een bedrijfsdoel",
     "ci.p.overlap": "Overlapt met {list} (zelfde kanaal, zelfde periode)",
     "ci.advice": "Voorgestelde verbeteringen",
-    "ci.a.define_kpis": "Bepaal de KPI's voor deze campagne (bijvoorbeeld leads en conversies) en koppel ze als meetwaarden.",
-    "ci.a.measure_results": "Registreer de resultaten van de campagne tot nu toe, of koppel een bron die ze rapporteert.",
-    "ci.a.improve_conversion": "Herbekijk de call-to-action en landingspagina, en test een variant in een experiment.",
-    "ci.a.review_budget_split": "Vergelijk de kosten per lead per kanaal en herzie de budgetverdeling.",
-    "ci.a.review_budget": "Herzie het resterende budget tegenover het geplande werk voordat er meer wordt uitgegeven.",
+    "ci.a.define_kpis":
+      "Bepaal de KPI's voor deze campagne (bijvoorbeeld leads en conversies) en koppel ze als meetwaarden.",
+    "ci.a.measure_results":
+      "Registreer de resultaten van de campagne tot nu toe, of koppel een bron die ze rapporteert.",
+    "ci.a.improve_conversion":
+      "Herbekijk de call-to-action en landingspagina, en test een variant in een experiment.",
+    "ci.a.review_budget_split":
+      "Vergelijk de kosten per lead per kanaal en herzie de budgetverdeling.",
+    "ci.a.review_budget":
+      "Herzie het resterende budget tegenover het geplande werk voordat er meer wordt uitgegeven.",
     "ci.a.review_audience": "Beschrijf en controleer de doelgroep van deze campagne.",
-    "ci.a.compare_channels": "Vergelijk de overlappende campagnes op hetzelfde kanaal en beslis of ze samengevoegd of gescheiden worden.",
+    "ci.a.compare_channels":
+      "Vergelijk de overlappende campagnes op hetzelfde kanaal en beslis of ze samengevoegd of gescheiden worden.",
     "ci.a.adjust_message": "Herwerk de campagneboodschap en call-to-action.",
-    "ci.a.connect_source": "Registreer echte resultaten of koppel een gegevensbron; gesimuleerde cijfers zijn geen bewijs.",
+    "ci.a.connect_source":
+      "Registreer echte resultaten of koppel een gegevensbron; gesimuleerde cijfers zijn geen bewijs.",
     "ci.a.link_goal": "Koppel deze campagne aan het bedrijfsdoel dat ze dient.",
     "ci.a.replan_tasks": "Herplan de achterstallige taken via hun tabblad Herplannen.",
     "ci.a.evaluate_campaign": "Evalueer de campagne: leg vast wat bereikt en geleerd werd.",
     "ci.problem": "Probleem: {p}",
     "ci.situation": "Huidig: {s}",
     "ci.evidence": "Bewijs: {s}",
-    "ci.uncertainty": "Onzekerheid: ingevoerde resultaten zijn niet geverifieerd; ontbrekende cijfers kunnen niet beoordeeld worden.",
-    "ci.impact": "Verwachte impact: beoogt {k} te verbeteren; de omvang kan niet geschat worden uit de geregistreerde gegevens.",
-    "ci.impactNone": "Verwachte impact: betere informatie voor beslissingen; er wordt geen cijfer voorspeld.",
+    "ci.uncertainty":
+      "Onzekerheid: ingevoerde resultaten zijn niet geverifieerd; ontbrekende cijfers kunnen niet beoordeeld worden.",
+    "ci.impact":
+      "Verwachte impact: beoogt {k} te verbeteren; de omvang kan niet geschat worden uit de geregistreerde gegevens.",
+    "ci.impactNone":
+      "Verwachte impact: betere informatie voor beslissingen; er wordt geen cijfer voorspeld.",
     "ci.cost": "Kosten: de taak aanmaken is gratis; de {s} eraan laten werken gebruikt AI-credits.",
     "ci.costNone": "Kosten: geen credits.",
     "ci.risk": "Risico: {r}",
-    "ci.approval": "Goedkeuring: dit maakt alleen een interne taak aan; er verandert niets aan advertenties, budgetten of externe systemen.",
+    "ci.approval":
+      "Goedkeuring: dit maakt alleen een interne taak aan; er verandert niets aan advertenties, budgetten of externe systemen.",
     "ci.createTask": "Taak aanmaken",
     "ci.taskExists": "Taak al aangemaakt",
     "ci.created": "Taak aangemaakt voor deze campagne.",
     "ci.createFailed": "De taak kon niet aangemaakt worden.",
-    "ci.simLine": "Gesimuleerde testboekingen ({n}): {s} uitgegeven, {r} gereserveerd. Geen echte uitgaven; buiten alle cijfers, problemen en adviezen gehouden.",
+    "ci.simLine":
+      "Gesimuleerde testboekingen ({n}): {s} uitgegeven, {r} gereserveerd. Geen echte uitgaven; buiten alle cijfers, problemen en adviezen gehouden.",
     "ci.simWarn.budget_near": "Met de simulatie zou het budget bijna op zijn.",
     "ci.simWarn.budget_over": "Met de simulatie zou het budget overschreden worden.",
-    "ci.simWarn.committed_over": "Met de simulatie zouden de reserveringen het budget overschrijden.",
+    "ci.simWarn.committed_over":
+      "Met de simulatie zouden de reserveringen het budget overschrijden.",
     "ci.simWarn.spend_without_budget": "De simulatie boekt uitgaven zonder budget.",
     "ci.simAll": "gesimuleerd, geen echte uitgaven",
     "ci.simSome": "bevat gesimuleerde boekingen",
-    "ci.rulesNote": "Problemen komen uit vaste regels over geregistreerde cijfers; ze wijzen naar bewijs, niet naar een oorzaak.",
+    "ci.rulesNote":
+      "Problemen komen uit vaste regels over geregistreerde cijfers; ze wijzen naar bewijs, niet naar een oorzaak.",
   },
   fr: {
     "ci.title": "Diagnostic de campagne",
-    "ci.intro": "Établi à partir de ce qui est enregistré pour cette campagne : dépenses, métriques liées, chiffre d’affaires attribué et tâches. Les chiffres manquants sont indiqués comme manquants, jamais comme zéro. Aucun crédit n’est utilisé.",
+    "ci.intro":
+      "Établi à partir de ce qui est enregistré pour cette campagne : dépenses, métriques liées, chiffre d’affaires attribué et tâches. Les chiffres manquants sont indiqués comme manquants, jamais comme zéro. Aucun crédit n’est utilisé.",
     "ci.loading": "Lecture des chiffres de la campagne…",
-    "ci.failed": "Le diagnostic n’a pas pu être établi car une lecture requise a échoué. Rien de partiel n’est affiché.",
+    "ci.failed":
+      "Le diagnostic n’a pas pu être établi car une lecture requise a échoué. Rien de partiel n’est affiché.",
     "ci.figures": "Chiffres",
     "ci.f.budget": "Budget",
     "ci.f.spent": "Dépensé",
@@ -239,43 +273,57 @@ export const ci = defineArea("ci", {
     "ci.p.rising_cost": "Le coût par prospect a augmenté de plus de 20 % sur la dernière période",
     "ci.p.no_leads": "Aucun prospect mesuré après la moitié de la période",
     "ci.p.no_audience": "Aucune audience cible décrite",
-    "ci.p.weak_evidence": "Uniquement des informations simulées ou non mesurées : pas de vrais résultats marketing",
+    "ci.p.weak_evidence":
+      "Uniquement des informations simulées ou non mesurées : pas de vrais résultats marketing",
     "ci.p.no_goal": "Non liée à un objectif",
     "ci.p.overlap": "Chevauche {list} (même canal, même période)",
     "ci.advice": "Améliorations suggérées",
-    "ci.a.define_kpis": "Définir les KPI de cette campagne (par exemple prospects et conversions) et les lier comme métriques.",
-    "ci.a.measure_results": "Enregistrer les résultats obtenus jusqu’ici, ou connecter une source qui les fournit.",
-    "ci.a.improve_conversion": "Revoir l’appel à l’action et la page d’atterrissage, et tester une variante dans une expérience.",
-    "ci.a.review_budget_split": "Comparer le coût par prospect par canal et revoir la répartition du budget.",
-    "ci.a.review_budget": "Revoir le budget restant au regard du travail prévu avant de dépenser davantage.",
+    "ci.a.define_kpis":
+      "Définir les KPI de cette campagne (par exemple prospects et conversions) et les lier comme métriques.",
+    "ci.a.measure_results":
+      "Enregistrer les résultats obtenus jusqu’ici, ou connecter une source qui les fournit.",
+    "ci.a.improve_conversion":
+      "Revoir l’appel à l’action et la page d’atterrissage, et tester une variante dans une expérience.",
+    "ci.a.review_budget_split":
+      "Comparer le coût par prospect par canal et revoir la répartition du budget.",
+    "ci.a.review_budget":
+      "Revoir le budget restant au regard du travail prévu avant de dépenser davantage.",
     "ci.a.review_audience": "Décrire et vérifier l’audience cible de cette campagne.",
-    "ci.a.compare_channels": "Comparer les campagnes qui se chevauchent sur le même canal et décider de les regrouper ou de les séparer.",
+    "ci.a.compare_channels":
+      "Comparer les campagnes qui se chevauchent sur le même canal et décider de les regrouper ou de les séparer.",
     "ci.a.adjust_message": "Retravailler le message et l’appel à l’action.",
-    "ci.a.connect_source": "Enregistrer de vrais résultats ou connecter une source ; les chiffres simulés ne sont pas des preuves.",
+    "ci.a.connect_source":
+      "Enregistrer de vrais résultats ou connecter une source ; les chiffres simulés ne sont pas des preuves.",
     "ci.a.link_goal": "Lier cette campagne à l’objectif qu’elle sert.",
     "ci.a.replan_tasks": "Replanifier les tâches en retard depuis leur onglet Replanifier.",
     "ci.a.evaluate_campaign": "Évaluer la campagne : noter ce qui a été obtenu et appris.",
     "ci.problem": "Problème : {p}",
     "ci.situation": "Situation : {s}",
     "ci.evidence": "Preuve : {s}",
-    "ci.uncertainty": "Incertitude : les résultats saisis ne sont pas vérifiés ; les chiffres manquants ne peuvent être jugés.",
-    "ci.impact": "Impact attendu : vise à améliorer {k} ; l’ampleur ne peut être estimée à partir des données enregistrées.",
-    "ci.impactNone": "Impact attendu : de meilleures informations pour décider ; aucun chiffre n’est prédit.",
+    "ci.uncertainty":
+      "Incertitude : les résultats saisis ne sont pas vérifiés ; les chiffres manquants ne peuvent être jugés.",
+    "ci.impact":
+      "Impact attendu : vise à améliorer {k} ; l’ampleur ne peut être estimée à partir des données enregistrées.",
+    "ci.impactNone":
+      "Impact attendu : de meilleures informations pour décider ; aucun chiffre n’est prédit.",
     "ci.cost": "Coût : créer la tâche est gratuit ; la confier au {s} utilise des crédits IA.",
     "ci.costNone": "Coût : aucun crédit.",
     "ci.risk": "Risque : {r}",
-    "ci.approval": "Approbation : cela crée seulement une tâche interne ; rien ne change dans les annonces, budgets ou systèmes externes.",
+    "ci.approval":
+      "Approbation : cela crée seulement une tâche interne ; rien ne change dans les annonces, budgets ou systèmes externes.",
     "ci.createTask": "Créer la tâche",
     "ci.taskExists": "Tâche déjà créée",
     "ci.created": "Tâche créée pour cette campagne.",
     "ci.createFailed": "La tâche n’a pas pu être créée.",
-    "ci.simLine": "Écritures de test simulées ({n}) : {s} dépensés, {r} réservés. Pas des dépenses réelles ; exclues de tous les chiffres, problèmes et conseils.",
+    "ci.simLine":
+      "Écritures de test simulées ({n}) : {s} dépensés, {r} réservés. Pas des dépenses réelles ; exclues de tous les chiffres, problèmes et conseils.",
     "ci.simWarn.budget_near": "Avec la simulation, le budget serait presque épuisé.",
     "ci.simWarn.budget_over": "Avec la simulation, le budget serait dépassé.",
     "ci.simWarn.committed_over": "Avec la simulation, les réservations dépasseraient le budget.",
     "ci.simWarn.spend_without_budget": "La simulation enregistre des dépenses sans budget.",
     "ci.simAll": "simulé, pas une dépense réelle",
     "ci.simSome": "contient des écritures simulées",
-    "ci.rulesNote": "Les problèmes proviennent de règles fixes sur les chiffres enregistrés ; ils indiquent des preuves, pas une cause.",
+    "ci.rulesNote":
+      "Les problèmes proviennent de règles fixes sur les chiffres enregistrés ; ils indiquent des preuves, pas une cause.",
   },
 });

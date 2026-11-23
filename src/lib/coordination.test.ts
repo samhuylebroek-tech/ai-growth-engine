@@ -3,31 +3,55 @@ import { coordinationInputSchema, selectSpecialistsForRequest } from "@/lib/coor
 
 describe("selectSpecialistsForRequest", () => {
   it("routes SEO and content work to both relevant capabilities", () => {
-    expect(selectSpecialistsForRequest("Build an SEO keyword strategy and blog content plan")).toEqual(["seo", "content"]);
+    expect(
+      selectSpecialistsForRequest("Build an SEO keyword strategy and blog content plan"),
+    ).toEqual(["seo", "content"]);
   });
   it("adds research to a search visibility assignment", () => {
-    expect(selectSpecialistsForRequest("Improve technical SEO and organic search rankings")).toEqual(["research", "seo"]);
+    expect(
+      selectSpecialistsForRequest("Improve technical SEO and organic search rankings"),
+    ).toEqual(["research", "seo"]);
   });
   it("pairs content requests with strategy", () => {
-    expect(selectSpecialistsForRequest("Write a blog article and social media posts")).toEqual(["strategy", "content"]);
+    expect(selectSpecialistsForRequest("Write a blog article and social media posts")).toEqual([
+      "strategy",
+      "content",
+    ]);
   });
   it("pairs market questions with research and strategy", () => {
-    expect(selectSpecialistsForRequest("Research competitors, customer segments and market pricing")).toEqual(["research", "strategy"]);
+    expect(
+      selectSpecialistsForRequest("Research competitors, customer segments and market pricing"),
+    ).toEqual(["research", "strategy"]);
   });
   it("routes Dutch SEO and content requests to both relevant capabilities", () => {
-    expect(selectSpecialistsForRequest("Verbeter onze zoekmachineoptimalisatie en schrijf drie artikelen voor sociale media")).toEqual(["seo", "content"]);
+    expect(
+      selectSpecialistsForRequest(
+        "Verbeter onze zoekmachineoptimalisatie en schrijf drie artikelen voor sociale media",
+      ),
+    ).toEqual(["seo", "content"]);
   });
   it("routes Dutch market and competitor research to research and strategy", () => {
-    expect(selectSpecialistsForRequest("Onderzoek de concurrentie en doelgroep in de Belgische markt")).toEqual(["research", "strategy"]);
+    expect(
+      selectSpecialistsForRequest("Onderzoek de concurrentie en doelgroep in de Belgische markt"),
+    ).toEqual(["research", "strategy"]);
   });
   it("routes French SEO and content requests to both relevant capabilities", () => {
-    expect(selectSpecialistsForRequest("Améliore notre référencement naturel et rédige trois articles pour les réseaux sociaux")).toEqual(["seo", "content"]);
+    expect(
+      selectSpecialistsForRequest(
+        "Améliore notre référencement naturel et rédige trois articles pour les réseaux sociaux",
+      ),
+    ).toEqual(["seo", "content"]);
   });
   it("routes French market and competitor research to research and strategy", () => {
-    expect(selectSpecialistsForRequest("Étudie la concurrence et le public cible sur le marché belge")).toEqual(["research", "strategy"]);
+    expect(
+      selectSpecialistsForRequest("Étudie la concurrence et le public cible sur le marché belge"),
+    ).toEqual(["research", "strategy"]);
   });
   it("uses a bounded strategy and research default", () => {
-    expect(selectSpecialistsForRequest("What is my best next growth move?")).toEqual(["strategy", "research"]);
+    expect(selectSpecialistsForRequest("What is my best next growth move?")).toEqual([
+      "strategy",
+      "research",
+    ]);
   });
 });
 
@@ -45,7 +69,9 @@ describe("coordinationInputSchema", () => {
     expect(parsed.agents).toEqual([]);
   });
   it("rejects client-supplied specialist choices in automatic mode", () => {
-    expect(() => coordinationInputSchema.parse({ ...base, mode: "auto", agents: ["strategy", "research"] })).toThrow();
+    expect(() =>
+      coordinationInputSchema.parse({ ...base, mode: "auto", agents: ["strategy", "research"] }),
+    ).toThrow();
   });
   it("preserves explicit specialist selection in advanced manual mode", () => {
     const parsed = coordinationInputSchema.parse({ ...base, agents: ["strategy", "research"] });
@@ -68,9 +94,13 @@ describe("deep analysis conversation context", () => {
     mode: "auto" as const,
   };
   it("accepts an explicitly selected existing conversation", () => {
-    expect(coordinationInputSchema.parse({ ...base, conversationId }).conversationId).toBe(conversationId);
+    expect(coordinationInputSchema.parse({ ...base, conversationId }).conversationId).toBe(
+      conversationId,
+    );
   });
   it("supports a fresh analysis without prior conversation history", () => {
-    expect(coordinationInputSchema.parse({ ...base, conversationId: null }).conversationId).toBeNull();
+    expect(
+      coordinationInputSchema.parse({ ...base, conversationId: null }).conversationId,
+    ).toBeNull();
   });
 });

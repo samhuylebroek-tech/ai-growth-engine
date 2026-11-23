@@ -13,8 +13,10 @@ export const account = defineArea("account", {
     "account.billing.includes": "Your plan includes",
     "account.billing.unlimited": "Unlimited",
     "account.billing.change": "Change plan",
-    "account.billing.indicative": "Indicative prices only — not approved for sale. Checkout is unavailable.",
-    "account.billing.payment": "Online payment is not switched on yet, so plans can't be bought here. Contact us to upgrade — the platform team can move your organization to any plan.",
+    "account.billing.indicative":
+      "Indicative prices only — not approved for sale. Checkout is unavailable.",
+    "account.billing.payment":
+      "Online payment is not switched on yet, so plans can't be bought here. Contact us to upgrade — the platform team can move your organization to any plan.",
     "account.billing.custom": "Custom",
     "account.billing.customCredits": "Custom credits",
     "account.billing.history": "Credit history",
@@ -49,9 +51,11 @@ export const account = defineArea("account", {
     "account.profile.edit": "Edit profile",
     "account.profile.loading": "Loading business knowledge…",
     "account.profile.failed": "Business knowledge could not load.",
-    "account.profile.hint": "Profile entries · confirm the sourced facts below before using them as trusted AI context.",
+    "account.profile.hint":
+      "Profile entries · confirm the sourced facts below before using them as trusted AI context.",
     "account.profile.currency": "Reporting currency",
-    "account.profile.currencyHint": "Used when this business is shown in the organization overview; amounts are never converted without a recorded rate.",
+    "account.profile.currencyHint":
+      "Used when this business is shown in the organization overview; amounts are never converted without a recorded rate.",
     "account.profile.description": "Description",
     "account.profile.industry": "Industry",
     "account.profile.model": "Business model",
@@ -60,7 +64,8 @@ export const account = defineArea("account", {
     "account.profile.objectives": "Objectives",
     "account.notSet": "Not set",
     "account.profile.knowledge": "Knowledge base",
-    "account.profile.trust": "Facts from you are trusted. Facts from documents, your website or AI are treated as claims until you verify them.",
+    "account.profile.trust":
+      "Facts from you are trusted. Facts from documents, your website or AI are treated as claims until you verify them.",
     "account.profile.searchLabel": "Search business facts",
     "account.profile.search": "Search knowledge…",
     "account.profile.status": "Knowledge status",
@@ -102,12 +107,15 @@ export const account = defineArea("account", {
     "account.field.usps": "Unique selling points",
     "account.field.competitors": "Competitors",
     "account.field.channels": "Marketing channels",
-    "account.discovery.failed": "Discovery could not finish. Your website is saved here; you can enter details instead.",
+    "account.discovery.failed":
+      "Discovery could not finish. Your website is saved here; you can enter details instead.",
     "account.discovery.saveOpportunityFailed": "Could not save this opportunity.",
     "account.discovery.opportunitySaved": "Saved as an unconfirmed opportunity",
     "account.discovery.confirmOne": "Confirm at least one business detail before continuing.",
-    "account.discovery.saveFailedAtomic": "Could not save the business profile. No partial changes were made.",
-    "account.discovery.goalFailed": "Profile saved, but the first goal could not be added. Add it on the Goals page.",
+    "account.discovery.saveFailedAtomic":
+      "Could not save the business profile. No partial changes were made.",
+    "account.discovery.goalFailed":
+      "Profile saved, but the first goal could not be added. Add it on the Goals page.",
     "account.discovery.profileGoalSaved": "Profile confirmed and first goal set",
     "account.discovery.profileSaved": "Business profile confirmed",
     "account.discovery.saveFailed": "Could not save your business profile.",
@@ -125,7 +133,8 @@ export const account = defineArea("account", {
     "account.discovery.manual": "Enter details instead",
     "account.discovery.reading": "Reading public pages and preparing findings…",
     "account.discovery.confirmTitle": "Confirm your business foundation.",
-    "account.discovery.reviewHint": "Review the findings. Only details you confirm become approved context.",
+    "account.discovery.reviewHint":
+      "Review the findings. Only details you confirm become approved context.",
     "account.discovery.notFound": "Not found — add a detail",
     "account.discovery.userConfirmed": "User-confirmed",
     "account.discovery.extracted": "Extracted",
@@ -159,7 +168,8 @@ export const account = defineArea("account", {
     "account.discovery.edit": "Edit {title}",
     "account.discovery.rejectOpportunity": "Reject opportunity {title}",
     "account.discovery.hypothesis": "AI hypothesis · {count}%",
-    "account.discovery.summary": "{details} details confirmed · {opportunities} opportunities selected",
+    "account.discovery.summary":
+      "{details} details confirmed · {opportunities} opportunities selected",
     "account.category.audiences": "Audiences",
     "account.category.markets": "Markets",
     "account.category.seo": "SEO",
@@ -173,7 +183,8 @@ export const account = defineArea("account", {
     "account.profile.headTitle": "Business profile",
     "account.profile.headDescription": "Confirmed knowledge, sources and editable facts.",
     "account.discovery.headTitle": "Business discovery",
-    "account.discovery.headDescription": "Discover, review and confirm your business profile with website-sourced findings.",
+    "account.discovery.headDescription":
+      "Discover, review and confirm your business profile with website-sourced findings.",
     "account.billing.reason.plan_grant": "plan credits",
     "account.billing.reason.usage": "AI usage",
     "account.billing.reason.purchase": "purchase",
@@ -192,8 +203,10 @@ export const account = defineArea("account", {
     "account.billing.includes": "Inbegrepen in je abonnement",
     "account.billing.unlimited": "Onbeperkt",
     "account.billing.change": "Abonnement wijzigen",
-    "account.billing.indicative": "Enkel richtprijzen — niet goedgekeurd voor verkoop. Afrekenen is niet beschikbaar.",
-    "account.billing.payment": "Online betalen is nog niet ingeschakeld. Je kunt hier dus geen abonnement kopen. Neem contact met ons op om te upgraden — het platformteam kan je organisatie naar elk abonnement overzetten.",
+    "account.billing.indicative":
+      "Enkel richtprijzen — niet goedgekeurd voor verkoop. Afrekenen is niet beschikbaar.",
+    "account.billing.payment":
+      "Online betalen is nog niet ingeschakeld. Je kunt hier dus geen abonnement kopen. Neem contact met ons op om te upgraden — het platformteam kan je organisatie naar elk abonnement overzetten.",
     "account.billing.custom": "Op maat",
     "account.billing.customCredits": "Credits op maat",
     "account.billing.history": "Creditgeschiedenis",
@@ -203,7 +216,8 @@ export const account = defineArea("account", {
     "account.billing.legal": "Officiële naam",
     "account.billing.country": "Land (code van 2 letters)",
     "account.billing.vat": "Btw-nummer",
-    "account.billing.vatHint": "Wordt enkel opgeslagen. Btw-validatie start zodra betalingen beschikbaar zijn.",
+    "account.billing.vatHint":
+      "Wordt enkel opgeslagen. Btw-validatie start zodra betalingen beschikbaar zijn.",
     "account.billing.address": "Adres",
     "account.billing.save": "Facturatiegegevens opslaan",
     "account.billing.noOrg": "Geen organisatie geselecteerd.",
@@ -228,9 +242,11 @@ export const account = defineArea("account", {
     "account.profile.edit": "Profiel bewerken",
     "account.profile.loading": "Bedrijfskennis laden…",
     "account.profile.failed": "Bedrijfskennis kon niet worden geladen.",
-    "account.profile.hint": "Profielgegevens · bevestig de onderstaande feiten uit bronnen voordat je ze als betrouwbare AI-context gebruikt.",
+    "account.profile.hint":
+      "Profielgegevens · bevestig de onderstaande feiten uit bronnen voordat je ze als betrouwbare AI-context gebruikt.",
     "account.profile.currency": "Rapportagevaluta",
-    "account.profile.currencyHint": "Wordt gebruikt wanneer dit bedrijf in het organisatieoverzicht wordt getoond; bedragen worden nooit omgerekend zonder een vastgelegde wisselkoers.",
+    "account.profile.currencyHint":
+      "Wordt gebruikt wanneer dit bedrijf in het organisatieoverzicht wordt getoond; bedragen worden nooit omgerekend zonder een vastgelegde wisselkoers.",
     "account.profile.description": "Beschrijving",
     "account.profile.industry": "Sector",
     "account.profile.model": "Bedrijfsmodel",
@@ -239,7 +255,8 @@ export const account = defineArea("account", {
     "account.profile.objectives": "Doelstellingen",
     "account.notSet": "Niet ingesteld",
     "account.profile.knowledge": "Kennisbank",
-    "account.profile.trust": "Feiten van jou worden vertrouwd. Feiten uit documenten, van je website of van AI worden als onbevestigd beschouwd totdat je ze verifieert.",
+    "account.profile.trust":
+      "Feiten van jou worden vertrouwd. Feiten uit documenten, van je website of van AI worden als onbevestigd beschouwd totdat je ze verifieert.",
     "account.profile.searchLabel": "Bedrijfsfeiten zoeken",
     "account.profile.search": "Kennis doorzoeken…",
     "account.profile.status": "Kennisstatus",
@@ -260,7 +277,8 @@ export const account = defineArea("account", {
     "account.profile.noMatch": "Geen overeenkomende feiten",
     "account.profile.foundation": "Bouw een betrouwbare bedrijfsbasis op",
     "account.profile.noKnowledge": "Geen kennis gevonden met deze filters.",
-    "account.profile.emptyHint": "Voeg een bedrijfsfeit toe, onderzoek je website of upload een document.",
+    "account.profile.emptyHint":
+      "Voeg een bedrijfsfeit toe, onderzoek je website of upload een document.",
     "account.profile.discover": "Breng je bedrijf in kaart",
     "account.profile.currencySet": "Rapportagevaluta ingesteld op {currency}",
     "account.profile.source.user": "Jij",
@@ -281,19 +299,23 @@ export const account = defineArea("account", {
     "account.field.usps": "Unieke troeven",
     "account.field.competitors": "Concurrenten",
     "account.field.channels": "Marketingkanalen",
-    "account.discovery.failed": "De analyse kon niet worden afgerond. Je website blijft hier bewaard; je kunt de gegevens zelf invullen.",
+    "account.discovery.failed":
+      "De analyse kon niet worden afgerond. Je website blijft hier bewaard; je kunt de gegevens zelf invullen.",
     "account.discovery.saveOpportunityFailed": "Deze kans kon niet worden opgeslagen.",
     "account.discovery.opportunitySaved": "Opgeslagen als onbevestigde kans",
     "account.discovery.confirmOne": "Bevestig minstens één bedrijfsgegeven voordat je verdergaat.",
-    "account.discovery.saveFailedAtomic": "Het bedrijfsprofiel kon niet worden opgeslagen. Er zijn geen gedeeltelijke wijzigingen aangebracht.",
-    "account.discovery.goalFailed": "Profiel opgeslagen, maar het eerste doel kon niet worden toegevoegd. Voeg het toe op de pagina Doelen.",
+    "account.discovery.saveFailedAtomic":
+      "Het bedrijfsprofiel kon niet worden opgeslagen. Er zijn geen gedeeltelijke wijzigingen aangebracht.",
+    "account.discovery.goalFailed":
+      "Profiel opgeslagen, maar het eerste doel kon niet worden toegevoegd. Voeg het toe op de pagina Doelen.",
     "account.discovery.profileGoalSaved": "Profiel bevestigd en eerste doel ingesteld",
     "account.discovery.profileSaved": "Bedrijfsprofiel bevestigd",
     "account.discovery.saveFailed": "Je bedrijfsprofiel kon niet worden opgeslagen.",
     "account.discovery.step1": "01 Je bedrijf",
     "account.discovery.step2": "02 Feiten bevestigen",
     "account.discovery.step3": "03 Groeirichting",
-    "account.discovery.permission": "Je hebt bewerkersrechten nodig om het bedrijfsprofiel te bevestigen.",
+    "account.discovery.permission":
+      "Je hebt bewerkersrechten nodig om het bedrijfsprofiel te bevestigen.",
     "account.discovery.start": "Begin met je website.",
     "account.discovery.intro": "Leg de basis voor je eerste groeianalyse.",
     "account.discovery.website": "Bedrijfswebsite",
@@ -304,7 +326,8 @@ export const account = defineArea("account", {
     "account.discovery.manual": "Gegevens zelf invullen",
     "account.discovery.reading": "Openbare pagina’s lezen en bevindingen voorbereiden…",
     "account.discovery.confirmTitle": "Bevestig je bedrijfsbasis.",
-    "account.discovery.reviewHint": "Controleer de bevindingen. Alleen gegevens die je bevestigt, worden goedgekeurde context.",
+    "account.discovery.reviewHint":
+      "Controleer de bevindingen. Alleen gegevens die je bevestigt, worden goedgekeurde context.",
     "account.discovery.notFound": "Niet gevonden — voeg een gegeven toe",
     "account.discovery.userConfirmed": "Bevestigd door gebruiker",
     "account.discovery.extracted": "Uit bron gehaald",
@@ -338,7 +361,8 @@ export const account = defineArea("account", {
     "account.discovery.edit": "{title} bewerken",
     "account.discovery.rejectOpportunity": "Kans {title} afwijzen",
     "account.discovery.hypothesis": "AI-hypothese · {count}%",
-    "account.discovery.summary": "{details} gegevens bevestigd · {opportunities} kansen geselecteerd",
+    "account.discovery.summary":
+      "{details} gegevens bevestigd · {opportunities} kansen geselecteerd",
     "account.category.audiences": "Doelgroepen",
     "account.category.markets": "Markten",
     "account.category.seo": "SEO",
@@ -352,7 +376,8 @@ export const account = defineArea("account", {
     "account.profile.headTitle": "Bedrijfsprofiel",
     "account.profile.headDescription": "Bevestigde kennis, bronnen en bewerkbare feiten.",
     "account.discovery.headTitle": "Bedrijfsverkenning",
-    "account.discovery.headDescription": "Ontdek, controleer en bevestig je bedrijfsprofiel met bevindingen van je website.",
+    "account.discovery.headDescription":
+      "Ontdek, controleer en bevestig je bedrijfsprofiel met bevindingen van je website.",
     "account.billing.reason.plan_grant": "abonnementscredits",
     "account.billing.reason.usage": "AI-gebruik",
     "account.billing.reason.purchase": "aankoop",
@@ -361,7 +386,8 @@ export const account = defineArea("account", {
   },
   fr: {
     "account.billing.title": "Abonnement et crédits",
-    "account.billing.description": "Votre abonnement, votre utilisation et votre historique de crédits.",
+    "account.billing.description":
+      "Votre abonnement, votre utilisation et votre historique de crédits.",
     "account.billing.loading": "Chargement de l’abonnement et de l’utilisation…",
     "account.billing.failed": "Impossible de charger l’abonnement et l’utilisation.",
     "account.retry": "Réessayer",
@@ -371,8 +397,10 @@ export const account = defineArea("account", {
     "account.billing.includes": "Votre abonnement comprend",
     "account.billing.unlimited": "Illimité",
     "account.billing.change": "Changer d’abonnement",
-    "account.billing.indicative": "Prix indicatifs uniquement — vente non autorisée. Le paiement est indisponible.",
-    "account.billing.payment": "Le paiement en ligne n’est pas encore activé. Vous ne pouvez donc pas acheter d’abonnement ici. Contactez-nous pour passer à une offre supérieure — l’équipe de la plateforme peut modifier l’abonnement de votre organisation.",
+    "account.billing.indicative":
+      "Prix indicatifs uniquement — vente non autorisée. Le paiement est indisponible.",
+    "account.billing.payment":
+      "Le paiement en ligne n’est pas encore activé. Vous ne pouvez donc pas acheter d’abonnement ici. Contactez-nous pour passer à une offre supérieure — l’équipe de la plateforme peut modifier l’abonnement de votre organisation.",
     "account.billing.custom": "Sur mesure",
     "account.billing.customCredits": "Crédits sur mesure",
     "account.billing.history": "Historique des crédits",
@@ -382,7 +410,8 @@ export const account = defineArea("account", {
     "account.billing.legal": "Raison sociale",
     "account.billing.country": "Pays (code à 2 lettres)",
     "account.billing.vat": "Numéro de TVA",
-    "account.billing.vatHint": "Enregistré uniquement. La validation de la TVA sera activée avec les paiements.",
+    "account.billing.vatHint":
+      "Enregistré uniquement. La validation de la TVA sera activée avec les paiements.",
     "account.billing.address": "Adresse",
     "account.billing.save": "Enregistrer les coordonnées de facturation",
     "account.billing.noOrg": "Aucune organisation sélectionnée.",
@@ -407,9 +436,11 @@ export const account = defineArea("account", {
     "account.profile.edit": "Modifier le profil",
     "account.profile.loading": "Chargement des connaissances sur l’entreprise…",
     "account.profile.failed": "Impossible de charger les connaissances sur l’entreprise.",
-    "account.profile.hint": "Données du profil · confirmez les faits sourcés ci-dessous avant de les utiliser comme contexte fiable pour l’IA.",
+    "account.profile.hint":
+      "Données du profil · confirmez les faits sourcés ci-dessous avant de les utiliser comme contexte fiable pour l’IA.",
     "account.profile.currency": "Devise de reporting",
-    "account.profile.currencyHint": "Utilisée lorsque cette entreprise figure dans la vue d’ensemble de l’organisation ; les montants ne sont jamais convertis sans taux enregistré.",
+    "account.profile.currencyHint":
+      "Utilisée lorsque cette entreprise figure dans la vue d’ensemble de l’organisation ; les montants ne sont jamais convertis sans taux enregistré.",
     "account.profile.description": "Description",
     "account.profile.industry": "Secteur",
     "account.profile.model": "Modèle économique",
@@ -418,7 +449,8 @@ export const account = defineArea("account", {
     "account.profile.objectives": "Objectifs",
     "account.notSet": "Non défini",
     "account.profile.knowledge": "Base de connaissances",
-    "account.profile.trust": "Les faits que vous fournissez sont considérés comme fiables. Ceux provenant de documents, de votre site web ou de l’IA restent des affirmations à vérifier.",
+    "account.profile.trust":
+      "Les faits que vous fournissez sont considérés comme fiables. Ceux provenant de documents, de votre site web ou de l’IA restent des affirmations à vérifier.",
     "account.profile.searchLabel": "Rechercher des faits sur l’entreprise",
     "account.profile.search": "Rechercher dans les connaissances…",
     "account.profile.status": "Statut des connaissances",
@@ -439,7 +471,8 @@ export const account = defineArea("account", {
     "account.profile.noMatch": "Aucun fait correspondant",
     "account.profile.foundation": "Construisez une base fiable pour votre entreprise",
     "account.profile.noKnowledge": "Aucune connaissance ne correspond à ces filtres.",
-    "account.profile.emptyHint": "Ajoutez un fait sur votre entreprise, analysez votre site web ou importez un document.",
+    "account.profile.emptyHint":
+      "Ajoutez un fait sur votre entreprise, analysez votre site web ou importez un document.",
     "account.profile.discover": "Découvrez votre entreprise",
     "account.profile.currencySet": "Devise de reporting définie sur {currency}",
     "account.profile.source.user": "Vous",
@@ -460,19 +493,24 @@ export const account = defineArea("account", {
     "account.field.usps": "Arguments de vente uniques",
     "account.field.competitors": "Concurrents",
     "account.field.channels": "Canaux marketing",
-    "account.discovery.failed": "L’analyse n’a pas pu aboutir. Votre site web est conservé ici ; vous pouvez saisir les informations manuellement.",
+    "account.discovery.failed":
+      "L’analyse n’a pas pu aboutir. Votre site web est conservé ici ; vous pouvez saisir les informations manuellement.",
     "account.discovery.saveOpportunityFailed": "Impossible d’enregistrer cette opportunité.",
     "account.discovery.opportunitySaved": "Enregistrée comme opportunité non confirmée",
-    "account.discovery.confirmOne": "Confirmez au moins une information sur l’entreprise avant de continuer.",
-    "account.discovery.saveFailedAtomic": "Impossible d’enregistrer le profil de l’entreprise. Aucune modification partielle n’a été effectuée.",
-    "account.discovery.goalFailed": "Le profil a été enregistré, mais le premier objectif n’a pas pu être ajouté. Ajoutez-le sur la page Objectifs.",
+    "account.discovery.confirmOne":
+      "Confirmez au moins une information sur l’entreprise avant de continuer.",
+    "account.discovery.saveFailedAtomic":
+      "Impossible d’enregistrer le profil de l’entreprise. Aucune modification partielle n’a été effectuée.",
+    "account.discovery.goalFailed":
+      "Le profil a été enregistré, mais le premier objectif n’a pas pu être ajouté. Ajoutez-le sur la page Objectifs.",
     "account.discovery.profileGoalSaved": "Profil confirmé et premier objectif défini",
     "account.discovery.profileSaved": "Profil de l’entreprise confirmé",
     "account.discovery.saveFailed": "Impossible d’enregistrer le profil de votre entreprise.",
     "account.discovery.step1": "01 Votre entreprise",
     "account.discovery.step2": "02 Confirmer les faits",
     "account.discovery.step3": "03 Orientation de croissance",
-    "account.discovery.permission": "Les droits de modification sont nécessaires pour confirmer le profil de l’entreprise.",
+    "account.discovery.permission":
+      "Les droits de modification sont nécessaires pour confirmer le profil de l’entreprise.",
     "account.discovery.start": "Commencez par votre site web.",
     "account.discovery.intro": "Posez les bases de votre première analyse de croissance.",
     "account.discovery.website": "Site web de l’entreprise",
@@ -483,7 +521,8 @@ export const account = defineArea("account", {
     "account.discovery.manual": "Saisir les informations manuellement",
     "account.discovery.reading": "Lecture des pages publiques et préparation des résultats…",
     "account.discovery.confirmTitle": "Confirmez les bases de votre entreprise.",
-    "account.discovery.reviewHint": "Vérifiez les résultats. Seules les informations que vous confirmez deviennent du contexte approuvé.",
+    "account.discovery.reviewHint":
+      "Vérifiez les résultats. Seules les informations que vous confirmez deviennent du contexte approuvé.",
     "account.discovery.notFound": "Non trouvé — ajoutez une information",
     "account.discovery.userConfirmed": "Confirmé par l’utilisateur",
     "account.discovery.extracted": "Extrait",
@@ -517,7 +556,8 @@ export const account = defineArea("account", {
     "account.discovery.edit": "Modifier : {title}",
     "account.discovery.rejectOpportunity": "Rejeter l’opportunité : {title}",
     "account.discovery.hypothesis": "Hypothèse de l’IA · {count}%",
-    "account.discovery.summary": "{details} informations confirmées · {opportunities} opportunités sélectionnées",
+    "account.discovery.summary":
+      "{details} informations confirmées · {opportunities} opportunités sélectionnées",
     "account.category.audiences": "Publics",
     "account.category.markets": "Marchés",
     "account.category.seo": "SEO",
@@ -531,7 +571,8 @@ export const account = defineArea("account", {
     "account.profile.headTitle": "Profil de l’entreprise",
     "account.profile.headDescription": "Connaissances confirmées, sources et faits modifiables.",
     "account.discovery.headTitle": "Découverte de l’entreprise",
-    "account.discovery.headDescription": "Découvrez, vérifiez et confirmez le profil de votre entreprise à partir des informations de votre site web.",
+    "account.discovery.headDescription":
+      "Découvrez, vérifiez et confirmez le profil de votre entreprise à partir des informations de votre site web.",
     "account.billing.reason.plan_grant": "crédits de l’abonnement",
     "account.billing.reason.usage": "utilisation de l’IA",
     "account.billing.reason.purchase": "achat",

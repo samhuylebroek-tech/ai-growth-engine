@@ -10,7 +10,8 @@
 import type { CampaignSpendRow } from "@/lib/pending-schema";
 
 export type SpendTotals = { spent: number; committed: number; released: number; entries: number };
-export type SpendWarning = "budget_near" | "budget_over" | "committed_over" | "spend_without_budget" | "other_currency";
+export type SpendWarning =
+  "budget_near" | "budget_over" | "committed_over" | "spend_without_budget" | "other_currency";
 export type SpendSummary = {
   /** Actual (non-simulated) totals per currency. */
   byCurrency: Record<string, SpendTotals>;
@@ -35,9 +36,11 @@ type Row = Pick<CampaignSpendRow, "kind" | "amount" | "currency" | "data_class">
 const cents = (n: number) => Math.round(n * 100) / 100;
 const zero = (): SpendTotals => ({ spent: 0, committed: 0, released: 0, entries: 0 });
 export const NEAR_SHARE = 0.8;
-export const isSimulatedSpend = (r: Pick<CampaignSpendRow, "data_class">) => r.data_class === "simulated";
+export const isSimulatedSpend = (r: Pick<CampaignSpendRow, "data_class">) =>
+  r.data_class === "simulated";
 /** Expenditure (spend and its corrections) as opposed to reservations and releases. */
-export const isExpenditure = (r: Pick<CampaignSpendRow, "kind">) => r.kind === "spend" || r.kind === "correction";
+export const isExpenditure = (r: Pick<CampaignSpendRow, "kind">) =>
+  r.kind === "spend" || r.kind === "correction";
 
 function totals(rows: readonly Row[]): Record<string, SpendTotals> {
   const out: Record<string, SpendTotals> = {};
@@ -73,18 +76,41 @@ export function spendSummary(budgetEur: number, rows: readonly Row[]): SpendSumm
   const simulatedEur = simulatedByCurrency["EUR"] ?? zero();
   const budget = Math.max(0, Number(budgetEur) || 0);
   const warnings = budgetWarnings(budget, eur);
-  const combined = budgetWarnings(budget, { spent: cents(eur.spent + simulatedEur.spent), committed: cents(eur.committed + simulatedEur.committed), released: 0, entries: 0 });
+  const combined = budgetWarnings(budget, {
+    spent: cents(eur.spent + simulatedEur.spent),
+    committed: cents(eur.committed + simulatedEur.committed),
+    released: 0,
+    entries: 0,
+  });
   const simulatedWarnings = simRows.length ? combined.filter((w) => !warnings.includes(w)) : [];
   if (Object.keys(byCurrency).some((c) => c !== "EUR")) warnings.push("other_currency");
   const remaining = budget > 0 ? cents(budget - eur.spent - eur.committed) : null;
   const usedPct = budget > 0 ? eur.spent / budget : null;
-  return { byCurrency, simulatedByCurrency, eur, simulatedEur, simulatedEntries: simRows.length, budget, remaining, usedPct, warnings, simulatedWarnings };
+  return {
+    byCurrency,
+    simulatedByCurrency,
+    eur,
+    simulatedEur,
+    simulatedEntries: simRows.length,
+    budget,
+    remaining,
+    usedPct,
+    warnings,
+    simulatedWarnings,
+  };
 }
 
 /** A real (actual) budget overrun: spending or spending plus reservations above the budget. */
-export const isRealOverrun = (s: SpendSummary | null | undefined) => !!s && (s.warnings.includes("budget_over") || s.warnings.includes("committed_over"));
+export const isRealOverrun = (s: SpendSummary | null | undefined) =>
+  !!s && (s.warnings.includes("budget_over") || s.warnings.includes("committed_over"));
 
 /** Remaining amount that can still be corrected (spend) or released (commitment) for one entry. */
-export function openAmount(entry: Pick<CampaignSpendRow, "id" | "amount">, rows: readonly Pick<CampaignSpendRow, "relates_to" | "amount">[]): number {
-  return cents(Number(entry.amount) + rows.filter((r) => r.relates_to === entry.id).reduce((s, r) => s + Number(r.amount), 0));
+export function openAmount(
+  entry: Pick<CampaignSpendRow, "id" | "amount">,
+  rows: readonly Pick<CampaignSpendRow, "relates_to" | "amount">[],
+): number {
+  return cents(
+    Number(entry.amount) +
+      rows.filter((r) => r.relates_to === entry.id).reduce((s, r) => s + Number(r.amount), 0),
+  );
 }

@@ -11,9 +11,10 @@ export const pages = defineArea("pages", {
     "pages.int.searchPh": "Search sources…",
     "pages.int.category": "Source category",
     "pages.int.allCategories": "All categories",
-    "pages.int.readOnlyWould": "Read-only · would import as \"imported\" results",
+    "pages.int.readOnlyWould": 'Read-only · would import as "imported" results',
     "pages.int.nothingChanged": "Nothing is changed in {name}. Needs: {req}.",
-    "pages.int.notInstalled": "Read-only data connections are not switched on for this workspace yet. Nothing is imported until they are.",
+    "pages.int.notInstalled":
+      "Read-only data connections are not switched on for this workspace yet. Nothing is imported until they are.",
     "pages.int.notAvailable": "Connection setup is not available yet.",
     "pages.int.openSource": "Open source",
     "pages.int.noMatch": "No sources match these filters.",
@@ -49,17 +50,23 @@ export const pages = defineArea("pages", {
     "pages.int.never": "never",
     "pages.int.notComplete": "The request did not complete. Nothing was changed.",
     "pages.int.connected": "{name} connected with read-only access.",
-    "pages.int.probe.key_rejected": "{name} did not accept this key. Check that you copied it completely and that it is still active.",
-    "pages.int.probe.key_no_read": "This {name} key does not have the read permission that is needed. Create a key with read-only access and try again.",
-    "pages.int.probe.key_secret_not_restricted": "Use a Stripe restricted key with read-only access (it starts with rk_), not a secret key.",
-    "pages.int.probe.key_format_stripe": "This does not look like a Stripe restricted key. It starts with rk_live_ or rk_test_.",
-    "pages.int.probe.key_format_hubspot": "This does not look like a HubSpot private app token. It starts with pat-.",
-    "pages.int.probe.provider_unavailable": "{name} could not check the key right now. Try again in a moment.",
+    "pages.int.probe.key_rejected":
+      "{name} did not accept this key. Check that you copied it completely and that it is still active.",
+    "pages.int.probe.key_no_read":
+      "This {name} key does not have the read permission that is needed. Create a key with read-only access and try again.",
+    "pages.int.probe.key_secret_not_restricted":
+      "Use a Stripe restricted key with read-only access (it starts with rk_), not a secret key.",
+    "pages.int.probe.key_format_stripe":
+      "This does not look like a Stripe restricted key. It starts with rk_live_ or rk_test_.",
+    "pages.int.probe.key_format_hubspot":
+      "This does not look like a HubSpot private app token. It starts with pat-.",
+    "pages.int.probe.provider_unavailable":
+      "{name} could not check the key right now. Try again in a moment.",
     "pages.int.lacksRead": "{name} is linked but lacks read permission: {missing}.",
     "pages.int.alreadyTracked": "This value is already tracked.",
     "pages.int.metricFailed": "The metric could not be created.",
     "pages.int.nowTracked": "{label} is now tracked in Performance.",
-    "pages.int.readOnlyLabel": "Read-only · imported results are labelled \"imported from {name}\"",
+    "pages.int.readOnlyLabel": 'Read-only · imported results are labelled "imported from {name}"',
     "pages.int.lastImport": "Last import {a} · last check {b}",
     "pages.int.tracked": "Tracked",
     "pages.int.track": "Track",
@@ -76,13 +83,15 @@ export const pages = defineArea("pages", {
     "pages.int.connect": "Connect",
     "pages.int.disconnected": "{name} disconnected. Imported history is kept.",
     "pages.int.disconnect": "Disconnect",
-    "pages.int.googleNotConfigured": "Google sign-in for data sources is not configured for this environment.",
+    "pages.int.googleNotConfigured":
+      "Google sign-in for data sources is not configured for this environment.",
     "pages.int.gaProperty": "Property ID (numbers only)",
     "pages.int.gscProperty": "Search Console property (https://… or sc-domain:…)",
     "pages.int.stripeKey": "Restricted key with read-only access (rk_…)",
     "pages.int.hubspotKey": "Private app token with deal read access (pat-…)",
     "pages.int.hubspotCurrency": "Currency for deals without one",
-    "pages.int.keyNote": "The key is checked with one read-only request, stored encrypted and never shown again.",
+    "pages.int.keyNote":
+      "The key is checked with one read-only request, stored encrypted and never shown again.",
     "pages.int.toGoogle": "Continue to Google",
     "pages.int.checkConnect": "Check and connect",
     "pages.int.history": "Import history",
@@ -91,7 +100,8 @@ export const pages = defineArea("pages", {
     "pages.int.g.desc": "Read-only access: nothing is changed in your Google account.",
     "pages.int.g.cancelled": "Google sign-in was cancelled. Nothing was connected.",
     "pages.int.g.connected": "Connected with read-only access.",
-    "pages.int.g.noScope": "Linked, but Google did not grant the read permission. Reconnect and allow access.",
+    "pages.int.g.noScope":
+      "Linked, but Google did not grant the read permission. Reconnect and allow access.",
     "pages.int.g.failed": "The connection could not be completed. Nothing was stored.",
     "pages.int.g.finishing": "Finishing the connection…",
     "pages.int.g.nothing": "No sign-in to finish.",
@@ -103,18 +113,21 @@ export const pages = defineArea("pages", {
     "pages.pub.kicker": "Your business growth operating system",
     "pages.pub.line1": "A clear picture of your business.",
     "pages.pub.line2": "A more confident next move.",
-    "pages.pub.intro": "Bring your business knowledge, growth priorities and AI partner together. Get recommendations grounded in confirmed facts, with every action under your control.",
+    "pages.pub.intro":
+      "Bring your business knowledge, growth priorities and AI partner together. Get recommendations grounded in confirmed facts, with every action under your control.",
     "pages.pub.cta": "Create your growth workspace",
     "pages.pub.trial": "14-day trial · 200 AI credits · No card required",
     "pages.pub.f1t": "One business foundation",
-    "pages.pub.f1": "Website research, private documents and business facts with traceable sources.",
+    "pages.pub.f1":
+      "Website research, private documents and business facts with traceable sources.",
     "pages.pub.f2t": "One growth partner",
     "pages.pub.f2": "Your Growth Officer helps turn business context into priorities and plans.",
     "pages.pub.f3t": "Your decisions",
     "pages.pub.f3": "Review proposed actions, keep a record of work and follow AI credit usage.",
     "pages.pr.title": "Pricing that grows with you",
     "pages.pr.sub": "Every plan starts with a 14-day free trial. No card required.",
-    "pages.pr.indicative": "Indicative prices — not yet approved for sale. Online checkout is unavailable.",
+    "pages.pr.indicative":
+      "Indicative prices — not yet approved for sale. Online checkout is unavailable.",
     "pages.pr.custom": "Custom",
     "pages.pr.perMonth": "/mo",
     "pages.pr.credits": "{n} AI credits / month",
@@ -168,7 +181,8 @@ export const pages = defineArea("pages", {
     "pages.sh.kind.documents": "Document",
     "pages.sh.kind.business_facts": "Business fact",
     "pages.sh.kind.conversations": "Conversation",
-    "pages.sh.noAssignment": "No workspace access has been assigned. Ask your organization owner to assign access.",
+    "pages.sh.noAssignment":
+      "No workspace access has been assigned. Ask your organization owner to assign access.",
     "pages.co.kicker": "Your growth workspace",
     "pages.co.title": "Create your organization",
     "pages.co.sub": "You'll start on a 14-day free trial with 200 AI credits. No card needed.",
@@ -188,9 +202,10 @@ export const pages = defineArea("pages", {
     "pages.int.searchPh": "Bronnen zoeken…",
     "pages.int.category": "Soort bron",
     "pages.int.allCategories": "Alle soorten",
-    "pages.int.readOnlyWould": "Alleen lezen · zou binnenkomen als \"geïmporteerde\" resultaten",
+    "pages.int.readOnlyWould": 'Alleen lezen · zou binnenkomen als "geïmporteerde" resultaten',
     "pages.int.nothingChanged": "Er wordt niets gewijzigd in {name}. Nodig: {req}.",
-    "pages.int.notInstalled": "Alleen-lezen gegevenskoppelingen staan nog niet aan voor deze werkruimte. Er wordt niets geïmporteerd tot ze aanstaan.",
+    "pages.int.notInstalled":
+      "Alleen-lezen gegevenskoppelingen staan nog niet aan voor deze werkruimte. Er wordt niets geïmporteerd tot ze aanstaan.",
     "pages.int.notAvailable": "Koppelen is nog niet beschikbaar.",
     "pages.int.openSource": "Bron openen",
     "pages.int.noMatch": "Geen bronnen voor deze filters.",
@@ -226,17 +241,24 @@ export const pages = defineArea("pages", {
     "pages.int.never": "nooit",
     "pages.int.notComplete": "Het verzoek werd niet afgerond. Er is niets gewijzigd.",
     "pages.int.connected": "{name} gekoppeld met alleen-lezen toegang.",
-    "pages.int.probe.key_rejected": "{name} heeft deze sleutel niet aanvaard. Kijk na of je hem volledig hebt gekopieerd en of hij nog actief is.",
-    "pages.int.probe.key_no_read": "Deze {name}-sleutel heeft niet de nodige leesrechten. Maak een sleutel met alleen-lezen toegang en probeer opnieuw.",
-    "pages.int.probe.key_secret_not_restricted": "Gebruik een beperkte Stripe-sleutel met alleen-lezen toegang (begint met rk_), geen geheime sleutel.",
-    "pages.int.probe.key_format_stripe": "Dit lijkt geen beperkte Stripe-sleutel. Die begint met rk_live_ of rk_test_.",
-    "pages.int.probe.key_format_hubspot": "Dit lijkt geen HubSpot private app-token. Dat begint met pat-.",
-    "pages.int.probe.provider_unavailable": "{name} kon de sleutel nu niet controleren. Probeer het zo meteen opnieuw.",
+    "pages.int.probe.key_rejected":
+      "{name} heeft deze sleutel niet aanvaard. Kijk na of je hem volledig hebt gekopieerd en of hij nog actief is.",
+    "pages.int.probe.key_no_read":
+      "Deze {name}-sleutel heeft niet de nodige leesrechten. Maak een sleutel met alleen-lezen toegang en probeer opnieuw.",
+    "pages.int.probe.key_secret_not_restricted":
+      "Gebruik een beperkte Stripe-sleutel met alleen-lezen toegang (begint met rk_), geen geheime sleutel.",
+    "pages.int.probe.key_format_stripe":
+      "Dit lijkt geen beperkte Stripe-sleutel. Die begint met rk_live_ of rk_test_.",
+    "pages.int.probe.key_format_hubspot":
+      "Dit lijkt geen HubSpot private app-token. Dat begint met pat-.",
+    "pages.int.probe.provider_unavailable":
+      "{name} kon de sleutel nu niet controleren. Probeer het zo meteen opnieuw.",
     "pages.int.lacksRead": "{name} is gekoppeld maar mist leesrechten: {missing}.",
     "pages.int.alreadyTracked": "Deze waarde wordt al gevolgd.",
     "pages.int.metricFailed": "De maatstaf kon niet gemaakt worden.",
     "pages.int.nowTracked": "{label} wordt nu gevolgd bij Resultaten.",
-    "pages.int.readOnlyLabel": "Alleen lezen · geïmporteerde resultaten krijgen het label \"geïmporteerd uit {name}\"",
+    "pages.int.readOnlyLabel":
+      'Alleen lezen · geïmporteerde resultaten krijgen het label "geïmporteerd uit {name}"',
     "pages.int.lastImport": "Laatste import {a} · laatste controle {b}",
     "pages.int.tracked": "Gevolgd",
     "pages.int.track": "Volgen",
@@ -245,7 +267,8 @@ export const pages = defineArea("pages", {
     "pages.int.currencyAria": "Munt voor {name}",
     "pages.int.monthsAria": "Aantal maanden te importeren uit {name}",
     "pages.int.lastMonths": "Laatste {n} volledige maand(en)",
-    "pages.int.importDone": "{name}: {c} nieuw, {k} gecorrigeerd, {u} ongewijzigd, {s} overgeslagen.",
+    "pages.int.importDone":
+      "{name}: {c} nieuw, {k} gecorrigeerd, {u} ongewijzigd, {s} overgeslagen.",
     "pages.int.importFailed": "Import mislukt.",
     "pages.int.untracked": "Niet gevolgd: {n} soorten waarden.",
     "pages.int.importNow": "Nu importeren",
@@ -253,13 +276,15 @@ export const pages = defineArea("pages", {
     "pages.int.connect": "Koppelen",
     "pages.int.disconnected": "{name} ontkoppeld. De geïmporteerde geschiedenis blijft bewaard.",
     "pages.int.disconnect": "Ontkoppelen",
-    "pages.int.googleNotConfigured": "Aanmelden bij Google voor gegevensbronnen is niet ingesteld voor deze omgeving.",
+    "pages.int.googleNotConfigured":
+      "Aanmelden bij Google voor gegevensbronnen is niet ingesteld voor deze omgeving.",
     "pages.int.gaProperty": "Property-ID (alleen cijfers)",
     "pages.int.gscProperty": "Search Console-property (https://… of sc-domain:…)",
     "pages.int.stripeKey": "Beperkte sleutel met alleen-lezen toegang (rk_…)",
     "pages.int.hubspotKey": "Private-app-token met leesrecht op deals (pat-…)",
     "pages.int.hubspotCurrency": "Munt voor deals zonder munt",
-    "pages.int.keyNote": "De sleutel wordt gecontroleerd met één leesverzoek, versleuteld bewaard en nooit meer getoond.",
+    "pages.int.keyNote":
+      "De sleutel wordt gecontroleerd met één leesverzoek, versleuteld bewaard en nooit meer getoond.",
     "pages.int.toGoogle": "Verder naar Google",
     "pages.int.checkConnect": "Controleren en koppelen",
     "pages.int.history": "Importgeschiedenis",
@@ -268,7 +293,8 @@ export const pages = defineArea("pages", {
     "pages.int.g.desc": "Alleen-lezen toegang: er wordt niets gewijzigd in je Google-account.",
     "pages.int.g.cancelled": "Aanmelden bij Google werd geannuleerd. Er is niets gekoppeld.",
     "pages.int.g.connected": "Gekoppeld met alleen-lezen toegang.",
-    "pages.int.g.noScope": "Gekoppeld, maar Google gaf geen leesrecht. Koppel opnieuw en sta toegang toe.",
+    "pages.int.g.noScope":
+      "Gekoppeld, maar Google gaf geen leesrecht. Koppel opnieuw en sta toegang toe.",
     "pages.int.g.failed": "De koppeling kon niet afgerond worden. Er is niets bewaard.",
     "pages.int.g.finishing": "Koppeling afronden…",
     "pages.int.g.nothing": "Er is geen aanmelding om af te ronden.",
@@ -280,18 +306,22 @@ export const pages = defineArea("pages", {
     "pages.pub.kicker": "Het besturingssysteem voor de groei van je bedrijf",
     "pages.pub.line1": "Een helder beeld van je bedrijf.",
     "pages.pub.line2": "Een zekerdere volgende stap.",
-    "pages.pub.intro": "Breng je bedrijfskennis, groeiprioriteiten en AI-partner samen. Krijg aanbevelingen op basis van bevestigde feiten, met elke actie onder jouw controle.",
+    "pages.pub.intro":
+      "Breng je bedrijfskennis, groeiprioriteiten en AI-partner samen. Krijg aanbevelingen op basis van bevestigde feiten, met elke actie onder jouw controle.",
     "pages.pub.cta": "Maak je groeiwerkruimte",
     "pages.pub.trial": "14 dagen proberen · 200 AI-tegoed · Geen kaart nodig",
     "pages.pub.f1t": "Eén bedrijfsbasis",
     "pages.pub.f1": "Websiteonderzoek, privédocumenten en bedrijfsfeiten met traceerbare bronnen.",
     "pages.pub.f2t": "Eén groeipartner",
-    "pages.pub.f2": "Je Growth Officer helpt bedrijfscontext om te zetten in prioriteiten en plannen.",
+    "pages.pub.f2":
+      "Je Growth Officer helpt bedrijfscontext om te zetten in prioriteiten en plannen.",
     "pages.pub.f3t": "Jouw beslissingen",
-    "pages.pub.f3": "Beoordeel voorgestelde acties, houd het werk bij en volg het verbruik van AI-tegoed.",
+    "pages.pub.f3":
+      "Beoordeel voorgestelde acties, houd het werk bij en volg het verbruik van AI-tegoed.",
     "pages.pr.title": "Prijzen die met je meegroeien",
     "pages.pr.sub": "Elk abonnement start met 14 dagen gratis proberen. Geen kaart nodig.",
-    "pages.pr.indicative": "Indicatieve prijzen — nog niet goedgekeurd voor verkoop. Online betalen is niet beschikbaar.",
+    "pages.pr.indicative":
+      "Indicatieve prijzen — nog niet goedgekeurd voor verkoop. Online betalen is niet beschikbaar.",
     "pages.pr.custom": "Op maat",
     "pages.pr.perMonth": "/mnd",
     "pages.pr.credits": "{n} AI-tegoed / maand",
@@ -307,7 +337,8 @@ export const pages = defineArea("pages", {
     "pages.au.create": "Maak je account",
     "pages.au.reset": "Wachtwoord opnieuw instellen",
     "pages.au.confirm": "Bevestig je e-mailadres via je inbox en meld je daarna aan.",
-    "pages.au.resetSent": "Als er een account bestaat voor dat e-mailadres, is er een link onderweg.",
+    "pages.au.resetSent":
+      "Als er een account bestaat voor dat e-mailadres, is er een link onderweg.",
     "pages.au.wrong": "Er ging iets mis",
     "pages.au.socialFailed": "Aanmelden met {p} mislukt",
     "pages.au.ssoMissing": "Aanmelden via je organisatie is nog niet ingesteld.",
@@ -345,7 +376,8 @@ export const pages = defineArea("pages", {
     "pages.sh.kind.documents": "Document",
     "pages.sh.kind.business_facts": "Bedrijfsfeit",
     "pages.sh.kind.conversations": "Gesprek",
-    "pages.sh.noAssignment": "Je hebt nog geen toegang tot een werkruimte. Vraag de eigenaar van je organisatie om toegang.",
+    "pages.sh.noAssignment":
+      "Je hebt nog geen toegang tot een werkruimte. Vraag de eigenaar van je organisatie om toegang.",
     "pages.co.kicker": "Je groeiwerkruimte",
     "pages.co.title": "Maak je organisatie",
     "pages.co.sub": "Je start met 14 dagen gratis proberen en 200 AI-tegoed. Geen kaart nodig.",
@@ -367,7 +399,8 @@ export const pages = defineArea("pages", {
     "pages.int.allCategories": "Toutes les catégories",
     "pages.int.readOnlyWould": "Lecture seule · importerait des résultats « importés »",
     "pages.int.nothingChanged": "Rien n’est modifié dans {name}. Requis : {req}.",
-    "pages.int.notInstalled": "Les connexions en lecture seule ne sont pas encore activées pour cet espace. Rien n’est importé tant qu’elles ne le sont pas.",
+    "pages.int.notInstalled":
+      "Les connexions en lecture seule ne sont pas encore activées pour cet espace. Rien n’est importé tant qu’elles ne le sont pas.",
     "pages.int.notAvailable": "La connexion n’est pas encore disponible.",
     "pages.int.openSource": "Ouvrir la source",
     "pages.int.noMatch": "Aucune source ne correspond à ces filtres.",
@@ -403,17 +436,24 @@ export const pages = defineArea("pages", {
     "pages.int.never": "jamais",
     "pages.int.notComplete": "La demande n’a pas abouti. Rien n’a été modifié.",
     "pages.int.connected": "{name} connecté en lecture seule.",
-    "pages.int.probe.key_rejected": "{name} n’a pas accepté cette clé. Vérifiez que vous l’avez copiée en entier et qu’elle est toujours active.",
-    "pages.int.probe.key_no_read": "Cette clé {name} n’a pas l’autorisation de lecture nécessaire. Créez une clé en lecture seule et réessayez.",
-    "pages.int.probe.key_secret_not_restricted": "Utilisez une clé Stripe restreinte en lecture seule (elle commence par rk_), pas une clé secrète.",
-    "pages.int.probe.key_format_stripe": "Cela ne ressemble pas à une clé Stripe restreinte. Elle commence par rk_live_ ou rk_test_.",
-    "pages.int.probe.key_format_hubspot": "Cela ne ressemble pas à un jeton d’application privée HubSpot. Il commence par pat-.",
-    "pages.int.probe.provider_unavailable": "{name} n’a pas pu vérifier la clé pour le moment. Réessayez dans un instant.",
+    "pages.int.probe.key_rejected":
+      "{name} n’a pas accepté cette clé. Vérifiez que vous l’avez copiée en entier et qu’elle est toujours active.",
+    "pages.int.probe.key_no_read":
+      "Cette clé {name} n’a pas l’autorisation de lecture nécessaire. Créez une clé en lecture seule et réessayez.",
+    "pages.int.probe.key_secret_not_restricted":
+      "Utilisez une clé Stripe restreinte en lecture seule (elle commence par rk_), pas une clé secrète.",
+    "pages.int.probe.key_format_stripe":
+      "Cela ne ressemble pas à une clé Stripe restreinte. Elle commence par rk_live_ ou rk_test_.",
+    "pages.int.probe.key_format_hubspot":
+      "Cela ne ressemble pas à un jeton d’application privée HubSpot. Il commence par pat-.",
+    "pages.int.probe.provider_unavailable":
+      "{name} n’a pas pu vérifier la clé pour le moment. Réessayez dans un instant.",
     "pages.int.lacksRead": "{name} est lié mais n’a pas le droit de lecture : {missing}.",
     "pages.int.alreadyTracked": "Cette valeur est déjà suivie.",
     "pages.int.metricFailed": "L’indicateur n’a pas pu être créé.",
     "pages.int.nowTracked": "{label} est maintenant suivi dans Résultats.",
-    "pages.int.readOnlyLabel": "Lecture seule · les résultats importés portent la mention « importé depuis {name} »",
+    "pages.int.readOnlyLabel":
+      "Lecture seule · les résultats importés portent la mention « importé depuis {name} »",
     "pages.int.lastImport": "Dernière importation {a} · dernière vérification {b}",
     "pages.int.tracked": "Suivi",
     "pages.int.track": "Suivre",
@@ -430,13 +470,15 @@ export const pages = defineArea("pages", {
     "pages.int.connect": "Connecter",
     "pages.int.disconnected": "{name} déconnecté. L’historique importé est conservé.",
     "pages.int.disconnect": "Déconnecter",
-    "pages.int.googleNotConfigured": "La connexion Google pour les sources n’est pas configurée dans cet environnement.",
+    "pages.int.googleNotConfigured":
+      "La connexion Google pour les sources n’est pas configurée dans cet environnement.",
     "pages.int.gaProperty": "ID de propriété (chiffres uniquement)",
     "pages.int.gscProperty": "Propriété Search Console (https://… ou sc-domain:…)",
     "pages.int.stripeKey": "Clé restreinte en lecture seule (rk_…)",
     "pages.int.hubspotKey": "Jeton d’application privée avec lecture des affaires (pat-…)",
     "pages.int.hubspotCurrency": "Devise des affaires sans devise",
-    "pages.int.keyNote": "La clé est vérifiée par une seule requête en lecture, stockée chiffrée et plus jamais affichée.",
+    "pages.int.keyNote":
+      "La clé est vérifiée par une seule requête en lecture, stockée chiffrée et plus jamais affichée.",
     "pages.int.toGoogle": "Continuer vers Google",
     "pages.int.checkConnect": "Vérifier et connecter",
     "pages.int.history": "Historique des importations",
@@ -445,7 +487,8 @@ export const pages = defineArea("pages", {
     "pages.int.g.desc": "Accès en lecture seule : rien n’est modifié dans votre compte Google.",
     "pages.int.g.cancelled": "La connexion Google a été annulée. Rien n’a été connecté.",
     "pages.int.g.connected": "Connecté en lecture seule.",
-    "pages.int.g.noScope": "Lié, mais Google n’a pas accordé la lecture. Reconnectez et autorisez l’accès.",
+    "pages.int.g.noScope":
+      "Lié, mais Google n’a pas accordé la lecture. Reconnectez et autorisez l’accès.",
     "pages.int.g.failed": "La connexion n’a pas pu aboutir. Rien n’a été enregistré.",
     "pages.int.g.finishing": "Finalisation de la connexion…",
     "pages.int.g.nothing": "Aucune connexion à finaliser.",
@@ -457,18 +500,23 @@ export const pages = defineArea("pages", {
     "pages.pub.kicker": "Le système d’exploitation de la croissance de votre entreprise",
     "pages.pub.line1": "Une vision claire de votre entreprise.",
     "pages.pub.line2": "Une prochaine étape plus sûre.",
-    "pages.pub.intro": "Réunissez vos connaissances, vos priorités de croissance et votre partenaire IA. Obtenez des recommandations fondées sur des faits confirmés, chaque action restant sous votre contrôle.",
+    "pages.pub.intro":
+      "Réunissez vos connaissances, vos priorités de croissance et votre partenaire IA. Obtenez des recommandations fondées sur des faits confirmés, chaque action restant sous votre contrôle.",
     "pages.pub.cta": "Créez votre espace de croissance",
     "pages.pub.trial": "Essai de 14 jours · 200 crédits IA · Sans carte",
     "pages.pub.f1t": "Une base unique",
-    "pages.pub.f1": "Analyse du site, documents privés et faits de l’entreprise avec sources traçables.",
+    "pages.pub.f1":
+      "Analyse du site, documents privés et faits de l’entreprise avec sources traçables.",
     "pages.pub.f2t": "Un partenaire de croissance",
-    "pages.pub.f2": "Votre Growth Officer transforme le contexte de l’entreprise en priorités et en plans.",
+    "pages.pub.f2":
+      "Votre Growth Officer transforme le contexte de l’entreprise en priorités et en plans.",
     "pages.pub.f3t": "Vos décisions",
-    "pages.pub.f3": "Examinez les actions proposées, gardez une trace du travail et suivez l’utilisation des crédits IA.",
+    "pages.pub.f3":
+      "Examinez les actions proposées, gardez une trace du travail et suivez l’utilisation des crédits IA.",
     "pages.pr.title": "Des tarifs qui évoluent avec vous",
     "pages.pr.sub": "Chaque formule commence par un essai gratuit de 14 jours. Sans carte.",
-    "pages.pr.indicative": "Prix indicatifs — pas encore validés pour la vente. Le paiement en ligne n’est pas disponible.",
+    "pages.pr.indicative":
+      "Prix indicatifs — pas encore validés pour la vente. Le paiement en ligne n’est pas disponible.",
     "pages.pr.custom": "Sur mesure",
     "pages.pr.perMonth": "/mois",
     "pages.pr.credits": "{n} crédits IA / mois",
@@ -483,15 +531,18 @@ export const pages = defineArea("pages", {
     "pages.au.welcome": "Bon retour",
     "pages.au.create": "Créez votre compte",
     "pages.au.reset": "Réinitialiser votre mot de passe",
-    "pages.au.confirm": "Confirmez votre e-mail depuis votre boîte de réception, puis connectez-vous.",
-    "pages.au.resetSent": "Si un compte existe pour cet e-mail, un lien de réinitialisation est en route.",
+    "pages.au.confirm":
+      "Confirmez votre e-mail depuis votre boîte de réception, puis connectez-vous.",
+    "pages.au.resetSent":
+      "Si un compte existe pour cet e-mail, un lien de réinitialisation est en route.",
     "pages.au.wrong": "Une erreur s’est produite",
     "pages.au.socialFailed": "Échec de la connexion avec {p}",
     "pages.au.ssoMissing": "La connexion via l’organisation n’est pas encore configurée.",
     "pages.au.google": "Continuer avec Google",
     "pages.au.microsoft": "Continuer avec Microsoft",
     "pages.au.sso": "Continuer avec le SSO de l’organisation",
-    "pages.au.ssoNote": "Le SSO de l’organisation est disponible après configuration OIDC par un administrateur.",
+    "pages.au.ssoNote":
+      "Le SSO de l’organisation est disponible après configuration OIDC par un administrateur.",
     "pages.au.or": "ou",
     "pages.au.name": "Nom",
     "pages.au.email": "E-mail",
@@ -522,10 +573,12 @@ export const pages = defineArea("pages", {
     "pages.sh.kind.documents": "Document",
     "pages.sh.kind.business_facts": "Fait de l’entreprise",
     "pages.sh.kind.conversations": "Conversation",
-    "pages.sh.noAssignment": "Aucun accès à un espace ne vous a été attribué. Demandez-le au propriétaire de votre organisation.",
+    "pages.sh.noAssignment":
+      "Aucun accès à un espace ne vous a été attribué. Demandez-le au propriétaire de votre organisation.",
     "pages.co.kicker": "Votre espace de croissance",
     "pages.co.title": "Créez votre organisation",
-    "pages.co.sub": "Vous commencez par un essai gratuit de 14 jours avec 200 crédits IA. Sans carte.",
+    "pages.co.sub":
+      "Vous commencez par un essai gratuit de 14 jours avec 200 crédits IA. Sans carte.",
     "pages.co.org": "Nom de l’organisation",
     "pages.co.ws": "Première marque ou espace",
     "pages.co.optional": "(facultatif)",

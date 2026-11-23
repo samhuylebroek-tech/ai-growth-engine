@@ -5,8 +5,16 @@ import type { LabelOf, LabelsOf } from "@/lib/onboarding/answers";
 import type { Locale } from "@/lib/i18n/messages";
 
 type Table = Record<string, string>;
-const TABLES: Record<Locale, Table> = { en: ob.en as Table, nl: ob.nl as Table, fr: ob.fr as Table };
+const TABLES: Record<Locale, Table> = {
+  en: ob.en as Table,
+  nl: ob.nl as Table,
+  fr: ob.fr as Table,
+};
 
 export const optionKey = (questionId: string, option: string) => `ob.o.${questionId}.${option}`;
-export const labelsOf: LabelsOf = (q, o) => Object.values(TABLES).map((t) => t[optionKey(q, o)] ?? o);
-export const labelIn = (locale: Locale): LabelOf => (q, o) => TABLES[locale][optionKey(q, o)] ?? TABLES.en[optionKey(q, o)] ?? o;
+export const labelsOf: LabelsOf = (q, o) =>
+  Object.values(TABLES).map((t) => t[optionKey(q, o)] ?? o);
+export const labelIn =
+  (locale: Locale): LabelOf =>
+  (q, o) =>
+    TABLES[locale][optionKey(q, o)] ?? TABLES.en[optionKey(q, o)] ?? o;

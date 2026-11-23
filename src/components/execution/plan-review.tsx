@@ -16,7 +16,12 @@ import {
 } from "@/components/ui/dialog";
 import { useOrg } from "@/lib/org-context";
 import { supabase } from "@/integrations/supabase/client";
-import { draftExecutionPlan, executionOptions, pickConversionGoal, planSchema } from "@/lib/execution";
+import {
+  draftExecutionPlan,
+  executionOptions,
+  pickConversionGoal,
+  planSchema,
+} from "@/lib/execution";
 
 export function PlanReview({ sourceId, content }: { sourceId: string; content: string }) {
   const o = useOrg();
@@ -36,7 +41,8 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
     enabled: open && !!o.org?.id && !!o.workspace?.id,
     queryFn: async () => {
       if (!o.org || !o.workspace) return [];
-      const r = await supabase.from("growth_goals")
+      const r = await supabase
+        .from("growth_goals")
         .select("id,title,status")
         .eq("org_id", o.org.id)
         .eq("workspace_id", o.workspace.id)
@@ -104,9 +110,7 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
         <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>{tr("officer.plan.review")}</DialogTitle>
-            <DialogDescription>
-              {tr("officer.plan.nothingYet")}
-            </DialogDescription>
+            <DialogDescription>{tr("officer.plan.nothingYet")}</DialogDescription>
           </DialogHeader>
           {kind !== "tasks" && (
             <label className="block space-y-1 text-xs">
@@ -120,10 +124,16 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
               >
                 <option value="">{tr("officer.plan.noGoal")}</option>
                 {goals.data?.map((goal) => (
-                  <option key={goal.id} value={goal.id}>{goal.title}</option>
+                  <option key={goal.id} value={goal.id}>
+                    {goal.title}
+                  </option>
                 ))}
               </select>
-              {goals.isError && <span role="alert" className="block text-destructive">{tr("officer.plan.goalsFailed")}</span>}
+              {goals.isError && (
+                <span role="alert" className="block text-destructive">
+                  {tr("officer.plan.goalsFailed")}
+                </span>
+              )}
             </label>
           )}
           <div className="flex flex-wrap gap-1">
@@ -185,13 +195,17 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
                 }
               >
                 {planSchema.shape.category.options.map((c) => (
-                  <option key={c} value={c}>{tr(`officer.cat.${c}`)}</option>
+                  <option key={c} value={c}>
+                    {tr(`officer.cat.${c}`)}
+                  </option>
                 ))}
               </select>
             </label>
           )}
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold">{tr("officer.plan.tasksCount", { n: plan.tasks.length })}</h3>
+            <h3 className="text-sm font-semibold">
+              {tr("officer.plan.tasksCount", { n: plan.tasks.length })}
+            </h3>
             <Button
               variant="ghost"
               size="sm"
@@ -262,8 +276,9 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
                           j === i
                             ? {
                                 ...x,
-                                priority: planSchema
-                                  .shape.tasks.element.shape.priority.parse(e.target.value),
+                                priority: planSchema.shape.tasks.element.shape.priority.parse(
+                                  e.target.value,
+                                ),
                               }
                             : x,
                         ),
@@ -271,7 +286,9 @@ export function PlanReview({ sourceId, content }: { sourceId: string; content: s
                     }
                   >
                     {(["low", "medium", "high", "urgent"] as const).map((p) => (
-                      <option key={p} value={p}>{tr(`officer.prio.${p}`)}</option>
+                      <option key={p} value={p}>
+                        {tr(`officer.prio.${p}`)}
+                      </option>
                     ))}
                   </select>
                   <select

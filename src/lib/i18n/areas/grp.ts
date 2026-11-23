@@ -33,7 +33,8 @@ export const grp = defineArea("grp", {
     "grp.missing": "Missing: {list}",
     "grp.init.title": "Initiatives of approved strategies",
     "grp.init.empty": "There are no initiatives in an approved strategy yet.",
-    "grp.init.note": "Spending, reservations and AI credits come from the same calculation as Growth economics, for this period; reserved and simulated money is never counted as spending. A task linked through both a project and a campaign is counted once.",
+    "grp.init.note":
+      "Spending, reservations and AI credits come from the same calculation as Growth economics, for this period; reserved and simulated money is never counted as spending. A task linked through both a project and a campaign is counted once.",
     "grp.st.title": "Strategies in effect",
     "grp.st.empty": "There is no approved strategy yet.",
     "grp.st.head": "{title} · version {v}",
@@ -50,10 +51,12 @@ export const grp = defineArea("grp", {
     "grp.st.work": "Work: {d} of {n} tasks done, {o} overdue, {c} campaign(s).",
     "grp.st.money": "Spent in this period: {s}. Reserved: {r}. AI credits: {k}.",
     "grp.st.budget": "Planned budget for the goal: {list}",
-    "grp.st.unlinked": "{n} campaign(s) of this goal are not part of this strategy and are not counted here.",
+    "grp.st.unlinked":
+      "{n} campaign(s) of this goal are not part of this strategy and are not counted here.",
     "grp.st.recorded": "{a} assumption(s) and {r} risk(s) recorded in this version.",
     "grp.st.pending": "A newer version is waiting for a decision.",
-    "grp.st.note": "Progress uses the goal's entered values. Money covers the strategy's campaigns (those of its initiatives and those linked to its strategy record), each counted once, by the Growth economics rules; simulated amounts are shown apart.",
+    "grp.st.note":
+      "Progress uses the goal's entered values. Money covers the strategy's campaigns (those of its initiatives and those linked to its strategy record), each counted once, by the Growth economics rules; simulated amounts are shown apart.",
     "grp.l.title": "Recommendation learning",
     "grp.l.created": "Recommendations made",
     "grp.l.converted": "Turned into work",
@@ -69,8 +72,10 @@ export const grp = defineArea("grp", {
     "grp.l.noLessons": "No lessons were recorded in this period.",
     "grp.l.evidence": "Kind of result: {list}",
     "grp.l.patterns": "Repeated patterns (all actual learnings so far)",
-    "grp.l.noPatterns": "No repeated pattern yet: it needs at least 3 measured, actual learnings from at least 2 campaigns.",
-    "grp.l.note": "Outcomes come from recorded measurements before and after the work, not from finished tasks; they show what followed, not what caused it.",
+    "grp.l.noPatterns":
+      "No repeated pattern yet: it needs at least 3 measured, actual learnings from at least 2 campaigns.",
+    "grp.l.note":
+      "Outcomes come from recorded measurements before and after the work, not from finished tasks; they show what followed, not what caused it.",
     "grp.l.unavailable": "Recommendation learning is not available in this environment yet.",
     "grp.cmp.open": "Compare with version {v}",
     "grp.cmp.close": "Hide comparison",
@@ -95,7 +100,8 @@ export const grp = defineArea("grp", {
     "grp.cmp.noBudget": "not stated",
     "grp.cmp.prevResults": "Version {v} initiatives as recorded: {list}",
     "grp.cmp.prevNone": "Version {v} had no initiatives.",
-    "grp.cmp.note": "Shows only what is recorded in both versions; it does not explain why results differed.",
+    "grp.cmp.note":
+      "Shows only what is recorded in both versions; it does not explain why results differed.",
     "grp.cmp.failed": "The versions could not be compared.",
   },
   nl: {
@@ -129,7 +135,8 @@ export const grp = defineArea("grp", {
     "grp.missing": "Ontbreekt: {list}",
     "grp.init.title": "Initiatieven van goedgekeurde strategieën",
     "grp.init.empty": "Er zijn nog geen initiatieven in een goedgekeurde strategie.",
-    "grp.init.note": "Uitgaven, reserveringen en AI-credits komen uit dezelfde berekening als Groei-economie, voor deze periode; gereserveerd en gesimuleerd geld telt nooit als uitgave. Een taak die via een project én een campagne gekoppeld is, telt één keer.",
+    "grp.init.note":
+      "Uitgaven, reserveringen en AI-credits komen uit dezelfde berekening als Groei-economie, voor deze periode; gereserveerd en gesimuleerd geld telt nooit als uitgave. Een taak die via een project én een campagne gekoppeld is, telt één keer.",
     "grp.st.title": "Geldende strategieën",
     "grp.st.empty": "Er is nog geen goedgekeurde strategie.",
     "grp.st.head": "{title} · versie {v}",
@@ -146,10 +153,12 @@ export const grp = defineArea("grp", {
     "grp.st.work": "Werk: {d} van {n} taken klaar, {o} te laat, {c} campagne(s).",
     "grp.st.money": "Uitgegeven in deze periode: {s}. Gereserveerd: {r}. AI-credits: {k}.",
     "grp.st.budget": "Gepland budget voor het doel: {list}",
-    "grp.st.unlinked": "{n} campagne(s) van dit doel horen niet bij deze strategie en worden hier niet meegeteld.",
+    "grp.st.unlinked":
+      "{n} campagne(s) van dit doel horen niet bij deze strategie en worden hier niet meegeteld.",
     "grp.st.recorded": "{a} aanname(s) en {r} risico('s) vastgelegd in deze versie.",
     "grp.st.pending": "Een nieuwere versie wacht op een beslissing.",
-    "grp.st.note": "Voortgang gebruikt de ingevoerde waarden van het doel. Geld omvat de campagnes van de strategie (van haar initiatieven en die aan de strategie gekoppeld zijn), elk één keer, volgens de regels van Groei-economie; gesimuleerde bedragen staan apart.",
+    "grp.st.note":
+      "Voortgang gebruikt de ingevoerde waarden van het doel. Geld omvat de campagnes van de strategie (van haar initiatieven en die aan de strategie gekoppeld zijn), elk één keer, volgens de regels van Groei-economie; gesimuleerde bedragen staan apart.",
     "grp.l.title": "Leren van aanbevelingen",
     "grp.l.created": "Aanbevelingen gedaan",
     "grp.l.converted": "Omgezet in werk",
@@ -165,8 +174,10 @@ export const grp = defineArea("grp", {
     "grp.l.noLessons": "Er zijn in deze periode geen lessen vastgelegd.",
     "grp.l.evidence": "Soort resultaat: {list}",
     "grp.l.patterns": "Terugkerende patronen (alle werkelijke lessen tot nu toe)",
-    "grp.l.noPatterns": "Nog geen terugkerend patroon: daarvoor zijn minstens 3 gemeten, werkelijke lessen uit minstens 2 campagnes nodig.",
-    "grp.l.note": "Resultaten komen uit vastgelegde metingen vóór en na het werk, niet uit afgeronde taken; ze tonen wat volgde, niet wat het veroorzaakte.",
+    "grp.l.noPatterns":
+      "Nog geen terugkerend patroon: daarvoor zijn minstens 3 gemeten, werkelijke lessen uit minstens 2 campagnes nodig.",
+    "grp.l.note":
+      "Resultaten komen uit vastgelegde metingen vóór en na het werk, niet uit afgeronde taken; ze tonen wat volgde, niet wat het veroorzaakte.",
     "grp.l.unavailable": "Leren van aanbevelingen is in deze omgeving nog niet beschikbaar.",
     "grp.cmp.open": "Vergelijk met versie {v}",
     "grp.cmp.close": "Vergelijking verbergen",
@@ -191,7 +202,8 @@ export const grp = defineArea("grp", {
     "grp.cmp.noBudget": "niet vermeld",
     "grp.cmp.prevResults": "Initiatieven van versie {v} zoals vastgelegd: {list}",
     "grp.cmp.prevNone": "Versie {v} had geen initiatieven.",
-    "grp.cmp.note": "Toont alleen wat in beide versies is vastgelegd; het verklaart niet waarom resultaten verschilden.",
+    "grp.cmp.note":
+      "Toont alleen wat in beide versies is vastgelegd; het verklaart niet waarom resultaten verschilden.",
     "grp.cmp.failed": "De versies konden niet vergeleken worden.",
   },
   fr: {
@@ -225,7 +237,8 @@ export const grp = defineArea("grp", {
     "grp.missing": "Manquant : {list}",
     "grp.init.title": "Initiatives des stratégies approuvées",
     "grp.init.empty": "Aucune initiative dans une stratégie approuvée pour l’instant.",
-    "grp.init.note": "Dépenses, réservations et crédits IA proviennent du même calcul que l’Économie de croissance, pour cette période ; l’argent réservé ou simulé n’est jamais compté comme dépense. Une tâche liée à la fois par un projet et une campagne compte une fois.",
+    "grp.init.note":
+      "Dépenses, réservations et crédits IA proviennent du même calcul que l’Économie de croissance, pour cette période ; l’argent réservé ou simulé n’est jamais compté comme dépense. Une tâche liée à la fois par un projet et une campagne compte une fois.",
     "grp.st.title": "Stratégies en vigueur",
     "grp.st.empty": "Aucune stratégie approuvée pour l’instant.",
     "grp.st.head": "{title} · version {v}",
@@ -242,10 +255,12 @@ export const grp = defineArea("grp", {
     "grp.st.work": "Travail : {d} sur {n} tâches terminées, {o} en retard, {c} campagne(s).",
     "grp.st.money": "Dépensé sur la période : {s}. Réservé : {r}. Crédits IA : {k}.",
     "grp.st.budget": "Budget prévu pour l’objectif : {list}",
-    "grp.st.unlinked": "{n} campagne(s) de cet objectif ne font pas partie de cette stratégie et ne sont pas comptées ici.",
+    "grp.st.unlinked":
+      "{n} campagne(s) de cet objectif ne font pas partie de cette stratégie et ne sont pas comptées ici.",
     "grp.st.recorded": "{a} hypothèse(s) et {r} risque(s) enregistrés dans cette version.",
     "grp.st.pending": "Une version plus récente attend une décision.",
-    "grp.st.note": "La progression utilise les valeurs saisies de l’objectif. L’argent couvre les campagnes de la stratégie (celles de ses initiatives et celles liées à la stratégie), chacune une fois, selon les règles de l’Économie de croissance ; les montants simulés sont affichés à part.",
+    "grp.st.note":
+      "La progression utilise les valeurs saisies de l’objectif. L’argent couvre les campagnes de la stratégie (celles de ses initiatives et celles liées à la stratégie), chacune une fois, selon les règles de l’Économie de croissance ; les montants simulés sont affichés à part.",
     "grp.l.title": "Apprentissage des recommandations",
     "grp.l.created": "Recommandations faites",
     "grp.l.converted": "Transformées en travail",
@@ -261,9 +276,12 @@ export const grp = defineArea("grp", {
     "grp.l.noLessons": "Aucune leçon enregistrée sur la période.",
     "grp.l.evidence": "Type de résultat : {list}",
     "grp.l.patterns": "Tendances récurrentes (toutes les leçons réelles à ce jour)",
-    "grp.l.noPatterns": "Pas encore de tendance : il faut au moins 3 leçons réelles mesurées issues d’au moins 2 campagnes.",
-    "grp.l.note": "Les résultats proviennent de mesures enregistrées avant et après le travail, pas de tâches terminées ; ils montrent ce qui a suivi, pas ce qui l’a causé.",
-    "grp.l.unavailable": "L’apprentissage des recommandations n’est pas encore disponible dans cet environnement.",
+    "grp.l.noPatterns":
+      "Pas encore de tendance : il faut au moins 3 leçons réelles mesurées issues d’au moins 2 campagnes.",
+    "grp.l.note":
+      "Les résultats proviennent de mesures enregistrées avant et après le travail, pas de tâches terminées ; ils montrent ce qui a suivi, pas ce qui l’a causé.",
+    "grp.l.unavailable":
+      "L’apprentissage des recommandations n’est pas encore disponible dans cet environnement.",
     "grp.cmp.open": "Comparer avec la version {v}",
     "grp.cmp.close": "Masquer la comparaison",
     "grp.cmp.title": "Version {a} → version {b}",
@@ -287,7 +305,8 @@ export const grp = defineArea("grp", {
     "grp.cmp.noBudget": "non indiqué",
     "grp.cmp.prevResults": "Initiatives de la version {v} telles qu’enregistrées : {list}",
     "grp.cmp.prevNone": "La version {v} n’avait pas d’initiatives.",
-    "grp.cmp.note": "Montre seulement ce qui est enregistré dans les deux versions ; n’explique pas pourquoi les résultats ont différé.",
+    "grp.cmp.note":
+      "Montre seulement ce qui est enregistré dans les deux versions ; n’explique pas pourquoi les résultats ont différé.",
     "grp.cmp.failed": "Les versions n’ont pas pu être comparées.",
   },
 });

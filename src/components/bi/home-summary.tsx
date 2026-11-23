@@ -68,7 +68,15 @@ export function HomeBusinessSummary() {
               missing={t("bi.miss.noPipeline")}
             />
           </div>
-          {o.org && o.workspace && <HomeConverted orgId={o.org.id} wsId={o.workspace.id} name={o.workspace.name} from={v.range.from} to={v.range.to} />}
+          {o.org && o.workspace && (
+            <HomeConverted
+              orgId={o.org.id}
+              wsId={o.workspace.id}
+              name={o.workspace.name}
+              from={v.range.from}
+              to={v.range.to}
+            />
+          )}
           <h3 className="mb-2 mt-4 text-xs font-semibold">{t("bi.actions.title")}</h3>
           <GrowthActions actions={v.actions} compact />
           <Link

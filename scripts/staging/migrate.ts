@@ -9,8 +9,15 @@ console.log("ledger before:", before);
 try {
   await migrate(drizzle(sql), { migrationsFolder: "drizzle/migrations" });
 } catch (e) {
-  const err = e as { message?: string; cause?: { message?: string; code?: string; where?: string } };
-  console.error("MIGRATION FAILED:", err.cause?.code ?? "", (err.cause?.message ?? err.message ?? "").slice(0, 400));
+  const err = e as {
+    message?: string;
+    cause?: { message?: string; code?: string; where?: string };
+  };
+  console.error(
+    "MIGRATION FAILED:",
+    err.cause?.code ?? "",
+    (err.cause?.message ?? err.message ?? "").slice(0, 400),
+  );
   if (err.cause?.where) console.error("where:", err.cause.where.slice(0, 300));
   console.log("ledger after failure:", await ledger());
   await sql.end();

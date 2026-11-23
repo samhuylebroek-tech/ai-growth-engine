@@ -17,7 +17,8 @@ export const bk = defineArea("bk", {
     "bk.cause.no_date": "No deadline",
     "bk.downstream": "{n} later tasks wait on this one in turn: {list}",
     "bk.downstream1": "One later task waits on this one in turn: {list}",
-    "bk.campaign": "The campaign end date is at risk: the earlier work is not planned to finish before the campaign ends.",
+    "bk.campaign":
+      "The campaign end date is at risk: the earlier work is not planned to finish before the campaign ends.",
     "bk.next": "What you can do",
     "bk.a.finish_prerequisite": "Finish the earlier task first — that unblocks this one.",
     "bk.a.assign_owner": "Make someone responsible for the earlier task.",
@@ -28,7 +29,8 @@ export const bk = defineArea("bk", {
     "bk.openPre": "Open the earlier task",
     "bk.replan": "Re-plan",
     "bk.approvals": "Go to approvals",
-    "bk.nothingChanges": "Nothing changes automatically: owners, deadlines and budgets only change when someone with the right permission does it.",
+    "bk.nothingChanges":
+      "Nothing changes automatically: owners, deadlines and budgets only change when someone with the right permission does it.",
   },
   nl: {
     "bk.title": "Deze taak wacht",
@@ -45,18 +47,22 @@ export const bk = defineArea("bk", {
     "bk.cause.no_date": "Geen deadline",
     "bk.downstream": "Hierna wachten nog {n} taken op deze taak: {list}",
     "bk.downstream1": "Hierna wacht nog één taak op deze taak: {list}",
-    "bk.campaign": "De einddatum van de campagne komt in gevaar: het eerdere werk is niet gepland om vóór het einde van de campagne klaar te zijn.",
+    "bk.campaign":
+      "De einddatum van de campagne komt in gevaar: het eerdere werk is niet gepland om vóór het einde van de campagne klaar te zijn.",
     "bk.next": "Wat je kunt doen",
     "bk.a.finish_prerequisite": "Rond eerst de eerdere taak af — dan komt deze taak vrij.",
     "bk.a.assign_owner": "Maak iemand verantwoordelijk voor de eerdere taak.",
-    "bk.a.decide_approval": "Beslis over de openstaande goedkeuring, zodat het eerdere werk verder kan.",
-    "bk.a.retry_or_replan": "Bekijk waarom het AI-werk mislukte en voer het opnieuw uit of herplan.",
+    "bk.a.decide_approval":
+      "Beslis over de openstaande goedkeuring, zodat het eerdere werk verder kan.",
+    "bk.a.retry_or_replan":
+      "Bekijk waarom het AI-werk mislukte en voer het opnieuw uit of herplan.",
     "bk.a.replan": "Herplan: verschuif deadlines zodat de volgorde weer klopt.",
     "bk.a.review_prerequisite": "Beoordeel de eerdere taak zodat ze afgerond kan worden.",
     "bk.openPre": "Eerdere taak openen",
     "bk.replan": "Herplannen",
     "bk.approvals": "Naar goedkeuringen",
-    "bk.nothingChanges": "Er verandert niets vanzelf: eigenaars, deadlines en budgetten wijzigen alleen als iemand met de juiste rechten dat doet.",
+    "bk.nothingChanges":
+      "Er verandert niets vanzelf: eigenaars, deadlines en budgetten wijzigen alleen als iemand met de juiste rechten dat doet.",
   },
   fr: {
     "bk.title": "Cette tâche est en attente",
@@ -73,17 +79,21 @@ export const bk = defineArea("bk", {
     "bk.cause.no_date": "Sans échéance",
     "bk.downstream": "{n} tâches suivantes attendent à leur tour celle-ci : {list}",
     "bk.downstream1": "Une tâche suivante attend à son tour celle-ci : {list}",
-    "bk.campaign": "La date de fin de la campagne est menacée : le travail préalable n’est pas prévu avant la fin de la campagne.",
+    "bk.campaign":
+      "La date de fin de la campagne est menacée : le travail préalable n’est pas prévu avant la fin de la campagne.",
     "bk.next": "Ce que vous pouvez faire",
     "bk.a.finish_prerequisite": "Terminez d’abord la tâche précédente — cela débloque celle-ci.",
     "bk.a.assign_owner": "Désignez un responsable pour la tâche précédente.",
-    "bk.a.decide_approval": "Décidez de l’approbation en attente pour que le travail préalable reprenne.",
-    "bk.a.retry_or_replan": "Regardez pourquoi le travail IA a échoué, puis relancez-le ou replanifiez.",
+    "bk.a.decide_approval":
+      "Décidez de l’approbation en attente pour que le travail préalable reprenne.",
+    "bk.a.retry_or_replan":
+      "Regardez pourquoi le travail IA a échoué, puis relancez-le ou replanifiez.",
     "bk.a.replan": "Replanifier : déplacez les échéances pour que l’ordre reste cohérent.",
     "bk.a.review_prerequisite": "Relisez la tâche précédente pour qu’elle puisse être terminée.",
     "bk.openPre": "Ouvrir la tâche précédente",
     "bk.replan": "Replanifier",
     "bk.approvals": "Voir les approbations",
-    "bk.nothingChanges": "Rien ne change automatiquement : responsables, échéances et budgets ne changent que si une personne autorisée le fait.",
+    "bk.nothingChanges":
+      "Rien ne change automatiquement : responsables, échéances et budgets ne changent que si une personne autorisée le fait.",
   },
 });

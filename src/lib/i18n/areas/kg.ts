@@ -4,13 +4,15 @@ import { defineArea } from "../define";
 export const kg = defineArea("kg", {
   en: {
     "kg.title": "Starting point and target",
-    "kg.intro": "The starting point is the value you measure improvement from. The target is the value you want to reach, and by when.",
+    "kg.intro":
+      "The starting point is the value you measure improvement from. The target is the value you want to reach, and by when.",
     "kg.notInstalled": "Starting points and targets are not available in this environment yet.",
     "kg.loadFailed": "Starting point and target could not be loaded.",
     "kg.baseline": "Starting point",
     "kg.target": "Target",
     "kg.current": "Latest result",
-    "kg.noBaseline": "No starting point yet. Without one, progress cannot be measured — nothing is assumed.",
+    "kg.noBaseline":
+      "No starting point yet. Without one, progress cannot be measured — nothing is assumed.",
     "kg.noTarget": "No target yet.",
     "kg.noResult": "No recorded result yet.",
     "kg.period": "{s} – {e}",
@@ -30,13 +32,16 @@ export const kg = defineArea("kg", {
     "kg.changeValue": "{v} ({p})",
     "kg.points": "{v} points",
     "kg.progress": "{n}% of the way to the target",
-    "kg.progressExplain": "How far the latest result has moved from the starting point toward the target.",
+    "kg.progressExplain":
+      "How far the latest result has moved from the starting point toward the target.",
     "kg.improving": "Moving in the right direction",
     "kg.worsening": "Moving in the wrong direction",
     "kg.blocked.no_baseline": "Set a starting point to see the change.",
     "kg.blocked.no_result": "Record a result for a later period to see the change.",
-    "kg.blocked.different_length": "The starting point covers a different period length than the latest result, so they cannot be compared honestly.",
-    "kg.blocked.overlap": "The starting point overlaps the latest result's period, so they cannot be compared.",
+    "kg.blocked.different_length":
+      "The starting point covers a different period length than the latest result, so they cannot be compared honestly.",
+    "kg.blocked.overlap":
+      "The starting point overlaps the latest result's period, so they cannot be compared.",
     "kg.previous": "Previous result: {v} ({m})",
     "kg.trend.up": "Rising for 3 months in a row",
     "kg.trend.down": "Falling for 3 months in a row",
@@ -50,11 +55,14 @@ export const kg = defineArea("kg", {
     "kg.withdraw": "Remove target",
     "kg.withdrawConfirm": "Remove this target? It stays in the history and can be set again later.",
     "kg.useResult": "Use a recorded result",
-    "kg.useResultHelp": "Recommended: the value, period and reliability are copied from what was recorded.",
+    "kg.useResultHelp":
+      "Recommended: the value, period and reliability are copied from what was recorded.",
     "kg.enterValue": "Enter a value",
-    "kg.enterHelp": "Use this when the starting value comes from somewhere else, such as last year's sales sheet. Say where it comes from.",
+    "kg.enterHelp":
+      "Use this when the starting value comes from somewhere else, such as last year's sales sheet. Say where it comes from.",
     "kg.pickResult": "Recorded result",
-    "kg.noResults": "There is no recorded result yet. Record one first, or enter a value with its source.",
+    "kg.noResults":
+      "There is no recorded result yet. Record one first, or enter a value with its source.",
     "kg.value": "Value",
     "kg.from": "From",
     "kg.to": "To",
@@ -80,13 +88,15 @@ export const kg = defineArea("kg", {
   },
   nl: {
     "kg.title": "Startpunt en doel",
-    "kg.intro": "Het startpunt is de waarde van waaruit je verbetering meet. Het doel is de waarde die je wilt bereiken, en tegen wanneer.",
+    "kg.intro":
+      "Het startpunt is de waarde van waaruit je verbetering meet. Het doel is de waarde die je wilt bereiken, en tegen wanneer.",
     "kg.notInstalled": "Startpunten en doelen zijn in deze omgeving nog niet beschikbaar.",
     "kg.loadFailed": "Startpunt en doel konden niet worden geladen.",
     "kg.baseline": "Startpunt",
     "kg.target": "Doel",
     "kg.current": "Laatste resultaat",
-    "kg.noBaseline": "Nog geen startpunt. Zonder startpunt kan vooruitgang niet gemeten worden — er wordt niets aangenomen.",
+    "kg.noBaseline":
+      "Nog geen startpunt. Zonder startpunt kan vooruitgang niet gemeten worden — er wordt niets aangenomen.",
     "kg.noTarget": "Nog geen doel.",
     "kg.noResult": "Nog geen vastgelegd resultaat.",
     "kg.period": "{s} – {e}",
@@ -106,13 +116,17 @@ export const kg = defineArea("kg", {
     "kg.changeValue": "{v} ({p})",
     "kg.points": "{v} procentpunt",
     "kg.progress": "{n}% van de weg naar het doel",
-    "kg.progressExplain": "Hoe ver het laatste resultaat van het startpunt richting het doel is opgeschoven.",
+    "kg.progressExplain":
+      "Hoe ver het laatste resultaat van het startpunt richting het doel is opgeschoven.",
     "kg.improving": "Gaat de goede kant op",
     "kg.worsening": "Gaat de verkeerde kant op",
     "kg.blocked.no_baseline": "Leg een startpunt vast om de verandering te zien.",
-    "kg.blocked.no_result": "Leg een resultaat voor een latere periode vast om de verandering te zien.",
-    "kg.blocked.different_length": "Het startpunt beslaat een andere periodelengte dan het laatste resultaat, dus eerlijk vergelijken kan niet.",
-    "kg.blocked.overlap": "Het startpunt overlapt met de periode van het laatste resultaat, dus vergelijken kan niet.",
+    "kg.blocked.no_result":
+      "Leg een resultaat voor een latere periode vast om de verandering te zien.",
+    "kg.blocked.different_length":
+      "Het startpunt beslaat een andere periodelengte dan het laatste resultaat, dus eerlijk vergelijken kan niet.",
+    "kg.blocked.overlap":
+      "Het startpunt overlapt met de periode van het laatste resultaat, dus vergelijken kan niet.",
     "kg.previous": "Vorig resultaat: {v} ({m})",
     "kg.trend.up": "Drie maanden op rij gestegen",
     "kg.trend.down": "Drie maanden op rij gedaald",
@@ -124,13 +138,17 @@ export const kg = defineArea("kg", {
     "kg.setTarget": "Doel vastleggen",
     "kg.changeTarget": "Doel wijzigen",
     "kg.withdraw": "Doel verwijderen",
-    "kg.withdrawConfirm": "Dit doel verwijderen? Het blijft in de geschiedenis staan en je kunt later een nieuw doel vastleggen.",
+    "kg.withdrawConfirm":
+      "Dit doel verwijderen? Het blijft in de geschiedenis staan en je kunt later een nieuw doel vastleggen.",
     "kg.useResult": "Een vastgelegd resultaat gebruiken",
-    "kg.useResultHelp": "Aanbevolen: waarde, periode en betrouwbaarheid worden overgenomen van wat al is vastgelegd.",
+    "kg.useResultHelp":
+      "Aanbevolen: waarde, periode en betrouwbaarheid worden overgenomen van wat al is vastgelegd.",
     "kg.enterValue": "Zelf een waarde invoeren",
-    "kg.enterHelp": "Gebruik dit als de startwaarde ergens anders vandaan komt, zoals de verkoopcijfers van vorig jaar. Vermeld de bron.",
+    "kg.enterHelp":
+      "Gebruik dit als de startwaarde ergens anders vandaan komt, zoals de verkoopcijfers van vorig jaar. Vermeld de bron.",
     "kg.pickResult": "Vastgelegd resultaat",
-    "kg.noResults": "Er is nog geen vastgelegd resultaat. Leg er eerst een vast, of voer een waarde met bron in.",
+    "kg.noResults":
+      "Er is nog geen vastgelegd resultaat. Leg er eerst een vast, of voer een waarde met bron in.",
     "kg.value": "Waarde",
     "kg.from": "Van",
     "kg.to": "Tot",
@@ -156,13 +174,16 @@ export const kg = defineArea("kg", {
   },
   fr: {
     "kg.title": "Point de départ et objectif",
-    "kg.intro": "Le point de départ est la valeur à partir de laquelle vous mesurez l’amélioration. L’objectif est la valeur à atteindre, et pour quand.",
-    "kg.notInstalled": "Les points de départ et objectifs ne sont pas encore disponibles dans cet environnement.",
+    "kg.intro":
+      "Le point de départ est la valeur à partir de laquelle vous mesurez l’amélioration. L’objectif est la valeur à atteindre, et pour quand.",
+    "kg.notInstalled":
+      "Les points de départ et objectifs ne sont pas encore disponibles dans cet environnement.",
     "kg.loadFailed": "Impossible de charger le point de départ et l’objectif.",
     "kg.baseline": "Point de départ",
     "kg.target": "Objectif",
     "kg.current": "Dernier résultat",
-    "kg.noBaseline": "Pas encore de point de départ. Sans lui, la progression ne peut pas être mesurée — rien n’est supposé.",
+    "kg.noBaseline":
+      "Pas encore de point de départ. Sans lui, la progression ne peut pas être mesurée — rien n’est supposé.",
     "kg.noTarget": "Pas encore d’objectif.",
     "kg.noResult": "Aucun résultat enregistré.",
     "kg.period": "{s} – {e}",
@@ -182,13 +203,17 @@ export const kg = defineArea("kg", {
     "kg.changeValue": "{v} ({p})",
     "kg.points": "{v} points",
     "kg.progress": "{n} % du chemin vers l’objectif",
-    "kg.progressExplain": "Le chemin parcouru par le dernier résultat entre le point de départ et l’objectif.",
+    "kg.progressExplain":
+      "Le chemin parcouru par le dernier résultat entre le point de départ et l’objectif.",
     "kg.improving": "Va dans le bon sens",
     "kg.worsening": "Va dans le mauvais sens",
     "kg.blocked.no_baseline": "Définissez un point de départ pour voir l’évolution.",
-    "kg.blocked.no_result": "Enregistrez un résultat pour une période ultérieure pour voir l’évolution.",
-    "kg.blocked.different_length": "Le point de départ couvre une durée différente du dernier résultat : une comparaison honnête est impossible.",
-    "kg.blocked.overlap": "Le point de départ chevauche la période du dernier résultat : comparaison impossible.",
+    "kg.blocked.no_result":
+      "Enregistrez un résultat pour une période ultérieure pour voir l’évolution.",
+    "kg.blocked.different_length":
+      "Le point de départ couvre une durée différente du dernier résultat : une comparaison honnête est impossible.",
+    "kg.blocked.overlap":
+      "Le point de départ chevauche la période du dernier résultat : comparaison impossible.",
     "kg.previous": "Résultat précédent : {v} ({m})",
     "kg.trend.up": "En hausse trois mois d’affilée",
     "kg.trend.down": "En baisse trois mois d’affilée",
@@ -200,13 +225,17 @@ export const kg = defineArea("kg", {
     "kg.setTarget": "Définir l’objectif",
     "kg.changeTarget": "Modifier l’objectif",
     "kg.withdraw": "Retirer l’objectif",
-    "kg.withdrawConfirm": "Retirer cet objectif ? Il reste dans l’historique et vous pourrez en définir un nouveau plus tard.",
+    "kg.withdrawConfirm":
+      "Retirer cet objectif ? Il reste dans l’historique et vous pourrez en définir un nouveau plus tard.",
     "kg.useResult": "Utiliser un résultat enregistré",
-    "kg.useResultHelp": "Recommandé : la valeur, la période et la fiabilité sont reprises de ce qui a été enregistré.",
+    "kg.useResultHelp":
+      "Recommandé : la valeur, la période et la fiabilité sont reprises de ce qui a été enregistré.",
     "kg.enterValue": "Saisir une valeur",
-    "kg.enterHelp": "À utiliser quand la valeur de départ vient d’ailleurs, par exemple le tableau des ventes de l’an dernier. Indiquez la source.",
+    "kg.enterHelp":
+      "À utiliser quand la valeur de départ vient d’ailleurs, par exemple le tableau des ventes de l’an dernier. Indiquez la source.",
     "kg.pickResult": "Résultat enregistré",
-    "kg.noResults": "Aucun résultat enregistré pour l’instant. Enregistrez-en un, ou saisissez une valeur avec sa source.",
+    "kg.noResults":
+      "Aucun résultat enregistré pour l’instant. Enregistrez-en un, ou saisissez une valeur avec sa source.",
     "kg.value": "Valeur",
     "kg.from": "Du",
     "kg.to": "Au",
@@ -223,7 +252,8 @@ export const kg = defineArea("kg", {
     "kg.cancel": "Annuler",
     "kg.saved": "Enregistré. La valeur précédente reste dans l’historique.",
     "kg.failed": "Échec de l’enregistrement. Vérifiez les valeurs et réessayez.",
-    "kg.notAllowed": "Seuls les éditeurs et administrateurs peuvent définir points de départ et objectifs.",
+    "kg.notAllowed":
+      "Seuls les éditeurs et administrateurs peuvent définir points de départ et objectifs.",
     "kg.invalid": "Vérifiez la valeur, les dates et la source.",
     "kg.history": "Historique ({n})",
     "kg.withdrawn": "Objectif retiré",

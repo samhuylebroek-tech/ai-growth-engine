@@ -30,14 +30,24 @@ export function useBusinessRights(ids: readonly string[]) {
   const o = useOrg();
   return useQuery({
     queryKey: ["org-business-rights", o.userId, o.org?.id, [...ids].sort().join(",")],
-    enabled: ids.length > 0, staleTime: 60_000,
+    enabled: ids.length > 0,
+    staleTime: 60_000,
     queryFn: async () => {
       const out: BusinessRights = {};
-      const rpc = growthDb.rpc as unknown as (n: "has_workspace_role", a: { _workspace: string; _min: string }) => PromiseLike<{ data: boolean | null; error: unknown }>;
-      await Promise.all(ids.map(async (id) => {
-        const [a, e, m] = await Promise.all([rpc.call(growthDb, "has_workspace_role", { _workspace: id, _min: "admin" }), rpc.call(growthDb, "has_workspace_role", { _workspace: id, _min: "editor" }), rpc.call(growthDb, "has_workspace_role", { _workspace: id, _min: "member" })]);
-        out[id] = { admin: !!a.data, editor: !!e.data, member: !!m.data };
-      }));
+      const rpc = growthDb.rpc as unknown as (
+        n: "has_workspace_role",
+        a: { _workspace: string; _min: string },
+      ) => PromiseLike<{ data: boolean | null; error: unknown }>;
+      await Promise.all(
+        ids.map(async (id) => {
+          const [a, e, m] = await Promise.all([
+            rpc.call(growthDb, "has_workspace_role", { _workspace: id, _min: "admin" }),
+            rpc.call(growthDb, "has_workspace_role", { _workspace: id, _min: "editor" }),
+            rpc.call(growthDb, "has_workspace_role", { _workspace: id, _min: "member" }),
+          ]);
+          out[id] = { admin: !!a.data, editor: !!e.data, member: !!m.data };
+        }),
+      );
       return out;
     },
   });
@@ -53,7 +63,9 @@ export function useOrgModel(orgId: string, period: Period) {
   const model = useMemo(() => {
     if (!q.data) return null;
     const view = buildOrgView(q.data, businesses, periodFrom(period), todayIso(), monthStartIso());
-    const iq = orgIntelligence(q.data, view, businesses, todayIso(), intel.data ?? null, { userCanDecide: (ws) => !!rights.data?.[ws]?.admin });
+    const iq = orgIntelligence(q.data, view, businesses, todayIso(), intel.data ?? null, {
+      userCanDecide: (ws) => !!rights.data?.[ws]?.admin,
+    });
     return { view, iq };
   }, [q.data, intel.data, rights.data, businesses, period]);
   const name = (id: string) => businesses.find((b) => b.id === id)?.name ?? null;
@@ -62,13 +74,15 @@ export function useOrgModel(orgId: string, period: Period) {
 export type OrgModel = ReturnType<typeof useOrgModel>;
 
 export function useNames() {
-  const o = useOrg(); const { t } = useI18n();
+  const o = useOrg();
+  const { t } = useI18n();
   const labels = useMemo(() => businessLabels(o.workspaces), [o.workspaces]);
   return (id: string) => labels.get(id) ?? t("ogo.otherBusiness");
 }
 /** Turns B1/B2 references in a stored organization strategy (or an opportunity it produced) into business labels at display time. */
 export function useRefNamer() {
-  const o = useOrg(); const name = useNames();
+  const o = useOrg();
+  const name = useNames();
   return (body: unknown, businessIds: readonly string[]) => {
     const { refs, reconstructed } = strategyRefs(body, businessIds, o.workspaces);
     const labels = Object.fromEntries(Object.entries(refs).map(([r, id]) => [r, name(id)]));
@@ -77,16 +91,38 @@ export function useRefNamer() {
 }
 export function useKnown() {
   const { t } = useI18n();
-  return (k: string, fallback: string, params?: Record<string, string>) => (k in MESSAGES.en ? t(tk(k), params) : fallback);
+  return (k: string, fallback: string, params?: Record<string, string>) =>
+    k in MESSAGES.en ? t(tk(k), params) : fallback;
 }
 
-const EV_TONE: Record<string, string> = { verified: "actual", recorded: "manual", calculated: "manual", estimate: "estimated", assumption: "planned", missing: "low" };
+const EV_TONE: Record<string, string> = {
+  verified: "actual",
+  recorded: "manual",
+  calculated: "manual",
+  estimate: "estimated",
+  assumption: "planned",
+  missing: "low",
+};
 export function EvidenceBadge({ cls }: { cls: string }) {
   const { t } = useI18n();
   return <Badge kind={EV_TONE[cls] ?? "none"}>{t(tk(`ogo.cls.${cls}`))}</Badge>;
 }
-export function Tile({ label, value, note }: { label: string; value: string; note?: React.ReactNode }) {
-  return <Panel><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 text-lg font-semibold tabular-nums">{value}</p>{note && <div className="mt-1 text-xs text-muted-foreground">{note}</div>}</Panel>;
+export function Tile({
+  label,
+  value,
+  note,
+}: {
+  label: string;
+  value: string;
+  note?: React.ReactNode;
+}) {
+  return (
+    <Panel>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-1 text-lg font-semibold tabular-nums">{value}</p>
+      {note && <div className="mt-1 text-xs text-muted-foreground">{note}</div>}
+    </Panel>
+  );
 }
 export function Empty({ children }: { children: React.ReactNode }) {
   return <p className="text-sm text-muted-foreground">{children}</p>;

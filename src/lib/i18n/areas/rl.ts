@@ -4,14 +4,17 @@ import { defineArea } from "../define";
 export const rl = defineArea("rl", {
   en: {
     "rl.title": "Recommendation learning",
-    "rl.intro": "Each recommendation is followed from proposal to work, measurement and the lesson learned. A good result is recorded only after a measurement says so; completed work alone is not success. Lessons inform future recommendations and never change plans by themselves.",
+    "rl.intro":
+      "Each recommendation is followed from proposal to work, measurement and the lesson learned. A good result is recorded only after a measurement says so; completed work alone is not success. Lessons inform future recommendations and never change plans by themselves.",
     "rl.notInstalled": "Recommendation learning is not available in this environment yet.",
     "rl.loadFailed": "Learnings could not be loaded.",
     "rl.stages": "Where recommendations stand",
     "rl.noProposals": "No recommendations yet.",
     "rl.patterns": "Patterns",
-    "rl.noPatterns": "No patterns yet: a pattern needs at least 3 measured, actual learnings from at least 2 campaigns.",
-    "rl.patternLine": "{n} observation(s) in {c} campaign(s): {pos} better, {neg} worse, {nc} no change · {f} – {to}",
+    "rl.noPatterns":
+      "No patterns yet: a pattern needs at least 3 measured, actual learnings from at least 2 campaigns.",
+    "rl.patternLine":
+      "{n} observation(s) in {c} campaign(s): {pos} better, {neg} worse, {nc} no change · {f} – {to}",
     "rl.dir.positive": "Usually followed by improvement here.",
     "rl.dir.negative": "Usually followed by a worse result here.",
     "rl.dir.mixed": "Results differ; no consistent direction.",
@@ -57,14 +60,17 @@ export const rl = defineArea("rl", {
     "rl.changePct": "Measured change % (optional)",
     "rl.actualCost": "Actual cost in {c} (optional)",
     "rl.lesson": "What did we learn?",
-    "rl.measuredNote": "The outcome choices follow the recorded measurement. Credits used and days to result are filled in from the records.",
-    "rl.notMeasuredNote": "This recommendation has not been measured yet, so it cannot be recorded as better, worse or unchanged.",
+    "rl.measuredNote":
+      "The outcome choices follow the recorded measurement. Credits used and days to result are filled in from the records.",
+    "rl.notMeasuredNote":
+      "This recommendation has not been measured yet, so it cannot be recorded as better, worse or unchanged.",
     "rl.save": "Save lesson",
     "rl.saved": "Lesson recorded.",
     "rl.err.number": "Enter numbers for the change and the cost (cost cannot be negative).",
     "rl.err.lesson": "Write the lesson (at least 3 characters).",
     "rl.err.notMeasured": "Refused: this outcome needs a recorded measurement that shows it.",
-    "rl.err.needsWork": "Refused: a lesson can be recorded once the recommendation has become work.",
+    "rl.err.needsWork":
+      "Refused: a lesson can be recorded once the recommendation has become work.",
     "rl.err.role": "Only editors record lessons.",
     "rl.err.failed": "The lesson could not be saved. Check the values and try again.",
     "rl.stage.proposed": "Proposed",
@@ -84,14 +90,17 @@ export const rl = defineArea("rl", {
   },
   nl: {
     "rl.title": "Leren van aanbevelingen",
-    "rl.intro": "Elke aanbeveling wordt gevolgd van voorstel naar werk, meting en de geleerde les. Een goed resultaat wordt pas geregistreerd als een meting dat aantoont; afgewerkt werk alleen is geen succes. Lessen sturen toekomstige aanbevelingen en wijzigen zelf nooit plannen.",
+    "rl.intro":
+      "Elke aanbeveling wordt gevolgd van voorstel naar werk, meting en de geleerde les. Een goed resultaat wordt pas geregistreerd als een meting dat aantoont; afgewerkt werk alleen is geen succes. Lessen sturen toekomstige aanbevelingen en wijzigen zelf nooit plannen.",
     "rl.notInstalled": "Leren van aanbevelingen is in deze omgeving nog niet beschikbaar.",
     "rl.loadFailed": "Lessen konden niet worden geladen.",
     "rl.stages": "Waar aanbevelingen staan",
     "rl.noProposals": "Nog geen aanbevelingen.",
     "rl.patterns": "Patronen",
-    "rl.noPatterns": "Nog geen patronen: een patroon vraagt minstens 3 gemeten, werkelijke lessen uit minstens 2 campagnes.",
-    "rl.patternLine": "{n} waarneming(en) in {c} campagne(s): {pos} beter, {neg} slechter, {nc} geen verandering · {f} – {to}",
+    "rl.noPatterns":
+      "Nog geen patronen: een patroon vraagt minstens 3 gemeten, werkelijke lessen uit minstens 2 campagnes.",
+    "rl.patternLine":
+      "{n} waarneming(en) in {c} campagne(s): {pos} beter, {neg} slechter, {nc} geen verandering · {f} – {to}",
     "rl.dir.positive": "Hier meestal gevolgd door verbetering.",
     "rl.dir.negative": "Hier meestal gevolgd door een slechter resultaat.",
     "rl.dir.mixed": "Resultaten verschillen; geen vaste richting.",
@@ -137,14 +146,18 @@ export const rl = defineArea("rl", {
     "rl.changePct": "Gemeten verandering % (optioneel)",
     "rl.actualCost": "Werkelijke kost in {c} (optioneel)",
     "rl.lesson": "Wat hebben we geleerd?",
-    "rl.measuredNote": "De keuzes voor de uitkomst volgen de geregistreerde meting. Gebruikte credits en dagen tot resultaat worden uit de registraties ingevuld.",
-    "rl.notMeasuredNote": "Deze aanbeveling is nog niet gemeten, dus ze kan niet als beter, slechter of ongewijzigd worden geregistreerd.",
+    "rl.measuredNote":
+      "De keuzes voor de uitkomst volgen de geregistreerde meting. Gebruikte credits en dagen tot resultaat worden uit de registraties ingevuld.",
+    "rl.notMeasuredNote":
+      "Deze aanbeveling is nog niet gemeten, dus ze kan niet als beter, slechter of ongewijzigd worden geregistreerd.",
     "rl.save": "Les opslaan",
     "rl.saved": "Les geregistreerd.",
     "rl.err.number": "Vul getallen in voor verandering en kost (kost kan niet negatief zijn).",
     "rl.err.lesson": "Schrijf de les (minstens 3 tekens).",
-    "rl.err.notMeasured": "Geweigerd: deze uitkomst vraagt een geregistreerde meting die dat aantoont.",
-    "rl.err.needsWork": "Geweigerd: een les kan pas worden geregistreerd als de aanbeveling werk is geworden.",
+    "rl.err.notMeasured":
+      "Geweigerd: deze uitkomst vraagt een geregistreerde meting die dat aantoont.",
+    "rl.err.needsWork":
+      "Geweigerd: een les kan pas worden geregistreerd als de aanbeveling werk is geworden.",
     "rl.err.role": "Alleen editors registreren lessen.",
     "rl.err.failed": "De les kon niet worden opgeslagen. Controleer de waarden en probeer opnieuw.",
     "rl.stage.proposed": "Voorgesteld",
@@ -164,14 +177,18 @@ export const rl = defineArea("rl", {
   },
   fr: {
     "rl.title": "Apprentissage des recommandations",
-    "rl.intro": "Chaque recommandation est suivie de la proposition au travail, à la mesure et à la leçon apprise. Un bon résultat n'est enregistré qu'après une mesure qui le confirme ; un travail terminé n'est pas un succès en soi. Les leçons orientent les futures recommandations et ne modifient jamais les plans d'elles-mêmes.",
-    "rl.notInstalled": "L'apprentissage des recommandations n'est pas encore disponible dans cet environnement.",
+    "rl.intro":
+      "Chaque recommandation est suivie de la proposition au travail, à la mesure et à la leçon apprise. Un bon résultat n'est enregistré qu'après une mesure qui le confirme ; un travail terminé n'est pas un succès en soi. Les leçons orientent les futures recommandations et ne modifient jamais les plans d'elles-mêmes.",
+    "rl.notInstalled":
+      "L'apprentissage des recommandations n'est pas encore disponible dans cet environnement.",
     "rl.loadFailed": "Impossible de charger les leçons.",
     "rl.stages": "Où en sont les recommandations",
     "rl.noProposals": "Pas encore de recommandations.",
     "rl.patterns": "Tendances",
-    "rl.noPatterns": "Pas encore de tendances : il faut au moins 3 leçons réelles mesurées issues d'au moins 2 campagnes.",
-    "rl.patternLine": "{n} observation(s) dans {c} campagne(s) : {pos} mieux, {neg} moins bien, {nc} sans changement · {f} – {to}",
+    "rl.noPatterns":
+      "Pas encore de tendances : il faut au moins 3 leçons réelles mesurées issues d'au moins 2 campagnes.",
+    "rl.patternLine":
+      "{n} observation(s) dans {c} campagne(s) : {pos} mieux, {neg} moins bien, {nc} sans changement · {f} – {to}",
     "rl.dir.positive": "Ici généralement suivi d'une amélioration.",
     "rl.dir.negative": "Ici généralement suivi d'un résultat moins bon.",
     "rl.dir.mixed": "Résultats variables ; pas de tendance constante.",
@@ -217,14 +234,18 @@ export const rl = defineArea("rl", {
     "rl.changePct": "Variation mesurée % (facultatif)",
     "rl.actualCost": "Coût réel en {c} (facultatif)",
     "rl.lesson": "Qu'avons-nous appris ?",
-    "rl.measuredNote": "Les choix de résultat suivent la mesure enregistrée. Les crédits utilisés et les jours jusqu'au résultat proviennent des enregistrements.",
-    "rl.notMeasuredNote": "Cette recommandation n'a pas encore été mesurée : elle ne peut pas être enregistrée comme meilleure, moins bonne ou inchangée.",
+    "rl.measuredNote":
+      "Les choix de résultat suivent la mesure enregistrée. Les crédits utilisés et les jours jusqu'au résultat proviennent des enregistrements.",
+    "rl.notMeasuredNote":
+      "Cette recommandation n'a pas encore été mesurée : elle ne peut pas être enregistrée comme meilleure, moins bonne ou inchangée.",
     "rl.save": "Enregistrer la leçon",
     "rl.saved": "Leçon enregistrée.",
-    "rl.err.number": "Saisissez des nombres pour la variation et le coût (le coût ne peut pas être négatif).",
+    "rl.err.number":
+      "Saisissez des nombres pour la variation et le coût (le coût ne peut pas être négatif).",
     "rl.err.lesson": "Rédigez la leçon (au moins 3 caractères).",
     "rl.err.notMeasured": "Refusé : ce résultat nécessite une mesure enregistrée qui le montre.",
-    "rl.err.needsWork": "Refusé : une leçon ne peut être enregistrée qu'une fois la recommandation devenue un travail.",
+    "rl.err.needsWork":
+      "Refusé : une leçon ne peut être enregistrée qu'une fois la recommandation devenue un travail.",
     "rl.err.role": "Seuls les éditeurs enregistrent les leçons.",
     "rl.err.failed": "Impossible d'enregistrer la leçon. Vérifiez les valeurs et réessayez.",
     "rl.stage.proposed": "Proposé",

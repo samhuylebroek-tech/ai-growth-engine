@@ -8,17 +8,34 @@ export const MIN_PER_GROUP = 30;
 
 /** Visitors (or customers) needed in EACH group to detect `effect` points on top of `baseline`; mirrors experiment_sample_size. */
 export function sampleSizePerGroup(baseline: number | null, effect: number | null): number | null {
-  if (baseline == null || effect == null || baseline <= 0 || effect <= 0 || baseline + effect >= 100) return null;
+  if (
+    baseline == null ||
+    effect == null ||
+    baseline <= 0 ||
+    effect <= 0 ||
+    baseline + effect >= 100
+  )
+    return null;
   const p1 = baseline / 100;
   const p2 = (baseline + effect) / 100;
   const pb = (baseline + effect / 2) / 100;
-  const n = (Z_ALPHA * Math.sqrt(2 * pb * (1 - pb)) + Z_POWER * Math.sqrt(p1 * (1 - p1) + p2 * (1 - p2))) ** 2 / (effect / 100) ** 2;
+  const n =
+    (Z_ALPHA * Math.sqrt(2 * pb * (1 - pb)) + Z_POWER * Math.sqrt(p1 * (1 - p1) + p2 * (1 - p2))) **
+      2 /
+    (effect / 100) ** 2;
   return Math.ceil(n);
 }
 
-export type Observation = { variant_n: number; variant_conversions: number; control_n: number; control_conversions: number; data_class: string };
+export type Observation = {
+  variant_n: number;
+  variant_conversions: number;
+  control_n: number;
+  control_conversions: number;
+  data_class: string;
+};
 export type Method = "ab_test" | "comparison_group" | "before_after" | "observational";
-export type Verdict = "no_data" | "too_early" | "better" | "worse" | "no_difference" | "correlational";
+export type Verdict =
+  "no_data" | "too_early" | "better" | "worse" | "no_difference" | "correlational";
 export type Outcome = "successful" | "unsuccessful" | "inconclusive";
 
 export type Evaluation = {
@@ -47,12 +64,29 @@ export function evaluateExperiment(
   const controlled = design.method === "ab_test" || design.method === "comparison_group";
   const needed = Math.max(MIN_PER_GROUP, design.sample_per_group ?? MIN_PER_GROUP);
   if (!latest || latest.variant_n === 0 || latest.control_n === 0) {
-    return { variantRate: null, controlRate: null, difference: null, interval: null, z: null, needed, reached: false, verdict: "no_data", guardrailHit: false, simulated: latest?.data_class === "simulated", allowed: ["inconclusive"] };
+    return {
+      variantRate: null,
+      controlRate: null,
+      difference: null,
+      interval: null,
+      z: null,
+      needed,
+      reached: false,
+      verdict: "no_data",
+      guardrailHit: false,
+      simulated: latest?.data_class === "simulated",
+      allowed: ["inconclusive"],
+    };
   }
   const pv = latest.variant_conversions / latest.variant_n;
   const pc = latest.control_conversions / latest.control_n;
-  const pool = (latest.variant_conversions + latest.control_conversions) / (latest.variant_n + latest.control_n);
-  const z = pool > 0 && pool < 1 ? r2((pv - pc) / Math.sqrt(pool * (1 - pool) * (1 / latest.variant_n + 1 / latest.control_n))) : null;
+  const pool =
+    (latest.variant_conversions + latest.control_conversions) /
+    (latest.variant_n + latest.control_n);
+  const z =
+    pool > 0 && pool < 1
+      ? r2((pv - pc) / Math.sqrt(pool * (1 - pool) * (1 / latest.variant_n + 1 / latest.control_n)))
+      : null;
   const se = Math.sqrt((pv * (1 - pv)) / latest.variant_n + (pc * (1 - pc)) / latest.control_n);
   const diff = (pv - pc) * 100;
   const reached = latest.variant_n >= needed && latest.control_n >= needed;
@@ -69,7 +103,13 @@ export function evaluateExperiment(
   const allowed: Outcome[] = controlled
     ? [
         ...(reached && z !== null && z >= 1.96 ? (["successful"] as const) : []),
-        ...(reached || (z !== null && z <= -1.96 && latest.variant_n >= MIN_PER_GROUP && latest.control_n >= MIN_PER_GROUP) ? (["unsuccessful"] as const) : []),
+        ...(reached ||
+        (z !== null &&
+          z <= -1.96 &&
+          latest.variant_n >= MIN_PER_GROUP &&
+          latest.control_n >= MIN_PER_GROUP)
+          ? (["unsuccessful"] as const)
+          : []),
         "inconclusive",
       ]
     : ["successful", "unsuccessful", "inconclusive"];
@@ -105,30 +145,73 @@ export type ExperimentAction =
   | "cancel";
 
 /** Lifecycle shown as steps; paused/rejected/cancelled are side states. */
-export const STAGES = ["draft", "in_review", "proposed", "approved", "scheduled", "running", "collecting", "evaluating", "completed"] as const;
+export const STAGES = [
+  "draft",
+  "in_review",
+  "proposed",
+  "approved",
+  "scheduled",
+  "running",
+  "collecting",
+  "evaluating",
+  "completed",
+] as const;
 
 /** Actions the database accepts from this status for this role (mirrors move_experiment). */
-export function experimentActions(status: ExperimentStatus, role: { member: boolean; admin: boolean }, hasData: boolean): ExperimentAction[] {
+export function experimentActions(
+  status: ExperimentStatus,
+  role: { member: boolean; admin: boolean },
+  hasData: boolean,
+): ExperimentAction[] {
   if (!role.member) return [];
   const a: ExperimentAction[] = [];
   switch (status) {
-    case "draft": a.push("submit_review"); break;
-    case "in_review": a.push("request_approval", "return_to_draft"); break;
-    case "proposed": if (role.admin) a.push("approve", "reject"); a.push("return_to_draft"); break;
-    case "approved": a.push("start", "schedule"); break;
-    case "scheduled": a.push("start"); break;
-    case "running": a.push("stop_intervention", "pause"); if (hasData) a.push("evaluate"); break;
-    case "collecting": a.push("pause"); if (hasData) a.push("evaluate"); break;
-    case "paused": a.push("resume"); break;
-    case "evaluating": a.push("complete"); break;
-    default: break;
+    case "draft":
+      a.push("submit_review");
+      break;
+    case "in_review":
+      a.push("request_approval", "return_to_draft");
+      break;
+    case "proposed":
+      if (role.admin) a.push("approve", "reject");
+      a.push("return_to_draft");
+      break;
+    case "approved":
+      a.push("start", "schedule");
+      break;
+    case "scheduled":
+      a.push("start");
+      break;
+    case "running":
+      a.push("stop_intervention", "pause");
+      if (hasData) a.push("evaluate");
+      break;
+    case "collecting":
+      a.push("pause");
+      if (hasData) a.push("evaluate");
+      break;
+    case "paused":
+      a.push("resume");
+      break;
+    case "evaluating":
+      a.push("complete");
+      break;
+    default:
+      break;
   }
   if (!["completed", "rejected", "cancelled"].includes(status)) a.push("cancel");
   return a;
 }
 
 /** What still blocks a request for approval (mirrors the SQL check). */
-export function designGaps(x: { method: Method; primary_kpi?: string; success_criteria?: string; stop_criteria?: string; control_description?: string; sample_per_group?: number | null }): ("primary_kpi" | "success_criteria" | "stop_criteria" | "control" | "sample")[] {
+export function designGaps(x: {
+  method: Method;
+  primary_kpi?: string;
+  success_criteria?: string;
+  stop_criteria?: string;
+  control_description?: string;
+  sample_per_group?: number | null;
+}): ("primary_kpi" | "success_criteria" | "stop_criteria" | "control" | "sample")[] {
   const g: ("primary_kpi" | "success_criteria" | "stop_criteria" | "control" | "sample")[] = [];
   if (!x.primary_kpi?.trim()) g.push("primary_kpi");
   if (!x.success_criteria?.trim()) g.push("success_criteria");

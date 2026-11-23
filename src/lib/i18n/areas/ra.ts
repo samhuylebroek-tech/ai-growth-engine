@@ -4,13 +4,16 @@ import { defineArea } from "../define";
 export const ra = defineArea("ra", {
   en: {
     "ra.title": "Growth Officer analysis",
-    "ra.intro": "The Growth Officer can explain this proposal from the task's own records: cause, consequences, the effect on other tasks and which option fits best. This uses AI credits; nothing changes until an editor approves.",
+    "ra.intro":
+      "The Growth Officer can explain this proposal from the task's own records: cause, consequences, the effect on other tasks and which option fits best. This uses AI credits; nothing changes until an editor approves.",
     "ra.ask": "Ask for an analysis (uses AI credits)",
     "ra.asking": "The Growth Officer is analysing…",
     "ra.done": "Analysis saved: {c} credits used.",
-    "ra.unconfirmed": "The analysis could not be confirmed. Recover saved work before trying again; it will not be charged twice.",
+    "ra.unconfirmed":
+      "The analysis could not be confirmed. Recover saved work before trying again; it will not be charged twice.",
     "ra.when": "Written {d} · {c} credits",
-    "ra.stale": "The task changed after this analysis was written. It is kept as history; ask for a new one before deciding.",
+    "ra.stale":
+      "The task changed after this analysis was written. It is kept as history; ask for a new one before deciding.",
     "ra.cause": "Why it is behind",
     "ra.consequences": "What this means",
     "ra.affected": "Effect on other tasks",
@@ -33,18 +36,22 @@ export const ra = defineArea("ra", {
     "ra.approval": "Approval needed",
     "ra.verification": "How to check the result",
     "ra.gaps": "Missing information",
-    "ra.advice": "This is AI advice based on the task's records, not evidence. Someone with editor rights decides.",
+    "ra.advice":
+      "This is AI advice based on the task's records, not evidence. Someone with editor rights decides.",
     "ra.history": "AI analysis recommended option {k}",
   },
   nl: {
     "ra.title": "Analyse van de Growth Officer",
-    "ra.intro": "De Growth Officer kan dit voorstel uitleggen op basis van de eigen gegevens van de taak: oorzaak, gevolgen, het effect op andere taken en welke optie het best past. Dit gebruikt AI-credits; er verandert niets tot een editor goedkeurt.",
+    "ra.intro":
+      "De Growth Officer kan dit voorstel uitleggen op basis van de eigen gegevens van de taak: oorzaak, gevolgen, het effect op andere taken en welke optie het best past. Dit gebruikt AI-credits; er verandert niets tot een editor goedkeurt.",
     "ra.ask": "Analyse vragen (gebruikt AI-credits)",
     "ra.asking": "De Growth Officer analyseert…",
     "ra.done": "Analyse bewaard: {c} credits gebruikt.",
-    "ra.unconfirmed": "De analyse kon niet bevestigd worden. Herstel bewaard werk voordat je het opnieuw probeert; er wordt niet dubbel aangerekend.",
+    "ra.unconfirmed":
+      "De analyse kon niet bevestigd worden. Herstel bewaard werk voordat je het opnieuw probeert; er wordt niet dubbel aangerekend.",
     "ra.when": "Geschreven {d} · {c} credits",
-    "ra.stale": "De taak is gewijzigd nadat deze analyse geschreven werd. Ze blijft bewaard als geschiedenis; vraag een nieuwe voordat je beslist.",
+    "ra.stale":
+      "De taak is gewijzigd nadat deze analyse geschreven werd. Ze blijft bewaard als geschiedenis; vraag een nieuwe voordat je beslist.",
     "ra.cause": "Waarom ze achterloopt",
     "ra.consequences": "Wat dit betekent",
     "ra.affected": "Effect op andere taken",
@@ -67,18 +74,22 @@ export const ra = defineArea("ra", {
     "ra.approval": "Benodigde goedkeuring",
     "ra.verification": "Hoe het resultaat gecontroleerd wordt",
     "ra.gaps": "Ontbrekende informatie",
-    "ra.advice": "Dit is AI-advies op basis van de gegevens van de taak, geen bewijs. Iemand met editorrechten beslist.",
+    "ra.advice":
+      "Dit is AI-advies op basis van de gegevens van de taak, geen bewijs. Iemand met editorrechten beslist.",
     "ra.history": "AI-analyse adviseerde optie {k}",
   },
   fr: {
     "ra.title": "Analyse du Growth Officer",
-    "ra.intro": "Le Growth Officer peut expliquer cette proposition à partir des données de la tâche : cause, conséquences, effet sur les autres tâches et l’option la plus adaptée. Cela utilise des crédits IA ; rien ne change avant l’approbation d’un éditeur.",
+    "ra.intro":
+      "Le Growth Officer peut expliquer cette proposition à partir des données de la tâche : cause, conséquences, effet sur les autres tâches et l’option la plus adaptée. Cela utilise des crédits IA ; rien ne change avant l’approbation d’un éditeur.",
     "ra.ask": "Demander une analyse (utilise des crédits IA)",
     "ra.asking": "Le Growth Officer analyse…",
     "ra.done": "Analyse enregistrée : {c} crédits utilisés.",
-    "ra.unconfirmed": "L’analyse n’a pas pu être confirmée. Récupérez le travail enregistré avant de réessayer ; rien ne sera facturé deux fois.",
+    "ra.unconfirmed":
+      "L’analyse n’a pas pu être confirmée. Récupérez le travail enregistré avant de réessayer ; rien ne sera facturé deux fois.",
     "ra.when": "Rédigée le {d} · {c} crédits",
-    "ra.stale": "La tâche a changé après la rédaction de cette analyse. Elle est conservée comme historique ; demandez-en une nouvelle avant de décider.",
+    "ra.stale":
+      "La tâche a changé après la rédaction de cette analyse. Elle est conservée comme historique ; demandez-en une nouvelle avant de décider.",
     "ra.cause": "Pourquoi elle est en retard",
     "ra.consequences": "Ce que cela implique",
     "ra.affected": "Effet sur les autres tâches",
@@ -101,7 +112,8 @@ export const ra = defineArea("ra", {
     "ra.approval": "Approbation requise",
     "ra.verification": "Comment vérifier le résultat",
     "ra.gaps": "Informations manquantes",
-    "ra.advice": "Ceci est un conseil IA fondé sur les données de la tâche, pas une preuve. Une personne ayant des droits d’éditeur décide.",
+    "ra.advice":
+      "Ceci est un conseil IA fondé sur les données de la tâche, pas une preuve. Une personne ayant des droits d’éditeur décide.",
     "ra.history": "L’analyse IA recommandait l’option {k}",
   },
 });

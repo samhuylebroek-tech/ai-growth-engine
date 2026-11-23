@@ -35,30 +35,49 @@ await sql.begin(async (tx) => {
   const as = async (userId: string, fn: () => Promise<unknown>) => {
     await tx`select set_config('request.jwt.claims', ${JSON.stringify({ sub: userId, role: "authenticated" })}, true)`;
     await tx`set local role authenticated`;
-    try { return await fn(); } finally { await tx`reset role`; }
+    try {
+      return await fn();
+    } finally {
+      await tx`reset role`;
+    }
   };
   // Organizations through the same function the app uses, acting as the user.
   const orgOf = async (userId: string, name: string, ws: string) => {
-    const [o] = await tx`select id from public.organizations where created_by = ${userId} and name = ${name}`;
+    const [o] =
+      await tx`select id from public.organizations where created_by = ${userId} and name = ${name}`;
     if (o) return o.id as string;
     let id = "";
-    await as(userId, async () => { const [r] = await tx`select public.create_organization(${name}, ${ws}) as id`; id = r.id; });
+    await as(userId, async () => {
+      const [r] = await tx`select public.create_organization(${name}, ${ws}) as id`;
+      id = r.id;
+    });
     return id;
   };
   const org = await orgOf(out.owner!.id, "Staging Bakery", "Main workspace");
   await orgOf(out.outsider!.id, "Staging Rival Co", "Rival workspace");
-  const [ws] = await tx`select id from public.workspaces where org_id = ${org} order by created_at limit 1`;
-  for (const [key, role] of [["admin", "admin"], ["member", "member"], ["viewer", "viewer"]] as const) {
+  const [ws] =
+    await tx`select id from public.workspaces where org_id = ${org} order by created_at limit 1`;
+  for (const [key, role] of [
+    ["admin", "admin"],
+    ["member", "member"],
+    ["viewer", "viewer"],
+  ] as const) {
     await tx`insert into public.organization_members(org_id, user_id, role) values (${org}, ${out[key]!.id}, ${role}) on conflict do nothing`;
     await tx`insert into public.workspace_members(workspace_id, user_id, role) values (${ws.id}, ${out[key]!.id}, ${role}) on conflict do nothing`;
   }
   // The Platform Owner is never inserted here: it is assigned only by the one-time
   // initialization (proposal 0058) via scripts/staging/owner-init.ts.
 });
-const [s] = await sql`select (select count(*)::int from auth.users) as users, (select count(*)::int from public.organizations) as orgs,
+const [s] =
+  await sql`select (select count(*)::int from auth.users) as users, (select count(*)::int from public.organizations) as orgs,
   (select count(*)::int from public.platform_roles where role='platform_owner') as platform_owners, (select count(*)::int from public.organization_members) as memberships`;
 await sql.end();
 mkdirSync("/tmp/staging", { recursive: true, mode: 0o700 });
 writeFileSync("/tmp/staging/users.json", JSON.stringify(out), { mode: 0o600 });
 chmodSync("/tmp/staging/users.json", 0o600);
-console.log(JSON.stringify({ ...s, accounts: Object.fromEntries(Object.entries(out).map(([k, v]) => [k, v.email])) }));
+console.log(
+  JSON.stringify({
+    ...s,
+    accounts: Object.fromEntries(Object.entries(out).map(([k, v]) => [k, v.email])),
+  }),
+);

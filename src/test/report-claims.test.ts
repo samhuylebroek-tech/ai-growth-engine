@@ -16,9 +16,14 @@ describe("report figure labels", () => {
     expect(REPORT_FIGURES["econ.gpEstimated"].kind).toBe("estimate");
   });
   it("net revenue, revenue per spend, CAC and gross profit are calculated from recorded inputs", () => {
-    for (const id of ["fin.net", "fin.perSpend", "econ.cac", "econ.gp", "econ.margin"] as const) expect(REPORT_FIGURES[id].kind).toBe("calc");
+    for (const id of ["fin.net", "fin.perSpend", "econ.cac", "econ.gp", "econ.margin"] as const)
+      expect(REPORT_FIGURES[id].kind).toBe("calc");
   });
   it("refunds are recorded figures that carry the sale-month rule", () => {
-    expect(REPORT_FIGURES["fin.refunds"]).toEqual({ kind: "fact", source: "revenue", formula: "refunds" });
+    expect(REPORT_FIGURES["fin.refunds"]).toEqual({
+      kind: "fact",
+      source: "revenue",
+      formula: "refunds",
+    });
   });
 });

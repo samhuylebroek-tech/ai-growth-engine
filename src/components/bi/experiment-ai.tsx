@@ -29,9 +29,16 @@ export function ExperimentAI() {
     setBusy(true);
     const scope = `experiments/${orgId}/${wsId}`;
     // Same inputs keep the same request key until success, so a retry never pays twice.
-    const requestKey = requestAttemptKey(sessionStorage, scope, JSON.stringify({ focus: focus.trim(), locale }), () => crypto.randomUUID());
+    const requestKey = requestAttemptKey(
+      sessionStorage,
+      scope,
+      JSON.stringify({ focus: focus.trim(), locale }),
+      () => crypto.randomUUID(),
+    );
     try {
-      const r = await run({ data: { orgId, workspaceId: wsId, requestKey, focus: focus.trim(), locale } });
+      const r = await run({
+        data: { orgId, workspaceId: wsId, requestKey, focus: focus.trim(), locale },
+      });
       if (!r.ok) return void toast.error(r.error);
       sessionStorage.removeItem(`single-ai-attempt:${scope}`);
       toast.success(t("exp.ai.done", { n: r.data.saved, c: r.data.credits }));
@@ -46,14 +53,26 @@ export function ExperimentAI() {
     }
   };
   return (
-    <section className="mt-4 rounded-lg border border-border bg-card p-3 text-xs" aria-label={t("exp.ai.title")}>
+    <section
+      className="mt-4 rounded-lg border border-border bg-card p-3 text-xs"
+      aria-label={t("exp.ai.title")}
+    >
       <h2 className="flex items-center gap-1 text-sm font-semibold">
         <Sparkles className="h-4 w-4" aria-hidden />
         {t("exp.ai.title")}
       </h2>
-      <p className="mt-1 text-muted-foreground">{t("exp.ai.intro", { c: CREDIT_RULES.reserveGrowthOfficer })}</p>
+      <p className="mt-1 text-muted-foreground">
+        {t("exp.ai.intro", { c: CREDIT_RULES.reserveGrowthOfficer })}
+      </p>
       <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-        <Input value={focus} onChange={(e) => setFocus(e.target.value)} maxLength={500} placeholder={t("exp.ai.focus")} aria-label={t("exp.ai.focus")} className="h-8" />
+        <Input
+          value={focus}
+          onChange={(e) => setFocus(e.target.value)}
+          maxLength={500}
+          placeholder={t("exp.ai.focus")}
+          aria-label={t("exp.ai.focus")}
+          className="h-8"
+        />
         <Button size="sm" onClick={go} disabled={busy}>
           {busy && <Loader2 className="mr-1 h-4 w-4 animate-spin" aria-hidden />}
           {t("exp.ai.run")}

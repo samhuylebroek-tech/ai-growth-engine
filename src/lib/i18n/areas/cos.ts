@@ -4,7 +4,8 @@ import { defineArea } from "../define";
 export const cos = defineArea("cos", {
   en: {
     "cos.life.title": "Status and approval",
-    "cos.life.intro": "Each step is recorded with who made it, when and why. Members can propose, submit and stop a campaign; editors approve, start, complete and cancel.",
+    "cos.life.intro":
+      "Each step is recorded with who made it, when and why. Members can propose, submit and stop a campaign; editors approve, start, complete and cancel.",
     "cos.life.current": "Current status:",
     "cos.life.approvedBy": "Approved by {who} on {d}",
     "cos.life.next": "Next steps",
@@ -20,12 +21,15 @@ export const cos = defineArea("cos", {
     "cos.life.saved": "Status changed.",
     "cos.life.failed": "The status could not be changed.",
     "cos.life.history": "Status history",
-    "cos.life.historyEmpty": "No status changes recorded yet. History starts with the first change.",
+    "cos.life.historyEmpty":
+      "No status changes recorded yet. History starts with the first change.",
     "cos.life.historyFailed": "The status history could not be read.",
     "cos.life.event": "{from} → {to} · {who} · {d}",
-    "cos.life.notInstalled": "The campaign lifecycle is not switched on in this environment yet; the status can be changed in the edit form.",
+    "cos.life.notInstalled":
+      "The campaign lifecycle is not switched on in this environment yet; the status can be changed in the edit form.",
     "cos.life.completeTitle": "Completing the campaign",
-    "cos.life.completeIntro": "Completed tasks alone do not make a campaign successful. Record the result against the campaign goal.",
+    "cos.life.completeIntro":
+      "Completed tasks alone do not make a campaign successful. Record the result against the campaign goal.",
     "cos.life.outcome": "Outcome",
     "cos.life.o.choose": "Choose an outcome",
     "cos.life.o.achieved": "Goal achieved",
@@ -35,19 +39,25 @@ export const cos = defineArea("cos", {
     "cos.life.o.not_evaluated": "Not evaluated",
     "cos.life.kpiActual": "Measured value of {kpi}",
     "cos.life.unavailable": "Why are results not available?",
-    "cos.life.unavailableHelp": "This campaign has no recorded results. Explain why, for example that the shop export is still pending.",
-    "cos.life.e.result_required": "Record the campaign results first or explain why they are not available.",
+    "cos.life.unavailableHelp":
+      "This campaign has no recorded results. Explain why, for example that the shop export is still pending.",
+    "cos.life.e.result_required":
+      "Record the campaign results first or explain why they are not available.",
     "cos.life.e.outcome_required": "Choose an outcome.",
-    "cos.life.e.outcome_unsupported": "\"Goal achieved\" needs a measured KPI value that reaches the target. Choose another outcome or enter the measured value.",
+    "cos.life.e.outcome_unsupported":
+      '"Goal achieved" needs a measured KPI value that reaches the target. Choose another outcome or enter the measured value.',
     "cos.life.e.invalid_actual": "Enter the measured value as a number.",
-    "cos.life.e.campaign_transition_invalid": "This step is not possible from the current status. The campaign may have changed; reload and try again.",
-    "cos.life.e.campaign_transition_forbidden": "Your role cannot take this step. An editor needs to do it.",
+    "cos.life.e.campaign_transition_invalid":
+      "This step is not possible from the current status. The campaign may have changed; reload and try again.",
+    "cos.life.e.campaign_transition_forbidden":
+      "Your role cannot take this step. An editor needs to do it.",
     "cos.life.e.campaign_reason_required": "This step needs a reason.",
     "cos.life.e.campaign_start_required": "Set a start date before scheduling the campaign.",
     "cos.life.result": "Result: {o}",
     "cos.life.resultMissing": "Results not available: {r}",
     "cos.link.title": "Strategy and measurement",
-    "cos.link.intro": "Links this campaign to the goal, strategy and initiative it serves, and to the one figure that shows whether it worked. Nothing is filled in automatically.",
+    "cos.link.intro":
+      "Links this campaign to the goal, strategy and initiative it serves, and to the one figure that shows whether it worked. Nothing is filled in automatically.",
     "cos.link.goal": "Business goal",
     "cos.link.noGoal": "No goal",
     "cos.link.strategy": "Strategy",
@@ -68,17 +78,23 @@ export const cos = defineArea("cos", {
     "cos.link.save": "Save links",
     "cos.link.saved": "Strategy and measurement saved.",
     "cos.link.failed": "Could not save the links.",
-    "cos.link.mismatch": "That strategy or initiative belongs to another goal. Choose the matching goal first.",
+    "cos.link.mismatch":
+      "That strategy or initiative belongs to another goal. Choose the matching goal first.",
     "cos.link.gaps": "What is missing",
-    "cos.link.g.no_goal": "Not linked to a business goal: the Growth Officer and reports cannot say what this campaign should contribute.",
-    "cos.link.g.no_strategy": "Not linked to a strategy or initiative: it is unclear which approved plan this campaign carries out.",
+    "cos.link.g.no_goal":
+      "Not linked to a business goal: the Growth Officer and reports cannot say what this campaign should contribute.",
+    "cos.link.g.no_strategy":
+      "Not linked to a strategy or initiative: it is unclear which approved plan this campaign carries out.",
     "cos.link.g.no_kpi": "No primary KPI: success can only be judged by activity, not by result.",
     "cos.link.g.no_target": "The KPI has no target: progress cannot be measured.",
     "cos.link.complete": "Linked to a goal, a plan and a measurable KPI.",
-    "cos.link.baselineNote": "Enter a baseline only when it was measured; leave it empty otherwise.",
+    "cos.link.baselineNote":
+      "Enter a baseline only when it was measured; leave it empty otherwise.",
     "cos.lim.title": "Spending limits",
-    "cos.lim.intro": "Hard limits for this campaign. New spending, reservations and upward corrections above a limit are refused and the refusal is logged. Simulated entries are checked against their own room.",
-    "cos.lim.honest": "These limits are enforced in AI Growth Engine only. They do not stop spending inside an advertising platform; set limits there as well.",
+    "cos.lim.intro":
+      "Hard limits for this campaign. New spending, reservations and upward corrections above a limit are refused and the refusal is logged. Simulated entries are checked against their own room.",
+    "cos.lim.honest":
+      "These limits are enforced in AI Growth Engine only. They do not stop spending inside an advertising platform; set limits there as well.",
     "cos.lim.none": "No spending limits are set for this campaign.",
     "cos.lim.daily": "Per day",
     "cos.lim.weekly": "Per week (Mon–Sun)",
@@ -95,8 +111,10 @@ export const cos = defineArea("cos", {
     "cos.lim.failed": "The limits could not be saved.",
     "cos.lim.e.limit_reason_required": "Write a reason for the change.",
     "cos.lim.e.limit_forbidden": "Only an editor can change limits or lift an emergency stop.",
-    "cos.lim.e.limit_currency_mismatch": "This campaign already has entries in another currency; limits must use that currency.",
-    "cos.lim.e.invalid": "Check the amounts: limits must be positive and the reserve smaller than the campaign total.",
+    "cos.lim.e.limit_currency_mismatch":
+      "This campaign already has entries in another currency; limits must use that currency.",
+    "cos.lim.e.invalid":
+      "Check the amounts: limits must be positive and the reserve smaller than the campaign total.",
     "cos.lim.stop": "Emergency stop",
     "cos.lim.stopOn": "Stop all new spending",
     "cos.lim.stopOff": "Lift the emergency stop",
@@ -107,21 +125,29 @@ export const cos = defineArea("cos", {
     "cos.lim.h.limits": "Limits changed",
     "cos.lim.h.stop_on": "Emergency stop on",
     "cos.lim.h.stop_off": "Emergency stop lifted",
-    "cos.lim.simUsage": "Simulated entries use {used} of the “{k}” limit (test data, separate room).",
-    "cos.block.emergency_stop": "Refused: the emergency stop is active for this campaign. An editor can lift it.",
-    "cos.block.currency": "Refused: the limits are set in {c}; an entry in another currency cannot be compared without conversion.",
-    "cos.block.limit": "Refused: this would exceed the “{k}” limit ({used} already used of {max}). An editor can raise the limit with a reason.",
+    "cos.lim.simUsage":
+      "Simulated entries use {used} of the “{k}” limit (test data, separate room).",
+    "cos.block.emergency_stop":
+      "Refused: the emergency stop is active for this campaign. An editor can lift it.",
+    "cos.block.currency":
+      "Refused: the limits are set in {c}; an entry in another currency cannot be compared without conversion.",
+    "cos.block.limit":
+      "Refused: this would exceed the “{k}” limit ({used} already used of {max}). An editor can raise the limit with a reason.",
     "cos.alert.title": "Budget alerts",
     "cos.alert.emergency_stop": "Emergency stop active.",
     "cos.alert.threshold": "{k} limit {t}% used ({used} of {max}).",
-    "cos.alert.forecast_overspend": "Estimate: at the current pace spending reaches {p} by the end date, above the {b} budget.",
+    "cos.alert.forecast_overspend":
+      "Estimate: at the current pace spending reaches {p} by the end date, above the {b} budget.",
     "cos.alert.reservations_exceed": "Reservations of {r} exceed the room left ({room}).",
-    "cos.alert.faster_than_time": "Spending is ahead of time: {s}% of the budget used after {t}% of the period.",
+    "cos.alert.faster_than_time":
+      "Spending is ahead of time: {s}% of the budget used after {t}% of the period.",
     "cos.fc.title": "Forecast (estimate)",
-    "cos.fc.body": "At {d} per day (average of actual spending over {n} days) the campaign reaches about {p} by the end date.",
+    "cos.fc.body":
+      "At {d} per day (average of actual spending over {n} days) the campaign reaches about {p} by the end date.",
     "cos.fc.remaining": "Estimated remaining at the end: {r}.",
     "cos.fc.conf.low": "Low confidence: little spending history so far.",
-    "cos.fc.conf.medium": "Medium confidence: a straight-line estimate; actual spending may differ.",
+    "cos.fc.conf.medium":
+      "Medium confidence: a straight-line estimate; actual spending may differ.",
     "cos.fc.none": "No forecast: it needs an end date and recorded actual spending.",
     "cos.f.awaiting": "Awaiting approval",
     "cos.f.atRisk": "At risk",
@@ -134,11 +160,13 @@ export const cos = defineArea("cos", {
     "cos.phase.running": "Running",
     "cos.phase.paused": "Paused",
     "cos.phase.finished": "Finished",
-    "cos.newStatus": "New campaigns start as an idea, proposal or draft and are approved from the campaign page.",
+    "cos.newStatus":
+      "New campaigns start as an idea, proposal or draft and are approved from the campaign page.",
   },
   nl: {
     "cos.life.title": "Status en goedkeuring",
-    "cos.life.intro": "Elke stap wordt vastgelegd met wie, wanneer en waarom. Leden kunnen een campagne voorstellen, indienen en stoppen; editors keuren goed, starten, ronden af en annuleren.",
+    "cos.life.intro":
+      "Elke stap wordt vastgelegd met wie, wanneer en waarom. Leden kunnen een campagne voorstellen, indienen en stoppen; editors keuren goed, starten, ronden af en annuleren.",
     "cos.life.current": "Huidige status:",
     "cos.life.approvedBy": "Goedgekeurd door {who} op {d}",
     "cos.life.next": "Volgende stappen",
@@ -154,12 +182,15 @@ export const cos = defineArea("cos", {
     "cos.life.saved": "Status gewijzigd.",
     "cos.life.failed": "De status kon niet worden gewijzigd.",
     "cos.life.history": "Statusgeschiedenis",
-    "cos.life.historyEmpty": "Nog geen statuswijzigingen vastgelegd. De geschiedenis begint bij de eerste wijziging.",
+    "cos.life.historyEmpty":
+      "Nog geen statuswijzigingen vastgelegd. De geschiedenis begint bij de eerste wijziging.",
     "cos.life.historyFailed": "De statusgeschiedenis kon niet worden gelezen.",
     "cos.life.event": "{from} → {to} · {who} · {d}",
-    "cos.life.notInstalled": "De campagnelevenscyclus is in deze omgeving nog niet ingeschakeld; de status kan in het bewerkformulier worden gewijzigd.",
+    "cos.life.notInstalled":
+      "De campagnelevenscyclus is in deze omgeving nog niet ingeschakeld; de status kan in het bewerkformulier worden gewijzigd.",
     "cos.life.completeTitle": "Campagne afronden",
-    "cos.life.completeIntro": "Afgeronde taken maken een campagne nog niet succesvol. Leg het resultaat vast ten opzichte van het campagnedoel.",
+    "cos.life.completeIntro":
+      "Afgeronde taken maken een campagne nog niet succesvol. Leg het resultaat vast ten opzichte van het campagnedoel.",
     "cos.life.outcome": "Uitkomst",
     "cos.life.o.choose": "Kies een uitkomst",
     "cos.life.o.achieved": "Doel bereikt",
@@ -169,26 +200,33 @@ export const cos = defineArea("cos", {
     "cos.life.o.not_evaluated": "Niet beoordeeld",
     "cos.life.kpiActual": "Gemeten waarde van {kpi}",
     "cos.life.unavailable": "Waarom zijn er geen resultaten?",
-    "cos.life.unavailableHelp": "Voor deze campagne zijn geen resultaten vastgelegd. Leg uit waarom, bijvoorbeeld dat de webshopexport nog ontbreekt.",
-    "cos.life.e.result_required": "Leg eerst de campagneresultaten vast of leg uit waarom ze ontbreken.",
+    "cos.life.unavailableHelp":
+      "Voor deze campagne zijn geen resultaten vastgelegd. Leg uit waarom, bijvoorbeeld dat de webshopexport nog ontbreekt.",
+    "cos.life.e.result_required":
+      "Leg eerst de campagneresultaten vast of leg uit waarom ze ontbreken.",
     "cos.life.e.outcome_required": "Kies een uitkomst.",
-    "cos.life.e.outcome_unsupported": "\"Doel bereikt\" vraagt een gemeten KPI-waarde die het doel haalt. Kies een andere uitkomst of vul de gemeten waarde in.",
+    "cos.life.e.outcome_unsupported":
+      '"Doel bereikt" vraagt een gemeten KPI-waarde die het doel haalt. Kies een andere uitkomst of vul de gemeten waarde in.',
     "cos.life.e.invalid_actual": "Vul de gemeten waarde in als getal.",
-    "cos.life.e.campaign_transition_invalid": "Deze stap is vanuit de huidige status niet mogelijk. De campagne is mogelijk gewijzigd; laad opnieuw en probeer het nog eens.",
-    "cos.life.e.campaign_transition_forbidden": "Uw rol kan deze stap niet zetten. Een editor moet dat doen.",
+    "cos.life.e.campaign_transition_invalid":
+      "Deze stap is vanuit de huidige status niet mogelijk. De campagne is mogelijk gewijzigd; laad opnieuw en probeer het nog eens.",
+    "cos.life.e.campaign_transition_forbidden":
+      "Uw rol kan deze stap niet zetten. Een editor moet dat doen.",
     "cos.life.e.campaign_reason_required": "Deze stap vraagt een reden.",
     "cos.life.e.campaign_start_required": "Stel een startdatum in voordat u de campagne inplant.",
     "cos.life.result": "Resultaat: {o}",
     "cos.life.resultMissing": "Geen resultaten beschikbaar: {r}",
     "cos.link.title": "Strategie en meting",
-    "cos.link.intro": "Koppelt deze campagne aan het doel, de strategie en het initiatief dat ze dient, en aan het ene cijfer dat laat zien of ze werkte. Er wordt niets automatisch ingevuld.",
+    "cos.link.intro":
+      "Koppelt deze campagne aan het doel, de strategie en het initiatief dat ze dient, en aan het ene cijfer dat laat zien of ze werkte. Er wordt niets automatisch ingevuld.",
     "cos.link.goal": "Bedrijfsdoel",
     "cos.link.noGoal": "Geen doel",
     "cos.link.strategy": "Strategie",
     "cos.link.noStrategy": "Geen strategie",
     "cos.link.initiative": "Initiatief",
     "cos.link.noInitiative": "Geen initiatief",
-    "cos.link.onlyGoal": "Alleen strategieën en initiatieven van het gekozen doel kunnen worden gekoppeld.",
+    "cos.link.onlyGoal":
+      "Alleen strategieën en initiatieven van het gekozen doel kunnen worden gekoppeld.",
     "cos.link.hypothesis": "Hypothese (wat u verwacht en waarom)",
     "cos.link.contribution": "Verwachte bijdrage aan het doel",
     "cos.link.risks": "Risico's",
@@ -202,17 +240,24 @@ export const cos = defineArea("cos", {
     "cos.link.save": "Koppelingen opslaan",
     "cos.link.saved": "Strategie en meting opgeslagen.",
     "cos.link.failed": "De koppelingen konden niet worden opgeslagen.",
-    "cos.link.mismatch": "Die strategie of dat initiatief hoort bij een ander doel. Kies eerst het bijbehorende doel.",
+    "cos.link.mismatch":
+      "Die strategie of dat initiatief hoort bij een ander doel. Kies eerst het bijbehorende doel.",
     "cos.link.gaps": "Wat ontbreekt",
-    "cos.link.g.no_goal": "Niet gekoppeld aan een bedrijfsdoel: de Growth Officer en rapporten kunnen niet zeggen wat deze campagne moet bijdragen.",
-    "cos.link.g.no_strategy": "Niet gekoppeld aan een strategie of initiatief: het is onduidelijk welk goedgekeurd plan deze campagne uitvoert.",
-    "cos.link.g.no_kpi": "Geen primaire KPI: succes kan alleen aan activiteit worden afgemeten, niet aan resultaat.",
+    "cos.link.g.no_goal":
+      "Niet gekoppeld aan een bedrijfsdoel: de Growth Officer en rapporten kunnen niet zeggen wat deze campagne moet bijdragen.",
+    "cos.link.g.no_strategy":
+      "Niet gekoppeld aan een strategie of initiatief: het is onduidelijk welk goedgekeurd plan deze campagne uitvoert.",
+    "cos.link.g.no_kpi":
+      "Geen primaire KPI: succes kan alleen aan activiteit worden afgemeten, niet aan resultaat.",
     "cos.link.g.no_target": "De KPI heeft geen doelwaarde: voortgang is niet meetbaar.",
     "cos.link.complete": "Gekoppeld aan een doel, een plan en een meetbare KPI.",
-    "cos.link.baselineNote": "Vul alleen een beginwaarde in als die gemeten is; laat het veld anders leeg.",
+    "cos.link.baselineNote":
+      "Vul alleen een beginwaarde in als die gemeten is; laat het veld anders leeg.",
     "cos.lim.title": "Bestedingslimieten",
-    "cos.lim.intro": "Harde limieten voor deze campagne. Nieuwe uitgaven, reserveringen en correcties naar boven boven een limiet worden geweigerd en de weigering wordt vastgelegd. Gesimuleerde boekingen worden tegen hun eigen ruimte gecontroleerd.",
-    "cos.lim.honest": "Deze limieten worden alleen in AI Growth Engine afgedwongen. Ze stoppen geen uitgaven binnen een advertentieplatform; stel daar ook limieten in.",
+    "cos.lim.intro":
+      "Harde limieten voor deze campagne. Nieuwe uitgaven, reserveringen en correcties naar boven boven een limiet worden geweigerd en de weigering wordt vastgelegd. Gesimuleerde boekingen worden tegen hun eigen ruimte gecontroleerd.",
+    "cos.lim.honest":
+      "Deze limieten worden alleen in AI Growth Engine afgedwongen. Ze stoppen geen uitgaven binnen een advertentieplatform; stel daar ook limieten in.",
     "cos.lim.none": "Voor deze campagne zijn geen bestedingslimieten ingesteld.",
     "cos.lim.daily": "Per dag",
     "cos.lim.weekly": "Per week (ma–zo)",
@@ -228,9 +273,12 @@ export const cos = defineArea("cos", {
     "cos.lim.saved": "Limieten opgeslagen en in de geschiedenis vastgelegd.",
     "cos.lim.failed": "De limieten konden niet worden opgeslagen.",
     "cos.lim.e.limit_reason_required": "Schrijf een reden voor de wijziging.",
-    "cos.lim.e.limit_forbidden": "Alleen een editor kan limieten wijzigen of een noodstop opheffen.",
-    "cos.lim.e.limit_currency_mismatch": "Deze campagne heeft al boekingen in een andere valuta; de limieten moeten die valuta gebruiken.",
-    "cos.lim.e.invalid": "Controleer de bedragen: limieten moeten positief zijn en de reserve kleiner dan het campagnetotaal.",
+    "cos.lim.e.limit_forbidden":
+      "Alleen een editor kan limieten wijzigen of een noodstop opheffen.",
+    "cos.lim.e.limit_currency_mismatch":
+      "Deze campagne heeft al boekingen in een andere valuta; de limieten moeten die valuta gebruiken.",
+    "cos.lim.e.invalid":
+      "Controleer de bedragen: limieten moeten positief zijn en de reserve kleiner dan het campagnetotaal.",
     "cos.lim.stop": "Noodstop",
     "cos.lim.stopOn": "Alle nieuwe uitgaven stoppen",
     "cos.lim.stopOff": "Noodstop opheffen",
@@ -241,22 +289,32 @@ export const cos = defineArea("cos", {
     "cos.lim.h.limits": "Limieten gewijzigd",
     "cos.lim.h.stop_on": "Noodstop aan",
     "cos.lim.h.stop_off": "Noodstop opgeheven",
-    "cos.lim.simUsage": "Gesimuleerde boekingen gebruiken {used} van de limiet “{k}” (testgegevens, aparte ruimte).",
-    "cos.block.emergency_stop": "Geweigerd: de noodstop is actief voor deze campagne. Een editor kan die opheffen.",
-    "cos.block.currency": "Geweigerd: de limieten zijn in {c} ingesteld; een boeking in een andere valuta kan zonder omrekening niet worden vergeleken.",
-    "cos.block.limit": "Geweigerd: dit zou de limiet “{k}” overschrijden ({used} al gebruikt van {max}). Een editor kan de limiet met een reden verhogen.",
+    "cos.lim.simUsage":
+      "Gesimuleerde boekingen gebruiken {used} van de limiet “{k}” (testgegevens, aparte ruimte).",
+    "cos.block.emergency_stop":
+      "Geweigerd: de noodstop is actief voor deze campagne. Een editor kan die opheffen.",
+    "cos.block.currency":
+      "Geweigerd: de limieten zijn in {c} ingesteld; een boeking in een andere valuta kan zonder omrekening niet worden vergeleken.",
+    "cos.block.limit":
+      "Geweigerd: dit zou de limiet “{k}” overschrijden ({used} al gebruikt van {max}). Een editor kan de limiet met een reden verhogen.",
     "cos.alert.title": "Budgetwaarschuwingen",
     "cos.alert.emergency_stop": "Noodstop actief.",
     "cos.alert.threshold": "Limiet {k} voor {t}% gebruikt ({used} van {max}).",
-    "cos.alert.forecast_overspend": "Schatting: in het huidige tempo komen de uitgaven op {p} bij de einddatum, boven het budget van {b}.",
-    "cos.alert.reservations_exceed": "Reserveringen van {r} zijn hoger dan de resterende ruimte ({room}).",
-    "cos.alert.faster_than_time": "Uitgaven lopen voor op de tijd: {s}% van het budget gebruikt na {t}% van de periode.",
+    "cos.alert.forecast_overspend":
+      "Schatting: in het huidige tempo komen de uitgaven op {p} bij de einddatum, boven het budget van {b}.",
+    "cos.alert.reservations_exceed":
+      "Reserveringen van {r} zijn hoger dan de resterende ruimte ({room}).",
+    "cos.alert.faster_than_time":
+      "Uitgaven lopen voor op de tijd: {s}% van het budget gebruikt na {t}% van de periode.",
     "cos.fc.title": "Prognose (schatting)",
-    "cos.fc.body": "Bij {d} per dag (gemiddelde van de werkelijke uitgaven over {n} dagen) komt de campagne bij de einddatum op ongeveer {p}.",
+    "cos.fc.body":
+      "Bij {d} per dag (gemiddelde van de werkelijke uitgaven over {n} dagen) komt de campagne bij de einddatum op ongeveer {p}.",
     "cos.fc.remaining": "Geschat resterend aan het einde: {r}.",
     "cos.fc.conf.low": "Lage betrouwbaarheid: nog weinig uitgavengeschiedenis.",
-    "cos.fc.conf.medium": "Gemiddelde betrouwbaarheid: een rechtlijnige schatting; de werkelijke uitgaven kunnen afwijken.",
-    "cos.fc.none": "Geen prognose: daarvoor zijn een einddatum en vastgelegde werkelijke uitgaven nodig.",
+    "cos.fc.conf.medium":
+      "Gemiddelde betrouwbaarheid: een rechtlijnige schatting; de werkelijke uitgaven kunnen afwijken.",
+    "cos.fc.none":
+      "Geen prognose: daarvoor zijn een einddatum en vastgelegde werkelijke uitgaven nodig.",
     "cos.f.awaiting": "Wacht op goedkeuring",
     "cos.f.atRisk": "Risico",
     "cos.f.unlinked": "Zonder doel",
@@ -268,11 +326,13 @@ export const cos = defineArea("cos", {
     "cos.phase.running": "Lopend",
     "cos.phase.paused": "Gepauzeerd",
     "cos.phase.finished": "Afgelopen",
-    "cos.newStatus": "Nieuwe campagnes starten als idee, voorstel of concept en worden op de campagnepagina goedgekeurd.",
+    "cos.newStatus":
+      "Nieuwe campagnes starten als idee, voorstel of concept en worden op de campagnepagina goedgekeurd.",
   },
   fr: {
     "cos.life.title": "Statut et approbation",
-    "cos.life.intro": "Chaque étape est enregistrée avec qui, quand et pourquoi. Les membres peuvent proposer, soumettre et arrêter une campagne ; les éditeurs approuvent, lancent, clôturent et annulent.",
+    "cos.life.intro":
+      "Chaque étape est enregistrée avec qui, quand et pourquoi. Les membres peuvent proposer, soumettre et arrêter une campagne ; les éditeurs approuvent, lancent, clôturent et annulent.",
     "cos.life.current": "Statut actuel :",
     "cos.life.approvedBy": "Approuvée par {who} le {d}",
     "cos.life.next": "Étapes suivantes",
@@ -288,12 +348,15 @@ export const cos = defineArea("cos", {
     "cos.life.saved": "Statut modifié.",
     "cos.life.failed": "Le statut n'a pas pu être modifié.",
     "cos.life.history": "Historique des statuts",
-    "cos.life.historyEmpty": "Aucun changement de statut enregistré. L'historique commence au premier changement.",
+    "cos.life.historyEmpty":
+      "Aucun changement de statut enregistré. L'historique commence au premier changement.",
     "cos.life.historyFailed": "L'historique des statuts n'a pas pu être lu.",
     "cos.life.event": "{from} → {to} · {who} · {d}",
-    "cos.life.notInstalled": "Le cycle de vie des campagnes n'est pas encore activé dans cet environnement ; le statut se modifie dans le formulaire.",
+    "cos.life.notInstalled":
+      "Le cycle de vie des campagnes n'est pas encore activé dans cet environnement ; le statut se modifie dans le formulaire.",
     "cos.life.completeTitle": "Clôturer la campagne",
-    "cos.life.completeIntro": "Des tâches terminées ne rendent pas une campagne réussie. Enregistrez le résultat par rapport à l'objectif de la campagne.",
+    "cos.life.completeIntro":
+      "Des tâches terminées ne rendent pas une campagne réussie. Enregistrez le résultat par rapport à l'objectif de la campagne.",
     "cos.life.outcome": "Résultat",
     "cos.life.o.choose": "Choisissez un résultat",
     "cos.life.o.achieved": "Objectif atteint",
@@ -303,26 +366,34 @@ export const cos = defineArea("cos", {
     "cos.life.o.not_evaluated": "Non évalué",
     "cos.life.kpiActual": "Valeur mesurée de {kpi}",
     "cos.life.unavailable": "Pourquoi les résultats ne sont-ils pas disponibles ?",
-    "cos.life.unavailableHelp": "Aucun résultat n'est enregistré pour cette campagne. Expliquez pourquoi, par exemple que l'export de la boutique manque encore.",
-    "cos.life.e.result_required": "Enregistrez d'abord les résultats ou expliquez pourquoi ils manquent.",
+    "cos.life.unavailableHelp":
+      "Aucun résultat n'est enregistré pour cette campagne. Expliquez pourquoi, par exemple que l'export de la boutique manque encore.",
+    "cos.life.e.result_required":
+      "Enregistrez d'abord les résultats ou expliquez pourquoi ils manquent.",
     "cos.life.e.outcome_required": "Choisissez un résultat.",
-    "cos.life.e.outcome_unsupported": "« Objectif atteint » exige une valeur de KPI mesurée qui atteint la cible. Choisissez un autre résultat ou saisissez la valeur mesurée.",
+    "cos.life.e.outcome_unsupported":
+      "« Objectif atteint » exige une valeur de KPI mesurée qui atteint la cible. Choisissez un autre résultat ou saisissez la valeur mesurée.",
     "cos.life.e.invalid_actual": "Saisissez la valeur mesurée sous forme de nombre.",
-    "cos.life.e.campaign_transition_invalid": "Cette étape n'est pas possible depuis le statut actuel. La campagne a peut-être changé ; rechargez et réessayez.",
-    "cos.life.e.campaign_transition_forbidden": "Votre rôle ne permet pas cette étape. Un éditeur doit la faire.",
+    "cos.life.e.campaign_transition_invalid":
+      "Cette étape n'est pas possible depuis le statut actuel. La campagne a peut-être changé ; rechargez et réessayez.",
+    "cos.life.e.campaign_transition_forbidden":
+      "Votre rôle ne permet pas cette étape. Un éditeur doit la faire.",
     "cos.life.e.campaign_reason_required": "Cette étape exige un motif.",
-    "cos.life.e.campaign_start_required": "Définissez une date de début avant de planifier la campagne.",
+    "cos.life.e.campaign_start_required":
+      "Définissez une date de début avant de planifier la campagne.",
     "cos.life.result": "Résultat : {o}",
     "cos.life.resultMissing": "Résultats indisponibles : {r}",
     "cos.link.title": "Stratégie et mesure",
-    "cos.link.intro": "Relie cette campagne à l'objectif, à la stratégie et à l'initiative qu'elle sert, et au chiffre qui montre si elle a fonctionné. Rien n'est rempli automatiquement.",
+    "cos.link.intro":
+      "Relie cette campagne à l'objectif, à la stratégie et à l'initiative qu'elle sert, et au chiffre qui montre si elle a fonctionné. Rien n'est rempli automatiquement.",
     "cos.link.goal": "Objectif d'entreprise",
     "cos.link.noGoal": "Aucun objectif",
     "cos.link.strategy": "Stratégie",
     "cos.link.noStrategy": "Aucune stratégie",
     "cos.link.initiative": "Initiative",
     "cos.link.noInitiative": "Aucune initiative",
-    "cos.link.onlyGoal": "Seules les stratégies et initiatives de l'objectif choisi peuvent être liées.",
+    "cos.link.onlyGoal":
+      "Seules les stratégies et initiatives de l'objectif choisi peuvent être liées.",
     "cos.link.hypothesis": "Hypothèse (ce que vous attendez et pourquoi)",
     "cos.link.contribution": "Contribution attendue à l'objectif",
     "cos.link.risks": "Risques",
@@ -336,17 +407,24 @@ export const cos = defineArea("cos", {
     "cos.link.save": "Enregistrer les liens",
     "cos.link.saved": "Stratégie et mesure enregistrées.",
     "cos.link.failed": "Les liens n'ont pas pu être enregistrés.",
-    "cos.link.mismatch": "Cette stratégie ou initiative appartient à un autre objectif. Choisissez d'abord l'objectif correspondant.",
+    "cos.link.mismatch":
+      "Cette stratégie ou initiative appartient à un autre objectif. Choisissez d'abord l'objectif correspondant.",
     "cos.link.gaps": "Ce qui manque",
-    "cos.link.g.no_goal": "Pas liée à un objectif : le Growth Officer et les rapports ne peuvent pas dire ce que cette campagne doit apporter.",
-    "cos.link.g.no_strategy": "Pas liée à une stratégie ou initiative : on ne sait pas quel plan approuvé elle exécute.",
-    "cos.link.g.no_kpi": "Pas de KPI principal : le succès ne se juge qu'à l'activité, pas au résultat.",
+    "cos.link.g.no_goal":
+      "Pas liée à un objectif : le Growth Officer et les rapports ne peuvent pas dire ce que cette campagne doit apporter.",
+    "cos.link.g.no_strategy":
+      "Pas liée à une stratégie ou initiative : on ne sait pas quel plan approuvé elle exécute.",
+    "cos.link.g.no_kpi":
+      "Pas de KPI principal : le succès ne se juge qu'à l'activité, pas au résultat.",
     "cos.link.g.no_target": "Le KPI n'a pas de cible : la progression n'est pas mesurable.",
     "cos.link.complete": "Liée à un objectif, un plan et un KPI mesurable.",
-    "cos.link.baselineNote": "Ne saisissez une valeur de départ que si elle a été mesurée ; sinon laissez vide.",
+    "cos.link.baselineNote":
+      "Ne saisissez une valeur de départ que si elle a été mesurée ; sinon laissez vide.",
     "cos.lim.title": "Limites de dépenses",
-    "cos.lim.intro": "Limites strictes pour cette campagne. Les nouvelles dépenses, réservations et corrections à la hausse au-delà d'une limite sont refusées et le refus est enregistré. Les écritures simulées sont contrôlées sur leur propre marge.",
-    "cos.lim.honest": "Ces limites ne s'appliquent que dans AI Growth Engine. Elles n'arrêtent pas les dépenses dans une plateforme publicitaire ; fixez-y aussi des limites.",
+    "cos.lim.intro":
+      "Limites strictes pour cette campagne. Les nouvelles dépenses, réservations et corrections à la hausse au-delà d'une limite sont refusées et le refus est enregistré. Les écritures simulées sont contrôlées sur leur propre marge.",
+    "cos.lim.honest":
+      "Ces limites ne s'appliquent que dans AI Growth Engine. Elles n'arrêtent pas les dépenses dans une plateforme publicitaire ; fixez-y aussi des limites.",
     "cos.lim.none": "Aucune limite de dépenses n'est définie pour cette campagne.",
     "cos.lim.daily": "Par jour",
     "cos.lim.weekly": "Par semaine (lun–dim)",
@@ -362,35 +440,49 @@ export const cos = defineArea("cos", {
     "cos.lim.saved": "Limites enregistrées et consignées dans l'historique.",
     "cos.lim.failed": "Les limites n'ont pas pu être enregistrées.",
     "cos.lim.e.limit_reason_required": "Indiquez un motif pour le changement.",
-    "cos.lim.e.limit_forbidden": "Seul un éditeur peut modifier les limites ou lever un arrêt d'urgence.",
-    "cos.lim.e.limit_currency_mismatch": "Cette campagne a déjà des écritures dans une autre devise ; les limites doivent utiliser cette devise.",
-    "cos.lim.e.invalid": "Vérifiez les montants : les limites doivent être positives et la réserve inférieure au total de la campagne.",
+    "cos.lim.e.limit_forbidden":
+      "Seul un éditeur peut modifier les limites ou lever un arrêt d'urgence.",
+    "cos.lim.e.limit_currency_mismatch":
+      "Cette campagne a déjà des écritures dans une autre devise ; les limites doivent utiliser cette devise.",
+    "cos.lim.e.invalid":
+      "Vérifiez les montants : les limites doivent être positives et la réserve inférieure au total de la campagne.",
     "cos.lim.stop": "Arrêt d'urgence",
     "cos.lim.stopOn": "Arrêter toute nouvelle dépense",
     "cos.lim.stopOff": "Lever l'arrêt d'urgence",
     "cos.lim.stopped": "Arrêt d'urgence actif : {r}",
     "cos.lim.stopReason": "Pourquoi arrêter maintenant ?",
-    "cos.lim.notInstalled": "Les limites de dépenses ne sont pas encore activées dans cet environnement.",
+    "cos.lim.notInstalled":
+      "Les limites de dépenses ne sont pas encore activées dans cet environnement.",
     "cos.lim.history": "Historique des limites",
     "cos.lim.h.limits": "Limites modifiées",
     "cos.lim.h.stop_on": "Arrêt d'urgence activé",
     "cos.lim.h.stop_off": "Arrêt d'urgence levé",
-    "cos.lim.simUsage": "Les écritures simulées utilisent {used} de la limite « {k} » (données de test, marge séparée).",
-    "cos.block.emergency_stop": "Refusé : l'arrêt d'urgence est actif pour cette campagne. Un éditeur peut le lever.",
-    "cos.block.currency": "Refusé : les limites sont en {c} ; une écriture dans une autre devise ne peut pas être comparée sans conversion.",
-    "cos.block.limit": "Refusé : cela dépasserait la limite « {k} » ({used} déjà utilisés sur {max}). Un éditeur peut relever la limite avec un motif.",
+    "cos.lim.simUsage":
+      "Les écritures simulées utilisent {used} de la limite « {k} » (données de test, marge séparée).",
+    "cos.block.emergency_stop":
+      "Refusé : l'arrêt d'urgence est actif pour cette campagne. Un éditeur peut le lever.",
+    "cos.block.currency":
+      "Refusé : les limites sont en {c} ; une écriture dans une autre devise ne peut pas être comparée sans conversion.",
+    "cos.block.limit":
+      "Refusé : cela dépasserait la limite « {k} » ({used} déjà utilisés sur {max}). Un éditeur peut relever la limite avec un motif.",
     "cos.alert.title": "Alertes budgétaires",
     "cos.alert.emergency_stop": "Arrêt d'urgence actif.",
     "cos.alert.threshold": "Limite {k} utilisée à {t} % ({used} sur {max}).",
-    "cos.alert.forecast_overspend": "Estimation : au rythme actuel, les dépenses atteignent {p} à la date de fin, au-dessus du budget de {b}.",
-    "cos.alert.reservations_exceed": "Les réservations de {r} dépassent la marge restante ({room}).",
-    "cos.alert.faster_than_time": "Les dépenses sont en avance sur le temps : {s} % du budget utilisé après {t} % de la période.",
+    "cos.alert.forecast_overspend":
+      "Estimation : au rythme actuel, les dépenses atteignent {p} à la date de fin, au-dessus du budget de {b}.",
+    "cos.alert.reservations_exceed":
+      "Les réservations de {r} dépassent la marge restante ({room}).",
+    "cos.alert.faster_than_time":
+      "Les dépenses sont en avance sur le temps : {s} % du budget utilisé après {t} % de la période.",
     "cos.fc.title": "Prévision (estimation)",
-    "cos.fc.body": "À {d} par jour (moyenne des dépenses réelles sur {n} jours), la campagne atteint environ {p} à la date de fin.",
+    "cos.fc.body":
+      "À {d} par jour (moyenne des dépenses réelles sur {n} jours), la campagne atteint environ {p} à la date de fin.",
     "cos.fc.remaining": "Reste estimé à la fin : {r}.",
     "cos.fc.conf.low": "Fiabilité faible : encore peu d'historique de dépenses.",
-    "cos.fc.conf.medium": "Fiabilité moyenne : estimation linéaire ; les dépenses réelles peuvent différer.",
-    "cos.fc.none": "Pas de prévision : il faut une date de fin et des dépenses réelles enregistrées.",
+    "cos.fc.conf.medium":
+      "Fiabilité moyenne : estimation linéaire ; les dépenses réelles peuvent différer.",
+    "cos.fc.none":
+      "Pas de prévision : il faut une date de fin et des dépenses réelles enregistrées.",
     "cos.f.awaiting": "En attente d'approbation",
     "cos.f.atRisk": "À risque",
     "cos.f.unlinked": "Sans objectif",
@@ -402,6 +494,7 @@ export const cos = defineArea("cos", {
     "cos.phase.running": "En cours",
     "cos.phase.paused": "En pause",
     "cos.phase.finished": "Terminée",
-    "cos.newStatus": "Les nouvelles campagnes commencent comme idée, proposition ou brouillon et sont approuvées depuis la page de la campagne.",
+    "cos.newStatus":
+      "Les nouvelles campagnes commencent comme idée, proposition ou brouillon et sont approuvées depuis la page de la campagne.",
   },
 });

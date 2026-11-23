@@ -460,7 +460,10 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
   const seen = linked.map((e) => e.id).sort();
   const metric = p.metric_id ? d.metrics.find((m) => m.id === p.metric_id) : undefined;
   const observed = useMemo(
-    () => (!metric || p.status !== "converted" ? null : beforeAfter(d.measurements, metric.id, metric.direction, p.decided_at ?? p.created_at)),
+    () =>
+      !metric || p.status !== "converted"
+        ? null
+        : beforeAfter(d.measurements, metric.id, metric.direction, p.decided_at ?? p.created_at),
     [metric, d.measurements, p.status, p.decided_at, p.created_at],
   );
   async function act(
@@ -729,7 +732,13 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
                         ap: `${observed.after.period_start} – ${observed.after.period_end}`,
                         o: t(tk(`bi.outcome.${observed.outcome}`)),
                       })}${observed.changePct !== null ? ` (${observed.changePct > 0 ? "+" : ""}${observed.changePct}%)` : ""} · ${t(observed.confidence === "medium" ? "kp.confMedium" : "kp.confLow", { f: observed.normalFluctuationPct ?? 0 })} ${t("bi.imp.notCause")}`
-                    : t(observed.reason === "no_comparable_after" ? "kp.noComparable" : observed.reason === "no_before" ? "kp.noBefore" : "bi.imp.observedNone")}
+                    : t(
+                        observed.reason === "no_comparable_after"
+                          ? "kp.noComparable"
+                          : observed.reason === "no_before"
+                            ? "kp.noBefore"
+                            : "bi.imp.observedNone",
+                      )}
                 </p>
               )}
               <select

@@ -139,7 +139,9 @@ export function conflictStatus(c: FactConflict, events: readonly ConflictEvent[]
     const disputed =
       !kept ||
       !kept.verified ||
-      c.facts.some((f) => f.id !== kept.id && !sameValue(f.value, kept.value) && (f.verified || newer(f)));
+      c.facts.some(
+        (f) => f.id !== kept.id && !sameValue(f.value, kept.value) && (f.verified || newer(f)),
+      );
     status = disputed ? "redisputed" : "resolved";
   }
   return { status, latest, history };
@@ -153,7 +155,11 @@ export function conflictDependents(
   proposals: readonly { id: string; title: string; status: string }[],
 ) {
   const ids = new Set(c.facts.map((f) => f.id));
-  const ev = new Set(evidence.filter((e) => e.source_kind === "business_fact" && ids.has(e.source_ref)).map((e) => e.id));
+  const ev = new Set(
+    evidence
+      .filter((e) => e.source_kind === "business_fact" && ids.has(e.source_ref))
+      .map((e) => e.id),
+  );
   const pids = new Set(links.filter((l) => ev.has(l.evidence_id)).map((l) => l.proposal_id));
   return proposals.filter((p) => pids.has(p.id));
 }
@@ -164,7 +170,15 @@ export function proposalsOnConfirmedConflicts(
   evidence: readonly { id: string; source_kind: string; source_ref: string }[],
   links: readonly { evidence_id: string; proposal_id: string }[],
 ): Set<string> {
-  const ids = new Set(detectFactConflicts(facts).filter((c) => c.confirmedConflict).flatMap((c) => c.facts.map((f) => f.id)));
-  const ev = new Set(evidence.filter((e) => e.source_kind === "business_fact" && ids.has(e.source_ref)).map((e) => e.id));
+  const ids = new Set(
+    detectFactConflicts(facts)
+      .filter((c) => c.confirmedConflict)
+      .flatMap((c) => c.facts.map((f) => f.id)),
+  );
+  const ev = new Set(
+    evidence
+      .filter((e) => e.source_kind === "business_fact" && ids.has(e.source_ref))
+      .map((e) => e.id),
+  );
   return new Set(links.filter((l) => ev.has(l.evidence_id)).map((l) => l.proposal_id));
 }

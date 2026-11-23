@@ -46,7 +46,11 @@ const environmentMiddleware = createMiddleware().server(async ({ next }) => {
 // Refuses oversized request bodies before any parsing or validation (see src/lib/request-limits.ts).
 const bodyLimitMiddleware = createMiddleware().server(async ({ next, request, handlerType }) => {
   const refusal = bodyLimitRefusal(request.method, request.headers, handlerType);
-  if (refusal) return new Response(refusal.reason, { status: refusal.status, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
+  if (refusal)
+    return new Response(refusal.reason, {
+      status: refusal.status,
+      headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
+    });
   return next();
 });
 

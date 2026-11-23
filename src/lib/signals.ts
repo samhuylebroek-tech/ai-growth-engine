@@ -60,7 +60,16 @@ export type SignalBasis =
   | "business_profile"
   | "economics";
 export type SignalDestination =
-  "/app/performance" | "/app/goals" | "/app/pipeline" | "/app/seo" | "/app/tasks" | "/app/profile" | "/app/campaigns" | "/app/economics" | "/app/improvements" | "/app/revenue";
+  | "/app/performance"
+  | "/app/goals"
+  | "/app/pipeline"
+  | "/app/seo"
+  | "/app/tasks"
+  | "/app/profile"
+  | "/app/campaigns"
+  | "/app/economics"
+  | "/app/improvements"
+  | "/app/revenue";
 export type Signal = {
   id: string;
   code: SignalCode;
@@ -93,19 +102,77 @@ const rowsOf = <T>(r: { status: "ok"; rows: T[] } | { status: "unavailable" } | 
 /** Codes already shown elsewhere on Home (performance attention); still part of the AI context. */
 export const HOME_DUPLICATES: ReadonlySet<SignalCode> = new Set(["metric_missing_month"]);
 
-const ECON_SIGNAL: Record<EconAlertCode, { kind: SignalKind; urgency: Level; feasibility: Level; to: SignalDestination }> = {
-  econ_allocation_exceeded: { kind: "risk", urgency: "high", feasibility: "medium", to: "/app/economics" },
-  econ_allocation_near: { kind: "risk", urgency: "medium", feasibility: "high", to: "/app/economics" },
-  econ_budget_unallocated: { kind: "opportunity", urgency: "low", feasibility: "high", to: "/app/goals" },
-  econ_budget_duplicates: { kind: "conflict", urgency: "low", feasibility: "high", to: "/app/goals" },
-  econ_request_rejected: { kind: "missing", urgency: "medium", feasibility: "high", to: "/app/goals" },
-  econ_cost_model_missing: { kind: "missing", urgency: "medium", feasibility: "high", to: "/app/economics" },
-  econ_cost_missing: { kind: "missing", urgency: "medium", feasibility: "high", to: "/app/economics" },
-  econ_customer_missing: { kind: "missing", urgency: "low", feasibility: "medium", to: "/app/revenue" },
-  econ_attribution_missing: { kind: "missing", urgency: "low", feasibility: "medium", to: "/app/revenue" },
-  econ_margin_declining: { kind: "risk", urgency: "medium", feasibility: "medium", to: "/app/economics" },
+const ECON_SIGNAL: Record<
+  EconAlertCode,
+  { kind: SignalKind; urgency: Level; feasibility: Level; to: SignalDestination }
+> = {
+  econ_allocation_exceeded: {
+    kind: "risk",
+    urgency: "high",
+    feasibility: "medium",
+    to: "/app/economics",
+  },
+  econ_allocation_near: {
+    kind: "risk",
+    urgency: "medium",
+    feasibility: "high",
+    to: "/app/economics",
+  },
+  econ_budget_unallocated: {
+    kind: "opportunity",
+    urgency: "low",
+    feasibility: "high",
+    to: "/app/goals",
+  },
+  econ_budget_duplicates: {
+    kind: "conflict",
+    urgency: "low",
+    feasibility: "high",
+    to: "/app/goals",
+  },
+  econ_request_rejected: {
+    kind: "missing",
+    urgency: "medium",
+    feasibility: "high",
+    to: "/app/goals",
+  },
+  econ_cost_model_missing: {
+    kind: "missing",
+    urgency: "medium",
+    feasibility: "high",
+    to: "/app/economics",
+  },
+  econ_cost_missing: {
+    kind: "missing",
+    urgency: "medium",
+    feasibility: "high",
+    to: "/app/economics",
+  },
+  econ_customer_missing: {
+    kind: "missing",
+    urgency: "low",
+    feasibility: "medium",
+    to: "/app/revenue",
+  },
+  econ_attribution_missing: {
+    kind: "missing",
+    urgency: "low",
+    feasibility: "medium",
+    to: "/app/revenue",
+  },
+  econ_margin_declining: {
+    kind: "risk",
+    urgency: "medium",
+    feasibility: "medium",
+    to: "/app/economics",
+  },
   econ_price_missing: { kind: "missing", urgency: "low", feasibility: "low", to: "/app/economics" },
-  recommendation_measure_due: { kind: "stale", urgency: "high", feasibility: "high", to: "/app/improvements" },
+  recommendation_measure_due: {
+    kind: "stale",
+    urgency: "high",
+    feasibility: "high",
+    to: "/app/improvements",
+  },
 };
 
 export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signal[] {
@@ -367,7 +434,9 @@ export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signa
   const overdue = [
     ...new Map(
       [...d.tasks, ...(d.overdueTasks?.status === "ok" ? d.overdueTasks.rows : [])]
-        .filter((x) => x.due_date && x.due_date < today && !["done", "cancelled"].includes(x.status))
+        .filter(
+          (x) => x.due_date && x.due_date < today && !["done", "cancelled"].includes(x.status),
+        )
         .map((x) => [x.id, x]),
     ).values(),
   ];
@@ -385,7 +454,15 @@ export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signa
     );
   // Tasks waiting on unfinished earlier tasks (shared rule in task-blocking.ts); none claimed when dependencies were not read.
   if (d.dependencies?.status === "ok") {
-    const known = [...new Map([...d.tasks, ...(d.overdueTasks?.status === "ok" ? d.overdueTasks.rows : []), ...(d.prerequisites ?? [])].map((x) => [x.id, x])).values()];
+    const known = [
+      ...new Map(
+        [
+          ...d.tasks,
+          ...(d.overdueTasks?.status === "ok" ? d.overdueTasks.rows : []),
+          ...(d.prerequisites ?? []),
+        ].map((x) => [x.id, x]),
+      ).values(),
+    ];
     const blocked = blockedTasks(known, d.dependencies.rows, today);
     if (blocked.length)
       add(
@@ -397,13 +474,20 @@ export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signa
         "medium",
         "team_records",
         "/app/tasks",
-        { n: blocked.length, task: short(blocked[0]!.task.title), pre: short(blocked[0]!.waitsOn[0]!.title ?? "") },
+        {
+          n: blocked.length,
+          task: short(blocked[0]!.task.title),
+          pre: short(blocked[0]!.waitsOn[0]!.title ?? ""),
+        },
       );
   }
   // Campaign budgets against the recorded spend ledger (EUR only); a truncated read gives no warning.
   if (d.campaignSpend?.status === "ok" && !d.campaignSpend.truncated)
     for (const c of rowsOf(d.campaigns).filter((x) => x.id && !["archived"].includes(x.status))) {
-      const sum = spendSummary(Number(c.budget_eur), d.campaignSpend.rows.filter((x) => x.campaign_id === c.id));
+      const sum = spendSummary(
+        Number(c.budget_eur),
+        d.campaignSpend.rows.filter((x) => x.campaign_id === c.id),
+      );
       const over = sum.warnings.includes("budget_over") || sum.warnings.includes("committed_over");
       if (over || sum.warnings.includes("budget_near"))
         add(
@@ -415,38 +499,110 @@ export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signa
           "high",
           "budget",
           "/app/campaigns",
-          { campaign: short(c.title, 60), p: sum.usedPct === null ? 0 : Math.round(sum.usedPct * 100) },
+          {
+            campaign: short(c.title, 60),
+            p: sum.usedPct === null ? 0 : Math.round(sum.usedPct * 100),
+          },
         );
     }
   // Hard spending limits (proposal 0083): an emergency stop, a limit at 90% or more of its room, or a straight-line
   // forecast above the campaign total. Actual entries only; needs a complete, dated spend read.
-  if (d.campaignLimits?.status === "ok" && d.campaignSpend?.status === "ok" && !d.campaignSpend.truncated) {
+  if (
+    d.campaignLimits?.status === "ok" &&
+    d.campaignSpend?.status === "ok" &&
+    !d.campaignSpend.truncated
+  ) {
     const spendRows = d.campaignSpend.rows;
     const dated = spendRows.every((x) => x.id && x.occurred_on);
     const today = now.toISOString().slice(0, 10);
-    for (const c of rowsOf(d.campaigns).filter((x) => x.id && !["archived", "completed", "cancelled"].includes(x.status))) {
+    for (const c of rowsOf(d.campaigns).filter(
+      (x) => x.id && !["archived", "completed", "cancelled"].includes(x.status),
+    )) {
       const l = d.campaignLimits.rows.find((x) => x.campaign_id === c.id);
       if (!l) continue;
       if (l.emergency_stop) {
-        add(`campaign_stop:${c.id}`, "campaign_emergency_stop", "risk", "high", "high", "high", "budget", "/app/campaigns", { campaign: short(c.title, 60), reason: short(l.stop_reason, 80) });
+        add(
+          `campaign_stop:${c.id}`,
+          "campaign_emergency_stop",
+          "risk",
+          "high",
+          "high",
+          "high",
+          "budget",
+          "/app/campaigns",
+          { campaign: short(c.title, 60), reason: short(l.stop_reason, 80) },
+        );
         continue;
       }
       if (!dated) continue;
-      const rows = spendRows.filter((x) => x.campaign_id === c.id).map((x) => ({ id: x.id!, kind: x.kind, amount: x.amount, currency: x.currency, occurred_on: x.occurred_on!, data_class: x.data_class, relates_to: x.relates_to ?? null }));
-      const top = limitUsage(l, rows, today).filter((u) => u.share >= 0.9).sort((a, b) => b.share - a.share)[0];
+      const rows = spendRows
+        .filter((x) => x.campaign_id === c.id)
+        .map((x) => ({
+          id: x.id!,
+          kind: x.kind,
+          amount: x.amount,
+          currency: x.currency,
+          occurred_on: x.occurred_on!,
+          data_class: x.data_class,
+          relates_to: x.relates_to ?? null,
+        }));
+      const top = limitUsage(l, rows, today)
+        .filter((u) => u.share >= 0.9)
+        .sort((a, b) => b.share - a.share)[0];
       if (top)
-        add(`campaign_limit:${c.id}`, "campaign_limit_reached", "risk", top.share >= 1 ? "high" : "medium", "high", "high", "budget", "/app/campaigns", { campaign: short(c.title, 60), p: Math.round(top.share * 100) });
+        add(
+          `campaign_limit:${c.id}`,
+          "campaign_limit_reached",
+          "risk",
+          top.share >= 1 ? "high" : "medium",
+          "high",
+          "high",
+          "budget",
+          "/app/campaigns",
+          { campaign: short(c.title, 60), p: Math.round(top.share * 100) },
+        );
       const total = limitMaxima(l).lifetime;
-      const f = total === undefined ? null : spendForecast({ start_date: c.start_date ?? null, end_date: c.end_date ?? null }, rows, l.currency, total, today);
+      const f =
+        total === undefined
+          ? null
+          : spendForecast(
+              { start_date: c.start_date ?? null, end_date: c.end_date ?? null },
+              rows,
+              l.currency,
+              total,
+              today,
+            );
       if (f && f.overspend && f.overspend > 0)
-        add(`campaign_forecast:${c.id}`, "campaign_spend_forecast", "risk", "medium", "medium", "low", "budget", "/app/campaigns", { campaign: short(c.title, 60), p: Math.round(f.projected), b: Math.round(total!) });
+        add(
+          `campaign_forecast:${c.id}`,
+          "campaign_spend_forecast",
+          "risk",
+          "medium",
+          "medium",
+          "low",
+          "budget",
+          "/app/campaigns",
+          { campaign: short(c.title, 60), p: Math.round(f.projected), b: Math.round(total!) },
+        );
     }
   }
   // Re-planning proposals waiting for an editor's decision.
-  const decided = new Set((d.replanDecisions ?? []).filter((x) => x.decision !== "postponed").map((x) => x.proposal_id));
+  const decided = new Set(
+    (d.replanDecisions ?? []).filter((x) => x.decision !== "postponed").map((x) => x.proposal_id),
+  );
   const waitingReplans = rowsOf(d.replans).filter((r) => !decided.has(r.id)).length;
   if (waitingReplans)
-    add("replan:pending", "replan_pending", "missing", "medium", "high", "high", "team_records", "/app/tasks", { n: waitingReplans });
+    add(
+      "replan:pending",
+      "replan_pending",
+      "missing",
+      "medium",
+      "high",
+      "high",
+      "team_records",
+      "/app/tasks",
+      { n: waitingReplans },
+    );
   const approvedAt = new Map(rowsOf(d.plans).map((p) => [p.id, p.approved_at]));
   for (const i of d.initiatives
     .filter((x) => x.target_week != null && !["completed", "cancelled"].includes(x.status))
@@ -506,16 +662,36 @@ export function detectSignals(d: BusinessDomains, now: Date = new Date()): Signa
 
   // Financial alerts: the same summary as the Growth economics page and the Growth Officer (this calendar month).
   if (d.economics?.status === "ok") {
-    const y = now.getUTCFullYear(), m = now.getUTCMonth();
+    const y = now.getUTCFullYear(),
+      m = now.getUTCMonth();
     const from = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10);
     const to = new Date(Date.UTC(y, m + 1, 0)).toISOString().slice(0, 10);
-    const econ = economicsSummary(d.economics.data, from, to, "last_touch", now.toISOString().slice(0, 10));
-    const campaignAlerted = new Set(out.filter((x) => x.id.startsWith("campaign_budget:")).map((x) => x.id.slice(16)));
+    const econ = economicsSummary(
+      d.economics.data,
+      from,
+      to,
+      "last_touch",
+      now.toISOString().slice(0, 10),
+    );
+    const campaignAlerted = new Set(
+      out.filter((x) => x.id.startsWith("campaign_budget:")).map((x) => x.id.slice(16)),
+    );
     for (const a of econ.alerts) {
       const [kind, campaignId] = a.id.split(":");
-      if ((kind === "over" || kind === "near") && campaignId && campaignAlerted.has(campaignId)) continue;
+      if ((kind === "over" || kind === "near") && campaignId && campaignAlerted.has(campaignId))
+        continue;
       const spec = ECON_SIGNAL[a.code];
-      add(`econ:${a.id}`, a.code, spec.kind, a.level, spec.urgency, spec.feasibility, "economics", spec.to, a.vars);
+      add(
+        `econ:${a.id}`,
+        a.code,
+        spec.kind,
+        a.level,
+        spec.urgency,
+        spec.feasibility,
+        "economics",
+        spec.to,
+        a.vars,
+      );
     }
   }
 

@@ -415,7 +415,10 @@ function rankGrowthActions(i: ActionInput, out: GrowthAction[], limit: number): 
 /** The visible list plus the recommendations hidden by a remembered decision (so they can be restored). */
 export function growthActionsWithHidden(i: ActionInput, limit = 8) {
   const all = nextGrowthActions({ ...i, decisions: [] }, 1000);
-  return { actions: nextGrowthActions(i, limit), hidden: partitionByDecisions(all, i.decisions ?? [], i.now).hidden };
+  return {
+    actions: nextGrowthActions(i, limit),
+    hidden: partitionByDecisions(all, i.decisions ?? [], i.now).hidden,
+  };
 }
 
 // Same recommendation from two places (an AI opportunity and a team proposal, or the same idea saved twice):

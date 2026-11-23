@@ -4,7 +4,8 @@ import { defineArea } from "../define";
 export const sn = defineArea("sn", {
   en: {
     "sn.title": "Growth Officer explanation",
-    "sn.intro": "A written explanation of the situation below. Each statement shows whether it is a fact, hypothesis, estimate or recommendation, and the findings it rests on. Costs credits (shown before and after); nothing is changed.",
+    "sn.intro":
+      "A written explanation of the situation below. Each statement shows whether it is a fact, hypothesis, estimate or recommendation, and the findings it rests on. Costs credits (shown before and after); nothing is changed.",
     "sn.ask": "Explain (about 5 credits)",
     "sn.again": "Explain again (about 5 credits)",
     "sn.done": "Explanation ready · {c} credits used",
@@ -13,7 +14,8 @@ export const sn = defineArea("sn", {
     "sn.unreadable": "Your earlier explanation is in an unexpected format and is not shown.",
     "sn.when": "Written {d} · {c} credits",
     "sn.stale": "The situation has changed since this explanation was written; it may be outdated.",
-    "sn.insufficient": "Too little data for a reliable diagnosis; read this as a list of what is missing.",
+    "sn.insufficient":
+      "Too little data for a reliable diagnosis; read this as a list of what is missing.",
     "sn.basis": "Based on: {list}",
     "sn.uncertainty": "Uncertainty:",
     "sn.k.fact": "fact",
@@ -32,16 +34,20 @@ export const sn = defineArea("sn", {
   },
   nl: {
     "sn.title": "Toelichting van de Growth Officer",
-    "sn.intro": "Een geschreven toelichting bij de situatie hieronder. Elke uitspraak toont of het een feit, hypothese, schatting of aanbeveling is, en op welke bevindingen ze steunt. Kost credits (vooraf en achteraf getoond); er wordt niets gewijzigd.",
+    "sn.intro":
+      "Een geschreven toelichting bij de situatie hieronder. Elke uitspraak toont of het een feit, hypothese, schatting of aanbeveling is, en op welke bevindingen ze steunt. Kost credits (vooraf en achteraf getoond); er wordt niets gewijzigd.",
     "sn.ask": "Toelichten (ongeveer 5 credits)",
     "sn.again": "Opnieuw toelichten (ongeveer 5 credits)",
     "sn.done": "Toelichting klaar · {c} credits gebruikt",
-    "sn.unconfirmed": "Het resultaat is niet bevestigd. Controleer bewaard werk voor je opnieuw vraagt.",
+    "sn.unconfirmed":
+      "Het resultaat is niet bevestigd. Controleer bewaard werk voor je opnieuw vraagt.",
     "sn.loadFailed": "Je eerdere toelichting kon niet geladen worden.",
     "sn.unreadable": "Je eerdere toelichting heeft een onverwacht formaat en wordt niet getoond.",
     "sn.when": "Geschreven {d} · {c} credits",
-    "sn.stale": "De situatie is veranderd sinds deze toelichting geschreven werd; ze kan verouderd zijn.",
-    "sn.insufficient": "Te weinig gegevens voor een betrouwbare diagnose; lees dit als een lijst van wat ontbreekt.",
+    "sn.stale":
+      "De situatie is veranderd sinds deze toelichting geschreven werd; ze kan verouderd zijn.",
+    "sn.insufficient":
+      "Te weinig gegevens voor een betrouwbare diagnose; lees dit als een lijst van wat ontbreekt.",
     "sn.basis": "Gebaseerd op: {list}",
     "sn.uncertainty": "Onzekerheid:",
     "sn.k.fact": "feit",
@@ -60,7 +66,8 @@ export const sn = defineArea("sn", {
   },
   fr: {
     "sn.title": "Explication du Growth Officer",
-    "sn.intro": "Une explication écrite de la situation ci-dessous. Chaque énoncé indique s’il s’agit d’un fait, d’une hypothèse, d’une estimation ou d’une recommandation, et les constats sur lesquels il repose. Coûte des crédits ; rien n’est modifié.",
+    "sn.intro":
+      "Une explication écrite de la situation ci-dessous. Chaque énoncé indique s’il s’agit d’un fait, d’une hypothèse, d’une estimation ou d’une recommandation, et les constats sur lesquels il repose. Coûte des crédits ; rien n’est modifié.",
     "sn.ask": "Expliquer (environ 5 crédits)",
     "sn.again": "Expliquer à nouveau (environ 5 crédits)",
     "sn.done": "Explication prête · {c} crédits utilisés",
@@ -69,7 +76,8 @@ export const sn = defineArea("sn", {
     "sn.unreadable": "Votre explication précédente a un format inattendu et n’est pas affichée.",
     "sn.when": "Rédigée le {d} · {c} crédits",
     "sn.stale": "La situation a changé depuis cette explication ; elle peut être obsolète.",
-    "sn.insufficient": "Trop peu de données pour un diagnostic fiable ; lisez ceci comme la liste de ce qui manque.",
+    "sn.insufficient":
+      "Trop peu de données pour un diagnostic fiable ; lisez ceci comme la liste de ce qui manque.",
     "sn.basis": "Fondé sur : {list}",
     "sn.uncertainty": "Incertitude :",
     "sn.k.fact": "fait",

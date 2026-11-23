@@ -4,7 +4,8 @@ import { defineArea } from "../define";
 export const ae = defineArea("ae", {
   en: {
     "ae.title": "Specialists and AI costs",
-    "ae.intro": "Who works on this campaign and what their AI work cost, from the campaign's tasks, their runs and second reviews.",
+    "ae.intro":
+      "Who works on this campaign and what their AI work cost, from the campaign's tasks, their runs and second reviews.",
     "ae.notInstalled": "AI task execution is not available in this environment yet.",
     "ae.loadFailed": "AI work for this campaign could not be loaded.",
     "ae.tasks": "Campaign tasks",
@@ -13,24 +14,31 @@ export const ae = defineArea("ae", {
     "ae.reviews": "Credits for second reviews",
     "ae.total": "Total recorded: {n} credits.",
     "ae.pending": "{n} run(s) not yet charged (estimate {c} credits, not counted).",
-    "ae.uncertain": "{n} run(s) with an unknown outcome: their credits stay reserved and are neither counted as used nor as refunded.",
+    "ae.uncertain":
+      "{n} run(s) with an unknown outcome: their credits stay reserved and are neither counted as used nor as refunded.",
     "ae.incomplete": "Not all AI runs could be read; these totals may be too low.",
-    "ae.noMoney": "No credit price applied when these credits were used, so they are shown as credits only — a money value would be invented.",
-    "ae.noTeam": "No specialist is assigned to this campaign's tasks yet. Assign one on a task to start AI work.",
+    "ae.noMoney":
+      "No credit price applied when these credits were used, so they are shown as credits only — a money value would be invented.",
+    "ae.noTeam":
+      "No specialist is assigned to this campaign's tasks yet. Assign one on a task to start AI work.",
     "ae.row": "{tasks} task(s), {open} open · {runs} run(s), {ok} succeeded · {c} credits",
     "ae.score": "review score {s}/100 over {n} review(s)",
     "ae.last": "last run {d}",
     "ae.unassigned": "{n} open task(s) have no specialist.",
-    "ae.money": "AI cost: {a} for {p} credits, each valued at the credit price in effect when it was used.",
-    "ae.moneyPartial": "{n} credits were used when no price applied; they stay credits and are not in this amount.",
+    "ae.money":
+      "AI cost: {a} for {p} credits, each valued at the credit price in effect when it was used.",
+    "ae.moneyPartial":
+      "{n} credits were used when no price applied; they stay credits and are not in this amount.",
     "ae.split": "Retries: {r} credits{ra} · second reviews: {v} credits{va}",
     "ae.byTask": "Most expensive tasks",
-    "ae.priceNote": "The value is the credit price charged to the business, not the platform's own AI infrastructure cost.",
+    "ae.priceNote":
+      "The value is the credit price charged to the business, not the platform's own AI infrastructure cost.",
     "ae.unnamedTask": "Task without a title",
   },
   nl: {
     "ae.title": "Specialisten en AI-kosten",
-    "ae.intro": "Wie aan deze campagne werkt en wat hun AI-werk kostte, op basis van de taken van de campagne, hun runs en tweede beoordelingen.",
+    "ae.intro":
+      "Wie aan deze campagne werkt en wat hun AI-werk kostte, op basis van de taken van de campagne, hun runs en tweede beoordelingen.",
     "ae.notInstalled": "AI-taakuitvoering is in deze omgeving nog niet beschikbaar.",
     "ae.loadFailed": "Het AI-werk voor deze campagne kon niet worden geladen.",
     "ae.tasks": "Campagnetaken",
@@ -39,25 +47,33 @@ export const ae = defineArea("ae", {
     "ae.reviews": "Credits voor tweede beoordelingen",
     "ae.total": "Totaal geregistreerd: {n} credits.",
     "ae.pending": "{n} run(s) nog niet aangerekend (schatting {c} credits, niet meegeteld).",
-    "ae.uncertain": "{n} run(s) met onbekende uitkomst: de credits blijven gereserveerd en tellen niet als gebruikt of terugbetaald.",
+    "ae.uncertain":
+      "{n} run(s) met onbekende uitkomst: de credits blijven gereserveerd en tellen niet als gebruikt of terugbetaald.",
     "ae.incomplete": "Niet alle AI-runs konden worden gelezen; deze totalen kunnen te laag zijn.",
-    "ae.noMoney": "Er gold geen creditprijs toen deze credits werden gebruikt, dus ze staan alleen als credits — een geldbedrag zou verzonnen zijn.",
-    "ae.noTeam": "Er is nog geen specialist toegewezen aan de taken van deze campagne. Wijs er een toe op een taak om AI-werk te starten.",
+    "ae.noMoney":
+      "Er gold geen creditprijs toen deze credits werden gebruikt, dus ze staan alleen als credits — een geldbedrag zou verzonnen zijn.",
+    "ae.noTeam":
+      "Er is nog geen specialist toegewezen aan de taken van deze campagne. Wijs er een toe op een taak om AI-werk te starten.",
     "ae.row": "{tasks} taak/taken, {open} open · {runs} run(s), {ok} geslaagd · {c} credits",
     "ae.score": "beoordelingsscore {s}/100 over {n} beoordeling(en)",
     "ae.last": "laatste run {d}",
     "ae.unassigned": "{n} open taak/taken hebben geen specialist.",
-    "ae.money": "AI-kosten: {a} voor {p} credits, elk gewaardeerd tegen de creditprijs die gold toen ze werden gebruikt.",
-    "ae.moneyPartial": "{n} credits werden gebruikt toen geen prijs gold; ze blijven credits en zitten niet in dit bedrag.",
+    "ae.money":
+      "AI-kosten: {a} voor {p} credits, elk gewaardeerd tegen de creditprijs die gold toen ze werden gebruikt.",
+    "ae.moneyPartial":
+      "{n} credits werden gebruikt toen geen prijs gold; ze blijven credits en zitten niet in dit bedrag.",
     "ae.split": "Herhaalpogingen: {r} credits{ra} · tweede beoordelingen: {v} credits{va}",
     "ae.byTask": "Duurste taken",
-    "ae.priceNote": "De waarde is de creditprijs die het bedrijf betaalt, niet de eigen AI-infrastructuurkost van het platform.",
+    "ae.priceNote":
+      "De waarde is de creditprijs die het bedrijf betaalt, niet de eigen AI-infrastructuurkost van het platform.",
     "ae.unnamedTask": "Taak zonder titel",
   },
   fr: {
     "ae.title": "Spécialistes et coûts IA",
-    "ae.intro": "Qui travaille sur cette campagne et ce qu'a coûté leur travail IA, d'après les tâches de la campagne, leurs exécutions et les seconds examens.",
-    "ae.notInstalled": "L'exécution IA des tâches n'est pas encore disponible dans cet environnement.",
+    "ae.intro":
+      "Qui travaille sur cette campagne et ce qu'a coûté leur travail IA, d'après les tâches de la campagne, leurs exécutions et les seconds examens.",
+    "ae.notInstalled":
+      "L'exécution IA des tâches n'est pas encore disponible dans cet environnement.",
     "ae.loadFailed": "Impossible de charger le travail IA de cette campagne.",
     "ae.tasks": "Tâches de la campagne",
     "ae.runs": "Exécutions IA",
@@ -65,19 +81,27 @@ export const ae = defineArea("ae", {
     "ae.reviews": "Crédits pour les seconds examens",
     "ae.total": "Total enregistré : {n} crédits.",
     "ae.pending": "{n} exécution(s) pas encore facturée(s) (estimation {c} crédits, non comptée).",
-    "ae.uncertain": "{n} exécution(s) au résultat inconnu : leurs crédits restent réservés, ni comptés comme utilisés ni comme remboursés.",
-    "ae.incomplete": "Toutes les exécutions IA n'ont pas pu être lues ; ces totaux peuvent être trop bas.",
-    "ae.noMoney": "Aucun prix du crédit ne s'appliquait quand ces crédits ont été utilisés : ils restent affichés en crédits — un montant serait inventé.",
-    "ae.noTeam": "Aucun spécialiste n'est encore affecté aux tâches de cette campagne. Affectez-en un sur une tâche pour lancer le travail IA.",
-    "ae.row": "{tasks} tâche(s), {open} ouverte(s) · {runs} exécution(s), {ok} réussie(s) · {c} crédits",
+    "ae.uncertain":
+      "{n} exécution(s) au résultat inconnu : leurs crédits restent réservés, ni comptés comme utilisés ni comme remboursés.",
+    "ae.incomplete":
+      "Toutes les exécutions IA n'ont pas pu être lues ; ces totaux peuvent être trop bas.",
+    "ae.noMoney":
+      "Aucun prix du crédit ne s'appliquait quand ces crédits ont été utilisés : ils restent affichés en crédits — un montant serait inventé.",
+    "ae.noTeam":
+      "Aucun spécialiste n'est encore affecté aux tâches de cette campagne. Affectez-en un sur une tâche pour lancer le travail IA.",
+    "ae.row":
+      "{tasks} tâche(s), {open} ouverte(s) · {runs} exécution(s), {ok} réussie(s) · {c} crédits",
     "ae.score": "score d'examen {s}/100 sur {n} examen(s)",
     "ae.last": "dernière exécution le {d}",
     "ae.unassigned": "{n} tâche(s) ouverte(s) sans spécialiste.",
-    "ae.money": "Coût IA : {a} pour {p} crédits, chacun valorisé au prix du crédit en vigueur au moment de son utilisation.",
-    "ae.moneyPartial": "{n} crédits ont été utilisés sans prix applicable ; ils restent des crédits et ne sont pas inclus dans ce montant.",
+    "ae.money":
+      "Coût IA : {a} pour {p} crédits, chacun valorisé au prix du crédit en vigueur au moment de son utilisation.",
+    "ae.moneyPartial":
+      "{n} crédits ont été utilisés sans prix applicable ; ils restent des crédits et ne sont pas inclus dans ce montant.",
     "ae.split": "Nouvelles tentatives : {r} crédits{ra} · seconds examens : {v} crédits{va}",
     "ae.byTask": "Tâches les plus coûteuses",
-    "ae.priceNote": "La valeur est le prix du crédit facturé à l'entreprise, pas le coût d'infrastructure IA propre à la plateforme.",
+    "ae.priceNote":
+      "La valeur est le prix du crédit facturé à l'entreprise, pas le coût d'infrastructure IA propre à la plateforme.",
     "ae.unnamedTask": "Tâche sans titre",
   },
 });

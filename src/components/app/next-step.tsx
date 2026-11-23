@@ -55,11 +55,26 @@ export function NextStep({ counts }: { counts: NextStepCounts }) {
         .eq("verified", true)
         .limit(200);
       if (r.error) throw r.error;
-      return overallProgress((r.data ?? []).map((f) => ({ key: f.key, value: "", verified: true, source_type: "user", source_ref: ANSWER_SOURCE })));
+      return overallProgress(
+        (r.data ?? []).map((f) => ({
+          key: f.key,
+          value: "",
+          verified: true,
+          source_type: "user",
+          source_ref: ANSWER_SOURCE,
+        })),
+      );
     },
   });
   if (signals.isLoading || goal.isLoading)
-    return <p role="status" className="mb-6 rounded-xl border border-border p-5 text-sm text-muted-foreground">{t("gx.next.loading")}</p>;
+    return (
+      <p
+        role="status"
+        className="mb-6 rounded-xl border border-border p-5 text-sm text-muted-foreground"
+      >
+        {t("gx.next.loading")}
+      </p>
+    );
   const { primary, alternatives } = nextSteps({
     ...counts,
     canEdit: can(o.workspaceRole, "profile.edit"),
@@ -71,20 +86,52 @@ export function NextStep({ counts }: { counts: NextStepCounts }) {
     understanding: answers.isSuccess ? answers.data : null,
     signals: (signals.data ?? []).filter((s) => !HOME_DUPLICATES.has(s.code)),
   });
-  const title = (s: Step) => (s.signal ? t(`signal.${s.signal.code}.title` as MessageKey, s.vars) : t(`gx.step.${s.code}.title` as MessageKey, s.vars));
-  const why = (s: Step) => (s.signal ? `${t(`sx.${s.signal.code}.why` as MessageKey)} ${t(`sx.${s.signal.code}.do` as MessageKey)}` : t(`gx.step.${s.code}.why` as MessageKey));
-  const cta = (s: Step) => (s.signal ? t("gx.step.signal.cta") : t(`gx.step.${s.code}.cta` as MessageKey));
+  const title = (s: Step) =>
+    s.signal
+      ? t(`signal.${s.signal.code}.title` as MessageKey, s.vars)
+      : t(`gx.step.${s.code}.title` as MessageKey, s.vars);
+  const why = (s: Step) =>
+    s.signal
+      ? `${t(`sx.${s.signal.code}.why` as MessageKey)} ${t(`sx.${s.signal.code}.do` as MessageKey)}`
+      : t(`gx.step.${s.code}.why` as MessageKey);
+  const cta = (s: Step) =>
+    s.signal ? t("gx.step.signal.cta") : t(`gx.step.${s.code}.cta` as MessageKey);
   return (
-    <section aria-labelledby="next-step-title" className={cn("mb-6 rounded-xl border bg-card p-5 sm:p-6", primary.urgent ? "border-warning/50" : "border-primary/30")}>
+    <section
+      aria-labelledby="next-step-title"
+      className={cn(
+        "mb-6 rounded-xl border bg-card p-5 sm:p-6",
+        primary.urgent ? "border-warning/50" : "border-primary/30",
+      )}
+    >
       <div className="flex items-start gap-3">
-        <span className={cn("mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", primary.urgent ? "bg-warning/10 text-warning" : "bg-primary/10 text-primary")}>
+        <span
+          className={cn(
+            "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+            primary.urgent ? "bg-warning/10 text-warning" : "bg-primary/10 text-primary",
+          )}
+        >
           <Compass className="h-5 w-5" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="section-label mb-1">{t("gx.next.label")}{primary.urgent && <span className="ml-2 font-medium text-warning">· {t("gx.next.urgent")}</span>}</p>
-          <h2 id="next-step-title" className="text-lg font-semibold leading-snug">{title(primary)}</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground"><span className="sr-only">{t("gx.next.why")} </span>{why(primary)}</p>
-          <Button className="mt-4 min-h-11" asChild><Link to={primary.to}>{cta(primary)} <ArrowRight /></Link></Button>
+          <p className="section-label mb-1">
+            {t("gx.next.label")}
+            {primary.urgent && (
+              <span className="ml-2 font-medium text-warning">· {t("gx.next.urgent")}</span>
+            )}
+          </p>
+          <h2 id="next-step-title" className="text-lg font-semibold leading-snug">
+            {title(primary)}
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            <span className="sr-only">{t("gx.next.why")} </span>
+            {why(primary)}
+          </p>
+          <Button className="mt-4 min-h-11" asChild>
+            <Link to={primary.to}>
+              {cta(primary)} <ArrowRight />
+            </Link>
+          </Button>
         </div>
       </div>
       {!!alternatives.length && (
@@ -93,9 +140,15 @@ export function NextStep({ counts }: { counts: NextStepCounts }) {
           <ul className="space-y-1">
             {alternatives.map((s, i) => (
               <li key={`${s.code}-${s.signal?.id ?? i}`}>
-                <Link to={s.to} className="group flex min-h-10 items-center justify-between gap-3 rounded-md px-2 py-2 text-sm hover:bg-muted">
+                <Link
+                  to={s.to}
+                  className="group flex min-h-10 items-center justify-between gap-3 rounded-md px-2 py-2 text-sm hover:bg-muted"
+                >
                   <span className="min-w-0 break-words">{title(s)}</span>
-                  <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-primary" aria-hidden />
+                  <ArrowUpRight
+                    className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-primary"
+                    aria-hidden
+                  />
                 </Link>
               </li>
             ))}

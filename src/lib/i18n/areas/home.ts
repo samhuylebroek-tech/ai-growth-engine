@@ -46,7 +46,8 @@ export const home = defineArea("home", {
     "home.reviewRec": "Review recommendation",
     "home.noRecs": "No open opportunity recommendations",
     "home.factsAvailable": "Confirmed facts available for a fresh analysis: {n}.",
-    "home.confirmKnowledge": "Confirm business knowledge to give recommendations a reliable foundation.",
+    "home.confirmKnowledge":
+      "Confirm business knowledge to give recommendations a reliable foundation.",
     "home.explore": "Explore business knowledge",
     "home.u.eyebrow": "Planned, not suggested",
     "home.failedRuns": "Failed AI assignments: {n}",
@@ -102,7 +103,8 @@ export const home = defineArea("home", {
     "home.tiles.title": "Where the business stands",
     "home.tiles.loading": "Loading business numbers…",
     "home.tiles.failed": "Business numbers could not load.",
-    "home.tiles.note": "Only figures from your own records and connected sources. Manual pipeline entries are never counted as revenue.",
+    "home.tiles.note":
+      "Only figures from your own records and connected sources. Manual pipeline entries are never counted as revenue.",
     "home.tiles.about": "About {k}",
     "home.tiles.kindLabel": "Type",
     "home.tiles.sourceLabel": "Source",
@@ -133,33 +135,44 @@ export const home = defineArea("home", {
     "home.tiles.na.load_failed": "Could not load",
     "home.tiles.na.too_many": "Too many records to total here",
     "home.tiles.k.opportunities": "Active growth opportunities",
-    "home.tiles.d.opportunities": "Opportunities that are open or shortlisted; dismissed and converted ones are not counted.",
+    "home.tiles.d.opportunities":
+      "Opportunities that are open or shortlisted; dismissed and converted ones are not counted.",
     "home.tiles.k.goals": "Active goals",
     "home.tiles.d.goals": "Goals with the status active.",
     "home.tiles.k.campaigns": "Active campaigns",
     "home.tiles.d.campaigns": "Campaigns with the status active.",
     "home.tiles.k.leads": "Leads",
-    "home.tiles.d.leads": "Deals in the Lead stage of your pipeline. Entered by your team, not measured.",
+    "home.tiles.d.leads":
+      "Deals in the Lead stage of your pipeline. Entered by your team, not measured.",
     "home.tiles.k.qualified": "Qualified leads",
-    "home.tiles.d.qualified": "Deals in the Qualified stage of your pipeline. Entered by your team.",
+    "home.tiles.d.qualified":
+      "Deals in the Qualified stage of your pipeline. Entered by your team.",
     "home.tiles.k.openDeals": "Sales opportunities",
-    "home.tiles.d.openDeals": "Open deals (lead to negotiation) and their entered value per currency. The value is your team's estimate, not revenue.",
+    "home.tiles.d.openDeals":
+      "Open deals (lead to negotiation) and their entered value per currency. The value is your team's estimate, not revenue.",
     "home.tiles.k.wonDeals": "Deals won this month",
-    "home.tiles.d.wonDeals": "Deals marked won with a close date this month, with their entered value. Not audited revenue.",
+    "home.tiles.d.wonDeals":
+      "Deals marked won with a close date this month, with their entered value. Not audited revenue.",
     "home.tiles.k.revenue": "Revenue",
-    "home.tiles.d.revenue": "Net revenue imported read-only from a connected revenue source, for the latest month with a result, per currency.",
+    "home.tiles.d.revenue":
+      "Net revenue imported read-only from a connected revenue source, for the latest month with a result, per currency.",
     "home.tiles.k.revenueVsTarget": "Revenue against plan",
-    "home.tiles.d.revenueVsTarget": "Imported revenue as a percentage of the planned value your team recorded for the same month.",
+    "home.tiles.d.revenueVsTarget":
+      "Imported revenue as a percentage of the planned value your team recorded for the same month.",
     "home.tiles.k.spend": "Marketing spend",
-    "home.tiles.d.spend": "Actual spend entered on this month's budget lines, per currency. Not synced from ad accounts.",
+    "home.tiles.d.spend":
+      "Actual spend entered on this month's budget lines, per currency. Not synced from ad accounts.",
     "home.tiles.k.remaining": "Remaining budget",
-    "home.tiles.d.remaining": "Planned budget minus entered spend for this month, per currency. Negative means over plan.",
+    "home.tiles.d.remaining":
+      "Planned budget minus entered spend for this month, per currency. Negative means over plan.",
     "home.tiles.k.tasksDone": "Completed tasks",
     "home.tiles.d.tasksDone": "Tasks currently marked done in this workspace.",
     "home.tiles.k.approvals": "Pending approvals",
-    "home.tiles.d.approvals": "Proposals waiting for a decision. Nothing runs before someone approves it.",
+    "home.tiles.d.approvals":
+      "Proposals waiting for a decision. Nothing runs before someone approves it.",
     "home.tiles.k.aiRuns": "AI assignments",
-    "home.tiles.d.aiRuns": "AI assignments started in this workspace this month, whatever their outcome.",
+    "home.tiles.d.aiRuns":
+      "AI assignments started in this workspace this month, whatever their outcome.",
     "home.tiles.k.aiCredits": "AI credits used",
     "home.tiles.d.aiCredits": "Credits charged for this month's AI assignments in this workspace.",
     "home.tiles.show": "Show business numbers",
@@ -208,7 +221,8 @@ export const home = defineArea("home", {
     "home.reviewRec": "Aanbeveling nakijken",
     "home.noRecs": "Geen open aanbevelingen",
     "home.factsAvailable": "Bevestigde feiten beschikbaar voor een nieuwe analyse: {n}.",
-    "home.confirmKnowledge": "Bevestig bedrijfskennis zodat aanbevelingen een betrouwbare basis hebben.",
+    "home.confirmKnowledge":
+      "Bevestig bedrijfskennis zodat aanbevelingen een betrouwbare basis hebben.",
     "home.explore": "Bedrijfskennis bekijken",
     "home.u.eyebrow": "Gepland, niet voorgesteld",
     "home.failedRuns": "Mislukte AI-opdrachten: {n}",
@@ -264,7 +278,8 @@ export const home = defineArea("home", {
     "home.tiles.title": "Waar het bedrijf staat",
     "home.tiles.loading": "Bedrijfscijfers laden…",
     "home.tiles.failed": "Bedrijfscijfers konden niet laden.",
-    "home.tiles.note": "Alleen cijfers uit je eigen gegevens en gekoppelde bronnen. Handmatig ingevoerde deals tellen nooit als omzet.",
+    "home.tiles.note":
+      "Alleen cijfers uit je eigen gegevens en gekoppelde bronnen. Handmatig ingevoerde deals tellen nooit als omzet.",
     "home.tiles.about": "Over {k}",
     "home.tiles.kindLabel": "Soort",
     "home.tiles.sourceLabel": "Bron",
@@ -295,35 +310,47 @@ export const home = defineArea("home", {
     "home.tiles.na.load_failed": "Kon niet laden",
     "home.tiles.na.too_many": "Te veel gegevens om hier op te tellen",
     "home.tiles.k.opportunities": "Actieve groeikansen",
-    "home.tiles.d.opportunities": "Kansen die open staan of op de shortlist staan; afgewezen en omgezette kansen tellen niet mee.",
+    "home.tiles.d.opportunities":
+      "Kansen die open staan of op de shortlist staan; afgewezen en omgezette kansen tellen niet mee.",
     "home.tiles.k.goals": "Actieve doelen",
     "home.tiles.d.goals": "Doelen met de status actief.",
     "home.tiles.k.campaigns": "Actieve campagnes",
     "home.tiles.d.campaigns": "Campagnes met de status actief.",
     "home.tiles.k.leads": "Leads",
-    "home.tiles.d.leads": "Deals in de fase Lead van je pijplijn. Ingevoerd door je team, niet gemeten.",
+    "home.tiles.d.leads":
+      "Deals in de fase Lead van je pijplijn. Ingevoerd door je team, niet gemeten.",
     "home.tiles.k.qualified": "Gekwalificeerde leads",
-    "home.tiles.d.qualified": "Deals in de fase Gekwalificeerd van je pijplijn. Ingevoerd door je team.",
+    "home.tiles.d.qualified":
+      "Deals in de fase Gekwalificeerd van je pijplijn. Ingevoerd door je team.",
     "home.tiles.k.openDeals": "Verkoopkansen",
-    "home.tiles.d.openDeals": "Open deals (lead tot onderhandeling) en hun ingevoerde waarde per munt. De waarde is een schatting van je team, geen omzet.",
+    "home.tiles.d.openDeals":
+      "Open deals (lead tot onderhandeling) en hun ingevoerde waarde per munt. De waarde is een schatting van je team, geen omzet.",
     "home.tiles.k.wonDeals": "Deals gewonnen deze maand",
-    "home.tiles.d.wonDeals": "Deals gemarkeerd als gewonnen met een sluitdatum deze maand, met hun ingevoerde waarde. Geen gecontroleerde omzet.",
+    "home.tiles.d.wonDeals":
+      "Deals gemarkeerd als gewonnen met een sluitdatum deze maand, met hun ingevoerde waarde. Geen gecontroleerde omzet.",
     "home.tiles.k.revenue": "Omzet",
-    "home.tiles.d.revenue": "Netto-omzet, alleen-lezen geïmporteerd uit een gekoppelde omzetbron, voor de laatste maand met een resultaat, per munt.",
+    "home.tiles.d.revenue":
+      "Netto-omzet, alleen-lezen geïmporteerd uit een gekoppelde omzetbron, voor de laatste maand met een resultaat, per munt.",
     "home.tiles.k.revenueVsTarget": "Omzet tegenover plan",
-    "home.tiles.d.revenueVsTarget": "Geïmporteerde omzet als percentage van de geplande waarde die je team voor dezelfde maand vastlegde.",
+    "home.tiles.d.revenueVsTarget":
+      "Geïmporteerde omzet als percentage van de geplande waarde die je team voor dezelfde maand vastlegde.",
     "home.tiles.k.spend": "Marketinguitgaven",
-    "home.tiles.d.spend": "Werkelijke uitgaven ingevoerd op de budgetregels van deze maand, per munt. Niet gesynchroniseerd met advertentieaccounts.",
+    "home.tiles.d.spend":
+      "Werkelijke uitgaven ingevoerd op de budgetregels van deze maand, per munt. Niet gesynchroniseerd met advertentieaccounts.",
     "home.tiles.k.remaining": "Resterend budget",
-    "home.tiles.d.remaining": "Gepland budget min ingevoerde uitgaven voor deze maand, per munt. Negatief betekent boven plan.",
+    "home.tiles.d.remaining":
+      "Gepland budget min ingevoerde uitgaven voor deze maand, per munt. Negatief betekent boven plan.",
     "home.tiles.k.tasksDone": "Afgeronde taken",
     "home.tiles.d.tasksDone": "Taken die nu als klaar gemarkeerd staan in deze werkruimte.",
     "home.tiles.k.approvals": "Openstaande goedkeuringen",
-    "home.tiles.d.approvals": "Voorstellen die op een beslissing wachten. Er gebeurt niets voordat iemand goedkeurt.",
+    "home.tiles.d.approvals":
+      "Voorstellen die op een beslissing wachten. Er gebeurt niets voordat iemand goedkeurt.",
     "home.tiles.k.aiRuns": "AI-opdrachten",
-    "home.tiles.d.aiRuns": "AI-opdrachten gestart in deze werkruimte deze maand, ongeacht de uitkomst.",
+    "home.tiles.d.aiRuns":
+      "AI-opdrachten gestart in deze werkruimte deze maand, ongeacht de uitkomst.",
     "home.tiles.k.aiCredits": "Gebruikt AI-tegoed",
-    "home.tiles.d.aiCredits": "Tegoed aangerekend voor de AI-opdrachten van deze maand in deze werkruimte.",
+    "home.tiles.d.aiCredits":
+      "Tegoed aangerekend voor de AI-opdrachten van deze maand in deze werkruimte.",
     "home.tiles.show": "Bedrijfscijfers tonen",
   },
   fr: {
@@ -370,7 +397,8 @@ export const home = defineArea("home", {
     "home.reviewRec": "Examiner la recommandation",
     "home.noRecs": "Aucune recommandation ouverte",
     "home.factsAvailable": "Faits confirmés disponibles pour une nouvelle analyse : {n}.",
-    "home.confirmKnowledge": "Confirmez vos connaissances métier pour fiabiliser les recommandations.",
+    "home.confirmKnowledge":
+      "Confirmez vos connaissances métier pour fiabiliser les recommandations.",
     "home.explore": "Explorer les connaissances",
     "home.u.eyebrow": "Prévu, pas suggéré",
     "home.failedRuns": "Missions IA échouées : {n}",
@@ -426,7 +454,8 @@ export const home = defineArea("home", {
     "home.tiles.title": "Où en est l’entreprise",
     "home.tiles.loading": "Chargement des chiffres…",
     "home.tiles.failed": "Les chiffres n’ont pas pu se charger.",
-    "home.tiles.note": "Uniquement des chiffres issus de vos données et des sources connectées. Les affaires saisies à la main ne comptent jamais comme chiffre d’affaires.",
+    "home.tiles.note":
+      "Uniquement des chiffres issus de vos données et des sources connectées. Les affaires saisies à la main ne comptent jamais comme chiffre d’affaires.",
     "home.tiles.about": "À propos de {k}",
     "home.tiles.kindLabel": "Type",
     "home.tiles.sourceLabel": "Source",
@@ -457,33 +486,43 @@ export const home = defineArea("home", {
     "home.tiles.na.load_failed": "Chargement impossible",
     "home.tiles.na.too_many": "Trop d’éléments pour faire le total ici",
     "home.tiles.k.opportunities": "Opportunités actives",
-    "home.tiles.d.opportunities": "Opportunités ouvertes ou présélectionnées ; celles écartées ou converties ne sont pas comptées.",
+    "home.tiles.d.opportunities":
+      "Opportunités ouvertes ou présélectionnées ; celles écartées ou converties ne sont pas comptées.",
     "home.tiles.k.goals": "Objectifs actifs",
     "home.tiles.d.goals": "Objectifs au statut actif.",
     "home.tiles.k.campaigns": "Campagnes actives",
     "home.tiles.d.campaigns": "Campagnes au statut actif.",
     "home.tiles.k.leads": "Prospects",
-    "home.tiles.d.leads": "Affaires à l’étape Prospect du pipeline. Saisies par votre équipe, non mesurées.",
+    "home.tiles.d.leads":
+      "Affaires à l’étape Prospect du pipeline. Saisies par votre équipe, non mesurées.",
     "home.tiles.k.qualified": "Prospects qualifiés",
     "home.tiles.d.qualified": "Affaires à l’étape Qualifié du pipeline. Saisies par votre équipe.",
     "home.tiles.k.openDeals": "Opportunités commerciales",
-    "home.tiles.d.openDeals": "Affaires ouvertes (prospect à négociation) et leur valeur saisie par devise. La valeur est une estimation de l’équipe, pas un chiffre d’affaires.",
+    "home.tiles.d.openDeals":
+      "Affaires ouvertes (prospect à négociation) et leur valeur saisie par devise. La valeur est une estimation de l’équipe, pas un chiffre d’affaires.",
     "home.tiles.k.wonDeals": "Affaires gagnées ce mois",
-    "home.tiles.d.wonDeals": "Affaires gagnées avec une date de clôture ce mois-ci et leur valeur saisie. Pas un chiffre d’affaires audité.",
+    "home.tiles.d.wonDeals":
+      "Affaires gagnées avec une date de clôture ce mois-ci et leur valeur saisie. Pas un chiffre d’affaires audité.",
     "home.tiles.k.revenue": "Chiffre d’affaires",
-    "home.tiles.d.revenue": "Revenu net importé en lecture seule depuis une source connectée, pour le dernier mois avec un résultat, par devise.",
+    "home.tiles.d.revenue":
+      "Revenu net importé en lecture seule depuis une source connectée, pour le dernier mois avec un résultat, par devise.",
     "home.tiles.k.revenueVsTarget": "Chiffre d’affaires vs plan",
-    "home.tiles.d.revenueVsTarget": "Chiffre d’affaires importé en pourcentage de la valeur prévue par votre équipe pour le même mois.",
+    "home.tiles.d.revenueVsTarget":
+      "Chiffre d’affaires importé en pourcentage de la valeur prévue par votre équipe pour le même mois.",
     "home.tiles.k.spend": "Dépenses marketing",
-    "home.tiles.d.spend": "Dépenses réelles saisies sur les lignes budgétaires du mois, par devise. Non synchronisées avec les comptes publicitaires.",
+    "home.tiles.d.spend":
+      "Dépenses réelles saisies sur les lignes budgétaires du mois, par devise. Non synchronisées avec les comptes publicitaires.",
     "home.tiles.k.remaining": "Budget restant",
-    "home.tiles.d.remaining": "Budget prévu moins les dépenses saisies ce mois-ci, par devise. Négatif signifie au-dessus du plan.",
+    "home.tiles.d.remaining":
+      "Budget prévu moins les dépenses saisies ce mois-ci, par devise. Négatif signifie au-dessus du plan.",
     "home.tiles.k.tasksDone": "Tâches terminées",
     "home.tiles.d.tasksDone": "Tâches actuellement marquées terminées dans cet espace.",
     "home.tiles.k.approvals": "Validations en attente",
-    "home.tiles.d.approvals": "Propositions en attente de décision. Rien ne s’exécute avant validation.",
+    "home.tiles.d.approvals":
+      "Propositions en attente de décision. Rien ne s’exécute avant validation.",
     "home.tiles.k.aiRuns": "Missions IA",
-    "home.tiles.d.aiRuns": "Missions IA lancées dans cet espace ce mois-ci, quel que soit le résultat.",
+    "home.tiles.d.aiRuns":
+      "Missions IA lancées dans cet espace ce mois-ci, quel que soit le résultat.",
     "home.tiles.k.aiCredits": "Crédits IA utilisés",
     "home.tiles.d.aiCredits": "Crédits facturés pour les missions IA de ce mois dans cet espace.",
     "home.tiles.show": "Afficher les chiffres clés",

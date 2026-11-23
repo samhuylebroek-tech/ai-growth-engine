@@ -322,7 +322,9 @@ export function buildView(d: BiData, f: Filters, model: Model, now: Date = new D
     candidates,
     proposalEvidence: linkedEvidence(d),
     conflictedProposals: proposalsOnConfirmedConflicts(
-      d.facts.filter((f) => f.id).map((f) => ({ ...f, id: f.id!, source_type: f.source_type ?? "user" })),
+      d.facts
+        .filter((f) => f.id)
+        .map((f) => ({ ...f, id: f.id!, source_type: f.source_type ?? "user" })),
       d.evidence ?? [],
       d.proposalEvidence ?? [],
     ),
@@ -387,7 +389,9 @@ export function buildView(d: BiData, f: Filters, model: Model, now: Date = new D
 /** Records the caller could read, to tell whether the record behind a piece of evidence still exists / is confirmed. */
 // A list read up to its limit may be incomplete, so a record absent from it is "unknown", never "missing".
 export const SOURCE_READ_LIMITS = { measurements: 5000 } as const;
-export function knownSources(d: Partial<Pick<BiData, "facts" | "factsComplete" | "measurements" | "revenue">>) {
+export function knownSources(
+  d: Partial<Pick<BiData, "facts" | "factsComplete" | "measurements" | "revenue">>,
+) {
   return {
     ...(d.facts && d.factsComplete
       ? { facts: new Map(d.facts.filter((f) => f.id).map((f) => [f.id!, f.verified])) }

@@ -15,9 +15,11 @@ export const run = defineArea("run", {
     "run.modeName.3": "Approved execution",
     "run.modeName.4": "Bounded autonomy",
     "run.modeHint.1": "Specialists may only analyse and recommend.",
-    "run.modeHint.2": "Specialists may also prepare drafts, content and plans. Each run is started by a team member.",
+    "run.modeHint.2":
+      "Specialists may also prepare drafts, content and plans. Each run is started by a team member.",
     "run.modeHint.3": "Every AI run waits for an admin's approval before it starts.",
-    "run.modeHint.4": "The Growth Officer may run up to 3 ready tasks at a time within the credit limits, stopping at the first problem.",
+    "run.modeHint.4":
+      "The Growth Officer may run up to 3 ready tasks at a time within the credit limits, stopping at the first problem.",
     "run.modeLabel": "How much the AI may do",
     "run.suggested": "Growth Officer suggests: {s}",
     "run.specialist": "Specialist",
@@ -30,13 +32,16 @@ export const run = defineArea("run", {
     "run.assign": "Assign",
     "run.reassign": "Save assignment",
     "run.assigned": "Specialist assigned",
-    "run.externalBlocked": "External actions (publishing, sending, spending, changing outside systems) are never run by the AI here. They need a connected system and your explicit approval; none is switched on.",
+    "run.externalBlocked":
+      "External actions (publishing, sending, spending, changing outside systems) are never run by the AI here. They need a connected system and your explicit approval; none is switched on.",
     "run.blocked": "Blocked: a task this one depends on is not done yet.",
     "run.runTitle": "Run",
-    "run.estimate": "About {n} credits per run (limit {max}). This month: {used} of {cap} credits for task runs.",
+    "run.estimate":
+      "About {n} credits per run (limit {max}). This month: {used} of {cap} credits for task runs.",
     "run.capReached": "This month's credit limit for task runs is (almost) reached.",
     "run.runningHint": "The specialist is working. This usually takes under two minutes.",
-    "run.uncertainHint": "The AI call's outcome is not known yet. It is never retried automatically; it is settled once the outcome is resolved.",
+    "run.uncertainHint":
+      "The AI call's outcome is not known yet. It is never retried automatically; it is settled once the outcome is resolved.",
     "run.decisionNote": "Note for your decision (required to reject)",
     "run.reasonNeeded": "Give a reason to reject.",
     "run.a.run": "Run with AI (~{n} credits)",
@@ -70,7 +75,8 @@ export const run = defineArea("run", {
     "run.reviewTitle": "Growth Officer check",
     "run.next.accept": "Ready for your review. Accept it to complete the task.",
     "run.next.fill_gaps": "Fill the listed information gaps before relying on it.",
-    "run.next.approve_external": "It proposes external actions. Those need a connected system and your explicit approval.",
+    "run.next.approve_external":
+      "It proposes external actions. Those need a connected system and your explicit approval.",
     "run.flag.evidence_gaps": "Missing information is listed",
     "run.flag.external_actions": "Contains proposed external actions",
     "run.flag.no_deliverables": "No separate deliverables listed",
@@ -92,14 +98,17 @@ export const run = defineArea("run", {
     "run.barReserved": "{n} reserved for open runs",
     "run.barActive": "{n} open runs",
     "run.batch": "Run ready work ({n})",
-    "run.batchHint": "Runs at most {n} ready tasks, highest priority first, and stops at the first problem.",
+    "run.batchHint":
+      "Runs at most {n} ready tasks, highest priority first, and stops at the first problem.",
     "run.batchDone": "{n} task(s) completed by specialists",
     "run.batchStopped": "Stopped after {n} run(s).",
     "run.settings": "AI work settings",
-    "run.settingsHint": "Applies to this workspace. A task's own approval requirement always wins over a looser setting.",
+    "run.settingsHint":
+      "Applies to this workspace. A task's own approval requirement always wins over a looser setting.",
     "run.maxPerRun": "Credit limit per run",
     "run.monthlyCap": "Monthly credit limit for task runs",
-    "run.externalAlways": "External actions always need a connected system and explicit approval, whatever the mode.",
+    "run.externalAlways":
+      "External actions always need a connected system and explicit approval, whatever the mode.",
     "run.save": "Save",
     "run.settingsSaved": "Settings saved",
     "run.f.ai": "AI specialist tasks",
@@ -111,7 +120,8 @@ export const run = defineArea("run", {
     "run.tiles.eyebrow": "Execution",
     "run.tiles.title": "How the work is going",
     "run.tiles.failed": "Execution numbers could not load.",
-    "run.tiles.note": "From your tasks, their dependencies and AI task runs. Hover a tile for its definition.",
+    "run.tiles.note":
+      "From your tasks, their dependencies and AI task runs. Hover a tile for its definition.",
     "run.tiles.p.now": "Right now",
     "run.tiles.p.thisMonth": "This month",
     "run.tiles.p.allTime": "All time",
@@ -131,7 +141,8 @@ export const run = defineArea("run", {
     "run.tiles.d.failed": "Open tasks whose latest AI run failed or has an uncertain outcome.",
     "run.tiles.d.blocked": "Open tasks that depend on another open task.",
     "run.tiles.d.approvals": "Tasks whose latest AI run waits for an admin's approval.",
-    "run.tiles.d.onTime": "Done tasks with a deadline whose last change was on or before that deadline, out of all done tasks with a deadline.",
+    "run.tiles.d.onTime":
+      "Done tasks with a deadline whose last change was on or before that deadline, out of all done tasks with a deadline.",
     "run.tiles.d.creditsUsed": "AI credits actually charged for task runs started this month.",
     "run.tiles.d.creditsReserved": "Estimated credits held for AI runs that have not finished.",
     "run.tiles.d.initiatives": "Planned or in-progress initiatives of approved Growth Plans.",
@@ -165,9 +176,11 @@ export const run = defineArea("run", {
     "run.modeName.3": "Uitvoering na goedkeuring",
     "run.modeName.4": "Begrensde zelfstandigheid",
     "run.modeHint.1": "Specialisten mogen alleen analyseren en adviseren.",
-    "run.modeHint.2": "Specialisten mogen ook concepten, content en plannen voorbereiden. Een teamlid start elke opdracht.",
+    "run.modeHint.2":
+      "Specialisten mogen ook concepten, content en plannen voorbereiden. Een teamlid start elke opdracht.",
     "run.modeHint.3": "Elke AI-opdracht wacht op goedkeuring van een beheerder voordat hij start.",
-    "run.modeHint.4": "De Growth Officer mag tot 3 klaarstaande taken tegelijk uitvoeren binnen de tegoedlimieten en stopt bij het eerste probleem.",
+    "run.modeHint.4":
+      "De Growth Officer mag tot 3 klaarstaande taken tegelijk uitvoeren binnen de tegoedlimieten en stopt bij het eerste probleem.",
     "run.modeLabel": "Hoeveel de AI mag doen",
     "run.suggested": "Growth Officer stelt voor: {s}",
     "run.specialist": "Specialist",
@@ -180,13 +193,16 @@ export const run = defineArea("run", {
     "run.assign": "Toewijzen",
     "run.reassign": "Toewijzing opslaan",
     "run.assigned": "Specialist toegewezen",
-    "run.externalBlocked": "Externe acties (publiceren, versturen, geld uitgeven, externe systemen wijzigen) voert de AI hier nooit uit. Ze vragen een gekoppeld systeem en je uitdrukkelijke goedkeuring; er is er geen ingeschakeld.",
+    "run.externalBlocked":
+      "Externe acties (publiceren, versturen, geld uitgeven, externe systemen wijzigen) voert de AI hier nooit uit. Ze vragen een gekoppeld systeem en je uitdrukkelijke goedkeuring; er is er geen ingeschakeld.",
     "run.blocked": "Geblokkeerd: een taak waarvan deze afhangt is nog niet klaar.",
     "run.runTitle": "Uitvoering",
-    "run.estimate": "Ongeveer {n} tegoed per opdracht (limiet {max}). Deze maand: {used} van {cap} tegoed voor taakopdrachten.",
+    "run.estimate":
+      "Ongeveer {n} tegoed per opdracht (limiet {max}). Deze maand: {used} van {cap} tegoed voor taakopdrachten.",
     "run.capReached": "De maandlimiet voor taakopdrachten is (bijna) bereikt.",
     "run.runningHint": "De specialist is bezig. Dit duurt meestal minder dan twee minuten.",
-    "run.uncertainHint": "De uitkomst van de AI-oproep is nog onbekend. Er wordt nooit automatisch opnieuw geprobeerd; dit wordt afgehandeld zodra de uitkomst vaststaat.",
+    "run.uncertainHint":
+      "De uitkomst van de AI-oproep is nog onbekend. Er wordt nooit automatisch opnieuw geprobeerd; dit wordt afgehandeld zodra de uitkomst vaststaat.",
     "run.decisionNote": "Toelichting bij je besluit (verplicht bij afwijzen)",
     "run.reasonNeeded": "Geef een reden om af te wijzen.",
     "run.a.run": "Uitvoeren met AI (~{n} tegoed)",
@@ -220,7 +236,8 @@ export const run = defineArea("run", {
     "run.reviewTitle": "Controle door Growth Officer",
     "run.next.accept": "Klaar voor jouw beoordeling. Aanvaard het om de taak af te ronden.",
     "run.next.fill_gaps": "Vul de genoemde ontbrekende informatie aan voordat je erop vertrouwt.",
-    "run.next.approve_external": "Er worden externe acties voorgesteld. Die vragen een gekoppeld systeem en je uitdrukkelijke goedkeuring.",
+    "run.next.approve_external":
+      "Er worden externe acties voorgesteld. Die vragen een gekoppeld systeem en je uitdrukkelijke goedkeuring.",
     "run.flag.evidence_gaps": "Ontbrekende informatie staat vermeld",
     "run.flag.external_actions": "Bevat voorgestelde externe acties",
     "run.flag.no_deliverables": "Geen aparte opleveringen vermeld",
@@ -231,7 +248,8 @@ export const run = defineArea("run", {
     "run.ownerAi": "AI",
     "run.ownerTeam": "team",
     "run.external": "Voorgestelde externe acties — niet uitgevoerd",
-    "run.externalNote": "Er is niets gepubliceerd, verstuurd, uitgegeven of buiten het platform gewijzigd.",
+    "run.externalNote":
+      "Er is niets gepubliceerd, verstuurd, uitgegeven of buiten het platform gewijzigd.",
     "run.history": "Geschiedenis van opdrachten",
     "run.costTotal": "Gebruikt tegoed voor deze taak: {n}",
     "run.credits": "{n} tegoed",
@@ -242,14 +260,17 @@ export const run = defineArea("run", {
     "run.barReserved": "{n} gereserveerd voor open opdrachten",
     "run.barActive": "{n} open opdrachten",
     "run.batch": "Klaarstaand werk uitvoeren ({n})",
-    "run.batchHint": "Voert maximaal {n} klaarstaande taken uit, hoogste prioriteit eerst, en stopt bij het eerste probleem.",
+    "run.batchHint":
+      "Voert maximaal {n} klaarstaande taken uit, hoogste prioriteit eerst, en stopt bij het eerste probleem.",
     "run.batchDone": "{n} taak/taken uitgevoerd door specialisten",
     "run.batchStopped": "Gestopt na {n} opdracht(en).",
     "run.settings": "Instellingen AI-werk",
-    "run.settingsHint": "Geldt voor deze werkruimte. De goedkeuringseis van een taak gaat altijd voor op een ruimere instelling.",
+    "run.settingsHint":
+      "Geldt voor deze werkruimte. De goedkeuringseis van een taak gaat altijd voor op een ruimere instelling.",
     "run.maxPerRun": "Tegoedlimiet per opdracht",
     "run.monthlyCap": "Maandlimiet tegoed voor taakopdrachten",
-    "run.externalAlways": "Externe acties vragen altijd een gekoppeld systeem en uitdrukkelijke goedkeuring, ongeacht de modus.",
+    "run.externalAlways":
+      "Externe acties vragen altijd een gekoppeld systeem en uitdrukkelijke goedkeuring, ongeacht de modus.",
     "run.save": "Opslaan",
     "run.settingsSaved": "Instellingen opgeslagen",
     "run.f.ai": "Taken voor AI-specialisten",
@@ -261,7 +282,8 @@ export const run = defineArea("run", {
     "run.tiles.eyebrow": "Uitvoering",
     "run.tiles.title": "Hoe het werk loopt",
     "run.tiles.failed": "De uitvoeringscijfers konden niet laden.",
-    "run.tiles.note": "Uit je taken, hun afhankelijkheden en AI-taakopdrachten. Beweeg over een tegel voor de definitie.",
+    "run.tiles.note":
+      "Uit je taken, hun afhankelijkheden en AI-taakopdrachten. Beweeg over een tegel voor de definitie.",
     "run.tiles.p.now": "Nu",
     "run.tiles.p.thisMonth": "Deze maand",
     "run.tiles.p.allTime": "Altijd",
@@ -278,11 +300,15 @@ export const run = defineArea("run", {
     "run.tiles.d.openTasks": "Taken die niet klaar of geannuleerd zijn.",
     "run.tiles.d.running": "Taken waarvan de laatste AI-opdracht in de wachtrij staat of bezig is.",
     "run.tiles.d.completed": "Taken gemarkeerd als klaar.",
-    "run.tiles.d.failed": "Open taken waarvan de laatste AI-opdracht mislukte of een onzekere uitkomst heeft.",
+    "run.tiles.d.failed":
+      "Open taken waarvan de laatste AI-opdracht mislukte of een onzekere uitkomst heeft.",
     "run.tiles.d.blocked": "Open taken die afhangen van een andere open taak.",
-    "run.tiles.d.approvals": "Taken waarvan de laatste AI-opdracht wacht op goedkeuring van een beheerder.",
-    "run.tiles.d.onTime": "Afgeronde taken met deadline waarvan de laatste wijziging op of vóór die deadline was, van alle afgeronde taken met deadline.",
-    "run.tiles.d.creditsUsed": "Werkelijk aangerekend AI-tegoed voor taakopdrachten gestart deze maand.",
+    "run.tiles.d.approvals":
+      "Taken waarvan de laatste AI-opdracht wacht op goedkeuring van een beheerder.",
+    "run.tiles.d.onTime":
+      "Afgeronde taken met deadline waarvan de laatste wijziging op of vóór die deadline was, van alle afgeronde taken met deadline.",
+    "run.tiles.d.creditsUsed":
+      "Werkelijk aangerekend AI-tegoed voor taakopdrachten gestart deze maand.",
     "run.tiles.d.creditsReserved": "Geschat tegoed voor AI-opdrachten die nog niet klaar zijn.",
     "run.tiles.d.initiatives": "Geplande of lopende initiatieven van goedgekeurde groeiplannen.",
     "run.sp.business_analyst": "Bedrijfsanalist",
@@ -315,9 +341,12 @@ export const run = defineArea("run", {
     "run.modeName.3": "Exécution validée",
     "run.modeName.4": "Autonomie encadrée",
     "run.modeHint.1": "Les spécialistes peuvent seulement analyser et recommander.",
-    "run.modeHint.2": "Les spécialistes peuvent aussi préparer brouillons, contenus et plans. Chaque exécution est lancée par un membre de l’équipe.",
-    "run.modeHint.3": "Chaque exécution IA attend la validation d’un administrateur avant de démarrer.",
-    "run.modeHint.4": "Le Growth Officer peut exécuter jusqu’à 3 tâches prêtes à la fois dans les limites de crédits, et s’arrête au premier problème.",
+    "run.modeHint.2":
+      "Les spécialistes peuvent aussi préparer brouillons, contenus et plans. Chaque exécution est lancée par un membre de l’équipe.",
+    "run.modeHint.3":
+      "Chaque exécution IA attend la validation d’un administrateur avant de démarrer.",
+    "run.modeHint.4":
+      "Le Growth Officer peut exécuter jusqu’à 3 tâches prêtes à la fois dans les limites de crédits, et s’arrête au premier problème.",
     "run.modeLabel": "Ce que l’IA peut faire",
     "run.suggested": "Le Growth Officer propose : {s}",
     "run.specialist": "Spécialiste",
@@ -325,18 +354,22 @@ export const run = defineArea("run", {
     "run.type.analysis": "Analyse",
     "run.type.preparation": "Préparation",
     "run.type.external": "Action externe",
-    "run.requireApproval": "Chaque exécution de cette tâche demande la validation d’un administrateur",
+    "run.requireApproval":
+      "Chaque exécution de cette tâche demande la validation d’un administrateur",
     "run.needsApproval": "validation requise",
     "run.assign": "Attribuer",
     "run.reassign": "Enregistrer l’attribution",
     "run.assigned": "Spécialiste attribué",
-    "run.externalBlocked": "Les actions externes (publier, envoyer, dépenser, modifier des systèmes externes) ne sont jamais exécutées ici par l’IA. Elles exigent un système connecté et votre accord explicite ; aucun n’est activé.",
+    "run.externalBlocked":
+      "Les actions externes (publier, envoyer, dépenser, modifier des systèmes externes) ne sont jamais exécutées ici par l’IA. Elles exigent un système connecté et votre accord explicite ; aucun n’est activé.",
     "run.blocked": "Bloquée : une tâche dont celle-ci dépend n’est pas terminée.",
     "run.runTitle": "Exécution",
-    "run.estimate": "Environ {n} crédits par exécution (limite {max}). Ce mois-ci : {used} sur {cap} crédits pour les tâches.",
+    "run.estimate":
+      "Environ {n} crédits par exécution (limite {max}). Ce mois-ci : {used} sur {cap} crédits pour les tâches.",
     "run.capReached": "La limite mensuelle de crédits pour les tâches est (presque) atteinte.",
     "run.runningHint": "Le spécialiste travaille. Cela prend généralement moins de deux minutes.",
-    "run.uncertainHint": "Le résultat de l’appel IA n’est pas encore connu. Il n’est jamais relancé automatiquement ; il est réglé dès que le résultat est établi.",
+    "run.uncertainHint":
+      "Le résultat de l’appel IA n’est pas encore connu. Il n’est jamais relancé automatiquement ; il est réglé dès que le résultat est établi.",
     "run.decisionNote": "Note pour votre décision (obligatoire pour refuser)",
     "run.reasonNeeded": "Indiquez une raison pour refuser.",
     "run.a.run": "Exécuter avec l’IA (~{n} crédits)",
@@ -370,7 +403,8 @@ export const run = defineArea("run", {
     "run.reviewTitle": "Contrôle du Growth Officer",
     "run.next.accept": "Prêt pour votre relecture. Acceptez-le pour terminer la tâche.",
     "run.next.fill_gaps": "Complétez les informations manquantes avant de vous y fier.",
-    "run.next.approve_external": "Il propose des actions externes, qui exigent un système connecté et votre accord explicite.",
+    "run.next.approve_external":
+      "Il propose des actions externes, qui exigent un système connecté et votre accord explicite.",
     "run.flag.evidence_gaps": "Des informations manquantes sont signalées",
     "run.flag.external_actions": "Contient des actions externes proposées",
     "run.flag.no_deliverables": "Aucun livrable distinct indiqué",
@@ -392,14 +426,17 @@ export const run = defineArea("run", {
     "run.barReserved": "{n} réservés pour les exécutions ouvertes",
     "run.barActive": "{n} exécutions ouvertes",
     "run.batch": "Exécuter le travail prêt ({n})",
-    "run.batchHint": "Exécute au plus {n} tâches prêtes, priorité la plus haute d’abord, et s’arrête au premier problème.",
+    "run.batchHint":
+      "Exécute au plus {n} tâches prêtes, priorité la plus haute d’abord, et s’arrête au premier problème.",
     "run.batchDone": "{n} tâche(s) réalisée(s) par les spécialistes",
     "run.batchStopped": "Arrêté après {n} exécution(s).",
     "run.settings": "Réglages du travail IA",
-    "run.settingsHint": "S’applique à cet espace. L’exigence de validation d’une tâche l’emporte toujours sur un réglage plus souple.",
+    "run.settingsHint":
+      "S’applique à cet espace. L’exigence de validation d’une tâche l’emporte toujours sur un réglage plus souple.",
     "run.maxPerRun": "Limite de crédits par exécution",
     "run.monthlyCap": "Limite mensuelle de crédits pour les tâches",
-    "run.externalAlways": "Les actions externes exigent toujours un système connecté et un accord explicite, quel que soit le mode.",
+    "run.externalAlways":
+      "Les actions externes exigent toujours un système connecté et un accord explicite, quel que soit le mode.",
     "run.save": "Enregistrer",
     "run.settingsSaved": "Réglages enregistrés",
     "run.f.ai": "Tâches des spécialistes IA",
@@ -411,7 +448,8 @@ export const run = defineArea("run", {
     "run.tiles.eyebrow": "Exécution",
     "run.tiles.title": "Où en est le travail",
     "run.tiles.failed": "Les chiffres d’exécution n’ont pas pu se charger.",
-    "run.tiles.note": "D’après vos tâches, leurs dépendances et les exécutions IA. Survolez une tuile pour sa définition.",
+    "run.tiles.note":
+      "D’après vos tâches, leurs dépendances et les exécutions IA. Survolez une tuile pour sa définition.",
     "run.tiles.p.now": "Actuellement",
     "run.tiles.p.thisMonth": "Ce mois-ci",
     "run.tiles.p.allTime": "Depuis le début",
@@ -428,11 +466,15 @@ export const run = defineArea("run", {
     "run.tiles.d.openTasks": "Tâches ni terminées ni annulées.",
     "run.tiles.d.running": "Tâches dont la dernière exécution IA est en file ou en cours.",
     "run.tiles.d.completed": "Tâches marquées terminées.",
-    "run.tiles.d.failed": "Tâches ouvertes dont la dernière exécution IA a échoué ou est incertaine.",
+    "run.tiles.d.failed":
+      "Tâches ouvertes dont la dernière exécution IA a échoué ou est incertaine.",
     "run.tiles.d.blocked": "Tâches ouvertes qui dépendent d’une autre tâche ouverte.",
-    "run.tiles.d.approvals": "Tâches dont la dernière exécution IA attend la validation d’un administrateur.",
-    "run.tiles.d.onTime": "Tâches terminées avec échéance dont la dernière modification date au plus tard de l’échéance, sur toutes les tâches terminées avec échéance.",
-    "run.tiles.d.creditsUsed": "Crédits IA réellement facturés pour les exécutions lancées ce mois-ci.",
+    "run.tiles.d.approvals":
+      "Tâches dont la dernière exécution IA attend la validation d’un administrateur.",
+    "run.tiles.d.onTime":
+      "Tâches terminées avec échéance dont la dernière modification date au plus tard de l’échéance, sur toutes les tâches terminées avec échéance.",
+    "run.tiles.d.creditsUsed":
+      "Crédits IA réellement facturés pour les exécutions lancées ce mois-ci.",
     "run.tiles.d.creditsReserved": "Crédits estimés retenus pour les exécutions IA non terminées.",
     "run.tiles.d.initiatives": "Initiatives prévues ou en cours des plans de croissance validés.",
     "run.sp.business_analyst": "Analyste d’affaires",

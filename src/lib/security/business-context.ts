@@ -335,14 +335,28 @@ export type BusinessDomains = {
   conversion?: { status: "ok"; target: string; rates: Rate[] } | { status: "unavailable" };
 };
 export type SpendLine = {
-  campaign_id: string; kind: "spend" | "commitment" | "release" | "correction"; amount: number; currency: string; data_class: "manual" | "simulated";
+  campaign_id: string;
+  kind: "spend" | "commitment" | "release" | "correction";
+  amount: number;
+  currency: string;
+  data_class: "manual" | "simulated";
   /** Present when read with dates (needed for period limits); older callers may omit them. */
-  id?: string; occurred_on?: string; relates_to?: string | null;
+  id?: string;
+  occurred_on?: string;
+  relates_to?: string | null;
 };
 /** Hard spending limits per campaign (proposal 0083). */
 export type LimitLine = {
-  campaign_id: string; currency: string; daily_max: number | string | null; weekly_max: number | string | null; monthly_max: number | string | null;
-  lifetime_max: number | string | null; reserve_amount: number | string | null; alert_thresholds: number[]; emergency_stop: boolean; stop_reason: string;
+  campaign_id: string;
+  currency: string;
+  daily_max: number | string | null;
+  weekly_max: number | string | null;
+  monthly_max: number | string | null;
+  lifetime_max: number | string | null;
+  reserve_amount: number | string | null;
+  alert_thresholds: number[];
+  emergency_stop: boolean;
+  stop_reason: string;
 };
 export type ReplanLine = { id: string; task_id: string; created_at: string };
 export type ExperimentLine = {
@@ -476,23 +490,48 @@ export async function readBusinessDomains(
 
   const since = new Date(Date.now() - 365 * DAY).toISOString();
   // Same reader as the Growth economics page; a missing module is "unavailable", any other failure fails closed.
-  const economicsRead: Promise<NonNullable<BusinessDomains["economics"]>> = readEconData(sb, orgId, workspaceId).then(
+  const economicsRead: Promise<NonNullable<BusinessDomains["economics"]>> = readEconData(
+    sb,
+    orgId,
+    workspaceId,
+  ).then(
     (data) => ({ status: "ok" as const, data }),
-    (e: unknown) => { if (econNotInstalled(e)) return { status: "unavailable" as const }; throw new ContextReadError("growth economics"); },
+    (e: unknown) => {
+      if (econNotInstalled(e)) return { status: "unavailable" as const };
+      throw new ContextReadError("growth economics");
+    },
   );
   economicsRead.catch(() => undefined); // awaited below; avoids an unhandled rejection if an earlier read fails first
   // Reporting currency and this month's rates (plus the fallback window) for the converted totals; fails closed.
-  const rateSince = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1) - (MAX_RATE_AGE_DAYS + 3) * DAY).toISOString().slice(0, 10);
+  const rateSince = new Date(
+    Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1) -
+      (MAX_RATE_AGE_DAYS + 3) * DAY,
+  )
+    .toISOString()
+    .slice(0, 10);
   const conversionRead: Promise<NonNullable<BusinessDomains["conversion"]>> = Promise.all([
-    (sb as unknown as SupabaseClient).from("business_profiles").select("reporting_currency").eq("org_id", orgId).eq("workspace_id", workspaceId).maybeSingle(),
-    (sb as unknown as SupabaseClient).from("exchange_rates").select("id,base_currency,quote_currency,rate,rate_date,source,kind").eq("org_id", orgId).gte("rate_date", rateSince).order("rate_date", { ascending: false }).limit(2000),
+    (sb as unknown as SupabaseClient)
+      .from("business_profiles")
+      .select("reporting_currency")
+      .eq("org_id", orgId)
+      .eq("workspace_id", workspaceId)
+      .maybeSingle(),
+    (sb as unknown as SupabaseClient)
+      .from("exchange_rates")
+      .select("id,base_currency,quote_currency,rate,rate_date,source,kind")
+      .eq("org_id", orgId)
+      .gte("rate_date", rateSince)
+      .order("rate_date", { ascending: false })
+      .limit(2000),
   ]).then(([p, r]) => {
     if (p.error || r.error) {
       if (isMissingSchema(p.error ?? r.error)) return { status: "unavailable" as const };
       throw new ContextReadError("exchange rates");
     }
     const target = (p.data as { reporting_currency?: string } | null)?.reporting_currency;
-    return target ? { status: "ok" as const, target, rates: (r.data ?? []) as Rate[] } : { status: "unavailable" as const };
+    return target
+      ? { status: "ok" as const, target, rates: (r.data ?? []) as Rate[] }
+      : { status: "unavailable" as const };
   });
   conversionRead.catch(() => undefined);
   const [
@@ -652,7 +691,10 @@ export async function readBusinessDomains(
     ),
     optional<ExperimentLine>(
       "growth experiments",
-      t("growth_experiments", "title,status,method,evidence_strength,conclusion,updated_at,outcome,result_data_class")
+      t(
+        "growth_experiments",
+        "title,status,method,evidence_strength,conclusion,updated_at,outcome,result_data_class",
+      )
         .in("status", ["approved", "running", "completed"])
         .order("updated_at", { ascending: false })
         .limit(LIMITS.experiments),
@@ -734,24 +776,38 @@ export async function readBusinessDomains(
     LIMITS.overdue,
   );
   // Spend for the campaigns read above, and open re-planning work. A truncated spend read gives no budget warning.
-  const campaignIds = rowsOf(campaigns).map((c) => c.id).filter((id): id is string => !!id);
+  const campaignIds = rowsOf(campaigns)
+    .map((c) => c.id)
+    .filter((id): id is string => !!id);
   const [campaignSpend, replans, campaignLimits] = await Promise.all([
     campaignIds.length
       ? optional<SpendLine>(
           "campaign spend",
-          t("campaign_spend_entries", "id,campaign_id,kind,amount,currency,data_class,occurred_on,relates_to").in("campaign_id", campaignIds).limit(LIMITS.spend),
+          t(
+            "campaign_spend_entries",
+            "id,campaign_id,kind,amount,currency,data_class,occurred_on,relates_to",
+          )
+            .in("campaign_id", campaignIds)
+            .limit(LIMITS.spend),
           LIMITS.spend,
         )
       : ok<SpendLine>(),
     optional<ReplanLine>(
       "re-planning proposals",
-      t("task_replan_proposals", "id,task_id,created_at").order("created_at", { ascending: false }).limit(LIMITS.replans),
+      t("task_replan_proposals", "id,task_id,created_at")
+        .order("created_at", { ascending: false })
+        .limit(LIMITS.replans),
       LIMITS.replans,
     ),
     campaignIds.length
       ? optional<LimitLine>(
           "campaign spending limits",
-          t("campaign_spend_limits", "campaign_id,currency,daily_max,weekly_max,monthly_max,lifetime_max,reserve_amount,alert_thresholds,emergency_stop,stop_reason").in("campaign_id", campaignIds).limit(200),
+          t(
+            "campaign_spend_limits",
+            "campaign_id,currency,daily_max,weekly_max,monthly_max,lifetime_max,reserve_amount,alert_thresholds,emergency_stop,stop_reason",
+          )
+            .in("campaign_id", campaignIds)
+            .limit(200),
           200,
         )
       : ok<LimitLine>(),
@@ -761,7 +817,9 @@ export async function readBusinessDomains(
     ? rowsOf(
         await optional<{ proposal_id: string; decision: string }>(
           "re-planning decisions",
-          t("task_replan_decisions", "proposal_id,decision").in("proposal_id", replanIds).limit(500),
+          t("task_replan_decisions", "proposal_id,decision")
+            .in("proposal_id", replanIds)
+            .limit(500),
           500,
         ),
       )
@@ -858,9 +916,17 @@ export async function readBusinessDomains(
   );
   const dependencies: DomainRead<Dep> =
     depRead.status === "ok"
-      ? { ...depRead, rows: depRead.rows.flatMap((r) => (r.related_id ? [{ task_id: r.entity_id, depends_on: r.related_id }] : [])) }
+      ? {
+          ...depRead,
+          rows: depRead.rows.flatMap((r) =>
+            r.related_id ? [{ task_id: r.entity_id, depends_on: r.related_id }] : [],
+          ),
+        }
       : depRead;
-  const missingPre = unknownTaskIds(knownTasks, rowsOf(dependencies)).slice(0, LIMITS.dependencyTasks);
+  const missingPre = unknownTaskIds(knownTasks, rowsOf(dependencies)).slice(
+    0,
+    LIMITS.dependencyTasks,
+  );
   const prerequisites = missingPre.length
     ? rowsOf(
         await optional<Task>(
@@ -876,7 +942,10 @@ export async function readBusinessDomains(
     ? await Promise.all([
         optional<BaselineRow>(
           "KPI starting points",
-          t("metric_baselines", "id,metric_id,basis,measurement_kind,value,period_start,period_end,source,note,supersedes_id,created_by,created_at")
+          t(
+            "metric_baselines",
+            "id,metric_id,basis,measurement_kind,value,period_start,period_end,source,note,supersedes_id,created_by,created_at",
+          )
             .in("metric_id", metricIdsForGoals)
             .order("created_at", { ascending: false })
             .limit(LIMITS.kpiGoals),
@@ -884,7 +953,10 @@ export async function readBusinessDomains(
         ),
         optional<TargetRow>(
           "KPI targets",
-          t("metric_targets", "id,metric_id,withdrawn,value,target_date,period_kind,owner_id,note,supersedes_id,created_by,created_at")
+          t(
+            "metric_targets",
+            "id,metric_id,withdrawn,value,target_date,period_kind,owner_id,note,supersedes_id,created_by,created_at",
+          )
             .in("metric_id", metricIdsForGoals)
             .order("created_at", { ascending: false })
             .limit(LIMITS.kpiGoals),
@@ -958,9 +1030,18 @@ const clip = (value: unknown, max: number) => {
 };
 const day = (iso: string | null | undefined) => (iso ? String(iso).slice(0, 10) : null);
 /** Short record reference the AI may cite in "(source: …)"; resolved on screen by `src/lib/claims.ts` + evidence panel. */
-export const REF_PREFIX = { fact: "F", goal: "G", initiative: "I", campaign: "C", metric: "K" } as const;
+export const REF_PREFIX = {
+  fact: "F",
+  goal: "G",
+  initiative: "I",
+  campaign: "C",
+  metric: "K",
+} as const;
 export function recordRef(type: keyof typeof REF_PREFIX, id: string | null | undefined): string {
-  const hex = (id ?? "").toLowerCase().replace(/[^0-9a-f]/g, "").slice(0, 8);
+  const hex = (id ?? "")
+    .toLowerCase()
+    .replace(/[^0-9a-f]/g, "")
+    .slice(0, 8);
   return hex.length === 8 ? `#${REF_PREFIX[type]}-${hex} ` : "";
 }
 const ageDays = (iso: string | null | undefined, now: Date) =>
@@ -1067,7 +1148,11 @@ export function seoFindings(raw: unknown): SeoFindingLike[] {
  * `focus` lists section keys the question is about (from `questionFocus`): they are kept, read first and given more room;
  * the rest becomes background that is trimmed first. Every section was read under the asker's own access either way.
  */
-export function renderBusinessContext(d: BusinessDomains, now: Date = new Date(), focus: readonly string[] = []): string {
+export function renderBusinessContext(
+  d: BusinessDomains,
+  now: Date = new Date(),
+  focus: readonly string[] = [],
+): string {
   const today = now.toISOString().slice(0, 10);
   const goalTitle = (id: string | null | undefined) =>
     d.goals.find((g) => g.id === id)?.title ?? (id ? "goal not active or not loaded" : null);
@@ -1100,7 +1185,10 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
       priority: 1,
       lines: [
         "Boundaries stated here (channels not to use, activities not wanted, rules, approvals) are binding: never recommend against them.",
-        ...answers.map((f) => `- ${recordRef("fact", f.id)}${clip(f.key, 60)}: ${clip(f.value.replace(/\s*\n\s*/g, "; "), 220)}`),
+        ...answers.map(
+          (f) =>
+            `- ${recordRef("fact", f.id)}${clip(f.key, 60)}: ${clip(f.value.replace(/\s*\n\s*/g, "; "), 220)}`,
+        ),
       ],
     });
   sections.push({
@@ -1109,22 +1197,31 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
     evidence: ["verified_business_fact"],
     budget: 1700,
     priority: 1,
-    lines: d.facts.filter((f) => f.source_ref !== ANSWER_SOURCE).map(
-      (f) =>
-        `- ${recordRef("fact", f.id)}${clip(f.key, 60)}: ${clip(f.value, 220)} (source: ${f.source_type}${f.created_at ? `, confirmed ${day(f.created_at)}` : ""})`,
-    ),
+    lines: d.facts
+      .filter((f) => f.source_ref !== ANSWER_SOURCE)
+      .map(
+        (f) =>
+          `- ${recordRef("fact", f.id)}${clip(f.key, 60)}: ${clip(f.value, 220)} (source: ${f.source_type}${f.created_at ? `, confirmed ${day(f.created_at)}` : ""})`,
+      ),
   });
 
-  const factConflicts = detectFactConflicts(d.facts.map((f, i) => ({ ...f, id: `f${i}` }))).filter((c) => c.confirmedConflict);
+  const factConflicts = detectFactConflicts(d.facts.map((f, i) => ({ ...f, id: `f${i}` }))).filter(
+    (c) => c.confirmedConflict,
+  );
   if (factConflicts.length)
     sections.push({
       key: "fact-conflicts",
-      title: "CONFLICTING CONFIRMED FACTS (unresolved: do not pick one; ask the team to decide in the business profile)",
+      title:
+        "CONFLICTING CONFIRMED FACTS (unresolved: do not pick one; ask the team to decide in the business profile)",
       evidence: ["verified_business_fact"],
       budget: 500,
       priority: 1,
       lines: factConflicts.map(
-        (c) => `- ${clip(c.key, 60)}: ${c.facts.filter((f) => f.verified).map((f) => `"${clip(f.value, 80)}" (${f.source_type})`).join(" vs ")}`,
+        (c) =>
+          `- ${clip(c.key, 60)}: ${c.facts
+            .filter((f) => f.verified)
+            .map((f) => `"${clip(f.value, 80)}" (${f.source_type})`)
+            .join(" vs ")}`,
       ),
     });
 
@@ -1138,7 +1235,9 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
       const age = ageDays(g.updated_at, now);
       const overdue = g.due_date && g.due_date < today && g.status === "active" ? " OVERDUE" : "";
       const m = goalMeasurement(g, today);
-      const measure = m.measurable ? "" : ` NOT MEASURABLE (missing ${m.missing.filter((k) => k === "metric" || k === "baseline" || k === "target").join(", ")}; never assume a value)`;
+      const measure = m.measurable
+        ? ""
+        : ` NOT MEASURABLE (missing ${m.missing.filter((k) => k === "metric" || k === "baseline" || k === "target").join(", ")}; never assume a value)`;
       return `- ${recordRef("goal", g.id)}[${g.priority}/${g.status}]${measure} ${clip(g.title, 100)} — ${clip(g.metric || g.objective, 60)}: baseline ${g.baseline ?? "?"} → target ${g.target ?? "?"}, user-entered current ${g.current_value ?? "not recorded"}; due ${g.due_date ?? "none"}${overdue}${age !== null && age > 60 ? `; not updated for ${age} days (possibly stale)` : ""}`;
     }),
   });
@@ -1581,10 +1680,11 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
   });
 
   // The fifteen growth levers, each with the records that can support it and what is missing (no figures invented).
-  const maybeRows = <T,>(r: DomainRead<T> | undefined) => (r ? rowsOf(r) : []);
+  const maybeRows = <T>(r: DomainRead<T> | undefined) => (r ? rowsOf(r) : []);
   sections.push({
     key: "growth-levers",
-    title: "GROWTH LEVERS: AVAILABLE DATA AND GAPS (check each before recommending; availability is not a result)",
+    title:
+      "GROWTH LEVERS: AVAILABLE DATA AND GAPS (check each before recommending; availability is not a result)",
     evidence: ["knowledge_gap"],
     budget: 1100,
     priority: 6,
@@ -1675,14 +1775,24 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
   const focused = new Set(focus);
   if (focused.size) {
     for (const s of sections) {
-      if (focused.has(s.key)) { s.priority = 0; s.budget = Math.round(s.budget * FOCUS_BUDGET_FACTOR); }
-      else if (s.priority > 1) s.budget = Math.round(s.budget * BACKGROUND_BUDGET_FACTOR);
+      if (focused.has(s.key)) {
+        s.priority = 0;
+        s.budget = Math.round(s.budget * FOCUS_BUDGET_FACTOR);
+      } else if (s.priority > 1) s.budget = Math.round(s.budget * BACKGROUND_BUDGET_FACTOR);
     }
     // Identity, confirmed answers, facts and conflicts first; then the question's sections; then background, in original order.
-    const rank = (s: Section) => (s.key === "workspace" || (s.priority === 1 && !focused.has(s.key)) ? 0 : focused.has(s.key) ? 1 : 2);
+    const rank = (s: Section) =>
+      s.key === "workspace" || (s.priority === 1 && !focused.has(s.key))
+        ? 0
+        : focused.has(s.key)
+          ? 1
+          : 2;
     sections.sort((a, b) => rank(a) - rank(b));
     const titles = sections.filter((s) => focused.has(s.key)).map((s) => s.title.split(" (")[0]);
-    if (titles.length) header.push(`QUESTION FOCUS (chosen by fixed keyword rules from the question, not a judgement about the business): ${titles.join("; ")}. Answer from these sections first; the remaining sections are background and may be shortened.`);
+    if (titles.length)
+      header.push(
+        `QUESTION FOCUS (chosen by fixed keyword rules from the question, not a judgement about the business): ${titles.join("; ")}. Answer from these sections first; the remaining sections are background and may be shortened.`,
+      );
   }
 
   let rendered = sections.map(renderSection);
@@ -1693,14 +1803,21 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
   const order = [...sections].sort((a, b) => b.priority - a.priority);
   const shorten = (victim: Section) => {
     const index = sections.indexOf(victim);
-    if (victim.budget > SHORTENED_SECTION_BUDGET) rendered[index] = renderSection({ ...victim, budget: SHORTENED_SECTION_BUDGET });
+    if (victim.budget > SHORTENED_SECTION_BUDGET)
+      rendered[index] = renderSection({ ...victim, budget: SHORTENED_SECTION_BUDGET });
   };
   const omit = (victim: Section) => {
-    rendered[sections.indexOf(victim)] = `## ${victim.title}\n(omitted to keep the context within size limits)`;
+    rendered[sections.indexOf(victim)] =
+      `## ${victim.title}\n(omitted to keep the context within size limits)`;
   };
   const background = order.filter((s) => s.priority > 1);
   const essential = order.filter((s) => s.priority <= 1);
-  for (const [group, step] of [[background, shorten], [background, omit], [essential, shorten], [essential, omit]] as const)
+  for (const [group, step] of [
+    [background, shorten],
+    [background, omit],
+    [essential, shorten],
+    [essential, omit],
+  ] as const)
     for (const victim of group) {
       if (total() <= BUSINESS_CONTEXT_LIMIT) break;
       step(victim);
@@ -1710,9 +1827,29 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
 }
 
 /** Running and attention-needing campaigns first, then upcoming, then early ideas and finished ones; stable within a group. */
-const CAMPAIGN_ATTENTION: Record<string, number> = { needs_attention: 0, active: 0, optimizing: 0, paused: 1, scheduled: 1, approved: 1, planned: 1, awaiting_approval: 2, proposed: 3, draft: 3, idea: 3, completed: 4, cancelled: 5 };
+const CAMPAIGN_ATTENTION: Record<string, number> = {
+  needs_attention: 0,
+  active: 0,
+  optimizing: 0,
+  paused: 1,
+  scheduled: 1,
+  approved: 1,
+  planned: 1,
+  awaiting_approval: 2,
+  proposed: 3,
+  draft: 3,
+  idea: 3,
+  completed: 4,
+  cancelled: 5,
+};
 export function campaignsByAttention<T extends { status: string }>(rows: readonly T[]): T[] {
-  return rows.map((c, i) => ({ c, i })).sort((a, b) => (CAMPAIGN_ATTENTION[a.c.status] ?? 3) - (CAMPAIGN_ATTENTION[b.c.status] ?? 3) || a.i - b.i).map((x) => x.c);
+  return rows
+    .map((c, i) => ({ c, i }))
+    .sort(
+      (a, b) =>
+        (CAMPAIGN_ATTENTION[a.c.status] ?? 3) - (CAMPAIGN_ATTENTION[b.c.status] ?? 3) || a.i - b.i,
+    )
+    .map((x) => x.c);
 }
 
 /** Recorded campaign spend for the AI context: per currency, simulated entries labelled; nothing when unread or truncated. */
@@ -1722,11 +1859,34 @@ function spendNote(d: BusinessDomains, c: Campaign): string {
   const rows = r.rows.filter((x) => x.campaign_id === c.id);
   if (!rows.length) return "; recorded spend: none";
   // Same classification as every screen (campaign-spend.ts): actual and simulated amounts are never added together.
-  const sum = spendSummary(Number(c.budget_eur ?? 0), rows.map((x) => ({ kind: x.kind as CampaignSpendRow["kind"], amount: x.amount, currency: x.currency, data_class: x.data_class as CampaignSpendRow["data_class"] })));
-  const line = (m: Record<string, { spent: number; committed: number }>) => Object.entries(m).map(([k, v]) => `${k} ${v.spent.toFixed(2)} spent, ${v.committed.toFixed(2)} reserved`).join("; ");
-  const actual = Object.keys(sum.byCurrency).length ? `; recorded actual spend ${line(sum.byCurrency)}${isRealOverrun(sum) ? " (EUR budget exceeded by actual entries)" : ""}` : "; recorded actual spend: none";
-  const sim = sum.simulatedEntries ? `; simulated test entries (not real spending, never a real overrun): ${line(sum.simulatedByCurrency)}` : "";
-  return actual + sim + limitNote(d, c, r.rows.filter((x) => x.campaign_id === c.id));
+  const sum = spendSummary(
+    Number(c.budget_eur ?? 0),
+    rows.map((x) => ({
+      kind: x.kind as CampaignSpendRow["kind"],
+      amount: x.amount,
+      currency: x.currency,
+      data_class: x.data_class as CampaignSpendRow["data_class"],
+    })),
+  );
+  const line = (m: Record<string, { spent: number; committed: number }>) =>
+    Object.entries(m)
+      .map(([k, v]) => `${k} ${v.spent.toFixed(2)} spent, ${v.committed.toFixed(2)} reserved`)
+      .join("; ");
+  const actual = Object.keys(sum.byCurrency).length
+    ? `; recorded actual spend ${line(sum.byCurrency)}${isRealOverrun(sum) ? " (EUR budget exceeded by actual entries)" : ""}`
+    : "; recorded actual spend: none";
+  const sim = sum.simulatedEntries
+    ? `; simulated test entries (not real spending, never a real overrun): ${line(sum.simulatedByCurrency)}`
+    : "";
+  return (
+    actual +
+    sim +
+    limitNote(
+      d,
+      c,
+      r.rows.filter((x) => x.campaign_id === c.id),
+    )
+  );
 }
 
 /** Hard spending limits of one campaign for the AI context (enforced inside this application only). */
@@ -1735,19 +1895,43 @@ function limitNote(d: BusinessDomains, c: Campaign, rows: SpendLine[]): string {
   if (!lr || lr.status !== "ok" || !c.id) return "";
   const l = lr.rows.find((x) => x.campaign_id === c.id);
   if (!l) return "; spending limits: none set";
-  if (l.emergency_stop) return "; EMERGENCY STOP active: no new spending or reservations can be recorded until an editor lifts it";
+  if (l.emergency_stop)
+    return "; EMERGENCY STOP active: no new spending or reservations can be recorded until an editor lifts it";
   const dated = rows.every((x) => x.id && x.occurred_on);
-  const usage = dated ? limitUsage(l, rows.map((x) => ({ id: x.id!, kind: x.kind, amount: x.amount, currency: x.currency, occurred_on: x.occurred_on!, data_class: x.data_class, relates_to: x.relates_to ?? null })), new Date().toISOString().slice(0, 10)) : [];
+  const usage = dated
+    ? limitUsage(
+        l,
+        rows.map((x) => ({
+          id: x.id!,
+          kind: x.kind,
+          amount: x.amount,
+          currency: x.currency,
+          occurred_on: x.occurred_on!,
+          data_class: x.data_class,
+          relates_to: x.relates_to ?? null,
+        })),
+        new Date().toISOString().slice(0, 10),
+      )
+    : [];
   const parts = usage.map((u) => `${u.key} ${u.used.toFixed(2)}/${u.max.toFixed(2)} ${l.currency}`);
   return `; hard spending limits (actual entries, enforced in this app only, not at ad platforms): ${parts.length ? parts.join(", ") : "set"}`;
 }
 
 /** Starting point, target and progress for one metric, with the same rules as the metric page (kpi-progress). */
-export function kpiGoalLine(d: BusinessDomains, m: MetricRow, rows: Measurement[], now: Date = new Date()): string | null {
+export function kpiGoalLine(
+  d: BusinessDomains,
+  m: MetricRow,
+  rows: Measurement[],
+  now: Date = new Date(),
+): string | null {
   if (!d.kpiBaselines && !d.kpiTargets) return null;
-  if (d.kpiBaselines?.status === "unavailable" || d.kpiTargets?.status === "unavailable") return "  starting point/target: unavailable";
+  if (d.kpiBaselines?.status === "unavailable" || d.kpiTargets?.status === "unavailable")
+    return "  starting point/target: unavailable";
   const p = kpiProgress({
-    metricId: m.id, direction: m.direction, unit: m.unit, rows,
+    metricId: m.id,
+    direction: m.direction,
+    unit: m.unit,
+    rows,
     baselines: d.kpiBaselines?.status === "ok" ? d.kpiBaselines.rows : [],
     targets: d.kpiTargets?.status === "ok" ? d.kpiTargets.rows : [],
     today: now.toISOString().slice(0, 10),
@@ -1756,12 +1940,18 @@ export function kpiGoalLine(d: BusinessDomains, m: MetricRow, rows: Measurement[
     p.baseline
       ? `starting point ${Number(p.baseline.value)} for ${p.baseline.period_start}–${p.baseline.period_end} (${p.baseline.basis === "measured" ? `copied from a recorded result: ${EVIDENCE_LABEL[p.baseline.measurement_kind as MeasurementKind] ?? "recorded"}` : `entered by the team, source: ${clip(p.baseline.source, 60)}`})`
       : "no starting point set (do not assume one)",
-    p.target?.value != null ? `target ${Number(p.target.value)} by ${p.target.target_date} (per ${p.target.period_kind})` : "no target set",
+    p.target?.value != null
+      ? `target ${Number(p.target.value)} by ${p.target.target_date} (per ${p.target.period_kind})`
+      : "no target set",
   ];
-  if (p.change !== null) parts.push(`change since starting point ${p.change > 0 ? "+" : ""}${p.change}${p.changePct !== null ? ` (${p.changePct}%)` : ""}, ${p.improving ? "improving" : p.improving === false ? "worsening" : "unchanged"}`);
+  if (p.change !== null)
+    parts.push(
+      `change since starting point ${p.change > 0 ? "+" : ""}${p.change}${p.changePct !== null ? ` (${p.changePct}%)` : ""}, ${p.improving ? "improving" : p.improving === false ? "worsening" : "unchanged"}`,
+    );
   else if (p.baseline) parts.push(`change not comparable (${p.changeBlocked?.replace("_", " ")})`);
   if (p.progress !== null) parts.push(`${p.progress}% of the way to the target`);
-  if (p.missingMonths.length) parts.push(`no result recorded for ${p.missingMonths.slice(0, 6).join(", ")}`);
+  if (p.missingMonths.length)
+    parts.push(`no result recorded for ${p.missingMonths.slice(0, 6).join(", ")}`);
   return `  ${parts.join("; ")}`;
 }
 
@@ -1769,34 +1959,67 @@ export function kpiGoalLine(d: BusinessDomains, m: MetricRow, rows: Measurement[
 export function blockedWorkLines(d: BusinessDomains, now: Date): string[] {
   if (!d.dependencies) return [];
   if (d.dependencies.status === "unavailable") return [UNAVAILABLE];
-  const blocked = blockedTasks(allKnownTasks(d), d.dependencies.rows, now.toISOString().slice(0, 10));
-  const lines = blocked.slice(0, 12).map(
-    (b) =>
-      `- ${b.late ? "[late] " : ""}“${clip(b.task.title, 80)}” (due ${b.task.due_date ?? "no date"}) waits on ${b.waitsOn
-        .map((p) => `“${clip(p.title ?? "unnamed task", 60)}” (${p.status}, due ${p.due_date ?? "no date"})`)
-        .join(", ")}`,
+  const blocked = blockedTasks(
+    allKnownTasks(d),
+    d.dependencies.rows,
+    now.toISOString().slice(0, 10),
   );
+  const lines = blocked
+    .slice(0, 12)
+    .map(
+      (b) =>
+        `- ${b.late ? "[late] " : ""}“${clip(b.task.title, 80)}” (due ${b.task.due_date ?? "no date"}) waits on ${b.waitsOn
+          .map(
+            (p) =>
+              `“${clip(p.title ?? "unnamed task", 60)}” (${p.status}, due ${p.due_date ?? "no date"})`,
+          )
+          .join(", ")}`,
+    );
   if (blocked.length > 12) lines.push(`… and ${blocked.length - 12} more blocked task(s)`);
-  if (d.dependencies.truncated) lines.push("some dependencies were not read (limit reached): more tasks may be blocked");
-  if (blocked.length) lines.push("[late] = the prerequisite is overdue or due on/after the waiting task; finish or re-plan the prerequisite first");
+  if (d.dependencies.truncated)
+    lines.push("some dependencies were not read (limit reached): more tasks may be blocked");
+  if (blocked.length)
+    lines.push(
+      "[late] = the prerequisite is overdue or due on/after the waiting task; finish or re-plan the prerequisite first",
+    );
   return lines;
 }
 
 /** Every task this context read (initiative tasks, overdue tasks, prerequisites), once. */
 export function allKnownTasks(d: BusinessDomains): Task[] {
   const seen = new Map<string, Task>();
-  for (const x of [...d.tasks, ...(d.overdueTasks?.status === "ok" ? d.overdueTasks.rows : []), ...(d.prerequisites ?? [])]) seen.set(x.id, x);
+  for (const x of [
+    ...d.tasks,
+    ...(d.overdueTasks?.status === "ok" ? d.overdueTasks.rows : []),
+    ...(d.prerequisites ?? []),
+  ])
+    seen.set(x.id, x);
   return [...seen.values()];
 }
 
 /** Growth indicators for the AI: same inputs and formulas as the Business performance page (src/lib/bi/kpi-context.ts). */
 export function growthIndicatorLines(d: BusinessDomains, now: Date): string[] {
   if (!d.metrics || !d.revenue) return [];
-  if (d.metrics.status === "unavailable" || d.revenue.status === "unavailable" || d.deals.status === "unavailable") return [UNAVAILABLE];
+  if (
+    d.metrics.status === "unavailable" ||
+    d.revenue.status === "unavailable" ||
+    d.deals.status === "unavailable"
+  )
+    return [UNAVAILABLE];
   // Without any tracked metric or deal the performance section already says "not configured"; stay silent here.
   if (!d.metrics.rows.length && !d.deals.rows.length && !d.revenue.rows.length) return [];
-  const lines = kpiContextLines({ metrics: d.metrics.rows, measurements: d.measurements ?? [], revenue: d.revenue.rows, touches: d.touches ?? [], deals: d.deals.rows }, now);
-  if (d.metrics.truncated || d.revenue.truncated || d.deals.truncated) lines.push("some records were not read (limit reached): indicators may be incomplete");
+  const lines = kpiContextLines(
+    {
+      metrics: d.metrics.rows,
+      measurements: d.measurements ?? [],
+      revenue: d.revenue.rows,
+      touches: d.touches ?? [],
+      deals: d.deals.rows,
+    },
+    now,
+  );
+  if (d.metrics.truncated || d.revenue.truncated || d.deals.truncated)
+    lines.push("some records were not read (limit reached): indicators may be incomplete");
   return lines;
 }
 
@@ -1805,43 +2028,95 @@ export function economicsLines(d: BusinessDomains, now: Date): string[] {
   if (!d.economics) return [];
   if (d.economics.status === "unavailable") return [UNAVAILABLE];
   const e = d.economics.data;
-  const y = now.getUTCFullYear(), m = now.getUTCMonth();
-  const from = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10), to = new Date(Date.UTC(y, m + 1, 0)).toISOString().slice(0, 10);
+  const y = now.getUTCFullYear(),
+    m = now.getUTCMonth();
+  const from = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10),
+    to = new Date(Date.UTC(y, m + 1, 0)).toISOString().slice(0, 10);
   const s = economicsSummary(e, from, to, "last_touch", now.toISOString().slice(0, 10));
-  const out: string[] = [`period ${from} – ${to}; amounts per currency; any converted total is labelled as a reporting view`];
+  const out: string[] = [
+    `period ${from} – ${to}; amounts per currency; any converted total is labelled as a reporting view`,
+  ];
   if (d.conversion?.status === "ok" && !s.incomplete.length) {
-    const line = convertedEconomicsLine(e, s, from, to, now.toISOString().slice(0, 10), d.conversion.target, d.conversion.rates);
+    const line = convertedEconomicsLine(
+      e,
+      s,
+      from,
+      to,
+      now.toISOString().slice(0, 10),
+      d.conversion.target,
+      d.conversion.rates,
+    );
     if (line) out.push(line);
   }
-  if (s.incomplete.length) out.push(`incomplete reads (totals may be too low): ${s.incomplete.join(", ")}`);
-  for (const b of s.budget) out.push(`budget ${b.currency}: planned ${b.total} on ${b.lines} line(s); allocated to campaigns ${b.allocated}; not allocated ${b.unallocated}; actual spent ${b.spent}; reserved (not spent) ${b.reserved}`);
+  if (s.incomplete.length)
+    out.push(`incomplete reads (totals may be too low): ${s.incomplete.join(", ")}`);
+  for (const b of s.budget)
+    out.push(
+      `budget ${b.currency}: planned ${b.total} on ${b.lines} line(s); allocated to campaigns ${b.allocated}; not allocated ${b.unallocated}; actual spent ${b.spent}; reserved (not spent) ${b.reserved}`,
+    );
   if (!s.budget.length) out.push("budget: no budget lines this month");
   for (const c of s.currencies) {
     const r = c.rev;
-    out.push(`${c.currency} revenue (recorded): ${r ? `net ${r.net} from ${r.sales} sale(s), gross ${r.gross}, refunds/corrections ${Math.abs(r.refunds)}` : "no recorded sales"}${c.att ? `; credited to campaigns ${c.att.attributed}, not attributed ${c.att.unattributed} (${c.att.unattributedSales} sale(s)) — attribution is association, not cause` : ""}`);
-    out.push(`${c.currency} campaign spending: actual ${c.spent}${c.byCat.length ? ` (${c.byCat.map(([k, v]) => `${k} ${v}`).join(", ")})` : ""}; reserved ${c.reserved} (not spent); simulated ${c.simulated} (test data, never real)`);
-    out.push(`${c.currency} business costs: recorded ${c.costs}${c.costCat.length ? ` (${c.costCat.map(([k, v]) => `${k} ${v}`).join(", ")})` : ""}; estimated ${c.estCosts} (kept apart)`);
+    out.push(
+      `${c.currency} revenue (recorded): ${r ? `net ${r.net} from ${r.sales} sale(s), gross ${r.gross}, refunds/corrections ${Math.abs(r.refunds)}` : "no recorded sales"}${c.att ? `; credited to campaigns ${c.att.attributed}, not attributed ${c.att.unattributed} (${c.att.unattributedSales} sale(s)) — attribution is association, not cause` : ""}`,
+    );
+    out.push(
+      `${c.currency} campaign spending: actual ${c.spent}${c.byCat.length ? ` (${c.byCat.map(([k, v]) => `${k} ${v}`).join(", ")})` : ""}; reserved ${c.reserved} (not spent); simulated ${c.simulated} (test data, never real)`,
+    );
+    out.push(
+      `${c.currency} business costs: recorded ${c.costs}${c.costCat.length ? ` (${c.costCat.map(([k, v]) => `${k} ${v}`).join(", ")})` : ""}; estimated ${c.estCosts} (kept apart)`,
+    );
     const gp = c.gp;
-    out.push(`${c.currency} gross profit: ${gp && gp.grossProfit !== null ? `${gp.grossProfit}${gp.grossMargin !== null ? ` (margin ${gp.grossMargin}%)` : ""} [${gp.status}]` : `not calculable${gp?.missing.length ? ` — missing: ${gp.missing.join(", ")}` : ""}`}${c.gpPrev?.grossMargin != null && gp?.grossMargin != null ? `; previous period margin ${c.gpPrev.grossMargin}%` : ""}`);
-    out.push(`${c.currency} CAC: ${c.cac && c.cac.value !== null ? `${c.cac.value} (${c.cac.spend} actual acquisition spending / ${c.cac.newCustomers} new customer(s)) [${c.cac.status}]` : `not calculable [${c.cac?.status ?? "unavailable"}]${c.cac?.salesWithoutCustomer ? `; ${c.cac.salesWithoutCustomer} sale(s) without customer reference` : ""}`}`);
+    out.push(
+      `${c.currency} gross profit: ${gp && gp.grossProfit !== null ? `${gp.grossProfit}${gp.grossMargin !== null ? ` (margin ${gp.grossMargin}%)` : ""} [${gp.status}]` : `not calculable${gp?.missing.length ? ` — missing: ${gp.missing.join(", ")}` : ""}`}${c.gpPrev?.grossMargin != null && gp?.grossMargin != null ? `; previous period margin ${c.gpPrev.grossMargin}%` : ""}`,
+    );
+    out.push(
+      `${c.currency} CAC: ${c.cac && c.cac.value !== null ? `${c.cac.value} (${c.cac.spend} actual acquisition spending / ${c.cac.newCustomers} new customer(s)) [${c.cac.status}]` : `not calculable [${c.cac?.status ?? "unavailable"}]${c.cac?.salesWithoutCustomer ? `; ${c.cac.salesWithoutCustomer} sale(s) without customer reference` : ""}`}`,
+    );
   }
   const ai = s.ai;
-  out.push(`AI work: ${ai.total} credits charged this month (${ai.onCampaigns} on campaign work, ${ai.otherWork} other); ${ai.pending} credits pending; ${ai.uncertain} run(s) with unknown outcome; ${ai.cost.priced > 0 ? `cost ${ai.cost.amount} ${ai.cost.currency} at the credit price valid when used${ai.cost.unpriced ? ` (${ai.cost.unpriced} credits without a price)` : ""}` : "no credit price set — state AI work in credits only, never as money"}; AI credits are not advertising spend`);
+  out.push(
+    `AI work: ${ai.total} credits charged this month (${ai.onCampaigns} on campaign work, ${ai.otherWork} other); ${ai.pending} credits pending; ${ai.uncertain} run(s) with unknown outcome; ${ai.cost.priced > 0 ? `cost ${ai.cost.amount} ${ai.cost.currency} at the credit price valid when used${ai.cost.unpriced ? ` (${ai.cost.unpriced} credits without a price)` : ""}` : "no credit price set — state AI work in credits only, never as money"}; AI credits are not advertising spend`,
+  );
   for (const c of s.campaigns.slice(0, 10)) {
-    const alloc = Object.entries(c.t.allocated).map(([k, v]) => `${v} ${k}`).join(", ") || "none";
-    const spent = Object.entries(c.t.spent).map(([k, v]) => `${v} ${k}`).join(", ") || "none";
-    const roas = c.roas.map((x) => (x.value !== null ? `${x.value}x ${x.currency}` : x.status)).join(", ") || "unavailable";
-    const missing = Object.entries(c.inputs).filter(([k, v]) => k !== "costs" && v !== "recorded").map(([k, v]) => `${k} ${v}`).join(", ");
-    out.push(`- campaign ${clip(c.title, 60)} [${c.status}]: allocated ${alloc}; actual spent since start ${spent}; AI credits ${c.t.credits}${c.aiCost.priced > 0 ? ` (value ${c.aiCost.amount} ${c.aiCost.currency} at the credit price valid when used${c.aiCost.unpriced ? `; ${c.aiCost.unpriced} credits without a price` : ""})` : c.t.credits ? " (no credit price applied — credits only)" : ""}; ROAS ${roas}${missing ? `; not yet evaluable: ${missing}` : ""}${c.over.length ? "; ACTUAL SPENDING ABOVE ALLOCATION" : ""}`);
+    const alloc =
+      Object.entries(c.t.allocated)
+        .map(([k, v]) => `${v} ${k}`)
+        .join(", ") || "none";
+    const spent =
+      Object.entries(c.t.spent)
+        .map(([k, v]) => `${v} ${k}`)
+        .join(", ") || "none";
+    const roas =
+      c.roas.map((x) => (x.value !== null ? `${x.value}x ${x.currency}` : x.status)).join(", ") ||
+      "unavailable";
+    const missing = Object.entries(c.inputs)
+      .filter(([k, v]) => k !== "costs" && v !== "recorded")
+      .map(([k, v]) => `${k} ${v}`)
+      .join(", ");
+    out.push(
+      `- campaign ${clip(c.title, 60)} [${c.status}]: allocated ${alloc}; actual spent since start ${spent}; AI credits ${c.t.credits}${c.aiCost.priced > 0 ? ` (value ${c.aiCost.amount} ${c.aiCost.currency} at the credit price valid when used${c.aiCost.unpriced ? `; ${c.aiCost.unpriced} credits without a price` : ""})` : c.t.credits ? " (no credit price applied — credits only)" : ""}; ROAS ${roas}${missing ? `; not yet evaluable: ${missing}` : ""}${c.over.length ? "; ACTUAL SPENDING ABOVE ALLOCATION" : ""}`,
+    );
   }
   if (s.campaigns.length > 10) out.push(`(${s.campaigns.length - 10} more campaigns not listed)`);
-  const ch = Object.entries(s.channels).map(([k, v]) => `${k} ${Object.entries(v).map(([c, a]) => `${a} ${c}`).join("/")}`);
+  const ch = Object.entries(s.channels).map(
+    ([k, v]) =>
+      `${k} ${Object.entries(v)
+        .map(([c, a]) => `${a} ${c}`)
+        .join("/")}`,
+  );
   if (ch.length) out.push(`actual spending by channel: ${ch.join("; ")}`);
   const o = s.outcomes;
-  out.push(`recommendation outcomes (recorded measurements): improved ${o.improved}, worse ${o.worse}, no change ${o.noChange}, inconclusive ${o.inconclusive}; lessons recorded ${o.lessons}; measurements due now ${s.measurementDue.length}${s.measurementDue.length ? ` (e.g. ${clip(s.measurementDue[0]!.title, 60)})` : ""}`);
+  out.push(
+    `recommendation outcomes (recorded measurements): improved ${o.improved}, worse ${o.worse}, no change ${o.noChange}, inconclusive ${o.inconclusive}; lessons recorded ${o.lessons}; measurements due now ${s.measurementDue.length}${s.measurementDue.length ? ` (e.g. ${clip(s.measurementDue[0]!.title, 60)})` : ""}`,
+  );
   const patterns = learningPatterns(e.learnings, e.proposals);
   for (const p of patterns.slice(0, 4))
-    out.push(`- learning pattern (this business only; ${p.confidence === "not_enough" ? "not enough observations — hypothesis" : `${p.confidence} confidence, still a hypothesis`}): lever ${p.lever}${p.channel ? ` / ${p.channel}` : ""}: ${p.observations} measured lesson(s) in ${p.campaigns} campaign(s): ${p.positive} better, ${p.negative} worse, ${p.noChange} unchanged; limits: ${p.limitations.join(", ")}`);
-  out.push("- for money questions use only these figures; when a figure is not calculable, name the missing input and where it is recorded; never derive profit, CAC or ROAS yourself; never apply another business's results to this one");
+    out.push(
+      `- learning pattern (this business only; ${p.confidence === "not_enough" ? "not enough observations — hypothesis" : `${p.confidence} confidence, still a hypothesis`}): lever ${p.lever}${p.channel ? ` / ${p.channel}` : ""}: ${p.observations} measured lesson(s) in ${p.campaigns} campaign(s): ${p.positive} better, ${p.negative} worse, ${p.noChange} unchanged; limits: ${p.limitations.join(", ")}`,
+    );
+  out.push(
+    "- for money questions use only these figures; when a figure is not calculable, name the missing input and where it is recorded; never derive profit, CAC or ROAS yourself; never apply another business's results to this one",
+  );
   return out;
 }

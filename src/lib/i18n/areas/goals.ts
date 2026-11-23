@@ -42,10 +42,12 @@ export const goals = defineArea("goals", {
     "goals.spendFailed": "Could not record spend.",
     "goals.moveFailed": "Could not move the budget.",
     "goals.moveRolledBack": "Could not move the budget; nothing was changed.",
-    "goals.moveStale": "The budget changed in the meantime; nothing was moved. Check the new amounts.",
+    "goals.moveStale":
+      "The budget changed in the meantime; nothing was moved. Check the new amounts.",
     "goals.moved": "Moved {amount} from {from} to {to}",
     "goals.title": "Goals & budget",
-    "goals.intro": "Set what you want to achieve and what you plan to spend. Spend here is entered by you; no ad accounts are connected, and nothing is charged.",
+    "goals.intro":
+      "Set what you want to achieve and what you plan to spend. Spend here is entered by you; no ad accounts are connected, and nothing is charged.",
     "goals.businessGoals": "Business goals",
     "goals.noGoals": "No goals yet. Start with your most important objective.",
     "goals.primary": "Primary",
@@ -53,7 +55,8 @@ export const goals = defineArea("goals", {
     "goals.goalLine": "{metric} · baseline {baseline} → target {target}",
     "goals.by": " by {date}",
     "goals.progress": "{p}% of the way, based on the current value you entered",
-    "goals.noProgress": "Enter a measured baseline, a target and the current value to track progress.",
+    "goals.noProgress":
+      "Enter a measured baseline, a target and the current value to track progress.",
     "goals.m.measurable": "Measurable: metric, measured baseline and target are set.",
     "goals.m.notMeasurable": "Not measurable yet. Missing: {list}.",
     "goals.m.missing.metric": "which figure to measure",
@@ -95,7 +98,9 @@ export const goals = defineArea("goals", {
     "goals.cap": "Cap",
     "goals.status": "Status",
     "goals.noBudget": "No budget planned for this month.",
-    "goals.brand": "Brand or unit", "goals.brandWhole": "Whole business", "goals.budgetEditors": "Budgets are managed by editors and administrators of this business.",
+    "goals.brand": "Brand or unit",
+    "goals.brandWhole": "Whole business",
+    "goals.budgetEditors": "Budgets are managed by editors and administrators of this business.",
     "goals.initiativeLinked": "Initiative linked",
     "goals.spentOn": "Spent on {channel}",
     "goals.overHardCap": "Over hard cap",
@@ -103,7 +108,8 @@ export const goals = defineArea("goals", {
     "goals.nearPlan": "80%+ used",
     "goals.onTrack": "On track",
     "goals.moves": "Suggested budget moves",
-    "goals.movesNote": "Simple rules, not AI: past mid-month, half of the unused budget on slow channels can move to channels already over plan, within their hard cap. Your total stays the same.",
+    "goals.movesNote":
+      "Simple rules, not AI: past mid-month, half of the unused budget on slow channels can move to channels already over plan, within their hard cap. Your total stays the same.",
     "goals.moveLine": "Move {amount} from {from} to {to}",
     "goals.moveReason": "{from} has used {pct}% of plan; {to} is over plan by {over}.",
     "goals.apply": "Apply",
@@ -132,7 +138,8 @@ export const goals = defineArea("goals", {
     "goals.loadingPlan": "Loading plan…",
     "goals.planFailed": "Growth Plan could not be loaded.",
     "goals.retry": "Retry",
-    "goals.noPlan": "No plan version yet. Generate and save a strategy below, then create its Growth Plan draft.",
+    "goals.noPlan":
+      "No plan version yet. Generate and save a strategy below, then create its Growth Plan draft.",
     "goals.draftReview": "Draft for review · V{v}",
     "goals.loadingProposed": "Loading proposed initiatives…",
     "goals.draftFailed": "Draft initiatives could not be loaded.",
@@ -158,17 +165,21 @@ export const goals = defineArea("goals", {
     "goals.linkSelectPh": "Link a project or campaign…",
     "goals.status.rejected": "rejected",
     "goals.s.ready": "Strategy ready · {n} AI credits",
-    "goals.s.unconfirmed": "The request could not be confirmed. Check saved requests before trying again.",
+    "goals.s.unconfirmed":
+      "The request could not be confirmed. Check saved requests before trying again.",
     "goals.s.saved": "Strategy saved",
-    "goals.s.saveFailed": "Could not confirm the saved strategy. Check saved strategies before retrying.",
+    "goals.s.saveFailed":
+      "Could not confirm the saved strategy. Check saved strategies before retrying.",
     "goals.s.inApproved": "This strategy is already in approved Growth Plan V{v}",
     "goals.s.draftReady": "Growth Plan draft V{v} is ready for review",
     "goals.s.exists": "Growth Plan V{v} already exists ({s})",
-    "goals.s.draftFailed": "The Growth Plan draft could not be confirmed. Check the plan panel before retrying.",
+    "goals.s.draftFailed":
+      "The Growth Plan draft could not be confirmed. Check the plan panel before retrying.",
     "goals.s.plan": "Plan strategy",
     "goals.s.title": "Growth strategy",
     "goals.s.close": "Close",
-    "goals.s.intro": "Uses this goal, this month's budget and your confirmed business facts. One strategy uses AI credits. It is a suggestion: you decide what to save and turn into work.",
+    "goals.s.intro":
+      "Uses this goal, this month's budget and your confirmed business facts. One strategy uses AI credits. It is a suggestion: you decide what to save and turn into work.",
     "goals.s.horizon": "Planning horizon",
     "goals.s.weeks": "{n} weeks",
     "goals.s.planning": "Planning…",
@@ -179,7 +190,8 @@ export const goals = defineArea("goals", {
     "goals.s.share": "{n}% of effort",
     "goals.s.initiatives": "Proposed initiatives",
     "goals.s.weekTitle": "Week {n}: {title}",
-    "goals.s.becomeDraft": "These actions become initiatives in a draft Growth Plan. A workspace admin or owner must approve the plan before work is created.",
+    "goals.s.becomeDraft":
+      "These actions become initiatives in a draft Growth Plan. A workspace admin or owner must approve the plan before work is created.",
     "goals.s.measure": "Measure",
     "goals.s.risks": "Risks",
     "goals.s.assumptions": "Assumptions to check",
@@ -189,7 +201,8 @@ export const goals = defineArea("goals", {
     "goals.s.draftCreated": "Draft created",
     "goals.s.createDraft": "Create Growth Plan draft",
     "goals.s.discard": "Discard",
-    "goals.s.needsApproval": "The draft requires approval by a workspace admin or owner before it can create Work.",
+    "goals.s.needsApproval":
+      "The draft requires approval by a workspace admin or owner before it can create Work.",
     "goals.s.savedList": "Saved strategies",
     "goals.op.valuesInvalid": "Outcome values must be zero or higher.",
     "goals.op.saveFailed": "Initiative update could not be saved.",
@@ -197,7 +210,8 @@ export const goals = defineArea("goals", {
     "goals.op.title": "Ownership & outcome",
     "goals.op.blocked": "Blocked",
     "goals.op.loading": "Loading initiative operations…",
-    "goals.op.loadFailed": "Initiative details could not be loaded. Your saved values have not been changed.",
+    "goals.op.loadFailed":
+      "Initiative details could not be loaded. Your saved values have not been changed.",
     "goals.op.owner": "Owner",
     "goals.op.you": " (you)",
     "goals.op.assignedYou": "Assigned to you",
@@ -206,7 +220,8 @@ export const goals = defineArea("goals", {
     "goals.op.metric": "Success metric",
     "goals.op.metricPh": "e.g. qualified leads / month",
     "goals.op.current": "Current result",
-    "goals.op.progress": "Recorded progress: {p}% from values entered here; no connected metric source",
+    "goals.op.progress":
+      "Recorded progress: {p}% from values entered here; no connected metric source",
     "goals.op.blocker": "Blocker / decision needed",
     "goals.op.blockerPh": "What is holding this initiative back?",
     "goals.op.status": "Initiative status",
@@ -215,10 +230,13 @@ export const goals = defineArea("goals", {
     "goals.p.goalFallback": "Growth goal",
     "goals.p.checking": "Checking approved growth initiatives…",
     "goals.p.failed": "Initiative status could not be loaded.",
-    "goals.p.summary": "{plans} approved Growth Plan(s) · {open} open initiative(s): {progress} in progress, {planned} planned",
+    "goals.p.summary":
+      "{plans} approved Growth Plan(s) · {open} open initiative(s): {progress} in progress, {planned} planned",
     "goals.p.paused": ", {n} paused",
-    "goals.p.none": "No approved initiative currently needs follow-up. Active initiatives will appear here when a deadline, blocker, owner or measurement needs attention.",
-    "goals.p.how": "Prioritized from approved plans using recorded blockers, dates, ownership and outcome data. Nothing is sent or executed automatically.",
+    "goals.p.none":
+      "No approved initiative currently needs follow-up. Active initiatives will appear here when a deadline, blocker, owner or measurement needs attention.",
+    "goals.p.how":
+      "Prioritized from approved plans using recorded blockers, dates, ownership and outcome data. Nothing is sent or executed automatically.",
     "goals.p.kind.blocked": "Blocked",
     "goals.p.kind.overdue": "Overdue",
     "goals.p.kind.due_soon": "Due soon",
@@ -243,7 +261,8 @@ export const goals = defineArea("goals", {
     "goals.f.progressLabel": "Recorded growth goal progress",
     "goals.f.notMeasured": "Progress is not measured yet. No performance value is assumed.",
     "goals.f.none": "No active growth goal has been set.",
-    "goals.f.noneBody": "Start with one measurable business outcome. The Growth Officer can then help turn it into a strategy and concrete work.",
+    "goals.f.noneBody":
+      "Start with one measurable business outcome. The Growth Officer can then help turn it into a strategy and concrete work.",
     "goals.f.setFirst": "Set your first growth goal",
     "goals.f.moveForward": "Move this goal forward with your Growth Officer",
     "goals.pd.opportunity": "Opportunity pursued",
@@ -282,7 +301,8 @@ export const goals = defineArea("goals", {
     "goals.pd.rejected": "Version rejected. Save an edited strategy to create a new version.",
     "goals.pd.changesRequested": "Change request recorded. The version stays a draft.",
     "goals.pd.decisionFailed": "The decision could not be recorded.",
-    "goals.pd.notSwitchedOn": "Rejecting and requesting changes are not switched on for this workspace yet.",
+    "goals.pd.notSwitchedOn":
+      "Rejecting and requesting changes are not switched on for this workspace yet.",
     "goals.pd.history": "Decisions",
     "goals.pd.dec.approved": "Approved",
     "goals.pd.dec.rejected": "Rejected",
@@ -290,7 +310,8 @@ export const goals = defineArea("goals", {
     "goals.pd.decisionLine": "V{v} · {d} · {when}",
     "goals.pd.edit": "Edit",
     "goals.pd.doneEditing": "Done editing",
-    "goals.pd.editNote": "Edits stay a suggestion until saved. Saving an edited saved strategy creates a new strategy and, from it, a new plan version.",
+    "goals.pd.editNote":
+      "Edits stay a suggestion until saved. Saving an edited saved strategy creates a new strategy and, from it, a new plan version.",
     "goals.pd.saveAsNew": "Save as new version",
     "goals.pd.removeStep": "Remove step {n}",
     "goals.pd.stepTitle": "Step {n} title",
@@ -318,9 +339,11 @@ export const goals = defineArea("goals", {
     "goals.chain.of": "{n} of {total} done",
     "goals.chain.next": "Next step:",
     "goals.chain.n.strategy": "Plan a strategy for this goal below.",
-    "goals.chain.n.plan": "Create a plan draft from a saved strategy, then have an admin decide on it.",
+    "goals.chain.n.plan":
+      "Create a plan draft from a saved strategy, then have an admin decide on it.",
     "goals.chain.n.initiatives": "Start the initiatives of the approved plan.",
-    "goals.chain.n.work": "Create work from an initiative or link a campaign or project to this goal.",
+    "goals.chain.n.work":
+      "Create work from an initiative or link a campaign or project to this goal.",
     "goals.chain.n.tasks": "Add tasks to the linked campaigns or projects.",
     "goals.chain.n.results": "Track a metric for this goal in Performance so results show here.",
     "goals.chain.n.goal": "—",
@@ -367,10 +390,12 @@ export const goals = defineArea("goals", {
     "goals.spendFailed": "Kon de uitgave niet registreren.",
     "goals.moveFailed": "Kon het budget niet verschuiven.",
     "goals.moveRolledBack": "Kon het budget niet verschuiven; er is niets gewijzigd.",
-    "goals.moveStale": "Het budget is intussen gewijzigd; er is niets verschoven. Bekijk de nieuwe bedragen.",
+    "goals.moveStale":
+      "Het budget is intussen gewijzigd; er is niets verschoven. Bekijk de nieuwe bedragen.",
     "goals.moved": "{amount} verschoven van {from} naar {to}",
     "goals.title": "Doelen & budget",
-    "goals.intro": "Leg vast wat je wilt bereiken en wat je wilt uitgeven. Uitgaven vul je hier zelf in; er zijn geen advertentieaccounts gekoppeld en er wordt niets aangerekend.",
+    "goals.intro":
+      "Leg vast wat je wilt bereiken en wat je wilt uitgeven. Uitgaven vul je hier zelf in; er zijn geen advertentieaccounts gekoppeld en er wordt niets aangerekend.",
     "goals.businessGoals": "Bedrijfsdoelen",
     "goals.noGoals": "Nog geen doelen. Begin met je belangrijkste doelstelling.",
     "goals.primary": "Hoofddoel",
@@ -378,7 +403,8 @@ export const goals = defineArea("goals", {
     "goals.goalLine": "{metric} · vertrekpunt {baseline} → doel {target}",
     "goals.by": " tegen {date}",
     "goals.progress": "{p}% op weg, op basis van de huidige waarde die je invulde",
-    "goals.noProgress": "Vul een gemeten vertrekpunt, een doel en de huidige waarde in om de voortgang te volgen.",
+    "goals.noProgress":
+      "Vul een gemeten vertrekpunt, een doel en de huidige waarde in om de voortgang te volgen.",
     "goals.m.measurable": "Meetbaar: maatstaf, gemeten vertrekpunt en doel zijn ingevuld.",
     "goals.m.notMeasurable": "Nog niet meetbaar. Ontbreekt: {list}.",
     "goals.m.missing.metric": "de maatstaf (welk cijfer gemeten wordt)",
@@ -394,7 +420,8 @@ export const goals = defineArea("goals", {
     "goals.m.pace.on_pace": "in lijn met de verstreken tijd",
     "goals.m.pace.behind": "achter op de verstreken tijd",
     "goals.m.pace.overdue": "deadline verstreken voordat het doel bereikt is",
-    "goals.m.source": "Op basis van waarden die je team invulde, niet bevestigd door een gekoppelde bron.",
+    "goals.m.source":
+      "Op basis van waarden die je team invulde, niet bevestigd door een gekoppelde bron.",
     "goals.currentValue": "Huidige waarde",
     "goals.makePrimary": "Hoofddoel maken",
     "goals.markAchieved": "Als behaald markeren",
@@ -420,7 +447,10 @@ export const goals = defineArea("goals", {
     "goals.cap": "Limiet",
     "goals.status": "Status",
     "goals.noBudget": "Geen budget gepland voor deze maand.",
-    "goals.brand": "Merk of onderdeel", "goals.brandWhole": "Hele bedrijf", "goals.budgetEditors": "Budgetten worden beheerd door redacteurs en beheerders van dit bedrijf.",
+    "goals.brand": "Merk of onderdeel",
+    "goals.brandWhole": "Hele bedrijf",
+    "goals.budgetEditors":
+      "Budgetten worden beheerd door redacteurs en beheerders van dit bedrijf.",
     "goals.initiativeLinked": "Initiatief gekoppeld",
     "goals.spentOn": "Uitgegeven aan {channel}",
     "goals.overHardCap": "Boven harde limiet",
@@ -428,7 +458,8 @@ export const goals = defineArea("goals", {
     "goals.nearPlan": "80%+ gebruikt",
     "goals.onTrack": "Op schema",
     "goals.moves": "Voorgestelde budgetverschuivingen",
-    "goals.movesNote": "Eenvoudige regels, geen AI: na half de maand kan de helft van het ongebruikte budget van trage kanalen naar kanalen die al boven plan zitten, binnen hun harde limiet. Je totaal blijft gelijk.",
+    "goals.movesNote":
+      "Eenvoudige regels, geen AI: na half de maand kan de helft van het ongebruikte budget van trage kanalen naar kanalen die al boven plan zitten, binnen hun harde limiet. Je totaal blijft gelijk.",
     "goals.moveLine": "Verschuif {amount} van {from} naar {to}",
     "goals.moveReason": "{from} gebruikte {pct}% van het plan; {to} zit {over} boven plan.",
     "goals.apply": "Toepassen",
@@ -457,12 +488,14 @@ export const goals = defineArea("goals", {
     "goals.loadingPlan": "Plan laden…",
     "goals.planFailed": "Groeiplan kon niet laden.",
     "goals.retry": "Opnieuw proberen",
-    "goals.noPlan": "Nog geen planversie. Maak en bewaar hieronder een strategie en maak er dan een ontwerp van een groeiplan van.",
+    "goals.noPlan":
+      "Nog geen planversie. Maak en bewaar hieronder een strategie en maak er dan een ontwerp van een groeiplan van.",
     "goals.draftReview": "Ontwerp ter controle · V{v}",
     "goals.loadingProposed": "Voorgestelde initiatieven laden…",
     "goals.draftFailed": "Initiatieven van het ontwerp konden niet laden.",
     "goals.week": "Week {n}",
-    "goals.activeUntil": "Het huidige goedgekeurde plan blijft actief tot dit ontwerp is goedgekeurd.",
+    "goals.activeUntil":
+      "Het huidige goedgekeurde plan blijft actief tot dit ontwerp is goedgekeurd.",
     "goals.approving": "Goedkeuren…",
     "goals.approveReplacement": "Vervangend plan goedkeuren",
     "goals.awaiting": "Wacht op goedkeuring door een beheerder of eigenaar.",
@@ -483,17 +516,21 @@ export const goals = defineArea("goals", {
     "goals.linkSelectPh": "Een project of campagne koppelen…",
     "goals.status.rejected": "afgewezen",
     "goals.s.ready": "Strategie klaar · {n} AI-tegoed",
-    "goals.s.unconfirmed": "Het verzoek kon niet bevestigd worden. Bekijk bewaarde verzoeken voor je het opnieuw probeert.",
+    "goals.s.unconfirmed":
+      "Het verzoek kon niet bevestigd worden. Bekijk bewaarde verzoeken voor je het opnieuw probeert.",
     "goals.s.saved": "Strategie bewaard",
-    "goals.s.saveFailed": "Kon de bewaarde strategie niet bevestigen. Bekijk de bewaarde strategieën voor je het opnieuw probeert.",
+    "goals.s.saveFailed":
+      "Kon de bewaarde strategie niet bevestigen. Bekijk de bewaarde strategieën voor je het opnieuw probeert.",
     "goals.s.inApproved": "Deze strategie zit al in goedgekeurd groeiplan V{v}",
     "goals.s.draftReady": "Ontwerp van groeiplan V{v} staat klaar voor controle",
     "goals.s.exists": "Groeiplan V{v} bestaat al ({s})",
-    "goals.s.draftFailed": "Het ontwerp van het groeiplan kon niet bevestigd worden. Bekijk het plan voor je het opnieuw probeert.",
+    "goals.s.draftFailed":
+      "Het ontwerp van het groeiplan kon niet bevestigd worden. Bekijk het plan voor je het opnieuw probeert.",
     "goals.s.plan": "Strategie plannen",
     "goals.s.title": "Groeistrategie",
     "goals.s.close": "Sluiten",
-    "goals.s.intro": "Gebruikt dit doel, het budget van deze maand en je bevestigde bedrijfsfeiten. Eén strategie gebruikt AI-tegoed. Het is een voorstel: jij beslist wat je bewaart en omzet naar werk.",
+    "goals.s.intro":
+      "Gebruikt dit doel, het budget van deze maand en je bevestigde bedrijfsfeiten. Eén strategie gebruikt AI-tegoed. Het is een voorstel: jij beslist wat je bewaart en omzet naar werk.",
     "goals.s.horizon": "Planningshorizon",
     "goals.s.weeks": "{n} weken",
     "goals.s.planning": "Plannen…",
@@ -504,7 +541,8 @@ export const goals = defineArea("goals", {
     "goals.s.share": "{n}% van de inspanning",
     "goals.s.initiatives": "Voorgestelde initiatieven",
     "goals.s.weekTitle": "Week {n}: {title}",
-    "goals.s.becomeDraft": "Deze acties worden initiatieven in een ontwerp van een groeiplan. Een beheerder of eigenaar moet het plan goedkeuren voor er werk wordt aangemaakt.",
+    "goals.s.becomeDraft":
+      "Deze acties worden initiatieven in een ontwerp van een groeiplan. Een beheerder of eigenaar moet het plan goedkeuren voor er werk wordt aangemaakt.",
     "goals.s.measure": "Meten",
     "goals.s.risks": "Risico’s",
     "goals.s.assumptions": "Aannames om te controleren",
@@ -514,7 +552,8 @@ export const goals = defineArea("goals", {
     "goals.s.draftCreated": "Ontwerp gemaakt",
     "goals.s.createDraft": "Ontwerp van groeiplan maken",
     "goals.s.discard": "Verwerpen",
-    "goals.s.needsApproval": "Het ontwerp moet goedgekeurd worden door een beheerder of eigenaar voor het werk kan aanmaken.",
+    "goals.s.needsApproval":
+      "Het ontwerp moet goedgekeurd worden door een beheerder of eigenaar voor het werk kan aanmaken.",
     "goals.s.savedList": "Bewaarde strategieën",
     "goals.op.valuesInvalid": "Resultaatwaarden moeten nul of hoger zijn.",
     "goals.op.saveFailed": "Wijziging van het initiatief kon niet bewaard worden.",
@@ -522,7 +561,8 @@ export const goals = defineArea("goals", {
     "goals.op.title": "Verantwoordelijke & resultaat",
     "goals.op.blocked": "Geblokkeerd",
     "goals.op.loading": "Opvolging van initiatief laden…",
-    "goals.op.loadFailed": "Details van het initiatief konden niet laden. Je bewaarde waarden zijn niet gewijzigd.",
+    "goals.op.loadFailed":
+      "Details van het initiatief konden niet laden. Je bewaarde waarden zijn niet gewijzigd.",
     "goals.op.owner": "Verantwoordelijke",
     "goals.op.you": " (jij)",
     "goals.op.assignedYou": "Aan jou toegewezen",
@@ -531,7 +571,8 @@ export const goals = defineArea("goals", {
     "goals.op.metric": "Maatstaf voor succes",
     "goals.op.metricPh": "bv. gekwalificeerde leads / maand",
     "goals.op.current": "Huidig resultaat",
-    "goals.op.progress": "Geregistreerde voortgang: {p}% op basis van waarden die hier zijn ingevuld; geen gekoppelde bron",
+    "goals.op.progress":
+      "Geregistreerde voortgang: {p}% op basis van waarden die hier zijn ingevuld; geen gekoppelde bron",
     "goals.op.blocker": "Blokkade / beslissing nodig",
     "goals.op.blockerPh": "Wat houdt dit initiatief tegen?",
     "goals.op.status": "Status van het initiatief",
@@ -540,10 +581,13 @@ export const goals = defineArea("goals", {
     "goals.p.goalFallback": "Groeidoel",
     "goals.p.checking": "Goedgekeurde groei-initiatieven controleren…",
     "goals.p.failed": "Status van initiatieven kon niet laden.",
-    "goals.p.summary": "{plans} goedgekeurd(e) groeiplan(nen) · {open} open initiatief/initiatieven: {progress} bezig, {planned} gepland",
+    "goals.p.summary":
+      "{plans} goedgekeurd(e) groeiplan(nen) · {open} open initiatief/initiatieven: {progress} bezig, {planned} gepland",
     "goals.p.paused": ", {n} gepauzeerd",
-    "goals.p.none": "Geen enkel goedgekeurd initiatief vraagt nu opvolging. Actieve initiatieven verschijnen hier zodra een deadline, blokkade, verantwoordelijke of meting aandacht vraagt.",
-    "goals.p.how": "Geprioriteerd uit goedgekeurde plannen op basis van geregistreerde blokkades, datums, verantwoordelijken en resultaten. Er wordt niets automatisch verstuurd of uitgevoerd.",
+    "goals.p.none":
+      "Geen enkel goedgekeurd initiatief vraagt nu opvolging. Actieve initiatieven verschijnen hier zodra een deadline, blokkade, verantwoordelijke of meting aandacht vraagt.",
+    "goals.p.how":
+      "Geprioriteerd uit goedgekeurde plannen op basis van geregistreerde blokkades, datums, verantwoordelijken en resultaten. Er wordt niets automatisch verstuurd of uitgevoerd.",
     "goals.p.kind.blocked": "Geblokkeerd",
     "goals.p.kind.overdue": "Te laat",
     "goals.p.kind.due_soon": "Binnenkort",
@@ -568,7 +612,8 @@ export const goals = defineArea("goals", {
     "goals.f.progressLabel": "Geregistreerde voortgang van het groeidoel",
     "goals.f.notMeasured": "De voortgang is nog niet gemeten. Er wordt geen resultaat aangenomen.",
     "goals.f.none": "Er is nog geen actief groeidoel.",
-    "goals.f.noneBody": "Begin met één meetbaar bedrijfsresultaat. De Growth Officer helpt je het daarna om te zetten in een strategie en concreet werk.",
+    "goals.f.noneBody":
+      "Begin met één meetbaar bedrijfsresultaat. De Growth Officer helpt je het daarna om te zetten in een strategie en concreet werk.",
     "goals.f.setFirst": "Stel je eerste groeidoel in",
     "goals.f.moveForward": "Breng dit doel vooruit met je Growth Officer",
     "goals.pd.opportunity": "Nagestreefde kans",
@@ -604,10 +649,12 @@ export const goals = defineArea("goals", {
     "goals.pd.confirmReject": "Deze versie afwijzen",
     "goals.pd.confirmChanges": "Wijzigingsverzoek versturen",
     "goals.pd.cancel": "Annuleren",
-    "goals.pd.rejected": "Versie afgewezen. Bewaar een aangepaste strategie om een nieuwe versie te maken.",
+    "goals.pd.rejected":
+      "Versie afgewezen. Bewaar een aangepaste strategie om een nieuwe versie te maken.",
     "goals.pd.changesRequested": "Wijzigingsverzoek vastgelegd. De versie blijft een concept.",
     "goals.pd.decisionFailed": "De beslissing kon niet vastgelegd worden.",
-    "goals.pd.notSwitchedOn": "Afwijzen en wijzigingen vragen staan nog niet aan voor deze werkruimte.",
+    "goals.pd.notSwitchedOn":
+      "Afwijzen en wijzigingen vragen staan nog niet aan voor deze werkruimte.",
     "goals.pd.history": "Beslissingen",
     "goals.pd.dec.approved": "Goedgekeurd",
     "goals.pd.dec.rejected": "Afgewezen",
@@ -615,7 +662,8 @@ export const goals = defineArea("goals", {
     "goals.pd.decisionLine": "V{v} · {d} · {when}",
     "goals.pd.edit": "Aanpassen",
     "goals.pd.doneEditing": "Klaar met aanpassen",
-    "goals.pd.editNote": "Aanpassingen blijven een voorstel tot je bewaart. Een aangepaste bewaarde strategie wordt een nieuwe strategie en daaruit een nieuwe planversie.",
+    "goals.pd.editNote":
+      "Aanpassingen blijven een voorstel tot je bewaart. Een aangepaste bewaarde strategie wordt een nieuwe strategie en daaruit een nieuwe planversie.",
     "goals.pd.saveAsNew": "Bewaren als nieuwe versie",
     "goals.pd.removeStep": "Stap {n} verwijderen",
     "goals.pd.stepTitle": "Titel stap {n}",
@@ -643,11 +691,14 @@ export const goals = defineArea("goals", {
     "goals.chain.of": "{n} van {total} klaar",
     "goals.chain.next": "Volgende stap:",
     "goals.chain.n.strategy": "Plan hieronder een strategie voor dit doel.",
-    "goals.chain.n.plan": "Maak een planconcept van een bewaarde strategie en laat een beheerder beslissen.",
+    "goals.chain.n.plan":
+      "Maak een planconcept van een bewaarde strategie en laat een beheerder beslissen.",
     "goals.chain.n.initiatives": "Start de initiatieven van het goedgekeurde plan.",
-    "goals.chain.n.work": "Maak werk van een initiatief of koppel een campagne of project aan dit doel.",
+    "goals.chain.n.work":
+      "Maak werk van een initiatief of koppel een campagne of project aan dit doel.",
     "goals.chain.n.tasks": "Voeg taken toe aan de gekoppelde campagnes of projecten.",
-    "goals.chain.n.results": "Volg een maatstaf voor dit doel bij Resultaten zodat resultaten hier verschijnen.",
+    "goals.chain.n.results":
+      "Volg een maatstaf voor dit doel bij Resultaten zodat resultaten hier verschijnen.",
     "goals.chain.n.goal": "—",
     "goals.chain.n.opportunity": "—",
     "goals.chain.duplicates": "Mogelijk dubbel werk gekoppeld aan dit doel: {list}.",
@@ -692,10 +743,12 @@ export const goals = defineArea("goals", {
     "goals.spendFailed": "Impossible d’enregistrer la dépense.",
     "goals.moveFailed": "Impossible de déplacer le budget.",
     "goals.moveRolledBack": "Impossible de déplacer le budget ; rien n’a été modifié.",
-    "goals.moveStale": "Le budget a changé entre-temps ; rien n’a été déplacé. Vérifiez les nouveaux montants.",
+    "goals.moveStale":
+      "Le budget a changé entre-temps ; rien n’a été déplacé. Vérifiez les nouveaux montants.",
     "goals.moved": "{amount} déplacé de {from} vers {to}",
     "goals.title": "Objectifs et budget",
-    "goals.intro": "Définissez ce que vous voulez atteindre et ce que vous prévoyez de dépenser. Vous saisissez vous-même les dépenses ; aucun compte publicitaire n’est connecté et rien n’est facturé.",
+    "goals.intro":
+      "Définissez ce que vous voulez atteindre et ce que vous prévoyez de dépenser. Vous saisissez vous-même les dépenses ; aucun compte publicitaire n’est connecté et rien n’est facturé.",
     "goals.businessGoals": "Objectifs de l’entreprise",
     "goals.noGoals": "Aucun objectif pour l’instant. Commencez par le plus important.",
     "goals.primary": "Principal",
@@ -703,7 +756,8 @@ export const goals = defineArea("goals", {
     "goals.goalLine": "{metric} · point de départ {baseline} → cible {target}",
     "goals.by": " d’ici le {date}",
     "goals.progress": "{p} % du chemin, d’après la valeur actuelle que vous avez saisie",
-    "goals.noProgress": "Saisissez une valeur de départ mesurée, une cible et la valeur actuelle pour suivre la progression.",
+    "goals.noProgress":
+      "Saisissez une valeur de départ mesurée, une cible et la valeur actuelle pour suivre la progression.",
     "goals.m.measurable": "Mesurable : indicateur, valeur de départ mesurée et cible sont définis.",
     "goals.m.notMeasurable": "Pas encore mesurable. Il manque : {list}.",
     "goals.m.missing.metric": "l'indicateur à mesurer",
@@ -719,7 +773,8 @@ export const goals = defineArea("goals", {
     "goals.m.pace.on_pace": "au rythme du temps écoulé",
     "goals.m.pace.behind": "en retard sur le temps écoulé",
     "goals.m.pace.overdue": "échéance dépassée avant d'atteindre la cible",
-    "goals.m.source": "Basé sur les valeurs saisies par votre équipe, non vérifiées par une source connectée.",
+    "goals.m.source":
+      "Basé sur les valeurs saisies par votre équipe, non vérifiées par une source connectée.",
     "goals.currentValue": "Valeur actuelle",
     "goals.makePrimary": "Définir comme principal",
     "goals.markAchieved": "Marquer comme atteint",
@@ -745,7 +800,10 @@ export const goals = defineArea("goals", {
     "goals.cap": "Plafond",
     "goals.status": "Statut",
     "goals.noBudget": "Aucun budget prévu pour ce mois.",
-    "goals.brand": "Marque ou unité", "goals.brandWhole": "Toute l’entreprise", "goals.budgetEditors": "Les budgets sont gérés par les éditeurs et administrateurs de cette entreprise.",
+    "goals.brand": "Marque ou unité",
+    "goals.brandWhole": "Toute l’entreprise",
+    "goals.budgetEditors":
+      "Les budgets sont gérés par les éditeurs et administrateurs de cette entreprise.",
     "goals.initiativeLinked": "Initiative liée",
     "goals.spentOn": "Dépensé pour {channel}",
     "goals.overHardCap": "Au-delà du plafond",
@@ -753,7 +811,8 @@ export const goals = defineArea("goals", {
     "goals.nearPlan": "80 %+ utilisés",
     "goals.onTrack": "Dans les temps",
     "goals.moves": "Déplacements de budget suggérés",
-    "goals.movesNote": "Des règles simples, pas d’IA : après la mi-mois, la moitié du budget inutilisé des canaux lents peut aller vers les canaux déjà au-delà du prévu, dans la limite de leur plafond. Votre total reste identique.",
+    "goals.movesNote":
+      "Des règles simples, pas d’IA : après la mi-mois, la moitié du budget inutilisé des canaux lents peut aller vers les canaux déjà au-delà du prévu, dans la limite de leur plafond. Votre total reste identique.",
     "goals.moveLine": "Déplacer {amount} de {from} vers {to}",
     "goals.moveReason": "{from} a utilisé {pct} % du prévu ; {to} dépasse le prévu de {over}.",
     "goals.apply": "Appliquer",
@@ -774,7 +833,8 @@ export const goals = defineArea("goals", {
     "goals.multiCurrency": "Plusieurs devises — totaux séparés dans le tableau budgétaire",
     "goals.noBudgetMonth": "Aucun budget attribué ce mois-ci",
     "goals.workAdded": "Initiative ajoutée au Travail",
-    "goals.workFailed": "Impossible de créer du travail à partir de cette initiative. Vous pouvez réessayer sans risque.",
+    "goals.workFailed":
+      "Impossible de créer du travail à partir de cette initiative. Vous pouvez réessayer sans risque.",
     "goals.planApproved": "Plan de croissance validé",
     "goals.approveFailed": "La validation a échoué. Vérifiez vos droits dans l’espace.",
     "goals.plan": "Plan de croissance",
@@ -782,7 +842,8 @@ export const goals = defineArea("goals", {
     "goals.loadingPlan": "Chargement du plan…",
     "goals.planFailed": "Le plan de croissance n’a pas pu être chargé.",
     "goals.retry": "Réessayer",
-    "goals.noPlan": "Aucune version de plan. Générez et enregistrez une stratégie ci-dessous, puis créez son brouillon de plan.",
+    "goals.noPlan":
+      "Aucune version de plan. Générez et enregistrez une stratégie ci-dessous, puis créez son brouillon de plan.",
     "goals.draftReview": "Brouillon à vérifier · V{v}",
     "goals.loadingProposed": "Chargement des initiatives proposées…",
     "goals.draftFailed": "Les initiatives du brouillon n’ont pas pu être chargées.",
@@ -808,17 +869,21 @@ export const goals = defineArea("goals", {
     "goals.linkSelectPh": "Lier un projet ou une campagne…",
     "goals.status.rejected": "refusé",
     "goals.s.ready": "Stratégie prête · {n} crédits IA",
-    "goals.s.unconfirmed": "La demande n’a pas pu être confirmée. Consultez les demandes enregistrées avant de réessayer.",
+    "goals.s.unconfirmed":
+      "La demande n’a pas pu être confirmée. Consultez les demandes enregistrées avant de réessayer.",
     "goals.s.saved": "Stratégie enregistrée",
-    "goals.s.saveFailed": "Impossible de confirmer la stratégie enregistrée. Consultez les stratégies enregistrées avant de réessayer.",
+    "goals.s.saveFailed":
+      "Impossible de confirmer la stratégie enregistrée. Consultez les stratégies enregistrées avant de réessayer.",
     "goals.s.inApproved": "Cette stratégie figure déjà dans le plan validé V{v}",
     "goals.s.draftReady": "Le brouillon du plan V{v} est prêt à être vérifié",
     "goals.s.exists": "Le plan V{v} existe déjà ({s})",
-    "goals.s.draftFailed": "Le brouillon du plan n’a pas pu être confirmé. Consultez le plan avant de réessayer.",
+    "goals.s.draftFailed":
+      "Le brouillon du plan n’a pas pu être confirmé. Consultez le plan avant de réessayer.",
     "goals.s.plan": "Planifier la stratégie",
     "goals.s.title": "Stratégie de croissance",
     "goals.s.close": "Fermer",
-    "goals.s.intro": "Utilise cet objectif, le budget du mois et vos faits confirmés. Une stratégie consomme des crédits IA. C’est une suggestion : vous décidez de ce que vous enregistrez et transformez en travail.",
+    "goals.s.intro":
+      "Utilise cet objectif, le budget du mois et vos faits confirmés. Une stratégie consomme des crédits IA. C’est une suggestion : vous décidez de ce que vous enregistrez et transformez en travail.",
     "goals.s.horizon": "Horizon de planification",
     "goals.s.weeks": "{n} semaines",
     "goals.s.planning": "Planification…",
@@ -829,7 +894,8 @@ export const goals = defineArea("goals", {
     "goals.s.share": "{n} % de l’effort",
     "goals.s.initiatives": "Initiatives proposées",
     "goals.s.weekTitle": "Semaine {n} : {title}",
-    "goals.s.becomeDraft": "Ces actions deviennent des initiatives dans un brouillon de plan. Un administrateur ou propriétaire doit valider le plan avant la création du travail.",
+    "goals.s.becomeDraft":
+      "Ces actions deviennent des initiatives dans un brouillon de plan. Un administrateur ou propriétaire doit valider le plan avant la création du travail.",
     "goals.s.measure": "Mesurer",
     "goals.s.risks": "Risques",
     "goals.s.assumptions": "Hypothèses à vérifier",
@@ -839,7 +905,8 @@ export const goals = defineArea("goals", {
     "goals.s.draftCreated": "Brouillon créé",
     "goals.s.createDraft": "Créer un brouillon de plan",
     "goals.s.discard": "Abandonner",
-    "goals.s.needsApproval": "Le brouillon doit être validé par un administrateur ou propriétaire avant de créer du travail.",
+    "goals.s.needsApproval":
+      "Le brouillon doit être validé par un administrateur ou propriétaire avant de créer du travail.",
     "goals.s.savedList": "Stratégies enregistrées",
     "goals.op.valuesInvalid": "Les valeurs de résultat doivent être supérieures ou égales à zéro.",
     "goals.op.saveFailed": "La mise à jour de l’initiative n’a pas pu être enregistrée.",
@@ -847,7 +914,8 @@ export const goals = defineArea("goals", {
     "goals.op.title": "Responsable et résultat",
     "goals.op.blocked": "Bloquée",
     "goals.op.loading": "Chargement du suivi de l’initiative…",
-    "goals.op.loadFailed": "Les détails de l’initiative n’ont pas pu être chargés. Vos valeurs enregistrées n’ont pas changé.",
+    "goals.op.loadFailed":
+      "Les détails de l’initiative n’ont pas pu être chargés. Vos valeurs enregistrées n’ont pas changé.",
     "goals.op.owner": "Responsable",
     "goals.op.you": " (vous)",
     "goals.op.assignedYou": "Attribuée à vous",
@@ -856,7 +924,8 @@ export const goals = defineArea("goals", {
     "goals.op.metric": "Indicateur de réussite",
     "goals.op.metricPh": "p. ex. prospects qualifiés / mois",
     "goals.op.current": "Résultat actuel",
-    "goals.op.progress": "Progression enregistrée : {p} % d’après les valeurs saisies ici ; aucune source connectée",
+    "goals.op.progress":
+      "Progression enregistrée : {p} % d’après les valeurs saisies ici ; aucune source connectée",
     "goals.op.blocker": "Blocage / décision requise",
     "goals.op.blockerPh": "Qu’est-ce qui freine cette initiative ?",
     "goals.op.status": "Statut de l’initiative",
@@ -865,10 +934,13 @@ export const goals = defineArea("goals", {
     "goals.p.goalFallback": "Objectif de croissance",
     "goals.p.checking": "Vérification des initiatives validées…",
     "goals.p.failed": "Le statut des initiatives n’a pas pu être chargé.",
-    "goals.p.summary": "{plans} plan(s) validé(s) · {open} initiative(s) ouverte(s) : {progress} en cours, {planned} prévue(s)",
+    "goals.p.summary":
+      "{plans} plan(s) validé(s) · {open} initiative(s) ouverte(s) : {progress} en cours, {planned} prévue(s)",
     "goals.p.paused": ", {n} en pause",
-    "goals.p.none": "Aucune initiative validée ne demande de suivi pour l’instant. Les initiatives actives apparaîtront ici dès qu’une échéance, un blocage, un responsable ou une mesure demande de l’attention.",
-    "goals.p.how": "Priorisé à partir des plans validés selon les blocages, dates, responsables et résultats enregistrés. Rien n’est envoyé ni exécuté automatiquement.",
+    "goals.p.none":
+      "Aucune initiative validée ne demande de suivi pour l’instant. Les initiatives actives apparaîtront ici dès qu’une échéance, un blocage, un responsable ou une mesure demande de l’attention.",
+    "goals.p.how":
+      "Priorisé à partir des plans validés selon les blocages, dates, responsables et résultats enregistrés. Rien n’est envoyé ni exécuté automatiquement.",
     "goals.p.kind.blocked": "Bloquée",
     "goals.p.kind.overdue": "En retard",
     "goals.p.kind.due_soon": "Bientôt dû",
@@ -877,7 +949,8 @@ export const goals = defineArea("goals", {
     "goals.p.reason.overdue": "L’échéance était le {date}",
     "goals.p.reason.due_soon": "Échéance le {date}",
     "goals.p.reason.unassigned": "Cette initiative est en cours mais sans responsable",
-    "goals.p.reason.measurement": "Ajoutez un indicateur, un point de départ, une cible et un résultat actuel",
+    "goals.p.reason.measurement":
+      "Ajoutez un indicateur, un point de départ, une cible et un résultat actuel",
     "goals.p.prepare": "Préparer une question contextuelle pour le Growth Officer",
     "goals.p.memberRequired": "Un accès membre à l’espace est requis",
     "goals.p.discuss": "En parler au Growth Officer",
@@ -893,7 +966,8 @@ export const goals = defineArea("goals", {
     "goals.f.progressLabel": "Progression enregistrée de l’objectif",
     "goals.f.notMeasured": "La progression n’est pas encore mesurée. Aucune valeur n’est supposée.",
     "goals.f.none": "Aucun objectif de croissance actif n’est défini.",
-    "goals.f.noneBody": "Commencez par un résultat mesurable. Le Growth Officer pourra ensuite vous aider à en faire une stratégie et du travail concret.",
+    "goals.f.noneBody":
+      "Commencez par un résultat mesurable. Le Growth Officer pourra ensuite vous aider à en faire une stratégie et du travail concret.",
     "goals.f.setFirst": "Définir votre premier objectif",
     "goals.f.moveForward": "Faites avancer cet objectif avec votre Growth Officer",
     "goals.pd.opportunity": "Opportunité visée",
@@ -929,10 +1003,13 @@ export const goals = defineArea("goals", {
     "goals.pd.confirmReject": "Refuser cette version",
     "goals.pd.confirmChanges": "Envoyer la demande",
     "goals.pd.cancel": "Annuler",
-    "goals.pd.rejected": "Version refusée. Enregistrez une stratégie modifiée pour créer une nouvelle version.",
-    "goals.pd.changesRequested": "Demande de modification enregistrée. La version reste un brouillon.",
+    "goals.pd.rejected":
+      "Version refusée. Enregistrez une stratégie modifiée pour créer une nouvelle version.",
+    "goals.pd.changesRequested":
+      "Demande de modification enregistrée. La version reste un brouillon.",
     "goals.pd.decisionFailed": "La décision n’a pas pu être enregistrée.",
-    "goals.pd.notSwitchedOn": "Refuser et demander des modifications ne sont pas encore activés pour cet espace.",
+    "goals.pd.notSwitchedOn":
+      "Refuser et demander des modifications ne sont pas encore activés pour cet espace.",
     "goals.pd.history": "Décisions",
     "goals.pd.dec.approved": "Validé",
     "goals.pd.dec.rejected": "Refusé",
@@ -940,7 +1017,8 @@ export const goals = defineArea("goals", {
     "goals.pd.decisionLine": "V{v} · {d} · {when}",
     "goals.pd.edit": "Modifier",
     "goals.pd.doneEditing": "Terminer la modification",
-    "goals.pd.editNote": "Les modifications restent une suggestion jusqu’à l’enregistrement. Une stratégie enregistrée modifiée devient une nouvelle stratégie, puis une nouvelle version du plan.",
+    "goals.pd.editNote":
+      "Les modifications restent une suggestion jusqu’à l’enregistrement. Une stratégie enregistrée modifiée devient une nouvelle stratégie, puis une nouvelle version du plan.",
     "goals.pd.saveAsNew": "Enregistrer comme nouvelle version",
     "goals.pd.removeStep": "Supprimer l’étape {n}",
     "goals.pd.stepTitle": "Titre de l’étape {n}",
@@ -968,11 +1046,14 @@ export const goals = defineArea("goals", {
     "goals.chain.of": "{n} sur {total} terminé(s)",
     "goals.chain.next": "Étape suivante :",
     "goals.chain.n.strategy": "Planifiez une stratégie pour cet objectif ci-dessous.",
-    "goals.chain.n.plan": "Créez un brouillon de plan à partir d’une stratégie, puis faites-le valider par un administrateur.",
+    "goals.chain.n.plan":
+      "Créez un brouillon de plan à partir d’une stratégie, puis faites-le valider par un administrateur.",
     "goals.chain.n.initiatives": "Lancez les initiatives du plan validé.",
-    "goals.chain.n.work": "Créez du travail à partir d’une initiative ou liez une campagne ou un projet à cet objectif.",
+    "goals.chain.n.work":
+      "Créez du travail à partir d’une initiative ou liez une campagne ou un projet à cet objectif.",
     "goals.chain.n.tasks": "Ajoutez des tâches aux campagnes ou projets liés.",
-    "goals.chain.n.results": "Suivez un indicateur pour cet objectif dans Résultats pour voir les résultats ici.",
+    "goals.chain.n.results":
+      "Suivez un indicateur pour cet objectif dans Résultats pour voir les résultats ici.",
     "goals.chain.n.goal": "—",
     "goals.chain.n.opportunity": "—",
     "goals.chain.duplicates": "Travail peut-être en double lié à cet objectif : {list}.",

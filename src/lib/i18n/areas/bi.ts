@@ -160,7 +160,8 @@ export const bi = defineArea("bi", {
     "bi.kdef.show": "How it is calculated",
     "bi.kdef.higher": "Higher is better",
     "bi.kdef.lower": "Lower is better",
-    "bi.kdef.rule": "Only actual results recorded for this period count: counts and amounts add up per month, percentages use the latest month. Plans and forecasts never count, and a missing input is shown as missing, never as zero.",
+    "bi.kdef.rule":
+      "Only actual results recorded for this period count: counts and amounts add up per month, percentages use the latest month. Plans and forecasts never count, and a missing input is shown as missing, never as zero.",
     "bi.kterm.months": "months in the period",
     "bi.kterm.won_deals": "won deals",
     "bi.kterm.lost_deals": "lost deals",
@@ -191,7 +192,8 @@ export const bi = defineArea("bi", {
     "bi.actions.open": "Open",
     "bi.actions.alsoSuggested": "Also suggested elsewhere ({n}×)",
     "bi.lever.title": "Growth levers",
-    "bi.lever.intro": "The fifteen levers the Growth Officer checks, with the data available for each. Available data is not a result; missing data is what would make advice specific.",
+    "bi.lever.intro":
+      "The fifteen levers the Growth Officer checks, with the data available for each. Available data is not a result; missing data is what would make advice specific.",
     "bi.lever.ready": "Data available",
     "bi.lever.partial": "Partly",
     "bi.lever.none": "No data",
@@ -237,7 +239,8 @@ export const bi = defineArea("bi", {
     "bi.rec.dismiss": "Dismiss",
     "bi.rec.restore": "Restore",
     "bi.rec.hidden": "Postponed or dismissed ({n})",
-    "bi.rec.hiddenHelp": "These return by themselves when the information behind them changes, or after the postponement.",
+    "bi.rec.hiddenHelp":
+      "These return by themselves when the information behind them changes, or after the postponement.",
     "bi.rec.until": "postponed until {d}",
     "bi.rec.dismissed": "dismissed",
     "bi.rec.done.postponed": "Postponed for two weeks.",
@@ -811,7 +814,8 @@ export const bi = defineArea("bi", {
     "bi.kdef.show": "Hoe dit berekend wordt",
     "bi.kdef.higher": "Hoger is beter",
     "bi.kdef.lower": "Lager is beter",
-    "bi.kdef.rule": "Alleen werkelijke resultaten die voor deze periode zijn vastgelegd tellen: aantallen en bedragen worden per maand opgeteld, percentages gebruiken de laatste maand. Plannen en prognoses tellen nooit mee, en een ontbrekende invoer wordt als ontbrekend getoond, nooit als nul.",
+    "bi.kdef.rule":
+      "Alleen werkelijke resultaten die voor deze periode zijn vastgelegd tellen: aantallen en bedragen worden per maand opgeteld, percentages gebruiken de laatste maand. Plannen en prognoses tellen nooit mee, en een ontbrekende invoer wordt als ontbrekend getoond, nooit als nul.",
     "bi.kterm.months": "maanden in de periode",
     "bi.kterm.won_deals": "gewonnen deals",
     "bi.kterm.lost_deals": "verloren deals",
@@ -842,7 +846,8 @@ export const bi = defineArea("bi", {
     "bi.actions.open": "Openen",
     "bi.actions.alsoSuggested": "Ook elders voorgesteld ({n}×)",
     "bi.lever.title": "Groeihefbomen",
-    "bi.lever.intro": "De vijftien hefbomen die de Growth Officer nagaat, met de beschikbare gegevens per hefboom. Beschikbare gegevens zijn geen resultaat; ontbrekende gegevens maken advies concreter.",
+    "bi.lever.intro":
+      "De vijftien hefbomen die de Growth Officer nagaat, met de beschikbare gegevens per hefboom. Beschikbare gegevens zijn geen resultaat; ontbrekende gegevens maken advies concreter.",
     "bi.lever.ready": "Gegevens beschikbaar",
     "bi.lever.partial": "Gedeeltelijk",
     "bi.lever.none": "Geen gegevens",
@@ -888,7 +893,8 @@ export const bi = defineArea("bi", {
     "bi.rec.dismiss": "Afwijzen",
     "bi.rec.restore": "Terugzetten",
     "bi.rec.hidden": "Uitgesteld of afgewezen ({n})",
-    "bi.rec.hiddenHelp": "Deze komen vanzelf terug als de onderliggende informatie verandert, of na het uitstel.",
+    "bi.rec.hiddenHelp":
+      "Deze komen vanzelf terug als de onderliggende informatie verandert, of na het uitstel.",
     "bi.rec.until": "uitgesteld tot {d}",
     "bi.rec.dismissed": "afgewezen",
     "bi.rec.done.postponed": "Twee weken uitgesteld.",
@@ -1474,7 +1480,8 @@ export const bi = defineArea("bi", {
     "bi.kdef.show": "Mode de calcul",
     "bi.kdef.higher": "Plus c’est élevé, mieux c’est",
     "bi.kdef.lower": "Plus c’est bas, mieux c’est",
-    "bi.kdef.rule": "Seuls les résultats réels enregistrés pour cette période comptent : les nombres et montants s’additionnent par mois, les pourcentages utilisent le dernier mois. Les plans et prévisions ne comptent jamais, et une donnée manquante est affichée comme manquante, jamais comme zéro.",
+    "bi.kdef.rule":
+      "Seuls les résultats réels enregistrés pour cette période comptent : les nombres et montants s’additionnent par mois, les pourcentages utilisent le dernier mois. Les plans et prévisions ne comptent jamais, et une donnée manquante est affichée comme manquante, jamais comme zéro.",
     "bi.kterm.months": "mois de la période",
     "bi.kterm.won_deals": "affaires gagnées",
     "bi.kterm.lost_deals": "affaires perdues",
@@ -1505,7 +1512,8 @@ export const bi = defineArea("bi", {
     "bi.actions.open": "Ouvrir",
     "bi.actions.alsoSuggested": "Aussi proposé ailleurs ({n}×)",
     "bi.lever.title": "Leviers de croissance",
-    "bi.lever.intro": "Les quinze leviers que le Growth Officer examine, avec les données disponibles pour chacun. Des données disponibles ne sont pas un résultat ; celles qui manquent rendraient les conseils plus précis.",
+    "bi.lever.intro":
+      "Les quinze leviers que le Growth Officer examine, avec les données disponibles pour chacun. Des données disponibles ne sont pas un résultat ; celles qui manquent rendraient les conseils plus précis.",
     "bi.lever.ready": "Données disponibles",
     "bi.lever.partial": "Partiel",
     "bi.lever.none": "Aucune donnée",
@@ -1551,13 +1559,15 @@ export const bi = defineArea("bi", {
     "bi.rec.dismiss": "Écarter",
     "bi.rec.restore": "Rétablir",
     "bi.rec.hidden": "Reportées ou écartées ({n})",
-    "bi.rec.hiddenHelp": "Elles reviennent d'elles-mêmes si les informations sous-jacentes changent, ou après le report.",
+    "bi.rec.hiddenHelp":
+      "Elles reviennent d'elles-mêmes si les informations sous-jacentes changent, ou après le report.",
     "bi.rec.until": "reportée jusqu'au {d}",
     "bi.rec.dismissed": "écartée",
     "bi.rec.done.postponed": "Reportée de deux semaines.",
     "bi.rec.done.dismissed": "Écartée. Elle ne revient que si ses informations changent.",
     "bi.rec.done.restored": "Rétablie dans la liste.",
-    "bi.rec.notInstalled": "L'enregistrement des décisions n'est pas encore activé dans cet environnement.",
+    "bi.rec.notInstalled":
+      "L'enregistrement des décisions n'est pas encore activé dans cet environnement.",
     "bi.rec.ranksAbove": "Devant la suivante surtout grâce à {f}",
     "bi.rec.factor.value": "la valeur attendue",
     "bi.rec.factor.importance": "l'importance de l'objectif",

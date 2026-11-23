@@ -20,15 +20,27 @@ export function DeepAnalysisRecovery() {
     enabled: !!o.org?.id && !!o.workspace?.id && !!o.userId,
     queryFn: async () => {
       if (!o.org || !o.workspace) return [];
-      const r = await supabase.from("coordinated_analyses")
+      const r = await supabase
+        .from("coordinated_analyses")
         .select("id,input,status,error,created_at,lease_expires_at")
-        .eq("org_id", o.org.id).eq("workspace_id", o.workspace.id).eq("user_id", o.userId)
-        .neq("status", "succeeded").order("created_at", { ascending: false }).limit(20);
+        .eq("org_id", o.org.id)
+        .eq("workspace_id", o.workspace.id)
+        .eq("user_id", o.userId)
+        .neq("status", "succeeded")
+        .order("created_at", { ascending: false })
+        .limit(20);
       if (r.error) throw r.error;
-      return (r.data ?? []).filter(row => {
-        const savedInput = row.input;
-        return typeof savedInput === "object" && savedInput !== null && !Array.isArray(savedInput) && savedInput["mode"] === "auto";
-      }).slice(0, 5);
+      return (r.data ?? [])
+        .filter((row) => {
+          const savedInput = row.input;
+          return (
+            typeof savedInput === "object" &&
+            savedInput !== null &&
+            !Array.isArray(savedInput) &&
+            savedInput["mode"] === "auto"
+          );
+        })
+        .slice(0, 5);
     },
     refetchInterval: 30_000,
   });
@@ -36,10 +48,14 @@ export function DeepAnalysisRecovery() {
     if (!o.org || !o.workspace || busyId) return;
     setBusyId(row.id);
     try {
-      const result = await recover({ data: {
-        orgId: o.org.id, workspaceId: o.workspace.id, analysisId: row.id,
-        close: new Date(row.lease_expires_at).getTime() <= Date.now(),
-      } });
+      const result = await recover({
+        data: {
+          orgId: o.org.id,
+          workspaceId: o.workspace.id,
+          analysisId: row.id,
+          close: new Date(row.lease_expires_at).getTime() <= Date.now(),
+        },
+      });
       if (!result.ok) toast.error(result.error);
       else if (result.data.status === "succeeded") toast.success(t("officer.deep.recovered"));
       else if (result.data.pending > 0) toast.info(t("officer.deep.reconciling"));
@@ -60,13 +76,56 @@ export function DeepAnalysisRecovery() {
   }
   const pending = (history.data ?? []).slice(0, 3);
   if (history.isLoading || (!pending.length && !history.isError)) return null;
-  return <section className="mt-5 rounded-lg border border-border p-3">
-    <h2 className="text-sm font-semibold">{t("officer.deep.title")}</h2>
-    {history.isError
-      ? <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-destructive"><p role="alert">{t("officer.deep.statusFailed")}</p><Button size="sm" variant="outline" onClick={() => history.refetch()}>{t("officer.deep.retryStatus")}</Button></div>
-      : <div className="mt-2 space-y-2">{pending.map(row => <div key={row.id} className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-2">
-          <div className="min-w-0"><p className="text-xs font-medium">{row.status === "running" && new Date(row.lease_expires_at).getTime() > Date.now() ? t("officer.deep.running") : t("officer.deep.needsRecon")}</p><p className="mt-1 text-[10px] text-muted-foreground">{new Date(row.created_at).toLocaleString(tag)}{row.error ? ` · ${row.error}` : ""}</p></div>
-          <Button size="sm" variant="outline" disabled={!!busyId || (row.status === "running" && new Date(row.lease_expires_at).getTime() > Date.now())} onClick={() => recoverRow(row)}><RotateCcw className="mr-1 h-3.5 w-3.5" />{busyId === row.id ? t("officer.deep.checking") : row.status === "running" && new Date(row.lease_expires_at).getTime() > Date.now() ? t("officer.deep.waiting") : t("officer.recover")}</Button>
-        </div>)}</div>}
-  </section>;
+  return (
+    <section className="mt-5 rounded-lg border border-border p-3">
+      <h2 className="text-sm font-semibold">{t("officer.deep.title")}</h2>
+      {history.isError ? (
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-destructive">
+          <p role="alert">{t("officer.deep.statusFailed")}</p>
+          <Button size="sm" variant="outline" onClick={() => history.refetch()}>
+            {t("officer.deep.retryStatus")}
+          </Button>
+        </div>
+      ) : (
+        <div className="mt-2 space-y-2">
+          {pending.map((row) => (
+            <div
+              key={row.id}
+              className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-2"
+            >
+              <div className="min-w-0">
+                <p className="text-xs font-medium">
+                  {row.status === "running" && new Date(row.lease_expires_at).getTime() > Date.now()
+                    ? t("officer.deep.running")
+                    : t("officer.deep.needsRecon")}
+                </p>
+                <p className="mt-1 text-[10px] text-muted-foreground">
+                  {new Date(row.created_at).toLocaleString(tag)}
+                  {row.error ? ` · ${row.error}` : ""}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={
+                  !!busyId ||
+                  (row.status === "running" &&
+                    new Date(row.lease_expires_at).getTime() > Date.now())
+                }
+                onClick={() => recoverRow(row)}
+              >
+                <RotateCcw className="mr-1 h-3.5 w-3.5" />
+                {busyId === row.id
+                  ? t("officer.deep.checking")
+                  : row.status === "running" &&
+                      new Date(row.lease_expires_at).getTime() > Date.now()
+                    ? t("officer.deep.waiting")
+                    : t("officer.recover")}
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
 }

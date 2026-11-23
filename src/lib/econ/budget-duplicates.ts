@@ -1,16 +1,41 @@
 // Possible duplicate budget lines (pure): same channel (case and spacing ignored), month, currency and earmarks.
 // Duplicates may be legitimate (two separately approved budgets), so they are flagged, never merged or removed;
 // each line gets a distinguishing label (note, creation date, short reference) so nobody picks the wrong one.
-export type DupLine = { id: string; channel: string; period_month: string; currency: string; planned: number | string; note?: string | null;
-  goal_id?: string | null; initiative_id?: string | null; unit_id?: string | null; created_at?: string | null };
+export type DupLine = {
+  id: string;
+  channel: string;
+  period_month: string;
+  currency: string;
+  planned: number | string;
+  note?: string | null;
+  goal_id?: string | null;
+  initiative_id?: string | null;
+  unit_id?: string | null;
+  created_at?: string | null;
+};
 
-export const dupKey = (l: DupLine) => [l.channel.trim().toLowerCase().replace(/\s+/g, " "), l.period_month.slice(0, 7), l.currency, l.goal_id ?? "", l.initiative_id ?? "", l.unit_id ?? ""].join("|");
+export const dupKey = (l: DupLine) =>
+  [
+    l.channel.trim().toLowerCase().replace(/\s+/g, " "),
+    l.period_month.slice(0, 7),
+    l.currency,
+    l.goal_id ?? "",
+    l.initiative_id ?? "",
+    l.unit_id ?? "",
+  ].join("|");
 
 /** Groups of two or more lines that look the same; each group keeps every line. */
 export function duplicateGroups<T extends DupLine>(lines: readonly T[]): T[][] {
   const by = new Map<string, T[]>();
   for (const l of lines) by.set(dupKey(l), [...(by.get(dupKey(l)) ?? []), l]);
-  return [...by.values()].filter((g) => g.length > 1).map((g) => [...g].sort((a, b) => (a.created_at ?? "").localeCompare(b.created_at ?? "") || a.id.localeCompare(b.id)));
+  return [...by.values()]
+    .filter((g) => g.length > 1)
+    .map((g) =>
+      [...g].sort(
+        (a, b) =>
+          (a.created_at ?? "").localeCompare(b.created_at ?? "") || a.id.localeCompare(b.id),
+      ),
+    );
 }
 
 /** Would a new line duplicate an existing one? */

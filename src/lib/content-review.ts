@@ -2,20 +2,67 @@ import { z } from "zod";
 
 /** Review dimensions; each states what it measures so scores are transparent editorial judgments, not facts. */
 export const REVIEW_DIMENSIONS = {
-  factual: { label: "Factual accuracy", measures: "Whether claims are backed by your confirmed business facts; unsupported or contradictory claims are flagged." },
-  brand: { label: "Brand consistency", measures: "Fit with the selected writing profile: tone, vocabulary, sentence structure and authorized examples." },
-  audience: { label: "Audience relevance", measures: "Relevance, language level, pain points and clarity of the value proposition for the intended audience." },
-  quality: { label: "Content quality", measures: "Structure, headings, readability, clarity, grammar, repetition and completeness." },
-  conversion: { label: "Conversion quality", measures: "Message strength, call to action, persuasive structure, objections and clarity of the next step." },
-  channel: { label: "Channel suitability", measures: "Formatting, length and conventions for the selected channel." },
-  seo: { label: "SEO quality", measures: "Search intent, keyword relevance, title, headings and topic coverage. Never a ranking or traffic guarantee." },
+  factual: {
+    label: "Factual accuracy",
+    measures:
+      "Whether claims are backed by your confirmed business facts; unsupported or contradictory claims are flagged.",
+  },
+  brand: {
+    label: "Brand consistency",
+    measures:
+      "Fit with the selected writing profile: tone, vocabulary, sentence structure and authorized examples.",
+  },
+  audience: {
+    label: "Audience relevance",
+    measures:
+      "Relevance, language level, pain points and clarity of the value proposition for the intended audience.",
+  },
+  quality: {
+    label: "Content quality",
+    measures: "Structure, headings, readability, clarity, grammar, repetition and completeness.",
+  },
+  conversion: {
+    label: "Conversion quality",
+    measures:
+      "Message strength, call to action, persuasive structure, objections and clarity of the next step.",
+  },
+  channel: {
+    label: "Channel suitability",
+    measures: "Formatting, length and conventions for the selected channel.",
+  },
+  seo: {
+    label: "SEO quality",
+    measures:
+      "Search intent, keyword relevance, title, headings and topic coverage. Never a ranking or traffic guarantee.",
+  },
 } as const;
 export type Dimension = keyof typeof REVIEW_DIMENSIONS;
 export const DIMENSION_KEYS = Object.keys(REVIEW_DIMENSIONS) as [Dimension, ...Dimension[]];
 
-export const IMPROVEMENT_ACTIONS = ["clarity", "structure", "introduction", "conclusion", "persuasion", "cta", "simplify", "shorten", "expand", "repetition", "seo", "tone", "readability", "grammar"] as const;
+export const IMPROVEMENT_ACTIONS = [
+  "clarity",
+  "structure",
+  "introduction",
+  "conclusion",
+  "persuasion",
+  "cta",
+  "simplify",
+  "shorten",
+  "expand",
+  "repetition",
+  "seo",
+  "tone",
+  "readability",
+  "grammar",
+] as const;
 
-export const CLAIM_STATUSES = ["verified", "partially_supported", "unsupported", "contradictory", "needs_review"] as const;
+export const CLAIM_STATUSES = [
+  "verified",
+  "partially_supported",
+  "unsupported",
+  "contradictory",
+  "needs_review",
+] as const;
 
 const assessment = z.object({
   dimension: z.enum(DIMENSION_KEYS),
@@ -46,8 +93,12 @@ export type Suggestion = Review["suggestions"][number];
 
 /** Parses provider output and enforces evidence rules: a claim stays "verified"/"partially supported" only when it cites real verified fact keys. */
 export function parseReview(raw: string, selected: Dimension[], factKeys: string[]): Review {
-  const text = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
-  const start = text.indexOf("{"); const end = text.lastIndexOf("}");
+  const text = raw
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/```\s*$/, "");
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
   if (start < 0 || end <= start) throw new Error("The review was not in the expected format.");
   const parsed = reviewSchema.parse(JSON.parse(text.slice(start, end + 1)));
   const known = new Set(factKeys);
@@ -58,7 +109,14 @@ export function parseReview(raw: string, selected: Dimension[], factKeys: string
     claims: parsed.claims.map((c) => {
       const cited = c.factKeys.filter((k) => known.has(k));
       const backed = c.status === "verified" || c.status === "partially_supported";
-      if (backed && cited.length === 0) return { ...c, factKeys: [], status: "needs_review" as const, explanation: `${c.explanation} (No confirmed source was matched, so this needs review.)`.trim() };
+      if (backed && cited.length === 0)
+        return {
+          ...c,
+          factKeys: [],
+          status: "needs_review" as const,
+          explanation:
+            `${c.explanation} (No confirmed source was matched, so this needs review.)`.trim(),
+        };
       return { ...c, factKeys: cited };
     }),
     suggestions: parsed.suggestions.filter((s) => s.find.length > 0 && s.find !== s.replace),
@@ -66,7 +124,10 @@ export function parseReview(raw: string, selected: Dimension[], factKeys: string
 }
 
 /** Applies one suggestion only when its original passage appears exactly once in the text; otherwise returns null. */
-export function applySuggestion(text: string, s: Pick<Suggestion, "find" | "replace">): string | null {
+export function applySuggestion(
+  text: string,
+  s: Pick<Suggestion, "find" | "replace">,
+): string | null {
   if (!s.find) return null;
   const first = text.indexOf(s.find);
   if (first < 0 || text.indexOf(s.find, first + 1) >= 0) return null;

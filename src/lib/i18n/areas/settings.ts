@@ -31,7 +31,8 @@ export const settings = defineArea("settings", {
     "settings.openWs": "Open workspace",
     "settings.accessFor": "Workspace access for {name} in {ws}",
     "settings.noAccess": "No access",
-    "settings.ownersNote": "Organization owners can administer all workspaces. Other team members need an explicit assignment.",
+    "settings.ownersNote":
+      "Organization owners can administer all workspaces. Other team members need an explicit assignment.",
     "settings.members": "Members",
     "settings.you": "You ({email})",
     "settings.remove": "Remove",
@@ -39,7 +40,8 @@ export const settings = defineArea("settings", {
     "settings.inviteEmail": "Email address to invite",
     "settings.inviteRole": "Role for the invitation",
     "settings.createInvite": "Create invite link",
-    "settings.inviteNote": "Invitation emails are not sent automatically yet. Copy the link and share it. It works only for that email address and expires in 7 days.",
+    "settings.inviteNote":
+      "Invitation emails are not sent automatically yet. Copy the link and share it. It works only for that email address and expires in 7 days.",
     "settings.linkCopied": "Link copied",
     "settings.copyLink": "Copy link",
     "settings.revoke": "Revoke",
@@ -57,7 +59,8 @@ export const settings = defineArea("settings", {
     "settings.s.notConfigured": "Not configured",
     "settings.p.scim": "SCIM provisioning",
     "settings.s.notAvailable": "Not available",
-    "settings.signinNote": "Sign-in never grants organization or workspace access automatically. Organization owners manage assignments in Workspaces.",
+    "settings.signinNote":
+      "Sign-in never grants organization or workspace access automatically. Organization owners manage assignments in Workspaces.",
     "settings.accountSignin": "Account sign-in",
   },
   nl: {
@@ -89,7 +92,8 @@ export const settings = defineArea("settings", {
     "settings.openWs": "Werkruimte openen",
     "settings.accessFor": "Toegang voor {name} in {ws}",
     "settings.noAccess": "Geen toegang",
-    "settings.ownersNote": "Eigenaars van de organisatie beheren alle werkruimtes. Andere teamleden hebben een expliciete toewijzing nodig.",
+    "settings.ownersNote":
+      "Eigenaars van de organisatie beheren alle werkruimtes. Andere teamleden hebben een expliciete toewijzing nodig.",
     "settings.members": "Leden",
     "settings.you": "Jij ({email})",
     "settings.remove": "Verwijderen",
@@ -97,7 +101,8 @@ export const settings = defineArea("settings", {
     "settings.inviteEmail": "E-mailadres om uit te nodigen",
     "settings.inviteRole": "Rol voor de uitnodiging",
     "settings.createInvite": "Uitnodigingslink maken",
-    "settings.inviteNote": "Uitnodigingsmails worden nog niet automatisch verstuurd. Kopieer de link en deel hem. Hij werkt alleen voor dat e-mailadres en vervalt na 7 dagen.",
+    "settings.inviteNote":
+      "Uitnodigingsmails worden nog niet automatisch verstuurd. Kopieer de link en deel hem. Hij werkt alleen voor dat e-mailadres en vervalt na 7 dagen.",
     "settings.linkCopied": "Link gekopieerd",
     "settings.copyLink": "Link kopiëren",
     "settings.revoke": "Intrekken",
@@ -115,7 +120,8 @@ export const settings = defineArea("settings", {
     "settings.s.notConfigured": "Niet ingesteld",
     "settings.p.scim": "SCIM-provisioning",
     "settings.s.notAvailable": "Niet beschikbaar",
-    "settings.signinNote": "Aanmelden geeft nooit automatisch toegang tot een organisatie of werkruimte. Eigenaars beheren toewijzingen onder Werkruimtes.",
+    "settings.signinNote":
+      "Aanmelden geeft nooit automatisch toegang tot een organisatie of werkruimte. Eigenaars beheren toewijzingen onder Werkruimtes.",
     "settings.accountSignin": "Aanmelden met account",
   },
   fr: {
@@ -147,7 +153,8 @@ export const settings = defineArea("settings", {
     "settings.openWs": "Ouvrir l’espace",
     "settings.accessFor": "Accès de {name} à {ws}",
     "settings.noAccess": "Aucun accès",
-    "settings.ownersNote": "Les propriétaires de l’organisation gèrent tous les espaces. Les autres membres ont besoin d’une attribution explicite.",
+    "settings.ownersNote":
+      "Les propriétaires de l’organisation gèrent tous les espaces. Les autres membres ont besoin d’une attribution explicite.",
     "settings.members": "Membres",
     "settings.you": "Vous ({email})",
     "settings.remove": "Retirer",
@@ -155,7 +162,8 @@ export const settings = defineArea("settings", {
     "settings.inviteEmail": "Adresse e-mail à inviter",
     "settings.inviteRole": "Rôle pour l’invitation",
     "settings.createInvite": "Créer un lien d’invitation",
-    "settings.inviteNote": "Les e-mails d’invitation ne sont pas encore envoyés automatiquement. Copiez le lien et partagez-le. Il ne fonctionne que pour cette adresse et expire après 7 jours.",
+    "settings.inviteNote":
+      "Les e-mails d’invitation ne sont pas encore envoyés automatiquement. Copiez le lien et partagez-le. Il ne fonctionne que pour cette adresse et expire après 7 jours.",
     "settings.linkCopied": "Lien copié",
     "settings.copyLink": "Copier le lien",
     "settings.revoke": "Révoquer",
@@ -173,7 +181,8 @@ export const settings = defineArea("settings", {
     "settings.s.notConfigured": "Non configuré",
     "settings.p.scim": "Provisionnement SCIM",
     "settings.s.notAvailable": "Non disponible",
-    "settings.signinNote": "La connexion n’accorde jamais automatiquement l’accès à une organisation ou un espace. Les propriétaires gèrent les attributions dans Espaces.",
+    "settings.signinNote":
+      "La connexion n’accorde jamais automatiquement l’accès à une organisation ou un espace. Les propriétaires gèrent les attributions dans Espaces.",
     "settings.accountSignin": "Connexion au compte",
   },
 });

@@ -15,7 +15,8 @@ const ECB_ERRORS = {
   future_date: "The ECB response carried a publication date in the future. No rates were changed.",
 } as const;
 
-export type OfficialRatesResult = { ok: true; date: string; added: number; currencies: number } | { ok: false; error: string };
+export type OfficialRatesResult =
+  { ok: true; date: string; added: number; currencies: number } | { ok: false; error: string };
 
 export const syncOfficialRates = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -27,12 +28,24 @@ export const syncOfficialRates = createServerFn({ method: "POST" })
     if (!got.ok) return { ok: false, error: ECB_ERRORS[got.reason] };
     const parsed = got.daily;
     const sb = context.supabase as unknown as SupabaseClient<PendingDatabase>;
-    const r = await sb.rpc("import_official_rates_verified", { _org: data.orgId, _date: parsed.date, _rates: parsed.rates, _proof: proof });
+    const r = await sb.rpc("import_official_rates_verified", {
+      _org: data.orgId,
+      _date: parsed.date,
+      _rates: parsed.rates,
+      _proof: proof,
+    });
     if (r.error) return { ok: false, error: r.error.message.slice(0, 200) };
-    return { ok: true, date: parsed.date, added: Number(r.data ?? 0), currencies: parsed.rates.length };
+    return {
+      ok: true,
+      date: parsed.date,
+      added: Number(r.data ?? 0),
+      currencies: parsed.rates.length,
+    };
   });
 
-export type RateHistoryResult = { ok: true; days: number; added: number; first: string; last: string; refused: number } | { ok: false; error: string };
+export type RateHistoryResult =
+  | { ok: true; days: number; added: number; first: string; last: string; refused: number }
+  | { ok: false; error: string };
 
 /** Stores the ECB's last-90-days history (each publication day once), so earlier months convert at their own rate.
  *  Days the database refuses (outside its accepted window) are counted, never altered or replaced. */
@@ -45,15 +58,31 @@ export const syncOfficialRateHistory = createServerFn({ method: "POST" })
     const got = await fetchEcbHistory(fetch, new Date().toISOString().slice(0, 10));
     if (!got.ok) return { ok: false, error: ECB_ERRORS[got.reason] };
     const sb = context.supabase as unknown as SupabaseClient<PendingDatabase>;
-    let added = 0, refused = 0;
+    let added = 0,
+      refused = 0;
     for (const day of got.days) {
-      const r = await sb.rpc("import_official_rates_verified", { _org: data.orgId, _date: day.date, _rates: day.rates, _proof: proof });
+      const r = await sb.rpc("import_official_rates_verified", {
+        _org: data.orgId,
+        _date: day.date,
+        _rates: day.rates,
+        _proof: proof,
+      });
       if (r.error) {
         // a refused day (older than the database accepts) is skipped; anything else (membership, proof) stops
-        if (/last \d+ days/i.test(r.error.message)) { refused += 1; continue; }
+        if (/last \d+ days/i.test(r.error.message)) {
+          refused += 1;
+          continue;
+        }
         return { ok: false, error: r.error.message.slice(0, 200) };
       }
       added += Number(r.data ?? 0);
     }
-    return { ok: true, days: got.days.length, added, first: got.days[0]!.date, last: got.days[got.days.length - 1]!.date, refused };
+    return {
+      ok: true,
+      days: got.days.length,
+      added,
+      first: got.days[0]!.date,
+      last: got.days[got.days.length - 1]!.date,
+      refused,
+    };
   });

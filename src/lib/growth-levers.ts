@@ -2,18 +2,60 @@
 // business's own records can support a recommendation and which data is missing, so advice is grounded in what
 // exists and a gap is named instead of filled with an invented figure. Availability is not evidence of a result.
 export type Lever =
-  | "acquisition" | "existing_customers" | "conversion" | "retention" | "new_offerings" | "new_markets"
-  | "new_channels" | "partnerships" | "referrals" | "pricing" | "upsell_cross_sell" | "reactivation"
-  | "efficient_spend" | "margins" | "revenue_models";
+  | "acquisition"
+  | "existing_customers"
+  | "conversion"
+  | "retention"
+  | "new_offerings"
+  | "new_markets"
+  | "new_channels"
+  | "partnerships"
+  | "referrals"
+  | "pricing"
+  | "upsell_cross_sell"
+  | "reactivation"
+  | "efficient_spend"
+  | "margins"
+  | "revenue_models";
 export const LEVERS: Lever[] = [
-  "acquisition", "existing_customers", "conversion", "retention", "new_offerings", "new_markets", "new_channels",
-  "partnerships", "referrals", "pricing", "upsell_cross_sell", "reactivation", "efficient_spend", "margins", "revenue_models",
+  "acquisition",
+  "existing_customers",
+  "conversion",
+  "retention",
+  "new_offerings",
+  "new_markets",
+  "new_channels",
+  "partnerships",
+  "referrals",
+  "pricing",
+  "upsell_cross_sell",
+  "reactivation",
+  "efficient_spend",
+  "margins",
+  "revenue_models",
 ];
 export type Source =
-  | "marketing_metric" | "conversion_metric" | "retention_metric" | "margin_metric" | "acquisition_cost_metric"
-  | "customer_value_metric" | "revenue_ledger" | "attributed_revenue" | "pipeline" | "budget" | "campaigns"
-  | "experiments" | "competitor_observations" | "offerings_fact" | "markets_fact" | "pricing_fact"
-  | "partner_fact" | "referral_fact" | "business_model_fact" | "capacity_fact" | "seasonality_fact";
+  | "marketing_metric"
+  | "conversion_metric"
+  | "retention_metric"
+  | "margin_metric"
+  | "acquisition_cost_metric"
+  | "customer_value_metric"
+  | "revenue_ledger"
+  | "attributed_revenue"
+  | "pipeline"
+  | "budget"
+  | "campaigns"
+  | "experiments"
+  | "competitor_observations"
+  | "offerings_fact"
+  | "markets_fact"
+  | "pricing_fact"
+  | "partner_fact"
+  | "referral_fact"
+  | "business_model_fact"
+  | "capacity_fact"
+  | "seasonality_fact";
 export type LeverInput = {
   facts: readonly { key: string; verified: boolean }[];
   metricLabels: readonly string[];
@@ -56,12 +98,14 @@ const FACT: Partial<Record<Source, RegExp>> = {
   seasonality_fact: /season|seizoen|saison|peak|piek/i,
 };
 const METRIC: Partial<Record<Source, RegExp>> = {
-  marketing_metric: /lead|visit|bezoek|traffic|click|klik|impression|new customer|nieuwe klant|nouveau client|booking|boeking|réservation/i,
+  marketing_metric:
+    /lead|visit|bezoek|traffic|click|klik|impression|new customer|nieuwe klant|nouveau client|booking|boeking|réservation/i,
   conversion_metric: /conver/i,
   retention_metric: /retent|churn|repeat|terugke|herhaal|returning|fidél|récurr|abonn|subscri/i,
   margin_metric: /margin|marge/i,
   acquisition_cost_metric: /\bcac\b|cost per|kosten per|coût par|acquisition/i,
-  customer_value_metric: /\bltv\b|lifetime|klantwaarde|valeur client|average order|gemiddelde order|panier moyen/i,
+  customer_value_metric:
+    /\bltv\b|lifetime|klantwaarde|valeur client|average order|gemiddelde order|panier moyen/i,
 };
 
 export function leverCoverage(i: LeverInput): LeverCoverage[] {
@@ -71,17 +115,26 @@ export function leverCoverage(i: LeverInput): LeverCoverage[] {
     const m = METRIC[s];
     if (m) return i.metricLabels.some((l) => m.test(l));
     switch (s) {
-      case "revenue_ledger": return i.revenueRows > 0;
-      case "attributed_revenue": return i.attributedTouches > 0;
-      case "pipeline": return i.deals > 0;
-      case "budget": return i.budgetLines > 0;
-      case "campaigns": return i.campaigns > 0;
-      case "experiments": return i.experiments > 0;
-      case "competitor_observations": return (i.competitorObservations ?? 0) > 0;
-      default: return false;
+      case "revenue_ledger":
+        return i.revenueRows > 0;
+      case "attributed_revenue":
+        return i.attributedTouches > 0;
+      case "pipeline":
+        return i.deals > 0;
+      case "budget":
+        return i.budgetLines > 0;
+      case "campaigns":
+        return i.campaigns > 0;
+      case "experiments":
+        return i.experiments > 0;
+      case "competitor_observations":
+        return (i.competitorObservations ?? 0) > 0;
+      default:
+        return false;
     }
   };
-  const known = (s: Source) => s !== "competitor_observations" || i.competitorObservations !== undefined;
+  const known = (s: Source) =>
+    s !== "competitor_observations" || i.competitorObservations !== undefined;
   return LEVERS.map((lever) => {
     const need = NEEDS[lever].filter(known);
     const have = need.filter(has);
@@ -93,6 +146,7 @@ export function leverCoverage(i: LeverInput): LeverCoverage[] {
 export function leverLines(c: readonly LeverCoverage[]): string[] {
   const w = (s: string) => s.replace(/_/g, " ");
   return c.map(
-    (x) => `- ${w(x.lever)}: ${x.have.length ? `data: ${x.have.map(w).join(", ")}` : "no supporting data"}${x.missing.length ? `; missing: ${x.missing.map(w).join(", ")}` : ""}`,
+    (x) =>
+      `- ${w(x.lever)}: ${x.have.length ? `data: ${x.have.map(w).join(", ")}` : "no supporting data"}${x.missing.length ? `; missing: ${x.missing.map(w).join(", ")}` : ""}`,
   );
 }

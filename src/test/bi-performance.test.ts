@@ -395,7 +395,12 @@ describe("next best growth actions", () => {
           goalId: "g",
           confidence: 0.85,
           records: [
-            { type: "measured_observation", description: "m", source_kind: "measurement", source_ref: "m1" },
+            {
+              type: "measured_observation",
+              description: "m",
+              source_kind: "measurement",
+              source_ref: "m1",
+            },
           ],
         },
         {
@@ -406,7 +411,9 @@ describe("next best growth actions", () => {
           evidence: [],
           requiredLevel: "budget",
           confidence: 0.4,
-          records: [{ type: "estimate", description: "a", source_kind: "other", source_ref: "attribution" }],
+          records: [
+            { type: "estimate", description: "a", source_kind: "other", source_ref: "attribution" },
+          ],
         },
       ],
     });

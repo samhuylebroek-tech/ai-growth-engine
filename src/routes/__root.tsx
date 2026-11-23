@@ -95,7 +95,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#f8fafb" },
       // Staging builds are never indexed (the server also sends X-Robots-Tag).
-      ...(import.meta.env["VITE_APP_ENVIRONMENT"] === "staging" ? [{ name: "robots", content: "noindex, nofollow" }] : []),
+      ...(import.meta.env["VITE_APP_ENVIRONMENT"] === "staging"
+        ? [{ name: "robots", content: "noindex, nofollow" }]
+        : []),
     ],
     links: [
       {
@@ -103,7 +105,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap",
+      },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/icons/icon-192.png" },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
@@ -134,7 +139,9 @@ function RootComponent() {
   const { queryClient, locale } = Route.useRouteContext();
   const router = useRouter();
   useEffect(() => {
-    const theme = localStorage.getItem("ago.theme") ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    const theme =
+      localStorage.getItem("ago.theme") ??
+      (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     document.documentElement.classList.toggle("dark", theme === "dark");
     if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
     const { data } = supabase.auth.onAuthStateChange((event) => {

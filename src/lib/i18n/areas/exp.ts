@@ -4,14 +4,18 @@ import { defineArea } from "../define";
 export const exp = defineArea("exp", {
   en: {
     "exp.ai.title": "Ask the Growth Officer to design experiments",
-    "exp.ai.intro": "One AI request (about {c} credits reserved, the actual use is charged). It reads this business's records and saves up to three designs as drafts; people review and approve them before anything runs.",
+    "exp.ai.intro":
+      "One AI request (about {c} credits reserved, the actual use is charged). It reads this business's records and saves up to three designs as drafts; people review and approve them before anything runs.",
     "exp.ai.focus": "Focus (optional), for example a goal or channel",
     "exp.ai.run": "Design experiments",
     "exp.ai.done": "{n} draft(s) saved, {c} credits used. Review them below.",
-    "exp.ai.unconfirmed": "The answer could not be confirmed. Recover saved work before trying again; it will not be charged twice.",
-    "exp.simNotEvidence": "Based on simulated test data: this practises the process and is not evidence about real customers, so its evidence strength stays inconclusive.",
+    "exp.ai.unconfirmed":
+      "The answer could not be confirmed. Recover saved work before trying again; it will not be charged twice.",
+    "exp.simNotEvidence":
+      "Based on simulated test data: this practises the process and is not evidence about real customers, so its evidence strength stays inconclusive.",
     "exp.sampleMin": "At least 30 per group are always required.",
-    "exp.rules": "An experiment goes from draft to review, administrator approval, running, data collection and evaluation. The sample size is computed up front (5% significance, 80% power); a controlled test only counts as successful when the planned sample is reached and the improvement is statistically significant. Before/after and observation show correlation, never cause. Nothing here changes a real campaign.",
+    "exp.rules":
+      "An experiment goes from draft to review, administrator approval, running, data collection and evaluation. The sample size is computed up front (5% significance, 80% power); a controlled test only counts as successful when the planned sample is reached and the improvement is statistically significant. Before/after and observation show correlation, never cause. Nothing here changes a real campaign.",
     "exp.sec.design": "Being designed",
     "exp.sec.active": "Approved and running",
     "exp.sec.closed": "Stopped or rejected",
@@ -27,9 +31,11 @@ export const exp = defineArea("exp", {
     "exp.f.guardrail": "Warn to stop when the test group falls below (%)",
     "exp.f.traffic": "Expected people per group per day (only for the estimate, not saved)",
     "exp.sample": "{n} per group needed to detect this improvement (5% significance, 80% power).",
-    "exp.sampleNone": "Give the current rate and the smallest improvement to compute the sample size.",
+    "exp.sampleNone":
+      "Give the current rate and the smallest improvement to compute the sample size.",
     "exp.sampleDays": "At {t} per group per day that takes about {d} days.",
-    "exp.sampleShort": "The planned duration ({p} days) is shorter than the {d} days needed to reach the sample.",
+    "exp.sampleShort":
+      "The planned duration ({p} days) is shorter than the {d} days needed to reach the sample.",
     "exp.samplePlanned": "Planned sample: {n} per group",
     "exp.saveDraft": "Save as draft",
     "exp.saveRevision": "Save changes",
@@ -79,14 +85,17 @@ export const exp = defineArea("exp", {
     "exp.obs.none": "No results recorded yet.",
     "exp.obs.row": "{d}: test {vc} of {vn} · control {cc} of {cn} · {cls}",
     "exp.obs.bad": "Use whole numbers; conversions cannot exceed people.",
-    "exp.ev.rates": "Test group {v}% · control {c}% · difference {d} points (95% range {lo} to {hi})",
+    "exp.ev.rates":
+      "Test group {v}% · control {c}% · difference {d} points (95% range {lo} to {hi})",
     "exp.ev.progress": "Sample: {vn} and {cn} of {need} per group",
     "exp.ev.v.no_data": "No results yet.",
-    "exp.ev.v.too_early": "Too early: the planned sample is not reached, so no conclusion can be drawn yet, even if the difference looks large.",
+    "exp.ev.v.too_early":
+      "Too early: the planned sample is not reached, so no conclusion can be drawn yet, even if the difference looks large.",
     "exp.ev.v.better": "The test group did significantly better (z = {z}).",
     "exp.ev.v.worse": "The test group did significantly worse (z = {z}).",
     "exp.ev.v.no_difference": "No significant difference at the planned sample (z = {z}).",
-    "exp.ev.v.correlational": "This design compares before and after, or observed groups: it shows a correlation, not proof that the change caused it.",
+    "exp.ev.v.correlational":
+      "This design compares before and after, or observed groups: it shows a correlation, not proof that the change caused it.",
     "exp.ev.guardrail": "Stop criterion reached: the test group is below {g}%. Consider pausing.",
     "exp.ev.simulated": "Based on simulated test data, not real customers.",
     "exp.complete.outcome": "Outcome",
@@ -99,20 +108,25 @@ export const exp = defineArea("exp", {
     "exp.h.created": "Designed",
     "exp.h.revised": "Design changed",
     "exp.h.observation": "Results recorded",
-    "exp.reviewedBySelf": "Reviewed by the person who designed it; a second pair of eyes is recommended.",
+    "exp.reviewedBySelf":
+      "Reviewed by the person who designed it; a second pair of eyes is recommended.",
     "exp.origin.growth_officer": "Designed by the Growth Officer",
     "exp.kpis": "KPIs",
   },
   nl: {
     "exp.ai.title": "Laat de Growth Officer experimenten ontwerpen",
-    "exp.ai.intro": "Eén AI-aanvraag (ongeveer {c} credits gereserveerd, het werkelijke gebruik wordt aangerekend). De Growth Officer leest de gegevens van dit bedrijf en bewaart tot drie ontwerpen als concept; mensen beoordelen en keuren ze goed voordat er iets loopt.",
+    "exp.ai.intro":
+      "Eén AI-aanvraag (ongeveer {c} credits gereserveerd, het werkelijke gebruik wordt aangerekend). De Growth Officer leest de gegevens van dit bedrijf en bewaart tot drie ontwerpen als concept; mensen beoordelen en keuren ze goed voordat er iets loopt.",
     "exp.ai.focus": "Focus (optioneel), bijvoorbeeld een doel of kanaal",
     "exp.ai.run": "Experimenten ontwerpen",
     "exp.ai.done": "{n} concept(en) bewaard, {c} credits gebruikt. Beoordeel ze hieronder.",
-    "exp.ai.unconfirmed": "Het antwoord kon niet bevestigd worden. Herstel bewaard werk voordat je het opnieuw probeert; er wordt niet dubbel aangerekend.",
-    "exp.simNotEvidence": "Gebaseerd op gesimuleerde testgegevens: dit oefent het proces en is geen bewijs over echte klanten, dus de bewijskracht blijft onbeslist.",
+    "exp.ai.unconfirmed":
+      "Het antwoord kon niet bevestigd worden. Herstel bewaard werk voordat je het opnieuw probeert; er wordt niet dubbel aangerekend.",
+    "exp.simNotEvidence":
+      "Gebaseerd op gesimuleerde testgegevens: dit oefent het proces en is geen bewijs over echte klanten, dus de bewijskracht blijft onbeslist.",
     "exp.sampleMin": "Er zijn altijd minstens 30 per groep nodig.",
-    "exp.rules": "Een experiment gaat van concept naar beoordeling, goedkeuring door een beheerder, uitvoering, gegevensverzameling en evaluatie. De steekproefgrootte wordt vooraf berekend (5% significantie, 80% power); een gecontroleerde test telt pas als geslaagd wanneer de geplande steekproef is bereikt en de verbetering statistisch significant is. Voor/na-vergelijkingen en observaties tonen samenhang, nooit oorzaak. Niets hier wijzigt een echte campagne.",
+    "exp.rules":
+      "Een experiment gaat van concept naar beoordeling, goedkeuring door een beheerder, uitvoering, gegevensverzameling en evaluatie. De steekproefgrootte wordt vooraf berekend (5% significantie, 80% power); een gecontroleerde test telt pas als geslaagd wanneer de geplande steekproef is bereikt en de verbetering statistisch significant is. Voor/na-vergelijkingen en observaties tonen samenhang, nooit oorzaak. Niets hier wijzigt een echte campagne.",
     "exp.sec.design": "In ontwerp",
     "exp.sec.active": "Goedgekeurd en lopend",
     "exp.sec.closed": "Gestopt of afgewezen",
@@ -126,11 +140,15 @@ export const exp = defineArea("exp", {
     "exp.f.successCriteria": "Succescriteria",
     "exp.f.stopCriteria": "Stopcriteria",
     "exp.f.guardrail": "Waarschuw om te stoppen als de testgroep zakt onder (%)",
-    "exp.f.traffic": "Verwachte personen per groep per dag (alleen voor de schatting, niet opgeslagen)",
-    "exp.sample": "{n} per groep nodig om deze verbetering te kunnen aantonen (5% significantie, 80% power).",
-    "exp.sampleNone": "Geef de huidige waarde en de kleinste verbetering om de steekproefgrootte te berekenen.",
+    "exp.f.traffic":
+      "Verwachte personen per groep per dag (alleen voor de schatting, niet opgeslagen)",
+    "exp.sample":
+      "{n} per groep nodig om deze verbetering te kunnen aantonen (5% significantie, 80% power).",
+    "exp.sampleNone":
+      "Geef de huidige waarde en de kleinste verbetering om de steekproefgrootte te berekenen.",
     "exp.sampleDays": "Bij {t} per groep per dag duurt dat ongeveer {d} dagen.",
-    "exp.sampleShort": "De geplande duur ({p} dagen) is korter dan de {d} dagen die nodig zijn om de steekproef te halen.",
+    "exp.sampleShort":
+      "De geplande duur ({p} dagen) is korter dan de {d} dagen die nodig zijn om de steekproef te halen.",
     "exp.samplePlanned": "Geplande steekproef: {n} per groep",
     "exp.saveDraft": "Opslaan als concept",
     "exp.saveRevision": "Wijzigingen opslaan",
@@ -179,15 +197,19 @@ export const exp = defineArea("exp", {
     "exp.obs.save": "Resultaten opslaan",
     "exp.obs.none": "Nog geen resultaten vastgelegd.",
     "exp.obs.row": "{d}: test {vc} van {vn} · controle {cc} van {cn} · {cls}",
-    "exp.obs.bad": "Gebruik gehele getallen; conversies kunnen niet hoger zijn dan het aantal personen.",
-    "exp.ev.rates": "Testgroep {v}% · controle {c}% · verschil {d} punten (95%-bereik {lo} tot {hi})",
+    "exp.obs.bad":
+      "Gebruik gehele getallen; conversies kunnen niet hoger zijn dan het aantal personen.",
+    "exp.ev.rates":
+      "Testgroep {v}% · controle {c}% · verschil {d} punten (95%-bereik {lo} tot {hi})",
     "exp.ev.progress": "Steekproef: {vn} en {cn} van {need} per groep",
     "exp.ev.v.no_data": "Nog geen resultaten.",
-    "exp.ev.v.too_early": "Te vroeg: de geplande steekproef is niet bereikt, dus er kan nog geen conclusie getrokken worden, ook al lijkt het verschil groot.",
+    "exp.ev.v.too_early":
+      "Te vroeg: de geplande steekproef is niet bereikt, dus er kan nog geen conclusie getrokken worden, ook al lijkt het verschil groot.",
     "exp.ev.v.better": "De testgroep deed het significant beter (z = {z}).",
     "exp.ev.v.worse": "De testgroep deed het significant slechter (z = {z}).",
     "exp.ev.v.no_difference": "Geen significant verschil bij de geplande steekproef (z = {z}).",
-    "exp.ev.v.correlational": "Dit ontwerp vergelijkt voor en na, of geobserveerde groepen: het toont samenhang, geen bewijs dat de wijziging de oorzaak is.",
+    "exp.ev.v.correlational":
+      "Dit ontwerp vergelijkt voor en na, of geobserveerde groepen: het toont samenhang, geen bewijs dat de wijziging de oorzaak is.",
     "exp.ev.guardrail": "Stopcriterium bereikt: de testgroep zit onder {g}%. Overweeg te pauzeren.",
     "exp.ev.simulated": "Gebaseerd op gesimuleerde testgegevens, niet op echte klanten.",
     "exp.complete.outcome": "Uitkomst",
@@ -200,20 +222,25 @@ export const exp = defineArea("exp", {
     "exp.h.created": "Ontworpen",
     "exp.h.revised": "Ontwerp gewijzigd",
     "exp.h.observation": "Resultaten vastgelegd",
-    "exp.reviewedBySelf": "Beoordeeld door de ontwerper zelf; een tweede paar ogen is aan te raden.",
+    "exp.reviewedBySelf":
+      "Beoordeeld door de ontwerper zelf; een tweede paar ogen is aan te raden.",
     "exp.origin.growth_officer": "Ontworpen door de Growth Officer",
     "exp.kpis": "KPI’s",
   },
   fr: {
     "exp.ai.title": "Demander au Growth Officer de concevoir des expériences",
-    "exp.ai.intro": "Une requête IA (environ {c} crédits réservés, l’usage réel est facturé). Elle lit les données de cette entreprise et enregistre jusqu’à trois conceptions comme brouillons ; des personnes les revoient et les approuvent avant toute exécution.",
+    "exp.ai.intro":
+      "Une requête IA (environ {c} crédits réservés, l’usage réel est facturé). Elle lit les données de cette entreprise et enregistre jusqu’à trois conceptions comme brouillons ; des personnes les revoient et les approuvent avant toute exécution.",
     "exp.ai.focus": "Orientation (facultatif), par exemple un objectif ou un canal",
     "exp.ai.run": "Concevoir des expériences",
     "exp.ai.done": "{n} brouillon(s) enregistré(s), {c} crédits utilisés. Revoyez-les ci-dessous.",
-    "exp.ai.unconfirmed": "La réponse n’a pas pu être confirmée. Récupérez le travail enregistré avant de réessayer ; rien ne sera facturé deux fois.",
-    "exp.simNotEvidence": "Basé sur des données de test simulées : cela sert à exercer le processus et ne prouve rien sur de vrais clients ; la force de la preuve reste non concluante.",
+    "exp.ai.unconfirmed":
+      "La réponse n’a pas pu être confirmée. Récupérez le travail enregistré avant de réessayer ; rien ne sera facturé deux fois.",
+    "exp.simNotEvidence":
+      "Basé sur des données de test simulées : cela sert à exercer le processus et ne prouve rien sur de vrais clients ; la force de la preuve reste non concluante.",
     "exp.sampleMin": "Il faut toujours au moins 30 par groupe.",
-    "exp.rules": "Une expérience passe du brouillon à la revue, à l’approbation par un administrateur, à l’exécution, à la collecte des données et à l’évaluation. La taille d’échantillon est calculée à l’avance (seuil de 5 %, puissance de 80 %) ; un test contrôlé ne compte comme réussi que si l’échantillon prévu est atteint et que l’amélioration est statistiquement significative. Les comparaisons avant/après et les observations montrent une corrélation, jamais une cause. Rien ici ne modifie une vraie campagne.",
+    "exp.rules":
+      "Une expérience passe du brouillon à la revue, à l’approbation par un administrateur, à l’exécution, à la collecte des données et à l’évaluation. La taille d’échantillon est calculée à l’avance (seuil de 5 %, puissance de 80 %) ; un test contrôlé ne compte comme réussi que si l’échantillon prévu est atteint et que l’amélioration est statistiquement significative. Les comparaisons avant/après et les observations montrent une corrélation, jamais une cause. Rien ici ne modifie une vraie campagne.",
     "exp.sec.design": "En conception",
     "exp.sec.active": "Approuvées et en cours",
     "exp.sec.closed": "Arrêtées ou refusées",
@@ -227,11 +254,15 @@ export const exp = defineArea("exp", {
     "exp.f.successCriteria": "Critères de réussite",
     "exp.f.stopCriteria": "Critères d’arrêt",
     "exp.f.guardrail": "Alerter pour arrêter si le groupe test passe sous (%)",
-    "exp.f.traffic": "Personnes attendues par groupe et par jour (pour l’estimation, non enregistré)",
-    "exp.sample": "{n} par groupe nécessaires pour détecter cette amélioration (seuil de 5 %, puissance de 80 %).",
-    "exp.sampleNone": "Indiquez le taux actuel et la plus petite amélioration pour calculer la taille d’échantillon.",
+    "exp.f.traffic":
+      "Personnes attendues par groupe et par jour (pour l’estimation, non enregistré)",
+    "exp.sample":
+      "{n} par groupe nécessaires pour détecter cette amélioration (seuil de 5 %, puissance de 80 %).",
+    "exp.sampleNone":
+      "Indiquez le taux actuel et la plus petite amélioration pour calculer la taille d’échantillon.",
     "exp.sampleDays": "À {t} par groupe et par jour, cela prend environ {d} jours.",
-    "exp.sampleShort": "La durée prévue ({p} jours) est plus courte que les {d} jours nécessaires pour atteindre l’échantillon.",
+    "exp.sampleShort":
+      "La durée prévue ({p} jours) est plus courte que les {d} jours nécessaires pour atteindre l’échantillon.",
     "exp.samplePlanned": "Échantillon prévu : {n} par groupe",
     "exp.saveDraft": "Enregistrer comme brouillon",
     "exp.saveRevision": "Enregistrer les modifications",
@@ -280,16 +311,21 @@ export const exp = defineArea("exp", {
     "exp.obs.save": "Enregistrer les résultats",
     "exp.obs.none": "Aucun résultat enregistré pour l’instant.",
     "exp.obs.row": "{d} : test {vc} sur {vn} · témoin {cc} sur {cn} · {cls}",
-    "exp.obs.bad": "Utilisez des nombres entiers ; les conversions ne peuvent pas dépasser le nombre de personnes.",
-    "exp.ev.rates": "Groupe test {v} % · témoin {c} % · écart {d} points (intervalle à 95 % : {lo} à {hi})",
+    "exp.obs.bad":
+      "Utilisez des nombres entiers ; les conversions ne peuvent pas dépasser le nombre de personnes.",
+    "exp.ev.rates":
+      "Groupe test {v} % · témoin {c} % · écart {d} points (intervalle à 95 % : {lo} à {hi})",
     "exp.ev.progress": "Échantillon : {vn} et {cn} sur {need} par groupe",
     "exp.ev.v.no_data": "Pas encore de résultats.",
-    "exp.ev.v.too_early": "Trop tôt : l’échantillon prévu n’est pas atteint, aucune conclusion n’est encore possible, même si l’écart semble important.",
+    "exp.ev.v.too_early":
+      "Trop tôt : l’échantillon prévu n’est pas atteint, aucune conclusion n’est encore possible, même si l’écart semble important.",
     "exp.ev.v.better": "Le groupe test a fait significativement mieux (z = {z}).",
     "exp.ev.v.worse": "Le groupe test a fait significativement moins bien (z = {z}).",
     "exp.ev.v.no_difference": "Pas d’écart significatif à l’échantillon prévu (z = {z}).",
-    "exp.ev.v.correlational": "Cette conception compare avant et après, ou des groupes observés : elle montre une corrélation, pas la preuve que le changement en est la cause.",
-    "exp.ev.guardrail": "Critère d’arrêt atteint : le groupe test est sous {g} %. Envisagez une pause.",
+    "exp.ev.v.correlational":
+      "Cette conception compare avant et après, ou des groupes observés : elle montre une corrélation, pas la preuve que le changement en est la cause.",
+    "exp.ev.guardrail":
+      "Critère d’arrêt atteint : le groupe test est sous {g} %. Envisagez une pause.",
     "exp.ev.simulated": "Basé sur des données de test simulées, pas sur de vrais clients.",
     "exp.complete.outcome": "Résultat",
     "exp.complete.only": "Seuls les résultats soutenus par les données peuvent être choisis.",

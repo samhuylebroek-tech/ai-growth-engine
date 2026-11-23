@@ -7,10 +7,25 @@ import type { SpendSummary } from "@/lib/campaign-spend";
 import { effectiveMeasurements, isActual, type Measurement } from "@/lib/performance";
 
 export type CampaignInput = {
-  id: string; title: string; status: string; objective: string; audience: string; channels: string[];
-  budget_eur: number; start_date: string | null; end_date: string | null; goal_id: string | null; results: string;
+  id: string;
+  title: string;
+  status: string;
+  objective: string;
+  audience: string;
+  channels: string[];
+  budget_eur: number;
+  start_date: string | null;
+  end_date: string | null;
+  goal_id: string | null;
+  results: string;
 };
-export type MetricLite = { id: string; key: string; label: string; campaign_id: string | null; archived: boolean };
+export type MetricLite = {
+  id: string;
+  key: string;
+  label: string;
+  campaign_id: string | null;
+  archived: boolean;
+};
 export type Attributed = { currency: string; amount: number; sales: number };
 export type IntelInput = {
   campaign: CampaignInput;
@@ -24,46 +39,158 @@ export type IntelInput = {
   experiments: readonly { status: string; evidence_strength: string | null }[];
   /** EUR spend entries (spend and corrections) of this campaign with their dates, for cost trends. */
   spendRows?: readonly { occurred_on: string; amount: number }[];
-  others: readonly Pick<CampaignInput, "id" | "title" | "status" | "channels" | "start_date" | "end_date" | "audience">[];
+  others: readonly Pick<
+    CampaignInput,
+    "id" | "title" | "status" | "channels" | "start_date" | "end_date" | "audience"
+  >[];
   today: string;
 };
 
 export type Source = "campaign" | "tasks" | "spend_ledger" | "metric" | "attribution" | "computed";
-export type Figure = { key: FigureKey; value: number | null; currency?: string; source: Source; actual: boolean; missing?: MissingReason };
-export type FigureKey = "budget" | "spent" | "reserved" | "remaining" | "leads" | "clicks" | "conversions" | "revenue" | "cpl" | "cpa" | "conversion_rate" | "roas" | "roi" | "duration" | "progress";
-export type MissingReason = "no_budget" | "no_ledger" | "no_metric" | "no_actuals" | "no_spend" | "zero_base" | "no_attribution" | "no_revenue" | "no_dates" | "no_tasks";
+export type Figure = {
+  key: FigureKey;
+  value: number | null;
+  currency?: string;
+  source: Source;
+  actual: boolean;
+  missing?: MissingReason;
+};
+export type FigureKey =
+  | "budget"
+  | "spent"
+  | "reserved"
+  | "remaining"
+  | "leads"
+  | "clicks"
+  | "conversions"
+  | "revenue"
+  | "cpl"
+  | "cpa"
+  | "conversion_rate"
+  | "roas"
+  | "roi"
+  | "duration"
+  | "progress";
+export type MissingReason =
+  | "no_budget"
+  | "no_ledger"
+  | "no_metric"
+  | "no_actuals"
+  | "no_spend"
+  | "zero_base"
+  | "no_attribution"
+  | "no_revenue"
+  | "no_dates"
+  | "no_tasks";
 export type Problem =
-  | "budget_near" | "budget_over" | "overdue_tasks" | "behind_schedule" | "no_kpi" | "no_results" | "low_conversion" | "rising_cost"
-  | "no_leads" | "no_audience" | "weak_evidence" | "no_goal" | "overlap" | "ended_without_results";
-export type AdviceKind = "define_kpis" | "measure_results" | "improve_conversion" | "review_budget_split" | "review_budget" | "review_audience"
-  | "compare_channels" | "adjust_message" | "connect_source" | "link_goal" | "replan_tasks" | "evaluate_campaign";
-export type Advice = { kind: AdviceKind; problem: Problem; specialist: string | null; kpi: FigureKey | null; risk: "low" | "medium" | "high" };
+  | "budget_near"
+  | "budget_over"
+  | "overdue_tasks"
+  | "behind_schedule"
+  | "no_kpi"
+  | "no_results"
+  | "low_conversion"
+  | "rising_cost"
+  | "no_leads"
+  | "no_audience"
+  | "weak_evidence"
+  | "no_goal"
+  | "overlap"
+  | "ended_without_results";
+export type AdviceKind =
+  | "define_kpis"
+  | "measure_results"
+  | "improve_conversion"
+  | "review_budget_split"
+  | "review_budget"
+  | "review_audience"
+  | "compare_channels"
+  | "adjust_message"
+  | "connect_source"
+  | "link_goal"
+  | "replan_tasks"
+  | "evaluate_campaign";
+export type Advice = {
+  kind: AdviceKind;
+  problem: Problem;
+  specialist: string | null;
+  kpi: FigureKey | null;
+  risk: "low" | "medium" | "high";
+};
 /** simulated: what simulated ledger entries add (EUR), kept out of every figure, problem and advice. */
-export type Intel = { figures: Record<FigureKey, Figure>; problems: Problem[]; advice: Advice[]; overlaps: string[]; estimatesExcluded: number; health: ReturnType<typeof campaignHealth>;
-  simulated: { entries: number; spent: number; committed: number; warnings: SpendSummary["simulatedWarnings"] } | null };
+export type Intel = {
+  figures: Record<FigureKey, Figure>;
+  problems: Problem[];
+  advice: Advice[];
+  overlaps: string[];
+  estimatesExcluded: number;
+  health: ReturnType<typeof campaignHealth>;
+  simulated: {
+    entries: number;
+    spent: number;
+    committed: number;
+    warnings: SpendSummary["simulatedWarnings"];
+  } | null;
+};
 
 /** Rule thresholds, named so the screen and tests can explain them. */
-export const RULES = { lowConversionRate: 0.01, lowConversionMinClicks: 100, risingCost: 0.2, resultsExpectedAfter: 0.5 } as const;
+export const RULES = {
+  lowConversionRate: 0.01,
+  lowConversionMinClicks: 100,
+  risingCost: 0.2,
+  resultsExpectedAfter: 0.5,
+} as const;
 
 const r2 = (n: number) => Math.round(n * 100) / 100;
-const fig = (key: FigureKey, value: number | null, source: Source, actual: boolean, extra: Partial<Figure> = {}): Figure => ({ key, value, source, actual, ...extra });
-const overlapsDates = (a: { start_date: string | null; end_date: string | null }, b: { start_date: string | null; end_date: string | null }) =>
-  (a.start_date ?? "0000") <= (b.end_date ?? "9999") && (b.start_date ?? "0000") <= (a.end_date ?? "9999");
+const fig = (
+  key: FigureKey,
+  value: number | null,
+  source: Source,
+  actual: boolean,
+  extra: Partial<Figure> = {},
+): Figure => ({ key, value, source, actual, ...extra });
+const overlapsDates = (
+  a: { start_date: string | null; end_date: string | null },
+  b: { start_date: string | null; end_date: string | null },
+) =>
+  (a.start_date ?? "0000") <= (b.end_date ?? "9999") &&
+  (b.start_date ?? "0000") <= (a.end_date ?? "9999");
 
 /** Sum of measured (actual) values in force for the campaign's metrics with this key; null when not measured. */
-function measured(key: string, i: IntelInput): { value: number | null; missing?: MissingReason; byPeriod: Map<string, number> } {
-  const ids = new Set(i.metrics.filter((m) => !m.archived && m.campaign_id === i.campaign.id && m.key === key).map((m) => m.id));
+function measured(
+  key: string,
+  i: IntelInput,
+): { value: number | null; missing?: MissingReason; byPeriod: Map<string, number> } {
+  const ids = new Set(
+    i.metrics
+      .filter((m) => !m.archived && m.campaign_id === i.campaign.id && m.key === key)
+      .map((m) => m.id),
+  );
   if (!ids.size) return { value: null, missing: "no_metric", byPeriod: new Map() };
-  const rows = effectiveMeasurements(i.measurements.filter((m) => ids.has(m.metric_id))).filter((m) => isActual(String(m.kind)));
+  const rows = effectiveMeasurements(i.measurements.filter((m) => ids.has(m.metric_id))).filter(
+    (m) => isActual(String(m.kind)),
+  );
   if (!rows.length) return { value: null, missing: "no_actuals", byPeriod: new Map() };
   const byPeriod = new Map<string, number>();
-  for (const m of rows) byPeriod.set(m.period_start, (byPeriod.get(m.period_start) ?? 0) + Number(m.value));
+  for (const m of rows)
+    byPeriod.set(m.period_start, (byPeriod.get(m.period_start) ?? 0) + Number(m.value));
   return { value: rows.reduce((n, m) => n + Number(m.value), 0), byPeriod };
 }
 
 export function campaignIntel(i: IntelInput): Intel {
   const c = i.campaign;
-  const health = campaignHealth({ status: c.status, start_date: c.start_date, end_date: c.end_date, goal_id: c.goal_id, results: c.results }, i.tasks, i.today, i.spend ?? undefined);
+  const health = campaignHealth(
+    {
+      status: c.status,
+      start_date: c.start_date,
+      end_date: c.end_date,
+      goal_id: c.goal_id,
+      results: c.results,
+    },
+    i.tasks,
+    i.today,
+    i.spend ?? undefined,
+  );
   // Actual entries only: simulated spending never enters a figure (see campaign-spend.ts).
   const spentEur = i.spend && i.spend.eur.entries > 0 ? i.spend.eur.spent : null;
   const leads = measured("leads", i);
@@ -72,7 +199,12 @@ export function campaignIntel(i: IntelInput): Intel {
   const custom = measured("new_customers", i);
   const acq = conv.value !== null ? conv : custom;
   const eurRevenue = i.attributed?.find((a) => a.currency === "EUR") ?? null;
-  const ratio = (num: number | null, den: number | null, numMissing?: MissingReason, denMissing?: MissingReason): { value: number | null; missing?: MissingReason } => {
+  const ratio = (
+    num: number | null,
+    den: number | null,
+    numMissing?: MissingReason,
+    denMissing?: MissingReason,
+  ): { value: number | null; missing?: MissingReason } => {
     if (num === null) return { value: null, missing: numMissing ?? "no_actuals" };
     if (den === null) return { value: null, missing: denMissing ?? "no_actuals" };
     if (den === 0) return { value: null, missing: "zero_base" };
@@ -82,83 +214,284 @@ export function campaignIntel(i: IntelInput): Intel {
   const spentKnown = spentEur !== null && spentEur > 0 ? spentEur : null;
   const cpl = ratio(spentKnown, leads.value, spendMissing, leads.missing);
   const cpa = ratio(spentKnown, acq.value, spendMissing, acq.missing);
-  const cr = conv.value !== null && clicks.value !== null && clicks.value > 0 ? { value: Math.round((conv.value / clicks.value) * 10000) / 10000 } : { value: null, missing: (conv.missing ?? clicks.missing ?? "zero_base") as MissingReason };
+  const cr =
+    conv.value !== null && clicks.value !== null && clicks.value > 0
+      ? { value: Math.round((conv.value / clicks.value) * 10000) / 10000 }
+      : { value: null, missing: (conv.missing ?? clicks.missing ?? "zero_base") as MissingReason };
   const revMissing: MissingReason = i.attributed === null ? "no_attribution" : "no_revenue";
-  const roas = eurRevenue ? ratio(eurRevenue.amount, spentKnown, revMissing, spendMissing) : { value: null, missing: revMissing };
-  const roi = roas.value !== null && spentKnown ? { value: r2((eurRevenue!.amount - spentKnown) / spentKnown) } : { value: null, missing: roas.missing };
-  const duration = c.start_date && c.end_date ? Math.round((Date.parse(c.end_date) - Date.parse(c.start_date)) / 86_400_000) + 1 : null;
+  const roas = eurRevenue
+    ? ratio(eurRevenue.amount, spentKnown, revMissing, spendMissing)
+    : { value: null, missing: revMissing };
+  const roi =
+    roas.value !== null && spentKnown
+      ? { value: r2((eurRevenue!.amount - spentKnown) / spentKnown) }
+      : { value: null, missing: roas.missing };
+  const duration =
+    c.start_date && c.end_date
+      ? Math.round((Date.parse(c.end_date) - Date.parse(c.start_date)) / 86_400_000) + 1
+      : null;
 
   const figures: Record<FigureKey, Figure> = {
-    budget: fig("budget", c.budget_eur > 0 ? c.budget_eur : null, "campaign", true, { currency: "EUR", ...(c.budget_eur > 0 ? {} : { missing: "no_budget" as const }) }),
-    spent: fig("spent", spentEur, "spend_ledger", true, { currency: "EUR", ...(i.spend ? (spentEur === null ? { missing: "no_spend" as const } : {}) : { missing: "no_ledger" as const }) }),
-    reserved: fig("reserved", i.spend && i.spend.eur.entries > 0 ? i.spend.eur.committed : null, "spend_ledger", true, { currency: "EUR", ...(i.spend ? (i.spend.eur.entries > 0 ? {} : { missing: "no_spend" as const }) : { missing: "no_ledger" as const }) }),
-    remaining: fig("remaining", i.spend?.remaining ?? null, "computed", true, { currency: "EUR", ...(i.spend?.remaining == null ? { missing: (i.spend ? "no_budget" : "no_ledger") as MissingReason } : {}) }),
-    leads: fig("leads", leads.value, "metric", true, leads.missing ? { missing: leads.missing } : {}),
-    clicks: fig("clicks", clicks.value, "metric", true, clicks.missing ? { missing: clicks.missing } : {}),
-    conversions: fig("conversions", acq.value, "metric", true, acq.missing ? { missing: acq.missing } : {}),
-    revenue: fig("revenue", eurRevenue?.amount ?? null, "attribution", true, { currency: "EUR", ...(eurRevenue ? {} : { missing: revMissing }) }),
-    cpl: fig("cpl", cpl.value, "computed", true, { currency: "EUR", ...(cpl.missing ? { missing: cpl.missing } : {}) }),
-    cpa: fig("cpa", cpa.value, "computed", true, { currency: "EUR", ...(cpa.missing ? { missing: cpa.missing } : {}) }),
-    conversion_rate: fig("conversion_rate", cr.value, "computed", true, cr.missing ? { missing: cr.missing } : {}),
+    budget: fig("budget", c.budget_eur > 0 ? c.budget_eur : null, "campaign", true, {
+      currency: "EUR",
+      ...(c.budget_eur > 0 ? {} : { missing: "no_budget" as const }),
+    }),
+    spent: fig("spent", spentEur, "spend_ledger", true, {
+      currency: "EUR",
+      ...(i.spend
+        ? spentEur === null
+          ? { missing: "no_spend" as const }
+          : {}
+        : { missing: "no_ledger" as const }),
+    }),
+    reserved: fig(
+      "reserved",
+      i.spend && i.spend.eur.entries > 0 ? i.spend.eur.committed : null,
+      "spend_ledger",
+      true,
+      {
+        currency: "EUR",
+        ...(i.spend
+          ? i.spend.eur.entries > 0
+            ? {}
+            : { missing: "no_spend" as const }
+          : { missing: "no_ledger" as const }),
+      },
+    ),
+    remaining: fig("remaining", i.spend?.remaining ?? null, "computed", true, {
+      currency: "EUR",
+      ...(i.spend?.remaining == null
+        ? { missing: (i.spend ? "no_budget" : "no_ledger") as MissingReason }
+        : {}),
+    }),
+    leads: fig(
+      "leads",
+      leads.value,
+      "metric",
+      true,
+      leads.missing ? { missing: leads.missing } : {},
+    ),
+    clicks: fig(
+      "clicks",
+      clicks.value,
+      "metric",
+      true,
+      clicks.missing ? { missing: clicks.missing } : {},
+    ),
+    conversions: fig(
+      "conversions",
+      acq.value,
+      "metric",
+      true,
+      acq.missing ? { missing: acq.missing } : {},
+    ),
+    revenue: fig("revenue", eurRevenue?.amount ?? null, "attribution", true, {
+      currency: "EUR",
+      ...(eurRevenue ? {} : { missing: revMissing }),
+    }),
+    cpl: fig("cpl", cpl.value, "computed", true, {
+      currency: "EUR",
+      ...(cpl.missing ? { missing: cpl.missing } : {}),
+    }),
+    cpa: fig("cpa", cpa.value, "computed", true, {
+      currency: "EUR",
+      ...(cpa.missing ? { missing: cpa.missing } : {}),
+    }),
+    conversion_rate: fig(
+      "conversion_rate",
+      cr.value,
+      "computed",
+      true,
+      cr.missing ? { missing: cr.missing } : {},
+    ),
     roas: fig("roas", roas.value, "computed", true, roas.missing ? { missing: roas.missing } : {}),
     roi: fig("roi", roi.value, "computed", true, roi.missing ? { missing: roi.missing } : {}),
-    duration: fig("duration", duration, "campaign", true, duration === null ? { missing: "no_dates" } : {}),
-    progress: fig("progress", health.total ? Math.round((health.done / health.total) * 100) : null, "tasks", true, health.total ? {} : { missing: "no_tasks" }),
+    duration: fig(
+      "duration",
+      duration,
+      "campaign",
+      true,
+      duration === null ? { missing: "no_dates" } : {},
+    ),
+    progress: fig(
+      "progress",
+      health.total ? Math.round((health.done / health.total) * 100) : null,
+      "tasks",
+      true,
+      health.total ? {} : { missing: "no_tasks" },
+    ),
   };
 
   const problems: Problem[] = [];
   const w = (x: HealthWarning) => health.warnings.includes(x);
-  if (w("budget_over")) problems.push("budget_over"); else if (w("budget_near") || w("committed_over")) problems.push("budget_near");
+  if (w("budget_over")) problems.push("budget_over");
+  else if (w("budget_near") || w("committed_over")) problems.push("budget_near");
   if (w("overdue_tasks")) problems.push("overdue_tasks");
   if (w("behind_schedule")) problems.push("behind_schedule");
   if (w("ended_without_results")) problems.push("ended_without_results");
   const linked = i.metrics.some((m) => !m.archived && m.campaign_id === c.id);
   const live = ["active", "needs_attention", "optimizing", "paused"].includes(c.status);
   if (!linked && c.status !== "archived") problems.push("no_kpi");
-  const anyResult = [leads, clicks, conv, custom].some((x) => x.value !== null) || !!eurRevenue || c.results.trim().length > 0;
-  const late = (health.elapsed ?? 0) >= RULES.resultsExpectedAfter || (!!c.end_date && c.end_date < i.today);
-  if (live && !anyResult && late && !problems.includes("ended_without_results")) problems.push("no_results");
-  if (cr.value !== null && (clicks.value ?? 0) >= RULES.lowConversionMinClicks && cr.value < RULES.lowConversionRate) problems.push("low_conversion");
+  const anyResult =
+    [leads, clicks, conv, custom].some((x) => x.value !== null) ||
+    !!eurRevenue ||
+    c.results.trim().length > 0;
+  const late =
+    (health.elapsed ?? 0) >= RULES.resultsExpectedAfter || (!!c.end_date && c.end_date < i.today);
+  if (live && !anyResult && late && !problems.includes("ended_without_results"))
+    problems.push("no_results");
+  if (
+    cr.value !== null &&
+    (clicks.value ?? 0) >= RULES.lowConversionMinClicks &&
+    cr.value < RULES.lowConversionRate
+  )
+    problems.push("low_conversion");
   if (leads.value === 0 && late) problems.push("no_leads");
   // Rising cost: cost per lead of the latest measured period against the one before, with spend from the ledger
   // dated in each period. Only when both periods have leads and spend.
   if (i.spend && leads.byPeriod.size >= 2) {
     const periods = [...leads.byPeriod.keys()].sort();
     const [prev, last] = periods.slice(-2) as [string, string];
-    const spentIn = (from: string, to: string | null) => (i.spendRows ?? []).filter((s) => s.occurred_on >= from && (to === null || s.occurred_on < to)).reduce((n, s) => n + s.amount, 0);
-    const a = spentIn(prev, last), b = spentIn(last, null);
-    const la = leads.byPeriod.get(prev)!, lb = leads.byPeriod.get(last)!;
-    if (a > 0 && b > 0 && la > 0 && lb > 0 && b / lb > (a / la) * (1 + RULES.risingCost)) problems.push("rising_cost");
+    const spentIn = (from: string, to: string | null) =>
+      (i.spendRows ?? [])
+        .filter((s) => s.occurred_on >= from && (to === null || s.occurred_on < to))
+        .reduce((n, s) => n + s.amount, 0);
+    const a = spentIn(prev, last),
+      b = spentIn(last, null);
+    const la = leads.byPeriod.get(prev)!,
+      lb = leads.byPeriod.get(last)!;
+    if (a > 0 && b > 0 && la > 0 && lb > 0 && b / lb > (a / la) * (1 + RULES.risingCost))
+      problems.push("rising_cost");
   }
   if (!c.audience.trim()) problems.push("no_audience");
   if (!c.goal_id && c.status !== "archived") problems.push("no_goal");
   const simulatedOnly = !!i.spend && i.spend.simulatedEntries > 0 && i.spend.eur.entries === 0;
-  if (simulatedOnly || (anyResult && ![leads, clicks, conv, custom].some((x) => x.value !== null) && !eurRevenue)) problems.push("weak_evidence");
-  const overlaps = i.others.filter((o) => o.id !== c.id && ["active", "planned"].includes(o.status) && o.channels.some((ch) => c.channels.includes(ch)) && overlapsDates(o, c)).map((o) => o.title);
+  if (
+    simulatedOnly ||
+    (anyResult && ![leads, clicks, conv, custom].some((x) => x.value !== null) && !eurRevenue)
+  )
+    problems.push("weak_evidence");
+  const overlaps = i.others
+    .filter(
+      (o) =>
+        o.id !== c.id &&
+        ["active", "planned"].includes(o.status) &&
+        o.channels.some((ch) => c.channels.includes(ch)) &&
+        overlapsDates(o, c),
+    )
+    .map((o) => o.title);
   if (overlaps.length && live) problems.push("overlap");
 
   const ADVICE: Record<Problem, Advice> = {
-    budget_over: { kind: "review_budget", problem: "budget_over", specialist: "revenue_analyst", kpi: "remaining", risk: "high" },
-    budget_near: { kind: "review_budget", problem: "budget_near", specialist: "revenue_analyst", kpi: "remaining", risk: "medium" },
-    overdue_tasks: { kind: "replan_tasks", problem: "overdue_tasks", specialist: null, kpi: "progress", risk: "medium" },
-    behind_schedule: { kind: "replan_tasks", problem: "behind_schedule", specialist: null, kpi: "progress", risk: "medium" },
-    ended_without_results: { kind: "evaluate_campaign", problem: "ended_without_results", specialist: "business_analyst", kpi: null, risk: "medium" },
-    no_kpi: { kind: "define_kpis", problem: "no_kpi", specialist: "business_analyst", kpi: "leads", risk: "low" },
-    no_results: { kind: "measure_results", problem: "no_results", specialist: "revenue_analyst", kpi: "conversions", risk: "medium" },
-    low_conversion: { kind: "improve_conversion", problem: "low_conversion", specialist: "cro", kpi: "conversion_rate", risk: "medium" },
-    rising_cost: { kind: "review_budget_split", problem: "rising_cost", specialist: "advertising", kpi: "cpl", risk: "medium" },
-    no_leads: { kind: "adjust_message", problem: "no_leads", specialist: "copywriter", kpi: "leads", risk: "medium" },
-    no_audience: { kind: "review_audience", problem: "no_audience", specialist: "market_research", kpi: null, risk: "low" },
-    weak_evidence: { kind: "connect_source", problem: "weak_evidence", specialist: null, kpi: null, risk: "low" },
+    budget_over: {
+      kind: "review_budget",
+      problem: "budget_over",
+      specialist: "revenue_analyst",
+      kpi: "remaining",
+      risk: "high",
+    },
+    budget_near: {
+      kind: "review_budget",
+      problem: "budget_near",
+      specialist: "revenue_analyst",
+      kpi: "remaining",
+      risk: "medium",
+    },
+    overdue_tasks: {
+      kind: "replan_tasks",
+      problem: "overdue_tasks",
+      specialist: null,
+      kpi: "progress",
+      risk: "medium",
+    },
+    behind_schedule: {
+      kind: "replan_tasks",
+      problem: "behind_schedule",
+      specialist: null,
+      kpi: "progress",
+      risk: "medium",
+    },
+    ended_without_results: {
+      kind: "evaluate_campaign",
+      problem: "ended_without_results",
+      specialist: "business_analyst",
+      kpi: null,
+      risk: "medium",
+    },
+    no_kpi: {
+      kind: "define_kpis",
+      problem: "no_kpi",
+      specialist: "business_analyst",
+      kpi: "leads",
+      risk: "low",
+    },
+    no_results: {
+      kind: "measure_results",
+      problem: "no_results",
+      specialist: "revenue_analyst",
+      kpi: "conversions",
+      risk: "medium",
+    },
+    low_conversion: {
+      kind: "improve_conversion",
+      problem: "low_conversion",
+      specialist: "cro",
+      kpi: "conversion_rate",
+      risk: "medium",
+    },
+    rising_cost: {
+      kind: "review_budget_split",
+      problem: "rising_cost",
+      specialist: "advertising",
+      kpi: "cpl",
+      risk: "medium",
+    },
+    no_leads: {
+      kind: "adjust_message",
+      problem: "no_leads",
+      specialist: "copywriter",
+      kpi: "leads",
+      risk: "medium",
+    },
+    no_audience: {
+      kind: "review_audience",
+      problem: "no_audience",
+      specialist: "market_research",
+      kpi: null,
+      risk: "low",
+    },
+    weak_evidence: {
+      kind: "connect_source",
+      problem: "weak_evidence",
+      specialist: null,
+      kpi: null,
+      risk: "low",
+    },
     no_goal: { kind: "link_goal", problem: "no_goal", specialist: null, kpi: null, risk: "low" },
-    overlap: { kind: "compare_channels", problem: "overlap", specialist: "marketing", kpi: "cpl", risk: "low" },
+    overlap: {
+      kind: "compare_channels",
+      problem: "overlap",
+      specialist: "marketing",
+      kpi: "cpl",
+      risk: "low",
+    },
   };
   const seen = new Set<string>();
-  const advice = problems.map((p) => ADVICE[p]).filter((a) => (seen.has(a.kind) ? false : (seen.add(a.kind), true)));
+  const advice = problems
+    .map((p) => ADVICE[p])
+    .filter((a) => (seen.has(a.kind) ? false : (seen.add(a.kind), true)));
   const metricIds = new Set(i.metrics.filter((m) => m.campaign_id === c.id).map((m) => m.id));
-  const estimatesExcluded = i.measurements.filter((m) => metricIds.has(m.metric_id) && !isActual(String(m.kind))).length;
-  const simulated = i.spend && i.spend.simulatedEntries > 0
-    ? { entries: i.spend.simulatedEntries, spent: i.spend.simulatedEur.spent, committed: i.spend.simulatedEur.committed, warnings: i.spend.simulatedWarnings }
-    : null;
+  const estimatesExcluded = i.measurements.filter(
+    (m) => metricIds.has(m.metric_id) && !isActual(String(m.kind)),
+  ).length;
+  const simulated =
+    i.spend && i.spend.simulatedEntries > 0
+      ? {
+          entries: i.spend.simulatedEntries,
+          spent: i.spend.simulatedEur.spent,
+          committed: i.spend.simulatedEur.committed,
+          warnings: i.spend.simulatedWarnings,
+        }
+      : null;
   return { figures, problems, advice, overlaps, estimatesExcluded, health, simulated };
 }

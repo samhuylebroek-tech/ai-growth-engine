@@ -4,15 +4,20 @@ import { defineArea } from "../define";
 export const kp = defineArea("kp", {
   en: {
     "kp.observed": "Linked metric: {b} ({bp}) before, {a} ({ap}) after — {o}",
-    "kp.confLow": "low confidence: one comparable pair, or a change within the earlier normal fluctuation ({f}%).",
-    "kp.confMedium": "medium confidence: the change is larger than the earlier normal fluctuation ({f}%).",
-    "kp.noComparable": "There is a result after the decision, but none over a period of the same length as the last one before it, so they are not compared.",
-    "kp.noBefore": "No result for a period ending before the decision, so there is nothing to compare with.",
+    "kp.confLow":
+      "low confidence: one comparable pair, or a change within the earlier normal fluctuation ({f}%).",
+    "kp.confMedium":
+      "medium confidence: the change is larger than the earlier normal fluctuation ({f}%).",
+    "kp.noComparable":
+      "There is a result after the decision, but none over a period of the same length as the last one before it, so they are not compared.",
+    "kp.noBefore":
+      "No result for a period ending before the decision, so there is nothing to compare with.",
     "kp.title": "Measurement quality",
     "kp.none": "No actual results recorded yet.",
     "kp.periods": "{n} result period(s), the latest ending {d}.",
     "kp.clean": "Periods have the same length, without gaps or overlaps, so they can be compared.",
-    "kp.mixed": "Periods of different lengths are mixed; only periods of the same length are compared.",
+    "kp.mixed":
+      "Periods of different lengths are mixed; only periods of the same length are compared.",
     "kp.gaps": "{n} gap(s) between periods.",
     "kp.overlaps": "{n} overlapping period(s).",
     "kp.corrections": "{n} correction(s); the corrected values are used.",
@@ -20,15 +25,21 @@ export const kp = defineArea("kp", {
   },
   nl: {
     "kp.observed": "Gekoppelde meetwaarde: {b} ({bp}) vooraf, {a} ({ap}) achteraf — {o}",
-    "kp.confLow": "laag vertrouwen: één vergelijkbaar paar, of een verandering binnen de eerdere normale schommeling ({f}%).",
-    "kp.confMedium": "gemiddeld vertrouwen: de verandering is groter dan de eerdere normale schommeling ({f}%).",
-    "kp.noComparable": "Er is een resultaat na de beslissing, maar geen over een periode van dezelfde lengte als de laatste ervoor, dus ze worden niet vergeleken.",
-    "kp.noBefore": "Geen resultaat voor een periode die vóór de beslissing eindigt, dus er is niets om mee te vergelijken.",
+    "kp.confLow":
+      "laag vertrouwen: één vergelijkbaar paar, of een verandering binnen de eerdere normale schommeling ({f}%).",
+    "kp.confMedium":
+      "gemiddeld vertrouwen: de verandering is groter dan de eerdere normale schommeling ({f}%).",
+    "kp.noComparable":
+      "Er is een resultaat na de beslissing, maar geen over een periode van dezelfde lengte als de laatste ervoor, dus ze worden niet vergeleken.",
+    "kp.noBefore":
+      "Geen resultaat voor een periode die vóór de beslissing eindigt, dus er is niets om mee te vergelijken.",
     "kp.title": "Meetkwaliteit",
     "kp.none": "Nog geen werkelijke resultaten geregistreerd.",
     "kp.periods": "{n} resultaatperiode(s), de laatste eindigt op {d}.",
-    "kp.clean": "Perioden zijn even lang, zonder hiaten of overlap, dus ze kunnen worden vergeleken.",
-    "kp.mixed": "Perioden van verschillende lengte zijn gemengd; alleen even lange perioden worden vergeleken.",
+    "kp.clean":
+      "Perioden zijn even lang, zonder hiaten of overlap, dus ze kunnen worden vergeleken.",
+    "kp.mixed":
+      "Perioden van verschillende lengte zijn gemengd; alleen even lange perioden worden vergeleken.",
     "kp.gaps": "{n} hiaat/hiaten tussen perioden.",
     "kp.overlaps": "{n} overlappende periode(s).",
     "kp.corrections": "{n} correctie(s); de gecorrigeerde waarden worden gebruikt.",
@@ -36,15 +47,21 @@ export const kp = defineArea("kp", {
   },
   fr: {
     "kp.observed": "Indicateur lié : {b} ({bp}) avant, {a} ({ap}) après — {o}",
-    "kp.confLow": "confiance faible : une seule paire comparable, ou une variation dans la fluctuation normale antérieure ({f} %).",
-    "kp.confMedium": "confiance moyenne : la variation dépasse la fluctuation normale antérieure ({f} %).",
-    "kp.noComparable": "Il existe un résultat après la décision, mais aucun sur une période de même durée que la dernière avant, ils ne sont donc pas comparés.",
-    "kp.noBefore": "Aucun résultat pour une période se terminant avant la décision : rien à comparer.",
+    "kp.confLow":
+      "confiance faible : une seule paire comparable, ou une variation dans la fluctuation normale antérieure ({f} %).",
+    "kp.confMedium":
+      "confiance moyenne : la variation dépasse la fluctuation normale antérieure ({f} %).",
+    "kp.noComparable":
+      "Il existe un résultat après la décision, mais aucun sur une période de même durée que la dernière avant, ils ne sont donc pas comparés.",
+    "kp.noBefore":
+      "Aucun résultat pour une période se terminant avant la décision : rien à comparer.",
     "kp.title": "Qualité des mesures",
     "kp.none": "Aucun résultat réel enregistré pour l'instant.",
     "kp.periods": "{n} période(s) de résultat, la dernière se terminant le {d}.",
-    "kp.clean": "Les périodes ont la même durée, sans trous ni chevauchements : elles sont comparables.",
-    "kp.mixed": "Des périodes de durées différentes sont mélangées ; seules les périodes de même durée sont comparées.",
+    "kp.clean":
+      "Les périodes ont la même durée, sans trous ni chevauchements : elles sont comparables.",
+    "kp.mixed":
+      "Des périodes de durées différentes sont mélangées ; seules les périodes de même durée sont comparées.",
     "kp.gaps": "{n} trou(s) entre les périodes.",
     "kp.overlaps": "{n} période(s) qui se chevauchent.",
     "kp.corrections": "{n} correction(s) ; les valeurs corrigées sont utilisées.",

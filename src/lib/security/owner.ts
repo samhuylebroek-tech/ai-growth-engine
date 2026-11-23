@@ -9,7 +9,8 @@ export async function requirePlatformOwner(sb: SupabaseClient<Database>) {
 
 /** Authentication assurance level of the verified access token ("aal2" = signed in with a second factor). */
 export function sessionAal(claims: unknown): "aal1" | "aal2" | null {
-  const aal = typeof claims === "object" && claims !== null ? (claims as { aal?: unknown }).aal : undefined;
+  const aal =
+    typeof claims === "object" && claims !== null ? (claims as { aal?: unknown }).aal : undefined;
   return aal === "aal1" || aal === "aal2" ? aal : null;
 }
 
@@ -20,10 +21,17 @@ export type OwnerGate = "ok" | "forbidden" | "mfa_required";
  * from the server-verified access token (requireSupabaseAuth), never from the browser. A refusal is recorded as a
  * security event attributed to the caller (best effort; the database bounds it per user).
  */
-export async function platformOwnerGate(sb: SupabaseClient<Database>, claims: unknown, area: string): Promise<OwnerGate> {
+export async function platformOwnerGate(
+  sb: SupabaseClient<Database>,
+  claims: unknown,
+  area: string,
+): Promise<OwnerGate> {
   const record = async (kind: "owner_access_denied" | "owner_mfa_required") => {
     try {
-      await (sb as unknown as SupabaseClient<PendingDatabase>).rpc("record_security_event", { _kind: kind, _detail: { area } });
+      await (sb as unknown as SupabaseClient<PendingDatabase>).rpc("record_security_event", {
+        _kind: kind,
+        _detail: { area },
+      });
     } catch {
       /* logging must never turn a refusal into an error */
     }

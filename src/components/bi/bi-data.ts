@@ -118,7 +118,11 @@ export function biOptions(orgId: string | undefined, wsId: string | undefined) {
             ),
         ).maybeSingle(),
         readFactPages((cursor, size) => {
-          const q = sc(supabase.from("business_facts").select("id,key,value,verified,source_type,source_ref,created_at"))
+          const q = sc(
+            supabase
+              .from("business_facts")
+              .select("id,key,value,verified,source_type,source_ref,created_at"),
+          )
             .order("id")
             .limit(size);
           return cursor ? q.gt("id", cursor) : q;
@@ -188,7 +192,11 @@ export function biOptions(orgId: string | undefined, wsId: string | undefined) {
           .order("created_at", { ascending: false })
           .limit(1000),
         sc(growthDb.from("proposal_evidence").select("*")).limit(2000),
-        sc(growthDb.from("recommendation_decisions").select("item_key,decision,until,fingerprint,created_at,note"))
+        sc(
+          growthDb
+            .from("recommendation_decisions")
+            .select("item_key,decision,until,fingerprint,created_at,note"),
+        )
           .order("created_at", { ascending: false })
           .limit(1000),
       ]);

@@ -7,8 +7,7 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/_authenticated/app/business")({
   validateSearch: (s: Record<string, unknown>): { unit?: string } =>
     typeof s["unit"] === "string" && /^[0-9a-f-]{36}$/.test(s["unit"]) ? { unit: s["unit"] } : {},
-  head: () =>
-    localHead("business"),
+  head: () => localHead("business"),
   component: Page,
 });
 

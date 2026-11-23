@@ -3,10 +3,28 @@
 // recorded data, counted. Anything derived carries a formula; estimates are never facts; missing inputs are "missing".
 import type { ClaimKind } from "@/lib/claims";
 
-export type FigureSource = "revenue" | "spend" | "campaign" | "tasks" | "runs" | "reviews" | "experiments" | "economics" | "budget" | "usage" | "records" | "plan" | "proposals";
-export type Figure = { kind: Extract<ClaimKind, "fact" | "calc" | "estimate" | "missing">; source: FigureSource; formula?: string };
+export type FigureSource =
+  | "revenue"
+  | "spend"
+  | "campaign"
+  | "tasks"
+  | "runs"
+  | "reviews"
+  | "experiments"
+  | "economics"
+  | "budget"
+  | "usage"
+  | "records"
+  | "plan"
+  | "proposals";
+export type Figure = {
+  kind: Extract<ClaimKind, "fact" | "calc" | "estimate" | "missing">;
+  source: FigureSource;
+  formula?: string;
+};
 
-const f = (kind: Figure["kind"], source: FigureSource, formula?: string): Figure => (formula ? { kind, source, formula } : { kind, source });
+const f = (kind: Figure["kind"], source: FigureSource, formula?: string): Figure =>
+  formula ? { kind, source, formula } : { kind, source };
 
 export const REPORT_FIGURES = {
   "fin.sales": f("fact", "revenue"),
@@ -59,6 +77,6 @@ export const REPORT_FIGURES = {
   "goal.progress": f("calc", "plan", "progress"),
   "learn.counts": f("fact", "proposals"),
   "learn.patterns": f("calc", "proposals", "pattern"),
-  "missing": f("missing", "records"),
+  missing: f("missing", "records"),
 } as const satisfies Record<string, Figure>;
 export type FigureId = keyof typeof REPORT_FIGURES;

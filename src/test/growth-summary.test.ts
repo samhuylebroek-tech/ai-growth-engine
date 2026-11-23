@@ -15,9 +15,19 @@ describe("Growth summary cache compatibility", () => {
   it("keeps the new summary isolated by organization and workspace", () => {
     const client = new QueryClient();
     const options = growthSummaryOptions("org-a", "workspace-a", "owner");
-    client.setQueryData(options.queryKey, { profile: null, documents: [], facts: [], runs: [], approvals: [] });
-    expect(client.getQueryData(growthSummaryOptions("org-a", "workspace-b", "owner").queryKey)).toBeUndefined();
-    expect(client.getQueryData(growthSummaryOptions("org-b", "workspace-a", "owner").queryKey)).toBeUndefined();
+    client.setQueryData(options.queryKey, {
+      profile: null,
+      documents: [],
+      facts: [],
+      runs: [],
+      approvals: [],
+    });
+    expect(
+      client.getQueryData(growthSummaryOptions("org-a", "workspace-b", "owner").queryKey),
+    ).toBeUndefined();
+    expect(
+      client.getQueryData(growthSummaryOptions("org-b", "workspace-a", "owner").queryKey),
+    ).toBeUndefined();
   });
 
   it("retains overview-prefix invalidation after credit and approval changes", async () => {

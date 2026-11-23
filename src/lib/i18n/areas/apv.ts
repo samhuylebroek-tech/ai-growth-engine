@@ -27,7 +27,8 @@ export const apv = defineArea("apv", {
     "apv.emptyPending": "Nothing waiting",
     "apv.emptyDecided": "No decisions yet",
     "apv.emptyText": "When the Growth Officer recommends an action, it appears here for review.",
-    "apv.policyIntro": "Block capabilities your organization does not want proposed. Every external action still requires approval.",
+    "apv.policyIntro":
+      "Block capabilities your organization does not want proposed. Every external action still requires approval.",
     "apv.policyFailed": "Policies could not load.",
     "apv.policyFor": "Policy for {c}",
     "apv.mode.approval": "Approval required",
@@ -39,8 +40,10 @@ export const apv = defineArea("apv", {
     "apv.onlyAdminsToast": "Only admins can decide.",
     "apv.approved": "Approved",
     "apv.rejected": "Rejected",
-    "apv.footer": "Approving records your decision. Automatic execution through connected tools will arrive with each integration; until then, approved actions are carried out by your team.",
-    "apv.aiNote": "Recommended by the AI. Its reasoning is not independent evidence; check the facts before approving.",
+    "apv.footer":
+      "Approving records your decision. Automatic execution through connected tools will arrive with each integration; until then, approved actions are carried out by your team.",
+    "apv.aiNote":
+      "Recommended by the AI. Its reasoning is not independent evidence; check the facts before approving.",
   },
   nl: {
     "apv.title": "Beoordeling & goedkeuring",
@@ -66,8 +69,10 @@ export const apv = defineArea("apv", {
     "apv.decidedAt": "Beslist op {d}",
     "apv.emptyPending": "Niets in afwachting",
     "apv.emptyDecided": "Nog geen beslissingen",
-    "apv.emptyText": "Wanneer de Growth Officer een actie aanbeveelt, verschijnt ze hier ter beoordeling.",
-    "apv.policyIntro": "Blokkeer mogelijkheden die je organisatie niet voorgesteld wil zien. Elke externe actie vraagt nog steeds goedkeuring.",
+    "apv.emptyText":
+      "Wanneer de Growth Officer een actie aanbeveelt, verschijnt ze hier ter beoordeling.",
+    "apv.policyIntro":
+      "Blokkeer mogelijkheden die je organisatie niet voorgesteld wil zien. Elke externe actie vraagt nog steeds goedkeuring.",
     "apv.policyFailed": "Het beleid kon niet laden.",
     "apv.policyFor": "Beleid voor {c}",
     "apv.mode.approval": "Goedkeuring vereist",
@@ -79,8 +84,10 @@ export const apv = defineArea("apv", {
     "apv.onlyAdminsToast": "Alleen beheerders kunnen beslissen.",
     "apv.approved": "Goedgekeurd",
     "apv.rejected": "Afgewezen",
-    "apv.footer": "Goedkeuren legt je beslissing vast. Automatische uitvoering via gekoppelde tools komt met elke integratie; tot dan voert je team goedgekeurde acties uit.",
-    "apv.aiNote": "Aanbevolen door de AI. De redenering is geen onafhankelijk bewijs; controleer de feiten voor je goedkeurt.",
+    "apv.footer":
+      "Goedkeuren legt je beslissing vast. Automatische uitvoering via gekoppelde tools komt met elke integratie; tot dan voert je team goedgekeurde acties uit.",
+    "apv.aiNote":
+      "Aanbevolen door de AI. De redenering is geen onafhankelijk bewijs; controleer de feiten voor je goedkeurt.",
   },
   fr: {
     "apv.title": "Examen et approbations",
@@ -106,8 +113,10 @@ export const apv = defineArea("apv", {
     "apv.decidedAt": "Décidé le {d}",
     "apv.emptyPending": "Rien en attente",
     "apv.emptyDecided": "Aucune décision pour l'instant",
-    "apv.emptyText": "Quand le Growth Officer recommande une action, elle apparaît ici pour examen.",
-    "apv.policyIntro": "Bloquez les capacités que votre organisation ne veut pas voir proposées. Chaque action externe reste soumise à approbation.",
+    "apv.emptyText":
+      "Quand le Growth Officer recommande une action, elle apparaît ici pour examen.",
+    "apv.policyIntro":
+      "Bloquez les capacités que votre organisation ne veut pas voir proposées. Chaque action externe reste soumise à approbation.",
     "apv.policyFailed": "Les politiques n'ont pas pu être chargées.",
     "apv.policyFor": "Politique pour {c}",
     "apv.mode.approval": "Approbation requise",
@@ -119,7 +128,9 @@ export const apv = defineArea("apv", {
     "apv.onlyAdminsToast": "Seuls les administrateurs peuvent décider.",
     "apv.approved": "Approuvée",
     "apv.rejected": "Rejetée",
-    "apv.footer": "Approuver enregistre votre décision. L'exécution automatique via les outils connectés arrivera avec chaque intégration ; d'ici là, votre équipe réalise les actions approuvées.",
-    "apv.aiNote": "Recommandé par l'IA. Son raisonnement n'est pas une preuve indépendante ; vérifiez les faits avant d'approuver.",
+    "apv.footer":
+      "Approuver enregistre votre décision. L'exécution automatique via les outils connectés arrivera avec chaque intégration ; d'ici là, votre équipe réalise les actions approuvées.",
+    "apv.aiNote":
+      "Recommandé par l'IA. Son raisonnement n'est pas une preuve indépendante ; vérifiez les faits avant d'approuver.",
   },
 });

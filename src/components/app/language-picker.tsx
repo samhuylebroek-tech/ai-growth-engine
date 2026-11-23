@@ -6,10 +6,23 @@ import { cn } from "@/lib/utils";
 export function LanguagePicker({ className }: { className?: string }) {
   const { t, locale, setLocale } = useI18n();
   return (
-    <select aria-label={t("pages.pub.language")} title={t("pages.pub.language")} value={locale}
-      onChange={(e) => { if (isLocale(e.target.value)) setLocale(e.target.value); }}
-      className={cn("h-9 rounded-md border border-border bg-background px-2 text-xs text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", className)}>
-      {LOCALES.map((l) => <option key={l} value={l}>{LOCALE_NAME[l]}</option>)}
+    <select
+      aria-label={t("pages.pub.language")}
+      title={t("pages.pub.language")}
+      value={locale}
+      onChange={(e) => {
+        if (isLocale(e.target.value)) setLocale(e.target.value);
+      }}
+      className={cn(
+        "h-9 rounded-md border border-border bg-background px-2 text-xs text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        className,
+      )}
+    >
+      {LOCALES.map((l) => (
+        <option key={l} value={l}>
+          {LOCALE_NAME[l]}
+        </option>
+      ))}
     </select>
   );
 }

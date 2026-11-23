@@ -507,7 +507,9 @@ function client(
         },
         lt(column: string, value: unknown) {
           filters.push({ op: "lt", column, value });
-          selected = selected.filter((row) => row[column] != null && String(row[column]) < String(value));
+          selected = selected.filter(
+            (row) => row[column] != null && String(row[column]) < String(value),
+          );
           return q;
         },
         order() {
@@ -596,7 +598,8 @@ describe("unified business context — scope and isolation", () => {
       // the subscription is organization-level and only its plan key is read (to pick the applicable credit price);
       // exchange rates are organization-level reference data (no workspace column) used only for converted totals.
       if (read.table === "subscriptions" || read.table === "exchange_rates") continue;
-      const wsColumn = read.table === "ai_usage_events" ? "agent_runs.workspace_id" : "workspace_id";
+      const wsColumn =
+        read.table === "ai_usage_events" ? "agent_runs.workspace_id" : "workspace_id";
       expect(read.filters).toContainEqual({ op: "eq", column: wsColumn, value: "ws-a" });
     }
   });
@@ -670,7 +673,9 @@ describe("unified business context — domain sources", () => {
   });
   it("marks a goal without a measured baseline as not measurable and never assumes one", async () => {
     const context = await build();
-    expect(context).toMatch(/NOT MEASURABLE \(missing baseline, target; never assume a value\) Grow monthly revenue by 20%/);
+    expect(context).toMatch(
+      /NOT MEASURABLE \(missing baseline, target; never assume a value\) Grow monthly revenue by 20%/,
+    );
     expect(context).not.toMatch(/NOT MEASURABLE[^\n]*Win 20 new clients/);
   });
   it("includes high-priority SEO findings with check date and ignores malformed findings", async () => {
@@ -855,9 +860,30 @@ describe("guided onboarding answers in the context", () => {
   it("shows confirmed answers once, in their own section with binding boundaries, and ignores unconfirmed look-alikes", async () => {
     const rows = fixtures();
     rows["business_facts"] = [
-      { ...A, key: "Channels not to use", value: "Cold calling\nInfluencers", source_type: "user", source_ref: "Onboarding answer", verified: true },
-      { ...A, key: "Ideal customer", value: "spoofed-unconfirmed", source_type: "user", source_ref: "Onboarding answer", verified: false },
-      { ...A, key: "Industry", value: "Bakery", source_type: "user", source_ref: null, verified: true },
+      {
+        ...A,
+        key: "Channels not to use",
+        value: "Cold calling\nInfluencers",
+        source_type: "user",
+        source_ref: "Onboarding answer",
+        verified: true,
+      },
+      {
+        ...A,
+        key: "Ideal customer",
+        value: "spoofed-unconfirmed",
+        source_type: "user",
+        source_ref: "Onboarding answer",
+        verified: false,
+      },
+      {
+        ...A,
+        key: "Industry",
+        value: "Bakery",
+        source_type: "user",
+        source_ref: null,
+        verified: true,
+      },
     ];
     const context = await build(rows);
     expect(context).toContain("HOW THE BUSINESS WORKS");

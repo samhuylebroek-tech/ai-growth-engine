@@ -20,9 +20,29 @@ import { sel, tk } from "./parts";
 export const METHODS = ["ab_test", "comparison_group", "before_after", "observational"] as const;
 type Method = (typeof METHODS)[number];
 
-const TEXT = ["title", "hypothesis", "intervention", "control_description", "objective", "audience", "primary_kpi", "success_criteria", "stop_criteria", "expected_result", "risks"] as const;
+const TEXT = [
+  "title",
+  "hypothesis",
+  "intervention",
+  "control_description",
+  "objective",
+  "audience",
+  "primary_kpi",
+  "success_criteria",
+  "stop_criteria",
+  "expected_result",
+  "risks",
+] as const;
 type TextKey = (typeof TEXT)[number];
-type Values = Record<TextKey, string> & { secondary: string; baseline: string; effect: string; guardrail: string; duration: string; budget: string; traffic: string };
+type Values = Record<TextKey, string> & {
+  secondary: string;
+  baseline: string;
+  effect: string;
+  guardrail: string;
+  duration: string;
+  budget: string;
+  traffic: string;
+};
 
 function initial(x?: ExperimentRow | null, followUp?: ExperimentRow | null): Values {
   const s = x ?? null;
@@ -65,13 +85,16 @@ export function ExperimentDesigner({
   const { t } = useI18n();
   const qc = useQueryClient();
   const [v, setV] = useState<Values>(() => initial(edit, followUp));
-  const [method, setMethod] = useState<Method>((edit?.method ?? followUp?.method ?? "ab_test") as Method);
+  const [method, setMethod] = useState<Method>(
+    (edit?.method ?? followUp?.method ?? "ab_test") as Method,
+  );
   const [currency, setCurrency] = useState(edit?.currency ?? "EUR");
   const [goal, setGoal] = useState(edit?.goal_id ?? followUp?.goal_id ?? "");
   const [metric, setMetric] = useState(edit?.metric_id ?? followUp?.metric_id ?? "");
   const [busy, setBusy] = useState(false);
   const [key] = useState(() => crypto.randomUUID());
-  const set = (k: keyof Values) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setV((x) => ({ ...x, [k]: e.target.value }));
+  const set = (k: keyof Values) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setV((x) => ({ ...x, [k]: e.target.value }));
   const baseline = num(v.baseline);
   const effect = num(v.effect);
   const n = sampleSizePerGroup(baseline, effect);
@@ -82,15 +105,25 @@ export function ExperimentDesigner({
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!o.workspace || !o.org) return;
-    if (v.budget && !/^\d+([.,]\d{1,2})?$/.test(v.budget)) return void toast.error(t("bi.rev.badAmount"));
-    if (!Number.isInteger(duration) || duration < 1 || duration > 365) return void toast.error(t("bi.exp.badDuration"));
-    for (const x of [baseline, effect, num(v.guardrail)]) if (x !== null && (Number.isNaN(x) || x < 0 || x > 100)) return void toast.error(t("exp.sampleNone"));
+    if (v.budget && !/^\d+([.,]\d{1,2})?$/.test(v.budget))
+      return void toast.error(t("bi.rev.badAmount"));
+    if (!Number.isInteger(duration) || duration < 1 || duration > 365)
+      return void toast.error(t("bi.exp.badDuration"));
+    for (const x of [baseline, effect, num(v.guardrail)])
+      if (x !== null && (Number.isNaN(x) || x < 0 || x > 100))
+        return void toast.error(t("exp.sampleNone"));
     const p: Record<string, unknown> = {
       ...Object.fromEntries(TEXT.map((k) => [k, v[k]])),
       method,
-      secondary_kpis: v.secondary.split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 5),
+      secondary_kpis: v.secondary
+        .split("\n")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .slice(0, 5),
       duration_days: duration,
-      ...(baseline !== null && effect !== null && controlled ? { baseline_rate: baseline, min_effect: effect } : {}),
+      ...(baseline !== null && effect !== null && controlled
+        ? { baseline_rate: baseline, min_effect: effect }
+        : {}),
       ...(num(v.guardrail) !== null ? { guardrail_min_rate: num(v.guardrail) } : {}),
       ...(v.budget ? { budget: v.budget.replace(",", "."), currency } : {}),
       ...(goal ? { goal_id: goal } : {}),
@@ -99,8 +132,16 @@ export function ExperimentDesigner({
     if (!edit && followUp) p["follow_up_of"] = followUp.id;
     setBusy(true);
     const r = edit
-      ? await growthDb.rpc("revise_experiment_design", { _experiment: edit.id, _version: edit.design_version ?? 1, _p: p as Json })
-      : await growthDb.rpc("design_experiment", { _workspace: o.workspace.id, _request: key, _p: p as Json });
+      ? await growthDb.rpc("revise_experiment_design", {
+          _experiment: edit.id,
+          _version: edit.design_version ?? 1,
+          _p: p as Json,
+        })
+      : await growthDb.rpc("design_experiment", {
+          _workspace: o.workspace.id,
+          _request: key,
+          _p: p as Json,
+        });
     setBusy(false);
     if (r.error) return void toast.error(t("bi.failed", { e: r.error.message }));
     toast.success(edit ? t("exp.revised") : t("exp.saved"));
@@ -109,21 +150,40 @@ export function ExperimentDesigner({
     onDone();
   }
 
-  const field = (k: TextKey, label: string, opts: { area?: boolean; req?: boolean; help?: string } = {}) => (
+  const field = (
+    k: TextKey,
+    label: string,
+    opts: { area?: boolean; req?: boolean; help?: string } = {},
+  ) => (
     <label className={cn("text-[11px]", opts.area && "sm:col-span-2")}>
       <span className="mb-1 block font-medium">
         {label}
         {opts.req ? " *" : ""}
       </span>
       {opts.area ? (
-        <Textarea rows={2} value={v[k]} onChange={set(k)} maxLength={k === "control_description" ? 500 : k.endsWith("criteria") ? 600 : 1000} required={opts.req} />
+        <Textarea
+          rows={2}
+          value={v[k]}
+          onChange={set(k)}
+          maxLength={k === "control_description" ? 500 : k.endsWith("criteria") ? 600 : 1000}
+          required={opts.req}
+        />
       ) : (
-        <Input value={v[k]} onChange={set(k)} maxLength={k === "title" ? 160 : k === "primary_kpi" ? 200 : 500} required={opts.req} />
+        <Input
+          value={v[k]}
+          onChange={set(k)}
+          maxLength={k === "title" ? 160 : k === "primary_kpi" ? 200 : 500}
+          required={opts.req}
+        />
       )}
       {opts.help && <span className="mt-1 block text-muted-foreground">{opts.help}</span>}
     </label>
   );
-  const numField = (k: "baseline" | "effect" | "guardrail" | "duration" | "traffic", label: string, req = false) => (
+  const numField = (
+    k: "baseline" | "effect" | "guardrail" | "duration" | "traffic",
+    label: string,
+    req = false,
+  ) => (
     <label className="text-[11px]">
       <span className="mb-1 block font-medium">
         {label}
@@ -134,25 +194,43 @@ export function ExperimentDesigner({
   );
   const title = edit ? t("exp.editTitle") : t("bi.exp.new");
   return (
-    <form onSubmit={submit} className="rounded-lg border border-border bg-card p-4" aria-label={title}>
+    <form
+      onSubmit={submit}
+      className="rounded-lg border border-border bg-card p-4"
+      aria-label={title}
+    >
       <h2 className="text-sm font-semibold">{title}</h2>
-      {followUp && !edit && <p className="mt-1 text-xs text-muted-foreground">{t("exp.followUpOf", { t: followUp.title })}</p>}
+      {followUp && !edit && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          {t("exp.followUpOf", { t: followUp.title })}
+        </p>
+      )}
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         {field("title", t("bi.exp.title"), { req: true })}
         <label className="text-[11px]">
           <span className="mb-1 block font-medium">{t("bi.exp.method")}</span>
-          <select className={sel} value={method} onChange={(e) => setMethod(e.target.value as Method)}>
+          <select
+            className={sel}
+            value={method}
+            onChange={(e) => setMethod(e.target.value as Method)}
+          >
             {METHODS.map((m) => (
               <option key={m} value={m}>
                 {t(tk(`bi.method.${m}`))}
               </option>
             ))}
           </select>
-          <span className="mt-1 block text-muted-foreground">{t(tk(`bi.methodHelp.${method}`))}</span>
+          <span className="mt-1 block text-muted-foreground">
+            {t(tk(`bi.methodHelp.${method}`))}
+          </span>
         </label>
         {field("hypothesis", t("bi.exp.hypothesis"), { area: true, req: true })}
         {field("intervention", t("bi.exp.intervention"), { area: true, req: true })}
-        {controlled && field("control_description", t("exp.f.control"), { area: true, help: t("exp.f.controlHelp") })}
+        {controlled &&
+          field("control_description", t("exp.f.control"), {
+            area: true,
+            help: t("exp.f.controlHelp"),
+          })}
         {field("objective", t("bi.exp.objective"))}
         {field("audience", t("bi.exp.audience"))}
         {field("primary_kpi", t("exp.f.primaryKpi"), { req: true })}
@@ -165,13 +243,18 @@ export function ExperimentDesigner({
             {numField("baseline", t("exp.f.baseline"))}
             {numField("effect", t("exp.f.effect"))}
             {numField("traffic", t("exp.f.traffic"))}
-            <div className="rounded-md border border-border bg-muted/40 p-2 text-[11px]" aria-live="polite">
+            <div
+              className="rounded-md border border-border bg-muted/40 p-2 text-[11px]"
+              aria-live="polite"
+            >
               {n ? (
                 <>
                   <p className="font-medium">{t("exp.sample", { n })}</p>
                   {days && <p className="mt-1">{t("exp.sampleDays", { t: v.traffic, d: days })}</p>}
                   {days && Number.isInteger(duration) && days > duration && (
-                    <p className="mt-1 text-warning">{t("exp.sampleShort", { p: duration, d: days })}</p>
+                    <p className="mt-1 text-warning">
+                      {t("exp.sampleShort", { p: duration, d: days })}
+                    </p>
                   )}
                 </>
               ) : (
@@ -192,7 +275,11 @@ export function ExperimentDesigner({
           </label>
           <label>
             <span className="mb-1 block font-medium">{t("bi.rev.currency")}</span>
-            <select className="rounded-md border border-border bg-card px-2 py-2 text-xs" value={currency} onChange={(e) => setCurrency(e.target.value)}>
+            <select
+              className="rounded-md border border-border bg-card px-2 py-2 text-xs"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+            >
               {["EUR", "USD", "GBP"].map((c) => (
                 <option key={c}>{c}</option>
               ))}

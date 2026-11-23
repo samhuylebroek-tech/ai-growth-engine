@@ -10,12 +10,17 @@ export function orgClaim(cls: string, origin: "ai" | "rule", text: string): OrgC
   switch (cls) {
     case "verified":
     case "recorded":
-      if (origin === "rule" || recordRefs(text).length > 0) return { kind: "fact", downgraded: false };
+      if (origin === "rule" || recordRefs(text).length > 0)
+        return { kind: "fact", downgraded: false };
       return { kind: "hypothesis", downgraded: true };
-    case "calculated": return { kind: "calc", downgraded: false };
-    case "estimate": return { kind: "estimate", downgraded: false };
-    case "missing": return { kind: "missing", downgraded: false };
-    default: return { kind: "hypothesis", downgraded: false };
+    case "calculated":
+      return { kind: "calc", downgraded: false };
+    case "estimate":
+      return { kind: "estimate", downgraded: false };
+    case "missing":
+      return { kind: "missing", downgraded: false };
+    default:
+      return { kind: "hypothesis", downgraded: false };
   }
 }
 
@@ -32,6 +37,8 @@ export const SECTION_KIND = {
 } as const satisfies Record<string, ClaimKind>;
 
 /** Whether an item concerns one business or the organization as a whole. */
-export function claimScope(businessIds: readonly (string | null | undefined)[]): "business" | "organization" {
+export function claimScope(
+  businessIds: readonly (string | null | undefined)[],
+): "business" | "organization" {
   return businessIds.filter(Boolean).length === 1 ? "business" : "organization";
 }

@@ -9,7 +9,12 @@ import { useOrg } from "@/lib/org-context";
 import { useI18n } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { can } from "@/lib/permissions";
-import { growthDb, isNotInstalled, retryUnlessNotInstalled, type TaskReplanAnalysisRow } from "@/lib/pending-schema";
+import {
+  growthDb,
+  isNotInstalled,
+  retryUnlessNotInstalled,
+  type TaskReplanAnalysisRow,
+} from "@/lib/pending-schema";
 import { analyzeReplan } from "@/lib/ai.functions";
 import { analysisStale, type ReplanAnalysis } from "@/lib/replan-analysis";
 import { Button } from "@/components/ui/button";
@@ -17,20 +22,42 @@ import { cn } from "@/lib/utils";
 
 const tk = (k: string) => k as MessageKey;
 
-export function replanAnalysesOptions(orgId: string | undefined, wsId: string | undefined, proposalId: string | undefined) {
+export function replanAnalysesOptions(
+  orgId: string | undefined,
+  wsId: string | undefined,
+  proposalId: string | undefined,
+) {
   return {
     queryKey: ["replan-analyses", orgId ?? "", wsId ?? "", proposalId ?? ""] as const,
     enabled: !!orgId && !!wsId && !!proposalId,
     retry: retryUnlessNotInstalled,
     queryFn: async (): Promise<TaskReplanAnalysisRow[] | null> => {
-      const r = await growthDb.from("task_replan_analyses").select("*").eq("org_id", orgId!).eq("workspace_id", wsId!).eq("proposal_id", proposalId!).order("created_at", { ascending: false }).limit(10);
-      if (r.error) { if (isNotInstalled(r.error)) return null; throw r.error; }
+      const r = await growthDb
+        .from("task_replan_analyses")
+        .select("*")
+        .eq("org_id", orgId!)
+        .eq("workspace_id", wsId!)
+        .eq("proposal_id", proposalId!)
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (r.error) {
+        if (isNotInstalled(r.error)) return null;
+        throw r.error;
+      }
       return r.data ?? [];
     },
   };
 }
 
-export function ReplanAnalysisPanel({ proposalId, taskUpdatedAt, title }: { proposalId: string; taskUpdatedAt: string; title: (id: string) => string }) {
+export function ReplanAnalysisPanel({
+  proposalId,
+  taskUpdatedAt,
+  title,
+}: {
+  proposalId: string;
+  taskUpdatedAt: string;
+  title: (id: string) => string;
+}) {
   const o = useOrg();
   const { t, tag, locale } = useI18n();
   const qc = useQueryClient();
@@ -48,7 +75,15 @@ export function ReplanAnalysisPanel({ proposalId, taskUpdatedAt, title }: { prop
     setBusy(true);
     key.current ??= crypto.randomUUID();
     try {
-      const r = await analyze({ data: { orgId: o.org.id, workspaceId: o.workspace.id, proposalId, requestKey: key.current, locale } });
+      const r = await analyze({
+        data: {
+          orgId: o.org.id,
+          workspaceId: o.workspace.id,
+          proposalId,
+          requestKey: key.current,
+          locale,
+        },
+      });
       if (!r.ok) return void toast.error(r.error);
       key.current = null;
       toast.success(t("ra.done", { c: r.data.credits }));
@@ -63,40 +98,106 @@ export function ReplanAnalysisPanel({ proposalId, taskUpdatedAt, title }: { prop
 
   const a = latest ? (latest.analysis as unknown as ReplanAnalysis) : null;
   return (
-    <section aria-label={t("ra.title")} className="space-y-2 rounded-md border border-border bg-card p-3 text-xs">
-      <h4 className="flex items-center gap-1 text-sm font-semibold"><Sparkles className="h-4 w-4" aria-hidden />{t("ra.title")}</h4>
+    <section
+      aria-label={t("ra.title")}
+      className="space-y-2 rounded-md border border-border bg-card p-3 text-xs"
+    >
+      <h4 className="flex items-center gap-1 text-sm font-semibold">
+        <Sparkles className="h-4 w-4" aria-hidden />
+        {t("ra.title")}
+      </h4>
       {!a && <p className="text-muted-foreground">{t("ra.intro")}</p>}
       {a && latest && (
         <div className={cn("space-y-2", stale && "opacity-70")}>
-          <p className="text-muted-foreground">{t("ra.when", { d: new Date(latest.created_at).toLocaleString(tag), c: latest.credits ?? "—" })}</p>
-          {stale && <p className="rounded-md border border-warning/50 p-2 text-warning">{t("ra.stale")}</p>}
+          <p className="text-muted-foreground">
+            {t("ra.when", {
+              d: new Date(latest.created_at).toLocaleString(tag),
+              c: latest.credits ?? "—",
+            })}
+          </p>
+          {stale && (
+            <p className="rounded-md border border-warning/50 p-2 text-warning">{t("ra.stale")}</p>
+          )}
           <Block h={t("ra.cause")} body={a.cause} />
           <Block h={t("ra.consequences")} body={a.consequences} />
           {a.affected.length > 0 && (
-            <div><p className="font-medium">{t("ra.affected")}</p>
-              <ul className="list-disc pl-5">{a.affected.map((x) => <li key={x.task_id}><span className="font-medium">{title(x.task_id)}</span>: {x.effect}</li>)}</ul></div>
+            <div>
+              <p className="font-medium">{t("ra.affected")}</p>
+              <ul className="list-disc pl-5">
+                {a.affected.map((x) => (
+                  <li key={x.task_id}>
+                    <span className="font-medium">{title(x.task_id)}</span>: {x.effect}
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
           {a.options.length > 0 && (
-            <div><p className="font-medium">{t("ra.options")}</p>
-              <ul className="space-y-1">{a.options.map((x) => (
-                <li key={x.key} className={cn("rounded border border-border p-1.5", latest.recommended === x.key && "border-primary")}>
-                  <span className="font-medium">{t("ra.option", { k: x.key.toUpperCase() })}</span> · {t("ra.riskOf", { r: t(tk(`rp.risk.${x.risk}`)) })}
-                  {latest.recommended === x.key && <span className="ml-1 text-primary">· {t("ra.badge")}</span>}
-                  <span className="block">{x.assessment}</span>
-                </li>
-              ))}</ul></div>
+            <div>
+              <p className="font-medium">{t("ra.options")}</p>
+              <ul className="space-y-1">
+                {a.options.map((x) => (
+                  <li
+                    key={x.key}
+                    className={cn(
+                      "rounded border border-border p-1.5",
+                      latest.recommended === x.key && "border-primary",
+                    )}
+                  >
+                    <span className="font-medium">
+                      {t("ra.option", { k: x.key.toUpperCase() })}
+                    </span>{" "}
+                    · {t("ra.riskOf", { r: t(tk(`rp.risk.${x.risk}`)) })}
+                    {latest.recommended === x.key && (
+                      <span className="ml-1 text-primary">· {t("ra.badge")}</span>
+                    )}
+                    <span className="block">{x.assessment}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
-          <p className="font-medium">{latest.recommended === "none" ? t("ra.recommendedNone") : t("ra.recommended", { k: latest.recommended.toUpperCase() })}</p>
+          <p className="font-medium">
+            {latest.recommended === "none"
+              ? t("ra.recommendedNone")
+              : t("ra.recommended", { k: latest.recommended.toUpperCase() })}
+          </p>
           {a.why && <p>{a.why}</p>}
           {a.extra.length > 0 && (
-            <div><p className="font-medium">{t("ra.extra")}</p>
-              <ul className="list-disc pl-5">{a.extra.map((x, i) => <li key={i}><span className="font-medium">{t(tk(`ra.x.${x.kind}`))}</span>: {x.suggestion}</li>)}</ul></div>
+            <div>
+              <p className="font-medium">{t("ra.extra")}</p>
+              <ul className="list-disc pl-5">
+                {a.extra.map((x, i) => (
+                  <li key={i}>
+                    <span className="font-medium">{t(tk(`ra.x.${x.kind}`))}</span>: {x.suggestion}
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
-          {a.risks.length > 0 && <div><p className="font-medium">{t("ra.risks")}</p><ul className="list-disc pl-5">{a.risks.map((r, i) => <li key={i}>{r}</li>)}</ul></div>}
+          {a.risks.length > 0 && (
+            <div>
+              <p className="font-medium">{t("ra.risks")}</p>
+              <ul className="list-disc pl-5">
+                {a.risks.map((r, i) => (
+                  <li key={i}>{r}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           <Block h={t("ra.cost")} body={a.cost} />
           <Block h={t("ra.approval")} body={a.approval} />
           <Block h={t("ra.verification")} body={a.verification} />
-          {a.evidence_gaps.length > 0 && <div><p className="font-medium">{t("ra.gaps")}</p><ul className="list-disc pl-5">{a.evidence_gaps.map((r, i) => <li key={i}>{r}</li>)}</ul></div>}
+          {a.evidence_gaps.length > 0 && (
+            <div>
+              <p className="font-medium">{t("ra.gaps")}</p>
+              <ul className="list-disc pl-5">
+                {a.evidence_gaps.map((r, i) => (
+                  <li key={i}>{r}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           <p className="text-muted-foreground">{t("ra.advice")}</p>
         </div>
       )}
@@ -112,5 +213,10 @@ export function ReplanAnalysisPanel({ proposalId, taskUpdatedAt, title }: { prop
 
 function Block({ h, body }: { h: string; body: string }) {
   if (!body) return null;
-  return <div><p className="font-medium">{h}</p><p className="break-words">{body}</p></div>;
+  return (
+    <div>
+      <p className="font-medium">{h}</p>
+      <p className="break-words">{body}</p>
+    </div>
+  );
 }

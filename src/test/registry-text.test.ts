@@ -25,6 +25,9 @@ describe("specialist and capability names follow the interface language", () => 
     }
   });
   it("falls back to the registry text for an unknown key", () => {
-    expect(agentText(tr("nl"), { key: "unknown_agent", name: "X", description: "Y" })).toEqual({ name: "X", description: "Y" });
+    expect(agentText(tr("nl"), { key: "unknown_agent", name: "X", description: "Y" })).toEqual({
+      name: "X",
+      description: "Y",
+    });
   });
 });

@@ -3,7 +3,10 @@
  */
 export type CursorRow = { id: string };
 export async function collectPages<T extends CursorRow>(
-  fetchPage: (cursor: string | undefined, size: number) => Promise<{ data: T[] | null; error: unknown }>,
+  fetchPage: (
+    cursor: string | undefined,
+    size: number,
+  ) => Promise<{ data: T[] | null; error: unknown }>,
   size = 500,
 ): Promise<T[]> {
   if (!Number.isInteger(size) || size < 1 || size > 1000) throw new Error("Invalid page size");

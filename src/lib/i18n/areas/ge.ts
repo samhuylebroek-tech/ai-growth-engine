@@ -4,22 +4,26 @@ import { defineArea } from "../define";
 export const ge = defineArea("ge", {
   en: {
     "ge.title": "Growth economics",
-    "ge.intro": "Budget, spending, costs, AI credits, revenue and profit of this business, from its own records. Actual, estimated and simulated amounts are kept apart; a figure without its inputs shows what is missing.",
+    "ge.intro":
+      "Budget, spending, costs, AI credits, revenue and profit of this business, from its own records. Actual, estimated and simulated amounts are kept apart; a figure without its inputs shows what is missing.",
     "ge.loading": "Loading growth economics…",
     "ge.chooseWs": "Choose a business first.",
     "ge.notInstalled": "Growth economics is not available in this environment yet.",
-    "ge.loadFailed": "Growth economics could not be loaded. Nothing is shown rather than incomplete figures.",
+    "ge.loadFailed":
+      "Growth economics could not be loaded. Nothing is shown rather than incomplete figures.",
     "ge.period": "Period",
     "ge.model": "Attribution model",
     "ge.incomplete": "Not everything could be read ({list}); totals may be too low.",
-    "ge.costsNotInstalled": "Business costs, cost models and credit prices are not available in this environment yet.",
+    "ge.costsNotInstalled":
+      "Business costs, cost models and credit prices are not available in this environment yet.",
     "ge.business": "Business economics",
     "ge.nothing": "No revenue, spending or costs recorded for this period.",
     "ge.netRevenue": "Net revenue",
     "ge.revenueNote": "Gross {g}, refunds and corrections {r}, {n} sale(s)",
     "ge.noRevenue": "No recorded sales in this period.",
     "ge.attributed": "Credited to campaigns ({m})",
-    "ge.unattributed": "Not attributed: {a} over {n} sale(s). Attribution is credit, not proof of extra sales.",
+    "ge.unattributed":
+      "Not attributed: {a} over {n} sale(s). Attribution is credit, not proof of extra sales.",
     "ge.campaignSpend": "Campaign spending (actual)",
     "ge.noSpend": "No actual campaign spending",
     "ge.reserved": "reserved {a}",
@@ -33,15 +37,20 @@ export const ge = defineArea("ge", {
     "ge.cacNote": "{s} actual acquisition spending / {n} new customer(s)",
     "ge.salesWithoutCustomer": "{n} sale(s) without customer reference",
     "ge.customerValue": "Observed revenue per customer",
-    "ge.clvNote": "{n} customer(s), {r}% bought again. Historical only; no predicted lifetime value.",
+    "ge.clvNote":
+      "{n} customer(s), {r}% bought again. Historical only; no predicted lifetime value.",
     "ge.ai": "AI work for this business",
-    "ge.aiCredits": "{c} credits charged for task runs and reviews · {p} not yet charged · {u} run(s) with unknown outcome",
+    "ge.aiCredits":
+      "{c} credits charged for task runs and reviews · {p} not yet charged · {u} run(s) with unknown outcome",
     "ge.aiCost": "AI cost {a} for {p} credits, at the credit price valid when each was used.",
-    "ge.aiNoPrice": "No credit price is set, so AI work is shown in credits only (a credit is not one euro).",
+    "ge.aiNoPrice":
+      "No credit price is set, so AI work is shown in credits only (a credit is not one euro).",
     "ge.aiUnpriced": "{n} credits used before any price applied",
-    "ge.aiSeparate": "This is what AI work costs the business. It is kept apart from AI Growth Engine's own subscription revenue and provider costs.",
+    "ge.aiSeparate":
+      "This is what AI work costs the business. It is kept apart from AI Growth Engine's own subscription revenue and provider costs.",
     "ge.campaigns": "Campaign economics",
-    "ge.campaignsNote": "Budget, spending and credits since the start of each campaign; credited revenue and ROAS for the chosen period and model.",
+    "ge.campaignsNote":
+      "Budget, spending and credits since the start of each campaign; credited revenue and ROAS for the chosen period and model.",
     "ge.col.campaign": "Campaign",
     "ge.col.allocated": "Allocated",
     "ge.col.spent": "Spent",
@@ -79,14 +88,16 @@ export const ge = defineArea("ge", {
     "ge.missing.cost_per_month": "cost of goods for every month",
     "ge.missing.cost_period_outside_report": "a cost period runs outside this report period",
     "ge.rollups": "Initiatives, strategies and goals",
-    "ge.rollupRule": "Each amount is counted once: campaign spending at its campaign, business costs at their initiative or the business, AI credits at the campaign of their task. A level adds its own costs and each linked campaign once.",
+    "ge.rollupRule":
+      "Each amount is counted once: campaign spending at its campaign, business costs at their initiative or the business, AI credits at the campaign of their task. A level adds its own costs and each linked campaign once.",
     "ge.level": "Level",
     "ge.level.initiative": "Initiatives",
     "ge.level.strategy": "Strategies",
     "ge.level.goal": "Goals",
     "ge.noRollup": "No campaigns or costs linked at this level yet.",
     "ge.costs": "Business costs",
-    "ge.costsIntro": "Costs that belong to no single campaign: cost of goods or services, software, agencies, marketing outside campaigns and other operating costs. History is permanent; a mistake is fixed with a correction.",
+    "ge.costsIntro":
+      "Costs that belong to no single campaign: cost of goods or services, software, agencies, marketing outside campaigns and other operating costs. History is permanent; a mistake is fixed with a correction.",
     "ge.costModel": "Cost model",
     "ge.modelCurrent": "Current: {m} {r} since {d}",
     "ge.modelNone": "No cost model chosen yet, so gross profit cannot be calculated.",
@@ -134,9 +145,12 @@ export const ge = defineArea("ge", {
     "ge.err.duplicate": "Refused: a cost with this reference already exists.",
     "ge.err.role": "You don't have the right to do this for this business.",
     "ge.err.invalid": "Refused: check the amount, currency, dates and category.",
-    "ge.aiTotal": "{n} credits used for AI work in this period: {c} on campaign work, {o} on other AI work (Growth Officer, analyses, drafts, explanations).",
-    "ge.aiOpen": "Not yet charged: {p} credits reserved for running work · {u} run(s) with unknown outcome (not priced).",
-    "ge.aiNotReconciled": "Some AI usage records could not be read, so campaign credits and the total do not reconcile yet.",
+    "ge.aiTotal":
+      "{n} credits used for AI work in this period: {c} on campaign work, {o} on other AI work (Growth Officer, analyses, drafts, explanations).",
+    "ge.aiOpen":
+      "Not yet charged: {p} credits reserved for running work · {u} run(s) with unknown outcome (not priced).",
+    "ge.aiNotReconciled":
+      "Some AI usage records could not be read, so campaign credits and the total do not reconcile yet.",
     "ge.agent.growth_officer": "Growth Officer",
     "ge.agent.organization_growth_officer": "Organization Growth Officer",
     "ge.agent.business_intelligence": "Business intelligence",
@@ -152,7 +166,8 @@ export const ge = defineArea("ge", {
     "ge.agent.other": "Other",
     "ge.budget": "Budget in this period",
     "ge.noBudget": "No budget lines for this period.",
-    "ge.budgetLine": "Planned {p} on {n} line(s) · allocated to campaigns {a} · not allocated {u} · spent {s} · reserved {r}",
+    "ge.budgetLine":
+      "Planned {p} on {n} line(s) · allocated to campaigns {a} · not allocated {u} · spent {s} · reserved {r}",
     "ge.budgetDups": "{n} group(s) of possibly duplicate budget lines; see Goals & budget.",
     "ge.budgetNote": "Reservations are not spending; simulated amounts are not counted.",
     "ge.channels": "Spending by channel",
@@ -163,42 +178,61 @@ export const ge = defineArea("ge", {
     "ge.missing.customer_ref": "customer reference on sales",
     "ge.missing.acquisition_spend": "actual acquisition spending",
     "ge.missing.attribution": "campaign attribution of sales",
-    "ge.fix.cost_model": "Gross profit depends on how your costs work. Choose a cost model under Business costs below; it is set once by an editor and cannot be imported.",
-    "ge.fix.single_cost_model_for_period": "The cost model changed inside this period. Choose a period that falls under one model.",
-    "ge.fix.cost_per_month": "Record the cost of goods or services for each month under Business costs. Becomes available as soon as every month has a recorded cost.",
-    "ge.fix.cost_per_sale": "Record the cost of goods for each sale under Business costs (linked to the sale). Becomes available when every sale has its cost.",
-    "ge.fix.cost_period_outside_report": "A recorded cost covers months outside this period. Choose a period that contains the whole cost period.",
-    "ge.fix.customer_ref": "CAC and revenue per customer count customers, so every sale needs a customer reference. Add it when recording sales under Revenue & attribution, or include it in an import.",
-    "ge.fix.acquisition_spend": "CAC needs actual acquisition spending: record real campaign spending on the campaign, or marketing costs outside campaigns under Business costs. Simulated amounts never count.",
-    "ge.fix.attribution": "ROAS uses only revenue credited to a campaign. Record which campaign touched each sale under Revenue & attribution; sales without a touch stay unattributed.",
+    "ge.fix.cost_model":
+      "Gross profit depends on how your costs work. Choose a cost model under Business costs below; it is set once by an editor and cannot be imported.",
+    "ge.fix.single_cost_model_for_period":
+      "The cost model changed inside this period. Choose a period that falls under one model.",
+    "ge.fix.cost_per_month":
+      "Record the cost of goods or services for each month under Business costs. Becomes available as soon as every month has a recorded cost.",
+    "ge.fix.cost_per_sale":
+      "Record the cost of goods for each sale under Business costs (linked to the sale). Becomes available when every sale has its cost.",
+    "ge.fix.cost_period_outside_report":
+      "A recorded cost covers months outside this period. Choose a period that contains the whole cost period.",
+    "ge.fix.customer_ref":
+      "CAC and revenue per customer count customers, so every sale needs a customer reference. Add it when recording sales under Revenue & attribution, or include it in an import.",
+    "ge.fix.acquisition_spend":
+      "CAC needs actual acquisition spending: record real campaign spending on the campaign, or marketing costs outside campaigns under Business costs. Simulated amounts never count.",
+    "ge.fix.attribution":
+      "ROAS uses only revenue credited to a campaign. Record which campaign touched each sale under Revenue & attribution; sales without a touch stay unattributed.",
     "ge.formulas": "How each figure is calculated",
-    "ge.f.net": "Net revenue = recorded sales − refunds and corrections in the period (estimated sales excluded).",
-    "ge.f.gp": "Gross profit = net revenue − cost of goods or services under the business's cost model; not shown when that cost is missing.",
-    "ge.f.margin": "Gross margin = gross profit ÷ net revenue, only when net revenue is above zero.",
-    "ge.f.cac": "CAC = actual acquisition spending in the period ÷ customers whose first recorded sale falls in the period; never from lead counts.",
-    "ge.f.roas": "ROAS = revenue credited to the campaign by the chosen attribution model ÷ the campaign's actual marketing spending; AI credits are not advertising spend.",
-    "ge.f.rpc": "Revenue per customer = recorded net revenue ÷ customers with a reference (historical only, no prediction).",
-    "ge.f.ai": "AI cost = each charged credit × the credit price that applied when it was used; credits without an applicable price stay credits.",
+    "ge.f.net":
+      "Net revenue = recorded sales − refunds and corrections in the period (estimated sales excluded).",
+    "ge.f.gp":
+      "Gross profit = net revenue − cost of goods or services under the business's cost model; not shown when that cost is missing.",
+    "ge.f.margin":
+      "Gross margin = gross profit ÷ net revenue, only when net revenue is above zero.",
+    "ge.f.cac":
+      "CAC = actual acquisition spending in the period ÷ customers whose first recorded sale falls in the period; never from lead counts.",
+    "ge.f.roas":
+      "ROAS = revenue credited to the campaign by the chosen attribution model ÷ the campaign's actual marketing spending; AI credits are not advertising spend.",
+    "ge.f.rpc":
+      "Revenue per customer = recorded net revenue ÷ customers with a reference (historical only, no prediction).",
+    "ge.f.ai":
+      "AI cost = each charged credit × the credit price that applied when it was used; credits without an applicable price stay credits.",
     "ge.unpricedShort": "{n} credits without a price",
   },
   nl: {
     "ge.title": "Groei-economie",
-    "ge.intro": "Budget, uitgaven, kosten, AI-credits, omzet en winst van dit bedrijf, uit de eigen registraties. Werkelijke, geschatte en gesimuleerde bedragen blijven gescheiden; een cijfer zonder invoer toont wat ontbreekt.",
+    "ge.intro":
+      "Budget, uitgaven, kosten, AI-credits, omzet en winst van dit bedrijf, uit de eigen registraties. Werkelijke, geschatte en gesimuleerde bedragen blijven gescheiden; een cijfer zonder invoer toont wat ontbreekt.",
     "ge.loading": "Groei-economie laden…",
     "ge.chooseWs": "Kies eerst een bedrijf.",
     "ge.notInstalled": "Groei-economie is in deze omgeving nog niet beschikbaar.",
-    "ge.loadFailed": "Groei-economie kon niet worden geladen. Er wordt niets getoond in plaats van onvolledige cijfers.",
+    "ge.loadFailed":
+      "Groei-economie kon niet worden geladen. Er wordt niets getoond in plaats van onvolledige cijfers.",
     "ge.period": "Periode",
     "ge.model": "Toewijzingsmodel",
     "ge.incomplete": "Niet alles kon worden gelezen ({list}); totalen kunnen te laag zijn.",
-    "ge.costsNotInstalled": "Bedrijfskosten, kostenmodellen en creditprijzen zijn in deze omgeving nog niet beschikbaar.",
+    "ge.costsNotInstalled":
+      "Bedrijfskosten, kostenmodellen en creditprijzen zijn in deze omgeving nog niet beschikbaar.",
     "ge.business": "Bedrijfseconomie",
     "ge.nothing": "Geen omzet, uitgaven of kosten geregistreerd voor deze periode.",
     "ge.netRevenue": "Netto-omzet",
     "ge.revenueNote": "Bruto {g}, terugbetalingen en correcties {r}, {n} verkoop/verkopen",
     "ge.noRevenue": "Geen geregistreerde verkopen in deze periode.",
     "ge.attributed": "Toegewezen aan campagnes ({m})",
-    "ge.unattributed": "Niet toegewezen: {a} over {n} verkoop/verkopen. Toewijzing is krediet, geen bewijs van extra verkoop.",
+    "ge.unattributed":
+      "Niet toegewezen: {a} over {n} verkoop/verkopen. Toewijzing is krediet, geen bewijs van extra verkoop.",
     "ge.campaignSpend": "Campagne-uitgaven (werkelijk)",
     "ge.noSpend": "Geen werkelijke campagne-uitgaven",
     "ge.reserved": "gereserveerd {a}",
@@ -212,15 +246,20 @@ export const ge = defineArea("ge", {
     "ge.cacNote": "{s} werkelijke wervingsuitgaven / {n} nieuwe klant(en)",
     "ge.salesWithoutCustomer": "{n} verkoop/verkopen zonder klantreferentie",
     "ge.customerValue": "Waargenomen omzet per klant",
-    "ge.clvNote": "{n} klant(en), {r}% kocht opnieuw. Alleen historisch; geen voorspelde levenslange waarde.",
+    "ge.clvNote":
+      "{n} klant(en), {r}% kocht opnieuw. Alleen historisch; geen voorspelde levenslange waarde.",
     "ge.ai": "AI-werk voor dit bedrijf",
-    "ge.aiCredits": "{c} credits aangerekend voor taakruns en beoordelingen · {p} nog niet aangerekend · {u} run(s) met onbekende uitkomst",
+    "ge.aiCredits":
+      "{c} credits aangerekend voor taakruns en beoordelingen · {p} nog niet aangerekend · {u} run(s) met onbekende uitkomst",
     "ge.aiCost": "AI-kost {a} voor {p} credits, tegen de creditprijs die gold bij elk gebruik.",
-    "ge.aiNoPrice": "Er is geen creditprijs ingesteld, dus AI-werk staat alleen in credits (een credit is geen euro).",
+    "ge.aiNoPrice":
+      "Er is geen creditprijs ingesteld, dus AI-werk staat alleen in credits (een credit is geen euro).",
     "ge.aiUnpriced": "{n} credits gebruikt voordat er een prijs gold",
-    "ge.aiSeparate": "Dit is wat AI-werk het bedrijf kost. Het staat los van de eigen abonnementsinkomsten en leverancierskosten van AI Growth Engine.",
+    "ge.aiSeparate":
+      "Dit is wat AI-werk het bedrijf kost. Het staat los van de eigen abonnementsinkomsten en leverancierskosten van AI Growth Engine.",
     "ge.campaigns": "Campagne-economie",
-    "ge.campaignsNote": "Budget, uitgaven en credits sinds de start van elke campagne; toegewezen omzet en ROAS voor de gekozen periode en het model.",
+    "ge.campaignsNote":
+      "Budget, uitgaven en credits sinds de start van elke campagne; toegewezen omzet en ROAS voor de gekozen periode en het model.",
     "ge.col.campaign": "Campagne",
     "ge.col.allocated": "Toegewezen",
     "ge.col.spent": "Uitgegeven",
@@ -258,14 +297,16 @@ export const ge = defineArea("ge", {
     "ge.missing.cost_per_month": "kostprijs voor elke maand",
     "ge.missing.cost_period_outside_report": "een kostperiode loopt buiten deze rapportperiode",
     "ge.rollups": "Initiatieven, strategieën en doelen",
-    "ge.rollupRule": "Elk bedrag telt één keer: campagne-uitgaven bij hun campagne, bedrijfskosten bij hun initiatief of het bedrijf, AI-credits bij de campagne van hun taak. Een niveau telt zijn eigen kosten en elke gekoppelde campagne één keer.",
+    "ge.rollupRule":
+      "Elk bedrag telt één keer: campagne-uitgaven bij hun campagne, bedrijfskosten bij hun initiatief of het bedrijf, AI-credits bij de campagne van hun taak. Een niveau telt zijn eigen kosten en elke gekoppelde campagne één keer.",
     "ge.level": "Niveau",
     "ge.level.initiative": "Initiatieven",
     "ge.level.strategy": "Strategieën",
     "ge.level.goal": "Doelen",
     "ge.noRollup": "Nog geen campagnes of kosten gekoppeld op dit niveau.",
     "ge.costs": "Bedrijfskosten",
-    "ge.costsIntro": "Kosten die bij geen enkele campagne horen: kostprijs van goederen of diensten, software, bureaus, marketing buiten campagnes en andere bedrijfskosten. De geschiedenis blijft bewaard; een fout herstel je met een correctie.",
+    "ge.costsIntro":
+      "Kosten die bij geen enkele campagne horen: kostprijs van goederen of diensten, software, bureaus, marketing buiten campagnes en andere bedrijfskosten. De geschiedenis blijft bewaard; een fout herstel je met een correctie.",
     "ge.costModel": "Kostenmodel",
     "ge.modelCurrent": "Huidig: {m} {r} sinds {d}",
     "ge.modelNone": "Nog geen kostenmodel gekozen, dus brutowinst kan niet worden berekend.",
@@ -313,9 +354,12 @@ export const ge = defineArea("ge", {
     "ge.err.duplicate": "Geweigerd: er bestaat al een kost met deze referentie.",
     "ge.err.role": "Je hebt geen recht om dit voor dit bedrijf te doen.",
     "ge.err.invalid": "Geweigerd: controleer bedrag, valuta, data en categorie.",
-    "ge.aiTotal": "{n} credits gebruikt voor AI-werk in deze periode: {c} voor campagnewerk, {o} voor ander AI-werk (Growth Officer, analyses, concepten, toelichtingen).",
-    "ge.aiOpen": "Nog niet aangerekend: {p} credits gereserveerd voor lopend werk · {u} run(s) met onbekende uitkomst (niet geprijsd).",
-    "ge.aiNotReconciled": "Sommige AI-gebruiksregistraties konden niet worden gelezen, dus campagnecredits en totaal sluiten nog niet aan.",
+    "ge.aiTotal":
+      "{n} credits gebruikt voor AI-werk in deze periode: {c} voor campagnewerk, {o} voor ander AI-werk (Growth Officer, analyses, concepten, toelichtingen).",
+    "ge.aiOpen":
+      "Nog niet aangerekend: {p} credits gereserveerd voor lopend werk · {u} run(s) met onbekende uitkomst (niet geprijsd).",
+    "ge.aiNotReconciled":
+      "Sommige AI-gebruiksregistraties konden niet worden gelezen, dus campagnecredits en totaal sluiten nog niet aan.",
     "ge.agent.growth_officer": "Growth Officer",
     "ge.agent.organization_growth_officer": "Organisatie-Growth Officer",
     "ge.agent.business_intelligence": "Bedrijfsinzicht",
@@ -331,7 +375,8 @@ export const ge = defineArea("ge", {
     "ge.agent.other": "Overig",
     "ge.budget": "Budget in deze periode",
     "ge.noBudget": "Geen budgetregels voor deze periode.",
-    "ge.budgetLine": "Gepland {p} op {n} regel(s) · toegewezen aan campagnes {a} · niet toegewezen {u} · uitgegeven {s} · gereserveerd {r}",
+    "ge.budgetLine":
+      "Gepland {p} op {n} regel(s) · toegewezen aan campagnes {a} · niet toegewezen {u} · uitgegeven {s} · gereserveerd {r}",
     "ge.budgetDups": "{n} groep(en) mogelijk dubbele budgetregels; zie Doelen & budget.",
     "ge.budgetNote": "Reserveringen zijn geen uitgaven; gesimuleerde bedragen tellen niet mee.",
     "ge.channels": "Uitgaven per kanaal",
@@ -342,42 +387,61 @@ export const ge = defineArea("ge", {
     "ge.missing.customer_ref": "klantreferentie bij verkopen",
     "ge.missing.acquisition_spend": "werkelijke wervingsuitgaven",
     "ge.missing.attribution": "toewijzing van verkopen aan campagnes",
-    "ge.fix.cost_model": "Brutowinst hangt af van hoe je kosten werken. Kies een kostenmodel onder Bedrijfskosten hieronder; een editor stelt het één keer in, importeren kan niet.",
-    "ge.fix.single_cost_model_for_period": "Het kostenmodel veranderde binnen deze periode. Kies een periode die onder één model valt.",
-    "ge.fix.cost_per_month": "Registreer de kostprijs van goederen of diensten voor elke maand onder Bedrijfskosten. Wordt beschikbaar zodra elke maand een geregistreerde kost heeft.",
-    "ge.fix.cost_per_sale": "Registreer de kostprijs voor elke verkoop onder Bedrijfskosten (gekoppeld aan de verkoop). Wordt beschikbaar als elke verkoop zijn kost heeft.",
-    "ge.fix.cost_period_outside_report": "Een geregistreerde kost loopt over maanden buiten deze periode. Kies een periode die de hele kostperiode bevat.",
-    "ge.fix.customer_ref": "CAC en omzet per klant tellen klanten, dus elke verkoop heeft een klantreferentie nodig. Voeg die toe bij het registreren van verkopen onder Omzet & toewijzing, of neem ze op in een import.",
-    "ge.fix.acquisition_spend": "CAC vraagt werkelijke wervingsuitgaven: registreer echte campagne-uitgaven op de campagne, of marketingkosten buiten campagnes onder Bedrijfskosten. Gesimuleerde bedragen tellen nooit.",
-    "ge.fix.attribution": "ROAS gebruikt alleen omzet die aan een campagne is toegewezen. Registreer welke campagne elke verkoop raakte onder Omzet & toewijzing; verkopen zonder contactmoment blijven niet toegewezen.",
+    "ge.fix.cost_model":
+      "Brutowinst hangt af van hoe je kosten werken. Kies een kostenmodel onder Bedrijfskosten hieronder; een editor stelt het één keer in, importeren kan niet.",
+    "ge.fix.single_cost_model_for_period":
+      "Het kostenmodel veranderde binnen deze periode. Kies een periode die onder één model valt.",
+    "ge.fix.cost_per_month":
+      "Registreer de kostprijs van goederen of diensten voor elke maand onder Bedrijfskosten. Wordt beschikbaar zodra elke maand een geregistreerde kost heeft.",
+    "ge.fix.cost_per_sale":
+      "Registreer de kostprijs voor elke verkoop onder Bedrijfskosten (gekoppeld aan de verkoop). Wordt beschikbaar als elke verkoop zijn kost heeft.",
+    "ge.fix.cost_period_outside_report":
+      "Een geregistreerde kost loopt over maanden buiten deze periode. Kies een periode die de hele kostperiode bevat.",
+    "ge.fix.customer_ref":
+      "CAC en omzet per klant tellen klanten, dus elke verkoop heeft een klantreferentie nodig. Voeg die toe bij het registreren van verkopen onder Omzet & toewijzing, of neem ze op in een import.",
+    "ge.fix.acquisition_spend":
+      "CAC vraagt werkelijke wervingsuitgaven: registreer echte campagne-uitgaven op de campagne, of marketingkosten buiten campagnes onder Bedrijfskosten. Gesimuleerde bedragen tellen nooit.",
+    "ge.fix.attribution":
+      "ROAS gebruikt alleen omzet die aan een campagne is toegewezen. Registreer welke campagne elke verkoop raakte onder Omzet & toewijzing; verkopen zonder contactmoment blijven niet toegewezen.",
     "ge.formulas": "Hoe elk cijfer wordt berekend",
-    "ge.f.net": "Netto-omzet = geregistreerde verkopen − terugbetalingen en correcties in de periode (geschatte verkopen uitgesloten).",
-    "ge.f.gp": "Brutowinst = netto-omzet − kostprijs van goederen of diensten volgens het kostenmodel; niet getoond als die kost ontbreekt.",
+    "ge.f.net":
+      "Netto-omzet = geregistreerde verkopen − terugbetalingen en correcties in de periode (geschatte verkopen uitgesloten).",
+    "ge.f.gp":
+      "Brutowinst = netto-omzet − kostprijs van goederen of diensten volgens het kostenmodel; niet getoond als die kost ontbreekt.",
     "ge.f.margin": "Brutomarge = brutowinst ÷ netto-omzet, alleen als netto-omzet boven nul is.",
-    "ge.f.cac": "CAC = werkelijke wervingsuitgaven in de periode ÷ klanten wier eerste geregistreerde verkoop in de periode valt; nooit op basis van leads.",
-    "ge.f.roas": "ROAS = omzet die het gekozen toewijzingsmodel aan de campagne toekent ÷ werkelijke marketinguitgaven van de campagne; AI-credits zijn geen advertentie-uitgaven.",
-    "ge.f.rpc": "Omzet per klant = geregistreerde netto-omzet ÷ klanten met een referentie (alleen historisch, geen voorspelling).",
-    "ge.f.ai": "AI-kost = elke aangerekende credit × de creditprijs die gold bij gebruik; credits zonder geldende prijs blijven credits.",
+    "ge.f.cac":
+      "CAC = werkelijke wervingsuitgaven in de periode ÷ klanten wier eerste geregistreerde verkoop in de periode valt; nooit op basis van leads.",
+    "ge.f.roas":
+      "ROAS = omzet die het gekozen toewijzingsmodel aan de campagne toekent ÷ werkelijke marketinguitgaven van de campagne; AI-credits zijn geen advertentie-uitgaven.",
+    "ge.f.rpc":
+      "Omzet per klant = geregistreerde netto-omzet ÷ klanten met een referentie (alleen historisch, geen voorspelling).",
+    "ge.f.ai":
+      "AI-kost = elke aangerekende credit × de creditprijs die gold bij gebruik; credits zonder geldende prijs blijven credits.",
     "ge.unpricedShort": "{n} credits zonder prijs",
   },
   fr: {
     "ge.title": "Économie de la croissance",
-    "ge.intro": "Budget, dépenses, coûts, crédits IA, chiffre d'affaires et marge de cette entreprise, à partir de ses propres enregistrements. Montants réels, estimés et simulés restent séparés ; un chiffre sans données indique ce qui manque.",
+    "ge.intro":
+      "Budget, dépenses, coûts, crédits IA, chiffre d'affaires et marge de cette entreprise, à partir de ses propres enregistrements. Montants réels, estimés et simulés restent séparés ; un chiffre sans données indique ce qui manque.",
     "ge.loading": "Chargement de l'économie de la croissance…",
     "ge.chooseWs": "Choisissez d'abord une entreprise.",
-    "ge.notInstalled": "L'économie de la croissance n'est pas encore disponible dans cet environnement.",
-    "ge.loadFailed": "Impossible de charger l'économie de la croissance. Rien n'est affiché plutôt que des chiffres incomplets.",
+    "ge.notInstalled":
+      "L'économie de la croissance n'est pas encore disponible dans cet environnement.",
+    "ge.loadFailed":
+      "Impossible de charger l'économie de la croissance. Rien n'est affiché plutôt que des chiffres incomplets.",
     "ge.period": "Période",
     "ge.model": "Modèle d'attribution",
     "ge.incomplete": "Tout n'a pas pu être lu ({list}) ; les totaux peuvent être trop bas.",
-    "ge.costsNotInstalled": "Les coûts, modèles de coûts et prix des crédits ne sont pas encore disponibles dans cet environnement.",
+    "ge.costsNotInstalled":
+      "Les coûts, modèles de coûts et prix des crédits ne sont pas encore disponibles dans cet environnement.",
     "ge.business": "Économie de l'entreprise",
     "ge.nothing": "Aucun chiffre d'affaires, dépense ou coût enregistré pour cette période.",
     "ge.netRevenue": "Chiffre d'affaires net",
     "ge.revenueNote": "Brut {g}, remboursements et corrections {r}, {n} vente(s)",
     "ge.noRevenue": "Aucune vente enregistrée sur cette période.",
     "ge.attributed": "Attribué aux campagnes ({m})",
-    "ge.unattributed": "Non attribué : {a} sur {n} vente(s). L'attribution est un crédit, pas une preuve de ventes supplémentaires.",
+    "ge.unattributed":
+      "Non attribué : {a} sur {n} vente(s). L'attribution est un crédit, pas une preuve de ventes supplémentaires.",
     "ge.campaignSpend": "Dépenses de campagne (réelles)",
     "ge.noSpend": "Aucune dépense réelle de campagne",
     "ge.reserved": "réservé {a}",
@@ -391,15 +455,21 @@ export const ge = defineArea("ge", {
     "ge.cacNote": "{s} de dépenses d'acquisition réelles / {n} nouveau(x) client(s)",
     "ge.salesWithoutCustomer": "{n} vente(s) sans référence client",
     "ge.customerValue": "Chiffre d'affaires observé par client",
-    "ge.clvNote": "{n} client(s), {r} % ont racheté. Historique uniquement ; aucune valeur vie client prédite.",
+    "ge.clvNote":
+      "{n} client(s), {r} % ont racheté. Historique uniquement ; aucune valeur vie client prédite.",
     "ge.ai": "Travail IA pour cette entreprise",
-    "ge.aiCredits": "{c} crédits facturés pour les exécutions et examens · {p} pas encore facturés · {u} exécution(s) au résultat inconnu",
-    "ge.aiCost": "Coût IA {a} pour {p} crédits, au prix du crédit en vigueur lors de chaque utilisation.",
-    "ge.aiNoPrice": "Aucun prix du crédit n'est défini : le travail IA est affiché en crédits uniquement (un crédit n'est pas un euro).",
+    "ge.aiCredits":
+      "{c} crédits facturés pour les exécutions et examens · {p} pas encore facturés · {u} exécution(s) au résultat inconnu",
+    "ge.aiCost":
+      "Coût IA {a} pour {p} crédits, au prix du crédit en vigueur lors de chaque utilisation.",
+    "ge.aiNoPrice":
+      "Aucun prix du crédit n'est défini : le travail IA est affiché en crédits uniquement (un crédit n'est pas un euro).",
     "ge.aiUnpriced": "{n} crédits utilisés avant tout prix applicable",
-    "ge.aiSeparate": "C'est ce que le travail IA coûte à l'entreprise. Séparé des revenus d'abonnement et des coûts fournisseurs d'AI Growth Engine.",
+    "ge.aiSeparate":
+      "C'est ce que le travail IA coûte à l'entreprise. Séparé des revenus d'abonnement et des coûts fournisseurs d'AI Growth Engine.",
     "ge.campaigns": "Économie des campagnes",
-    "ge.campaignsNote": "Budget, dépenses et crédits depuis le début de chaque campagne ; CA attribué et ROAS pour la période et le modèle choisis.",
+    "ge.campaignsNote":
+      "Budget, dépenses et crédits depuis le début de chaque campagne ; CA attribué et ROAS pour la période et le modèle choisis.",
     "ge.col.campaign": "Campagne",
     "ge.col.allocated": "Affecté",
     "ge.col.spent": "Dépensé",
@@ -437,14 +507,16 @@ export const ge = defineArea("ge", {
     "ge.missing.cost_per_month": "coût des ventes pour chaque mois",
     "ge.missing.cost_period_outside_report": "une période de coût dépasse la période du rapport",
     "ge.rollups": "Initiatives, stratégies et objectifs",
-    "ge.rollupRule": "Chaque montant est compté une fois : les dépenses de campagne dans leur campagne, les coûts dans leur initiative ou l'entreprise, les crédits IA dans la campagne de leur tâche. Un niveau ajoute ses propres coûts et chaque campagne liée une seule fois.",
+    "ge.rollupRule":
+      "Chaque montant est compté une fois : les dépenses de campagne dans leur campagne, les coûts dans leur initiative ou l'entreprise, les crédits IA dans la campagne de leur tâche. Un niveau ajoute ses propres coûts et chaque campagne liée une seule fois.",
     "ge.level": "Niveau",
     "ge.level.initiative": "Initiatives",
     "ge.level.strategy": "Stratégies",
     "ge.level.goal": "Objectifs",
     "ge.noRollup": "Aucune campagne ni coût lié à ce niveau pour l'instant.",
     "ge.costs": "Coûts de l'entreprise",
-    "ge.costsIntro": "Coûts qui n'appartiennent à aucune campagne : coût des biens ou services, logiciels, agences, marketing hors campagnes et autres coûts d'exploitation. L'historique est permanent ; une erreur se corrige par une correction.",
+    "ge.costsIntro":
+      "Coûts qui n'appartiennent à aucune campagne : coût des biens ou services, logiciels, agences, marketing hors campagnes et autres coûts d'exploitation. L'historique est permanent ; une erreur se corrige par une correction.",
     "ge.costModel": "Modèle de coûts",
     "ge.modelCurrent": "Actuel : {m} {r} depuis le {d}",
     "ge.modelNone": "Aucun modèle de coûts choisi : la marge brute ne peut pas être calculée.",
@@ -492,9 +564,12 @@ export const ge = defineArea("ge", {
     "ge.err.duplicate": "Refusé : un coût avec cette référence existe déjà.",
     "ge.err.role": "Vous n'avez pas le droit de faire cela pour cette entreprise.",
     "ge.err.invalid": "Refusé : vérifiez le montant, la devise, les dates et la catégorie.",
-    "ge.aiTotal": "{n} crédits utilisés pour le travail IA sur la période : {c} pour les campagnes, {o} pour d'autres travaux IA (Growth Officer, analyses, brouillons, explications).",
-    "ge.aiOpen": "Pas encore facturés : {p} crédits réservés pour du travail en cours · {u} exécution(s) au résultat inconnu (non valorisées).",
-    "ge.aiNotReconciled": "Certains enregistrements d'utilisation IA n'ont pas pu être lus : crédits de campagne et total ne concordent pas encore.",
+    "ge.aiTotal":
+      "{n} crédits utilisés pour le travail IA sur la période : {c} pour les campagnes, {o} pour d'autres travaux IA (Growth Officer, analyses, brouillons, explications).",
+    "ge.aiOpen":
+      "Pas encore facturés : {p} crédits réservés pour du travail en cours · {u} exécution(s) au résultat inconnu (non valorisées).",
+    "ge.aiNotReconciled":
+      "Certains enregistrements d'utilisation IA n'ont pas pu être lus : crédits de campagne et total ne concordent pas encore.",
     "ge.agent.growth_officer": "Growth Officer",
     "ge.agent.organization_growth_officer": "Growth Officer de l'organisation",
     "ge.agent.business_intelligence": "Intelligence d'affaires",
@@ -510,9 +585,12 @@ export const ge = defineArea("ge", {
     "ge.agent.other": "Autre",
     "ge.budget": "Budget sur la période",
     "ge.noBudget": "Aucune ligne budgétaire pour cette période.",
-    "ge.budgetLine": "Prévu {p} sur {n} ligne(s) · affecté aux campagnes {a} · non affecté {u} · dépensé {s} · réservé {r}",
-    "ge.budgetDups": "{n} groupe(s) de lignes budgétaires possiblement en double ; voir Objectifs et budget.",
-    "ge.budgetNote": "Les réservations ne sont pas des dépenses ; les montants simulés ne sont pas comptés.",
+    "ge.budgetLine":
+      "Prévu {p} sur {n} ligne(s) · affecté aux campagnes {a} · non affecté {u} · dépensé {s} · réservé {r}",
+    "ge.budgetDups":
+      "{n} groupe(s) de lignes budgétaires possiblement en double ; voir Objectifs et budget.",
+    "ge.budgetNote":
+      "Les réservations ne sont pas des dépenses ; les montants simulés ne sont pas comptés.",
     "ge.channels": "Dépenses par canal",
     "ge.noChannels": "Aucune dépense réelle de campagne sur la période.",
     "ge.channelNone": "Aucun canal défini",
@@ -521,22 +599,36 @@ export const ge = defineArea("ge", {
     "ge.missing.customer_ref": "référence client sur les ventes",
     "ge.missing.acquisition_spend": "dépenses d'acquisition réelles",
     "ge.missing.attribution": "attribution des ventes aux campagnes",
-    "ge.fix.cost_model": "La marge brute dépend de la structure de vos coûts. Choisissez un modèle sous Coûts de l'entreprise ci-dessous ; un éditeur le définit une fois, il ne s'importe pas.",
-    "ge.fix.single_cost_model_for_period": "Le modèle de coûts a changé pendant la période. Choisissez une période couverte par un seul modèle.",
-    "ge.fix.cost_per_month": "Enregistrez le coût des biens ou services pour chaque mois sous Coûts de l'entreprise. Disponible dès que chaque mois a un coût enregistré.",
-    "ge.fix.cost_per_sale": "Enregistrez le coût de chaque vente sous Coûts de l'entreprise (lié à la vente). Disponible lorsque chaque vente a son coût.",
-    "ge.fix.cost_period_outside_report": "Un coût enregistré couvre des mois hors période. Choisissez une période qui contient toute la période du coût.",
-    "ge.fix.customer_ref": "Le CAC et le CA par client comptent des clients : chaque vente doit avoir une référence client. Ajoutez-la sous Chiffre d’affaires et attribution, ou dans un import.",
-    "ge.fix.acquisition_spend": "Le CAC nécessite des dépenses d'acquisition réelles : enregistrez les dépenses de campagne sur la campagne, ou le marketing hors campagnes sous Coûts de l'entreprise. Les montants simulés ne comptent jamais.",
-    "ge.fix.attribution": "Le ROAS n'utilise que le CA attribué à une campagne. Indiquez quelle campagne a touché chaque vente sous Chiffre d’affaires et attribution ; les ventes sans contact restent non attribuées.",
+    "ge.fix.cost_model":
+      "La marge brute dépend de la structure de vos coûts. Choisissez un modèle sous Coûts de l'entreprise ci-dessous ; un éditeur le définit une fois, il ne s'importe pas.",
+    "ge.fix.single_cost_model_for_period":
+      "Le modèle de coûts a changé pendant la période. Choisissez une période couverte par un seul modèle.",
+    "ge.fix.cost_per_month":
+      "Enregistrez le coût des biens ou services pour chaque mois sous Coûts de l'entreprise. Disponible dès que chaque mois a un coût enregistré.",
+    "ge.fix.cost_per_sale":
+      "Enregistrez le coût de chaque vente sous Coûts de l'entreprise (lié à la vente). Disponible lorsque chaque vente a son coût.",
+    "ge.fix.cost_period_outside_report":
+      "Un coût enregistré couvre des mois hors période. Choisissez une période qui contient toute la période du coût.",
+    "ge.fix.customer_ref":
+      "Le CAC et le CA par client comptent des clients : chaque vente doit avoir une référence client. Ajoutez-la sous Chiffre d’affaires et attribution, ou dans un import.",
+    "ge.fix.acquisition_spend":
+      "Le CAC nécessite des dépenses d'acquisition réelles : enregistrez les dépenses de campagne sur la campagne, ou le marketing hors campagnes sous Coûts de l'entreprise. Les montants simulés ne comptent jamais.",
+    "ge.fix.attribution":
+      "Le ROAS n'utilise que le CA attribué à une campagne. Indiquez quelle campagne a touché chaque vente sous Chiffre d’affaires et attribution ; les ventes sans contact restent non attribuées.",
     "ge.formulas": "Comment chaque chiffre est calculé",
-    "ge.f.net": "CA net = ventes enregistrées − remboursements et corrections sur la période (ventes estimées exclues).",
-    "ge.f.gp": "Marge brute = CA net − coût des biens ou services selon le modèle de coûts ; non affichée si ce coût manque.",
+    "ge.f.net":
+      "CA net = ventes enregistrées − remboursements et corrections sur la période (ventes estimées exclues).",
+    "ge.f.gp":
+      "Marge brute = CA net − coût des biens ou services selon le modèle de coûts ; non affichée si ce coût manque.",
     "ge.f.margin": "Taux de marge = marge brute ÷ CA net, seulement si le CA net est positif.",
-    "ge.f.cac": "CAC = dépenses d'acquisition réelles sur la période ÷ clients dont la première vente enregistrée tombe dans la période ; jamais à partir de prospects.",
-    "ge.f.roas": "ROAS = CA attribué à la campagne par le modèle choisi ÷ dépenses marketing réelles de la campagne ; les crédits IA ne sont pas des dépenses publicitaires.",
-    "ge.f.rpc": "CA par client = CA net enregistré ÷ clients avec référence (historique uniquement, sans prévision).",
-    "ge.f.ai": "Coût IA = chaque crédit facturé × le prix du crédit en vigueur lors de l'utilisation ; sans prix applicable, ils restent des crédits.",
+    "ge.f.cac":
+      "CAC = dépenses d'acquisition réelles sur la période ÷ clients dont la première vente enregistrée tombe dans la période ; jamais à partir de prospects.",
+    "ge.f.roas":
+      "ROAS = CA attribué à la campagne par le modèle choisi ÷ dépenses marketing réelles de la campagne ; les crédits IA ne sont pas des dépenses publicitaires.",
+    "ge.f.rpc":
+      "CA par client = CA net enregistré ÷ clients avec référence (historique uniquement, sans prévision).",
+    "ge.f.ai":
+      "Coût IA = chaque crédit facturé × le prix du crédit en vigueur lors de l'utilisation ; sans prix applicable, ils restent des crédits.",
     "ge.unpricedShort": "{n} crédits sans prix",
   },
 });

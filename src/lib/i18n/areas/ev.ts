@@ -19,10 +19,11 @@ export const ev = defineArea("ev", {
     "ev.qr.gaps": "information is missing",
     "ev.qr.stale": "some evidence is outdated or its source is no longer confirmed",
     "ev.rec.budget": "{channel} {month}: {actual} {currency} spent of {planned} planned (entered)",
-    "ev.rec.attribution": "{model} attribution: {best} {br} vs {second} {sr} {currency} revenue per spend",
+    "ev.rec.attribution":
+      "{model} attribution: {best} {br} vs {second} {sr} {currency} revenue per spend",
     "ev.rec.unattributed": "{share}% of recorded {currency} revenue has no recorded touchpoint",
     "ev.rec.experiment": "{title}: variant {variant} vs control {control} (controlled)",
-    "ev.rec.goalNoMetric": "Goal \"{goal}\" has no metric, so progress cannot be measured",
+    "ev.rec.goalNoMetric": 'Goal "{goal}" has no metric, so progress cannot be measured',
     "ev.fr.current": "Current",
     "ev.fr.updated": "Recently updated",
     "ev.fr.outdated": "Outdated",
@@ -30,16 +31,21 @@ export const ev = defineArea("ev", {
     "ev.fr.unavailable": "Source unavailable",
     "ev.fr.verify": "Verification required",
     "ev.fr.historical": "Historical record",
-    "ev.fr.help": "How current this evidence is. Recorded sales, deals and finished experiments stay valid; results and observations age.",
+    "ev.fr.help":
+      "How current this evidence is. Recorded sales, deals and finished experiments stay valid; results and observations age.",
     "ev.cf.title": "Conflicting information",
-    "ev.cf.intro": "These topics have different values. Nothing is chosen automatically; an editor decides which value is correct.",
-    "ev.cf.incomplete": "Not every business fact could be read (more than 5,000). Conflicts among the rest may be missing.",
+    "ev.cf.intro":
+      "These topics have different values. Nothing is chosen automatically; an editor decides which value is correct.",
+    "ev.cf.incomplete":
+      "Not every business fact could be read (more than 5,000). Conflicts among the rest may be missing.",
     "ev.cf.values": "{n} different values",
-    "ev.cf.bothConfirmed": "Several values are confirmed — the Growth Officer currently reads all of them",
+    "ev.cf.bothConfirmed":
+      "Several values are confirmed — the Growth Officer currently reads all of them",
     "ev.cf.preferred": "Probably more reliable",
     "ev.cf.basis.confirmed": "confirmed by your team",
     "ev.cf.basis.source": "stronger source",
-    "ev.cf.undetermined": "The sources are equally strong; it cannot be determined which value is right.",
+    "ev.cf.undetermined":
+      "The sources are equally strong; it cannot be determined which value is right.",
     "ev.cf.keep": "Keep this value",
     "ev.cf.note": "Reason (optional)",
     "ev.cf.done": "Value confirmed; the other values are back in review.",
@@ -62,7 +68,8 @@ export const ev = defineArea("ev", {
     "ev.cf.someone": "a team member",
     "ev.cf.chosen": "Chosen value",
     "ev.cf.impact": "Affects:",
-    "ev.cf.impactOfficer": "the Growth Officer reads both values and will not pick one; plans based on this topic stay uncertain.",
+    "ev.cf.impactOfficer":
+      "the Growth Officer reads both values and will not pick one; plans based on this topic stay uncertain.",
     "ev.cf.impactNone": "no saved decision relies on this topic yet.",
     "ev.cf.contextFailed": "The decision history could not be loaded; statuses may be incomplete.",
     "ev.qr.none": "no evidence recorded",
@@ -119,7 +126,8 @@ export const ev = defineArea("ev", {
     "ev.rec.fact": "Confirmed fact: {k} = {v}",
     "ev.rec.measurement": "{m}: {v} ({a} – {b}, {k})",
     "ev.rec.revenue": "{kind} {amount} on {d} ({cls})",
-    "ev.noRecords": "No qualifying records yet. Confirm facts, record results or import sales first.",
+    "ev.noRecords":
+      "No qualifying records yet. Confirm facts, record results or import sales first.",
     "ev.type": "Type",
     "ev.description": "Description",
     "ev.sourceRef": "Source (link, document or where it was said)",
@@ -133,9 +141,12 @@ export const ev = defineArea("ev", {
     "ev.level.observation": "Observation",
     "ev.level.formal": "Formal proposal",
     "ev.level.execution": "Execution proposal",
-    "ev.levelHelp.observation": "An idea or signal. Needs no evidence, but can never become work until it is promoted.",
-    "ev.levelHelp.formal": "Needs accepted independent evidence, or an explanation why none is available, plus a review.",
-    "ev.levelHelp.execution": "States objective, cost, risk, measurement and approval, and needs an accepted fact or measurement from a business record.",
+    "ev.levelHelp.observation":
+      "An idea or signal. Needs no evidence, but can never become work until it is promoted.",
+    "ev.levelHelp.formal":
+      "Needs accepted independent evidence, or an explanation why none is available, plus a review.",
+    "ev.levelHelp.execution":
+      "States objective, cost, risk, measurement and approval, and needs an accepted fact or measurement from a business record.",
     "ev.gapReason": "Why is no evidence available? (optional)",
     "ev.gapShown": "No evidence available: {r}",
     "ev.unverified": "Unverified hypothesis",
@@ -144,10 +155,13 @@ export const ev = defineArea("ev", {
     "ev.method": "Measurement method",
     "ev.approvalReq": "Approval required",
     "ev.context": "Business context",
-    "ev.gate.observation_never_work": "An observation never becomes work. Promote it to a formal proposal first.",
+    "ev.gate.observation_never_work":
+      "An observation never becomes work. Promote it to a formal proposal first.",
     "ev.gate.needs_review": "Waiting for a review by a business editor or administrator.",
-    "ev.gate.needs_independent_evidence": "Needs accepted independent evidence, or an explanation why none is available.",
-    "ev.gate.needs_record_evidence": "Needs an accepted fact or measurement from a business record.",
+    "ev.gate.needs_independent_evidence":
+      "Needs accepted independent evidence, or an explanation why none is available.",
+    "ev.gate.needs_record_evidence":
+      "Needs an accepted fact or measurement from a business record.",
     "ev.gate.unreviewed_evidence": "Some linked evidence has not been accepted or rejected yet.",
     "ev.gate.needs_admin": "Waiting for an administrator.",
     "ev.markReviewed": "Mark as reviewed",
@@ -185,9 +199,12 @@ export const ev = defineArea("ev", {
     "ev.qr.contradicted": "aanvaard bewijs spreekt het tegen",
     "ev.qr.gaps": "er ontbreekt informatie",
     "ev.qr.stale": "een deel van het bewijs is verouderd of de bron is niet meer bevestigd",
-    "ev.rec.budget": "{channel} {month}: {actual} {currency} uitgegeven van {planned} gepland (ingevoerd)",
-    "ev.rec.attribution": "{model}-attributie: {best} {br} tegenover {second} {sr} {currency} omzet per uitgave",
-    "ev.rec.unattributed": "{share}% van de geregistreerde {currency}-omzet heeft geen vastgelegd contactmoment",
+    "ev.rec.budget":
+      "{channel} {month}: {actual} {currency} uitgegeven van {planned} gepland (ingevoerd)",
+    "ev.rec.attribution":
+      "{model}-attributie: {best} {br} tegenover {second} {sr} {currency} omzet per uitgave",
+    "ev.rec.unattributed":
+      "{share}% van de geregistreerde {currency}-omzet heeft geen vastgelegd contactmoment",
     "ev.rec.experiment": "{title}: variant {variant} tegenover controle {control} (gecontroleerd)",
     "ev.rec.goalNoMetric": "Doel ‘{goal}’ heeft geen meetwaarde, dus de voortgang is niet te meten",
     "ev.fr.current": "Actueel",
@@ -197,12 +214,16 @@ export const ev = defineArea("ev", {
     "ev.fr.unavailable": "Bron niet beschikbaar",
     "ev.fr.verify": "Controle nodig",
     "ev.fr.historical": "Historisch gegeven",
-    "ev.fr.help": "Hoe actueel dit bewijs is. Vastgelegde verkopen, deals en afgeronde experimenten blijven geldig; resultaten en waarnemingen verouderen.",
+    "ev.fr.help":
+      "Hoe actueel dit bewijs is. Vastgelegde verkopen, deals en afgeronde experimenten blijven geldig; resultaten en waarnemingen verouderen.",
     "ev.cf.title": "Tegenstrijdige informatie",
-    "ev.cf.intro": "Deze onderwerpen hebben verschillende waarden. Er wordt niets automatisch gekozen; een redacteur beslist welke waarde klopt.",
-    "ev.cf.incomplete": "Niet alle bedrijfsfeiten konden worden gelezen (meer dan 5.000). Tegenstrijdigheden in de rest kunnen ontbreken.",
+    "ev.cf.intro":
+      "Deze onderwerpen hebben verschillende waarden. Er wordt niets automatisch gekozen; een redacteur beslist welke waarde klopt.",
+    "ev.cf.incomplete":
+      "Niet alle bedrijfsfeiten konden worden gelezen (meer dan 5.000). Tegenstrijdigheden in de rest kunnen ontbreken.",
     "ev.cf.values": "{n} verschillende waarden",
-    "ev.cf.bothConfirmed": "Meerdere waarden zijn bevestigd — de Growth Officer leest ze nu allemaal",
+    "ev.cf.bothConfirmed":
+      "Meerdere waarden zijn bevestigd — de Growth Officer leest ze nu allemaal",
     "ev.cf.preferred": "Waarschijnlijk betrouwbaarder",
     "ev.cf.basis.confirmed": "bevestigd door je team",
     "ev.cf.basis.source": "sterkere bron",
@@ -229,9 +250,11 @@ export const ev = defineArea("ev", {
     "ev.cf.someone": "een teamlid",
     "ev.cf.chosen": "Gekozen waarde",
     "ev.cf.impact": "Gevolgen:",
-    "ev.cf.impactOfficer": "de Growth Officer leest beide waarden en kiest er geen; plannen die hierop steunen blijven onzeker.",
+    "ev.cf.impactOfficer":
+      "de Growth Officer leest beide waarden en kiest er geen; plannen die hierop steunen blijven onzeker.",
     "ev.cf.impactNone": "nog geen opgeslagen beslissing steunt op dit onderwerp.",
-    "ev.cf.contextFailed": "De beslissingsgeschiedenis kon niet worden geladen; statussen kunnen onvolledig zijn.",
+    "ev.cf.contextFailed":
+      "De beslissingsgeschiedenis kon niet worden geladen; statussen kunnen onvolledig zijn.",
     "ev.qr.none": "geen bewijs vastgelegd",
     "ev.qBecause": "Omdat: {r}.",
     "ev.indicative": "Indicatieve rangschikking: de invoer is onzeker.",
@@ -286,7 +309,8 @@ export const ev = defineArea("ev", {
     "ev.rec.fact": "Bevestigd feit: {k} = {v}",
     "ev.rec.measurement": "{m}: {v} ({a} – {b}, {k})",
     "ev.rec.revenue": "{kind} {amount} op {d} ({cls})",
-    "ev.noRecords": "Nog geen geschikte gegevens. Bevestig eerst feiten, leg resultaten vast of importeer verkopen.",
+    "ev.noRecords":
+      "Nog geen geschikte gegevens. Bevestig eerst feiten, leg resultaten vast of importeer verkopen.",
     "ev.type": "Soort",
     "ev.description": "Omschrijving",
     "ev.sourceRef": "Bron (link, document of waar het gezegd is)",
@@ -300,9 +324,12 @@ export const ev = defineArea("ev", {
     "ev.level.observation": "Waarneming",
     "ev.level.formal": "Formeel voorstel",
     "ev.level.execution": "Uitvoeringsvoorstel",
-    "ev.levelHelp.observation": "Een idee of signaal. Heeft geen bewijs nodig, maar wordt nooit werk tot het gepromoveerd is.",
-    "ev.levelHelp.formal": "Heeft aanvaard onafhankelijk bewijs nodig, of een uitleg waarom dat er niet is, plus een beoordeling.",
-    "ev.levelHelp.execution": "Vermeldt doel, kosten, risico, meting en goedkeuring, en heeft een aanvaard feit of meting uit een bedrijfsgegeven nodig.",
+    "ev.levelHelp.observation":
+      "Een idee of signaal. Heeft geen bewijs nodig, maar wordt nooit werk tot het gepromoveerd is.",
+    "ev.levelHelp.formal":
+      "Heeft aanvaard onafhankelijk bewijs nodig, of een uitleg waarom dat er niet is, plus een beoordeling.",
+    "ev.levelHelp.execution":
+      "Vermeldt doel, kosten, risico, meting en goedkeuring, en heeft een aanvaard feit of meting uit een bedrijfsgegeven nodig.",
     "ev.gapReason": "Waarom is er geen bewijs? (optioneel)",
     "ev.gapShown": "Geen bewijs beschikbaar: {r}",
     "ev.unverified": "Niet-geverifieerde hypothese",
@@ -311,18 +338,23 @@ export const ev = defineArea("ev", {
     "ev.method": "Meetmethode",
     "ev.approvalReq": "Vereiste goedkeuring",
     "ev.context": "Bedrijfscontext",
-    "ev.gate.observation_never_work": "Een waarneming wordt nooit werk. Promoveer ze eerst tot formeel voorstel.",
+    "ev.gate.observation_never_work":
+      "Een waarneming wordt nooit werk. Promoveer ze eerst tot formeel voorstel.",
     "ev.gate.needs_review": "Wacht op een beoordeling door een bedrijfseditor of beheerder.",
-    "ev.gate.needs_independent_evidence": "Heeft aanvaard onafhankelijk bewijs nodig, of een uitleg waarom dat er niet is.",
-    "ev.gate.needs_record_evidence": "Heeft een aanvaard feit of meting uit een bedrijfsgegeven nodig.",
-    "ev.gate.unreviewed_evidence": "Een deel van het gekoppelde bewijs is nog niet aanvaard of afgewezen.",
+    "ev.gate.needs_independent_evidence":
+      "Heeft aanvaard onafhankelijk bewijs nodig, of een uitleg waarom dat er niet is.",
+    "ev.gate.needs_record_evidence":
+      "Heeft een aanvaard feit of meting uit een bedrijfsgegeven nodig.",
+    "ev.gate.unreviewed_evidence":
+      "Een deel van het gekoppelde bewijs is nog niet aanvaard of afgewezen.",
     "ev.gate.needs_admin": "Wacht op een beheerder.",
     "ev.markReviewed": "Markeren als beoordeeld",
     "ev.reviewedAt": "Beoordeeld",
     "ev.promote": "Promoveren tot formeel voorstel",
     "ev.promoted": "Gepromoveerd tot formeel voorstel.",
     "ev.reviewDone": "Gemarkeerd als beoordeeld.",
-    "ev.inspect": "Met goedkeuren bevestig je dat je de {n} bewijsstuk(ken) hierboven hebt bekeken.",
+    "ev.inspect":
+      "Met goedkeuren bevestig je dat je de {n} bewijsstuk(ken) hierboven hebt bekeken.",
     "ev.stage": "Fase: {s}",
     "ev.stage.discovered": "Ontdekt",
     "ev.stage.analyzed": "Geanalyseerd",
@@ -347,16 +379,21 @@ export const ev = defineArea("ev", {
     "ev.qr.measurements": "des mesures enregistrées",
     "ev.qr.estimates_only": "uniquement des estimations",
     "ev.qr.assumptions_only": "uniquement des suppositions ou hypothèses",
-    "ev.qr.ai_only": "uniquement des affirmations de l'IA, qui ne sont pas des preuves indépendantes",
+    "ev.qr.ai_only":
+      "uniquement des affirmations de l'IA, qui ne sont pas des preuves indépendantes",
     "ev.qr.unreviewed": "une partie des preuves n'est pas encore examinée",
     "ev.qr.contradicted": "des preuves acceptées la contredisent",
     "ev.qr.gaps": "des informations manquent",
     "ev.qr.stale": "une partie des preuves est périmée ou sa source n'est plus confirmée",
-    "ev.rec.budget": "{channel} {month} : {actual} {currency} dépensés sur {planned} prévus (saisi)",
-    "ev.rec.attribution": "Attribution {model} : {best} {br} contre {second} {sr} {currency} de revenu par dépense",
-    "ev.rec.unattributed": "{share} % du revenu {currency} enregistré n'a aucun point de contact enregistré",
+    "ev.rec.budget":
+      "{channel} {month} : {actual} {currency} dépensés sur {planned} prévus (saisi)",
+    "ev.rec.attribution":
+      "Attribution {model} : {best} {br} contre {second} {sr} {currency} de revenu par dépense",
+    "ev.rec.unattributed":
+      "{share} % du revenu {currency} enregistré n'a aucun point de contact enregistré",
     "ev.rec.experiment": "{title} : variante {variant} contre contrôle {control} (contrôlé)",
-    "ev.rec.goalNoMetric": "L'objectif « {goal} » n'a pas d'indicateur, la progression ne peut donc pas être mesurée",
+    "ev.rec.goalNoMetric":
+      "L'objectif « {goal} » n'a pas d'indicateur, la progression ne peut donc pas être mesurée",
     "ev.fr.current": "À jour",
     "ev.fr.updated": "Mis à jour récemment",
     "ev.fr.outdated": "Dépassé",
@@ -364,21 +401,27 @@ export const ev = defineArea("ev", {
     "ev.fr.unavailable": "Source indisponible",
     "ev.fr.verify": "Vérification requise",
     "ev.fr.historical": "Donnée historique",
-    "ev.fr.help": "Actualité de cette preuve. Les ventes, affaires et expériences terminées restent valables ; les résultats et observations vieillissent.",
+    "ev.fr.help":
+      "Actualité de cette preuve. Les ventes, affaires et expériences terminées restent valables ; les résultats et observations vieillissent.",
     "ev.cf.title": "Informations contradictoires",
-    "ev.cf.intro": "Ces sujets ont des valeurs différentes. Rien n'est choisi automatiquement ; un éditeur décide quelle valeur est correcte.",
-    "ev.cf.incomplete": "Tous les faits n'ont pas pu être lus (plus de 5 000). Des contradictions parmi les autres peuvent manquer.",
+    "ev.cf.intro":
+      "Ces sujets ont des valeurs différentes. Rien n'est choisi automatiquement ; un éditeur décide quelle valeur est correcte.",
+    "ev.cf.incomplete":
+      "Tous les faits n'ont pas pu être lus (plus de 5 000). Des contradictions parmi les autres peuvent manquer.",
     "ev.cf.values": "{n} valeurs différentes",
-    "ev.cf.bothConfirmed": "Plusieurs valeurs sont confirmées — le Growth Officer les lit toutes actuellement",
+    "ev.cf.bothConfirmed":
+      "Plusieurs valeurs sont confirmées — le Growth Officer les lit toutes actuellement",
     "ev.cf.preferred": "Probablement plus fiable",
     "ev.cf.basis.confirmed": "confirmé par votre équipe",
     "ev.cf.basis.source": "source plus solide",
-    "ev.cf.undetermined": "Les sources sont aussi solides l'une que l'autre ; impossible de déterminer la bonne valeur.",
+    "ev.cf.undetermined":
+      "Les sources sont aussi solides l'une que l'autre ; impossible de déterminer la bonne valeur.",
     "ev.cf.keep": "Garder cette valeur",
     "ev.cf.note": "Raison (facultatif)",
     "ev.cf.done": "Valeur confirmée ; les autres valeurs sont de nouveau à vérifier.",
     "ev.cf.editorOnly": "Seuls les éditeurs et administrateurs peuvent décider.",
-    "ev.cf.notInstalled": "La résolution des conflits n'est pas encore activée dans cet environnement.",
+    "ev.cf.notInstalled":
+      "La résolution des conflits n'est pas encore activée dans cet environnement.",
     "ev.cf.confirmed": "Confirmé",
     "ev.cf.review": "À vérifier",
     "ev.cf.status.open": "Conflit ouvert",
@@ -396,9 +439,11 @@ export const ev = defineArea("ev", {
     "ev.cf.someone": "un membre de l'équipe",
     "ev.cf.chosen": "Valeur choisie",
     "ev.cf.impact": "Conséquences :",
-    "ev.cf.impactOfficer": "le Growth Officer lit les deux valeurs sans choisir ; les plans fondés sur ce sujet restent incertains.",
+    "ev.cf.impactOfficer":
+      "le Growth Officer lit les deux valeurs sans choisir ; les plans fondés sur ce sujet restent incertains.",
     "ev.cf.impactNone": "aucune décision enregistrée ne repose encore sur ce sujet.",
-    "ev.cf.contextFailed": "L'historique des décisions n'a pas pu être chargé ; les statuts peuvent être incomplets.",
+    "ev.cf.contextFailed":
+      "L'historique des décisions n'a pas pu être chargé ; les statuts peuvent être incomplets.",
     "ev.qr.none": "aucune preuve enregistrée",
     "ev.qBecause": "Parce que : {r}.",
     "ev.indicative": "Classement indicatif : ses données sont incertaines.",
@@ -453,7 +498,8 @@ export const ev = defineArea("ev", {
     "ev.rec.fact": "Fait confirmé : {k} = {v}",
     "ev.rec.measurement": "{m} : {v} ({a} – {b}, {k})",
     "ev.rec.revenue": "{kind} {amount} le {d} ({cls})",
-    "ev.noRecords": "Aucun enregistrement adapté pour l'instant. Confirmez des faits, enregistrez des résultats ou importez des ventes d'abord.",
+    "ev.noRecords":
+      "Aucun enregistrement adapté pour l'instant. Confirmez des faits, enregistrez des résultats ou importez des ventes d'abord.",
     "ev.type": "Type",
     "ev.description": "Description",
     "ev.sourceRef": "Source (lien, document ou où cela a été dit)",
@@ -467,9 +513,12 @@ export const ev = defineArea("ev", {
     "ev.level.observation": "Observation",
     "ev.level.formal": "Proposition formelle",
     "ev.level.execution": "Proposition d'exécution",
-    "ev.levelHelp.observation": "Une idée ou un signal. Ne demande aucune preuve, mais ne devient jamais du travail avant d'être promue.",
-    "ev.levelHelp.formal": "Demande une preuve indépendante acceptée, ou une explication de son absence, et un examen.",
-    "ev.levelHelp.execution": "Indique objectif, coût, risque, mesure et approbation, et demande un fait ou une mesure acceptés issus d'un enregistrement.",
+    "ev.levelHelp.observation":
+      "Une idée ou un signal. Ne demande aucune preuve, mais ne devient jamais du travail avant d'être promue.",
+    "ev.levelHelp.formal":
+      "Demande une preuve indépendante acceptée, ou une explication de son absence, et un examen.",
+    "ev.levelHelp.execution":
+      "Indique objectif, coût, risque, mesure et approbation, et demande un fait ou une mesure acceptés issus d'un enregistrement.",
     "ev.gapReason": "Pourquoi aucune preuve n'est-elle disponible ? (facultatif)",
     "ev.gapShown": "Aucune preuve disponible : {r}",
     "ev.unverified": "Hypothèse non vérifiée",
@@ -478,11 +527,16 @@ export const ev = defineArea("ev", {
     "ev.method": "Méthode de mesure",
     "ev.approvalReq": "Approbation requise",
     "ev.context": "Contexte de l'entreprise",
-    "ev.gate.observation_never_work": "Une observation ne devient jamais du travail. Promouvez-la d'abord en proposition formelle.",
-    "ev.gate.needs_review": "En attente d'un examen par un éditeur ou un administrateur de l'entreprise.",
-    "ev.gate.needs_independent_evidence": "Demande une preuve indépendante acceptée, ou une explication de son absence.",
-    "ev.gate.needs_record_evidence": "Demande un fait ou une mesure acceptés issus d'un enregistrement de l'entreprise.",
-    "ev.gate.unreviewed_evidence": "Une partie des preuves liées n'a pas encore été acceptée ou rejetée.",
+    "ev.gate.observation_never_work":
+      "Une observation ne devient jamais du travail. Promouvez-la d'abord en proposition formelle.",
+    "ev.gate.needs_review":
+      "En attente d'un examen par un éditeur ou un administrateur de l'entreprise.",
+    "ev.gate.needs_independent_evidence":
+      "Demande une preuve indépendante acceptée, ou une explication de son absence.",
+    "ev.gate.needs_record_evidence":
+      "Demande un fait ou une mesure acceptés issus d'un enregistrement de l'entreprise.",
+    "ev.gate.unreviewed_evidence":
+      "Une partie des preuves liées n'a pas encore été acceptée ou rejetée.",
     "ev.gate.needs_admin": "En attente d'un administrateur.",
     "ev.markReviewed": "Marquer comme examinée",
     "ev.reviewedAt": "Examinée",
@@ -501,6 +555,7 @@ export const ev = defineArea("ev", {
     "ev.stage.measured": "Mesurée",
     "ev.findingEvidence": "Preuves enregistrées lors de la sauvegarde",
     "ev.claimed": "L'IA a présenté ceci comme un fait ; ce n'est pas vérifié.",
-    "ev.notInstalled": "La gestion des preuves n'est pas encore activée pour cet espace de travail.",
+    "ev.notInstalled":
+      "La gestion des preuves n'est pas encore activée pour cet espace de travail.",
   },
 });

@@ -11,13 +11,46 @@ const input: ExecInput = {
     { id: "d", status: "done", due_date: "2026-11-10", updated_at: "2026-11-12T12:00:00Z" },
     { id: "e", status: "cancelled", due_date: null, updated_at: "2026-11-01T00:00:00Z" },
   ],
-  dependencies: [{ task_id: "a", depends_on: "b" }, { task_id: "b", depends_on: "c" }],
+  dependencies: [
+    { task_id: "a", depends_on: "b" },
+    { task_id: "b", depends_on: "c" },
+  ],
   runs: [
-    { task_id: "b", status: "failed", estimated_credits: 8, credits_charged: 2, created_at: "2026-11-18T00:00:00Z" },
-    { task_id: "b", status: "running", estimated_credits: 8, credits_charged: null, created_at: "2026-11-19T00:00:00Z" },
-    { task_id: "c", status: "succeeded", estimated_credits: 8, credits_charged: 6, created_at: "2026-11-05T00:00:00Z" },
-    { task_id: "a", status: "awaiting_approval", estimated_credits: 8, credits_charged: null, created_at: "2026-11-19T00:00:00Z" },
-    { task_id: "c", status: "succeeded", estimated_credits: 8, credits_charged: 9, created_at: "2026-10-05T00:00:00Z" },
+    {
+      task_id: "b",
+      status: "failed",
+      estimated_credits: 8,
+      credits_charged: 2,
+      created_at: "2026-11-18T00:00:00Z",
+    },
+    {
+      task_id: "b",
+      status: "running",
+      estimated_credits: 8,
+      credits_charged: null,
+      created_at: "2026-11-19T00:00:00Z",
+    },
+    {
+      task_id: "c",
+      status: "succeeded",
+      estimated_credits: 8,
+      credits_charged: 6,
+      created_at: "2026-11-05T00:00:00Z",
+    },
+    {
+      task_id: "a",
+      status: "awaiting_approval",
+      estimated_credits: 8,
+      credits_charged: null,
+      created_at: "2026-11-19T00:00:00Z",
+    },
+    {
+      task_id: "c",
+      status: "succeeded",
+      estimated_credits: 8,
+      credits_charged: 9,
+      created_at: "2026-10-05T00:00:00Z",
+    },
   ],
   activeInitiatives: 4,
 };
@@ -42,6 +75,10 @@ describe("Command Center execution tiles", () => {
     expect(v("creditsReserved")?.value).toBe(16);
   });
   it("omits active initiatives when Growth Plans are not switched on", () => {
-    expect(buildExecutionTiles({ ...input, activeInitiatives: null }).some((t) => t.key === "initiatives")).toBe(false);
+    expect(
+      buildExecutionTiles({ ...input, activeInitiatives: null }).some(
+        (t) => t.key === "initiatives",
+      ),
+    ).toBe(false);
   });
 });

@@ -4,7 +4,8 @@ import { defineArea } from "../define";
 export const ogo = defineArea("ogo", {
   en: {
     "ogo.context.org": "Organization overview",
-    "ogo.context.orgHint": "You are looking at all {n} businesses you can open together. Each business keeps its own data and decisions.",
+    "ogo.context.orgHint":
+      "You are looking at all {n} businesses you can open together. Each business keeps its own data and decisions.",
     "ogo.context.change": "Change organization, business or brand",
     "ogo.context.organization": "Organization",
     "ogo.context.business": "Business",
@@ -23,7 +24,8 @@ export const ogo = defineArea("ogo", {
     "ogo.tab.resources": "Resources",
     "ogo.tab.risks": "Risks & decisions",
     "ogo.otherBusiness": "another business",
-    "ogo.off": "Organization strategy, opportunities and shared initiatives are not switched on in this environment yet. The overview keeps working.",
+    "ogo.off":
+      "Organization strategy, opportunities and shared initiatives are not switched on in this environment yet. The overview keeps working.",
     "ogo.note": "Note",
     "ogo.notePh": "Optional note for the history",
     "ogo.cancel": "Cancel",
@@ -32,39 +34,50 @@ export const ogo = defineArea("ogo", {
     "ogo.filter.open": "Open",
     "ogo.filter.all": "All, including closed",
     "ogo.single.title": "{name} is your only business",
-    "ogo.single.text": "Organization strategy, cross-business opportunities and shared initiatives appear once you run two or more businesses. Until then your business's own Growth Officer covers everything.",
+    "ogo.single.text":
+      "Organization strategy, cross-business opportunities and shared initiatives appear once you run two or more businesses. Until then your business's own Growth Officer covers everything.",
     "ogo.single.cta": "Open the Growth Officer",
     "ogo.officer.title": "Organization Growth Officer",
-    "ogo.officer.intro": "Coordinates the businesses and looks for what no single business sees. It analyses and proposes; people decide.",
+    "ogo.officer.intro":
+      "Coordinates the businesses and looks for what no single business sees. It analyses and proposes; people decide.",
     "ogo.officer.open": "Open strategy",
     "ogo.officer.approved": "Approved organization strategy · version {v} · {date}",
     "ogo.officer.draftWaiting": "A draft organization strategy waits for review.",
-    "ogo.officer.none": "No organization strategy yet. An organization admin can ask the Organization Growth Officer for a first draft.",
-    "ogo.officer.adminsOnly": "Only organization administrators can ask the Organization Growth Officer for a strategy. You can read approved and draft strategies below.",
+    "ogo.officer.none":
+      "No organization strategy yet. An organization admin can ask the Organization Growth Officer for a first draft.",
+    "ogo.officer.adminsOnly":
+      "Only organization administrators can ask the Organization Growth Officer for a strategy. You can read approved and draft strategies below.",
     "ogo.officer.runTitle": "Ask for an organization strategy",
-    "ogo.officer.runIntro": "The Organization Growth Officer reads each selected business separately (profile, goals, budgets, costs, revenue, campaigns, experiments, specialists) plus the platform's own comparison, and drafts objectives, priorities per business, shared opportunities, resource proposals, risks and indicators. The draft changes nothing until an admin approves it, and approving never overrides a business's own approved strategy.",
+    "ogo.officer.runIntro":
+      "The Organization Growth Officer reads each selected business separately (profile, goals, budgets, costs, revenue, campaigns, experiments, specialists) plus the platform's own comparison, and drafts objectives, priorities per business, shared opportunities, resource proposals, risks and indicators. The draft changes nothing until an admin approves it, and approving never overrides a business's own approved strategy.",
     "ogo.officer.businesses": "Businesses to include (at least two)",
     "ogo.officer.horizon": "Time horizon",
     "ogo.officer.months": "{n} months",
     "ogo.officer.anchor": "Record the request under",
-    "ogo.officer.anchorHint": "AI receipts are kept per business, so one of the analysed businesses records the request. Its team sees that an organization analysis ran, never its content; the cost is shown as organization-level.",
+    "ogo.officer.anchorHint":
+      "AI receipts are kept per business, so one of the analysed businesses records the request. Its team sees that an organization analysis ran, never its content; the cost is shown as organization-level.",
     "ogo.officer.focus": "Focus (optional)",
     "ogo.officer.focusPh": "For example: grow office customers across bakery and catering in 2027",
     "ogo.officer.run": "Draft organization strategy",
     "ogo.officer.running": "Drafting…",
     "ogo.officer.needTwo": "Select at least two businesses.",
     "ogo.officer.cost": "Uses AI credits: {n} are reserved first and settled on actual use.",
-    "ogo.officer.limits": "It may analyse, compare, recommend and draft. It cannot move budgets or credits, change permissions, credit limits or autonomy settings, activate integrations, publish or contact anyone.",
-    "ogo.officer.done": "Draft version {v} saved · {credits} credits · {n} opportunities added as hypotheses",
-    "ogo.officer.doneUnstructured": "Version {v} saved as an unstructured answer · {credits} credits. Nothing was sent again.",
+    "ogo.officer.limits":
+      "It may analyse, compare, recommend and draft. It cannot move budgets or credits, change permissions, credit limits or autonomy settings, activate integrations, publish or contact anyone.",
+    "ogo.officer.done":
+      "Draft version {v} saved · {credits} credits · {n} opportunities added as hypotheses",
+    "ogo.officer.doneUnstructured":
+      "Version {v} saved as an unstructured answer · {credits} credits. Nothing was sent again.",
     "ogo.recover.title": "Unfinished organization requests",
-    "ogo.recover.intro": "A request was interrupted. Recovering saves an answer that already arrived or closes a request that never started; the AI is never asked again.",
+    "ogo.recover.intro":
+      "A request was interrupted. Recovering saves an answer that already arrived or closes a request that never started; the AI is never asked again.",
     "ogo.recover.item": "Organization strategy request · {date}",
     "ogo.recover.saved": "Saved answer recovered as a draft strategy",
     "ogo.recover.closed": "The request never started; it was closed and its credits returned",
     "ogo.recover.done": "This request is already closed",
     "ogo.next.title": "Next best organization actions",
-    "ogo.next.intro": "Ranked on importance, impact, revenue, confidence, cost, speed, risk, resources and dependencies. Each shows why it is on the list.",
+    "ogo.next.intro":
+      "Ranked on importance, impact, revenue, confidence, cost, speed, risk, resources and dependencies. Each shows why it is on the list.",
     "ogo.next.why": "Score {score} · {factors}",
     "ogo.factor.importance": "important",
     "ogo.factor.impact": "high impact",
@@ -84,7 +97,8 @@ export const ogo = defineArea("ogo", {
     "ogo.act.decide_commitment": "Decide whether {businesses} joins “{title}”",
     "ogo.act.decide_allocation": "Decide on the resource proposal “{title}”",
     "ogo.act.review_strategy": "Review {n} draft organization strategy",
-    "ogo.act.propose_initiative": "Turn the validated opportunity “{title}” into a shared initiative",
+    "ogo.act.propose_initiative":
+      "Turn the validated opportunity “{title}” into a shared initiative",
     "ogo.act.behind_target": "{businesses}: {n} of {active} goals behind target",
     "ogo.act.exceeding": "{businesses} is ahead: learn from what works",
     "ogo.act.conflicting_strategies": "Align {businesses} on “{subject}”",
@@ -94,7 +108,8 @@ export const ogo = defineArea("ogo", {
     "ogo.act.coordination_waiting": "“{title}” still waits for business decisions",
     "ogo.act.validated_without_initiative": "Validated opportunity without initiative: “{title}”",
     "ogo.act.multi_business_risk": "Several businesses need attention: {names}",
-    "ogo.act.priority_without_goal": "The organization strategy has priorities without a measurable goal",
+    "ogo.act.priority_without_goal":
+      "The organization strategy has priorities without a measurable goal",
     "ogo.act.execution_paused": "{businesses}: AI execution is paused",
     "ogo.act.opp_cross_sell": "Explore a cross-sell between {businesses}",
     "ogo.act.opp_joint_campaign": "Explore a joint campaign for {subject}",
@@ -113,7 +128,8 @@ export const ogo = defineArea("ogo", {
     "ogo.cls.assumption": "Assumption",
     "ogo.cls.missing": "Missing data",
     "ogo.strat.title": "Organization strategies",
-    "ogo.strat.intro": "Every draft is kept as a numbered version. Approving one supersedes the previous approved version; business strategies stay as they are.",
+    "ogo.strat.intro":
+      "Every draft is kept as a numbered version. Approving one supersedes the previous approved version; business strategies stay as they are.",
     "ogo.strat.none": "No organization strategy has been drafted yet.",
     "ogo.strat.meta": "Version {v} · {date} · {months} months · {n} businesses",
     "ogo.strat.status.draft": "Draft",
@@ -124,7 +140,8 @@ export const ogo = defineArea("ogo", {
     "ogo.strat.decided.reject": "Strategy rejected",
     "ogo.strat.decided.retire": "Strategy retired",
     "ogo.strat.covers": "Covers: {names}",
-    "ogo.strat.unstructured": "The answer could not be read as a structured strategy, so it is kept as text.",
+    "ogo.strat.unstructured":
+      "The answer could not be read as a structured strategy, so it is kept as text.",
     "ogo.strat.show": "Show details",
     "ogo.strat.hide": "Hide details",
     "ogo.strat.objectives": "Objectives",
@@ -149,14 +166,20 @@ export const ogo = defineArea("ogo", {
     "ogo.strat.approve": "Approve",
     "ogo.strat.reject": "Reject",
     "ogo.strat.retire": "Retire",
-    "ogo.strat.approveNote": "Approving records the decision only. It changes no business data, budget or permission.",
-    "ogo.opp.privacy": "Opportunities are found from business profiles, budgets, campaigns, goals, experiments and specialist work. No customer records are compared between businesses.",
+    "ogo.strat.approveNote":
+      "Approving records the decision only. It changes no business data, budget or permission.",
+    "ogo.opp.privacy":
+      "Opportunities are found from business profiles, budgets, campaigns, goals, experiments and specialist work. No customer records are compared between businesses.",
     "ogo.opp.detected": "Detected now",
-    "ogo.opp.detectedIntro": "Hypotheses from current data. Track one to validate it with the teams.",
-    "ogo.opp.needTwo": "Opportunities between businesses need at least two businesses you can open.",
-    "ogo.opp.noneDetected": "No overlap found yet. Fill in audiences, offerings and markets in each business profile to find more.",
+    "ogo.opp.detectedIntro":
+      "Hypotheses from current data. Track one to validate it with the teams.",
+    "ogo.opp.needTwo":
+      "Opportunities between businesses need at least two businesses you can open.",
+    "ogo.opp.noneDetected":
+      "No overlap found yet. Fill in audiences, offerings and markets in each business profile to find more.",
     "ogo.opp.tracked": "Tracked opportunities",
-    "ogo.opp.trackedIntro": "From detection or the Organization Growth Officer. Each stays a hypothesis until someone validates it.",
+    "ogo.opp.trackedIntro":
+      "From detection or the Organization Growth Officer. Each stays a hypothesis until someone validates it.",
     "ogo.opp.noneTracked": "No opportunities tracked yet.",
     "ogo.opp.hypothesis": "Hypothesis, not a result",
     "ogo.opp.track": "Track opportunity",
@@ -240,12 +263,14 @@ export const ogo = defineArea("ogo", {
     "ogo.oppMove.hypothesis": "Back to hypothesis",
     "ogo.origin.rule": "Found by rules",
     "ogo.origin.ai": "Suggested by the Organization Growth Officer",
-    "ogo.ini.rule": "A shared initiative changes nothing in a business until that business's own administrator approves its part. Approval creates the project and tasks inside that business only.",
+    "ogo.ini.rule":
+      "A shared initiative changes nothing in a business until that business's own administrator approves its part. Approval creates the project and tasks inside that business only.",
     "ogo.ini.title": "Shared initiatives",
     "ogo.ini.intro": "Coordinated work across businesses, with a separate commitment per business.",
     "ogo.ini.none": "No shared initiatives yet.",
     "ogo.ini.new": "New shared initiative",
-    "ogo.ini.fromOpp": "Prepared from a tracked opportunity; it becomes an initiative once every business approves.",
+    "ogo.ini.fromOpp":
+      "Prepared from a tracked opportunity; it becomes an initiative once every business approves.",
     "ogo.ini.f.title": "Title",
     "ogo.ini.f.shared": "Shared objective",
     "ogo.ini.f.metrics": "Success measures (one per line, “measure: target”)",
@@ -258,7 +283,8 @@ export const ogo = defineArea("ogo", {
     "ogo.ini.f.currency": "Currency",
     "ogo.ini.f.tasks": "Tasks (one per line, optional “| YYYY-MM-DD” due date)",
     "ogo.ini.f.tasksPh": "Prepare offer page | 2026-09-01",
-    "ogo.ini.f.note": "Budgets stay in each business's own currency and are never added together. Nothing is created until each business approves.",
+    "ogo.ini.f.note":
+      "Budgets stay in each business's own currency and are never added together. Nothing is created until each business approves.",
     "ogo.ini.submit": "Send to the businesses for approval",
     "ogo.ini.needTwo": "Choose at least two businesses.",
     "ogo.ini.needObjective": "Describe what each chosen business commits to.",
@@ -277,7 +303,8 @@ export const ogo = defineArea("ogo", {
     "ogo.ini.waitsFor": "Waits for an administrator of {name}",
     "ogo.ini.approved": "Approved for {name}; project and tasks created there",
     "ogo.ini.declined": "Declined for this business",
-    "ogo.ini.declinedKeep": "A business declined. Work already approved by other businesses stays in those businesses.",
+    "ogo.ini.declinedKeep":
+      "A business declined. Work already approved by other businesses stays in those businesses.",
     "ogo.iniStatus.awaiting_commitments": "Waiting for businesses",
     "ogo.iniStatus.committed": "All businesses committed",
     "ogo.iniStatus.declined": "Declined",
@@ -291,13 +318,16 @@ export const ogo = defineArea("ogo", {
     "ogo.iniMove.completed": "Mark completed",
     "ogo.iniMove.cancelled": "Cancel initiative",
     "ogo.res.budget": "Budget per business",
-    "ogo.res.budgetIntro": "This month's planned and spent marketing budget, per business and per currency.",
+    "ogo.res.budgetIntro":
+      "This month's planned and spent marketing budget, per business and per currency.",
     "ogo.res.col.planned": "Planned",
     "ogo.res.col.spent": "Spent",
     "ogo.res.col.use": "Use",
-    "ogo.res.budgetNote": "Amounts are never added across currencies. AI credits are shown separately and are never counted as money.",
+    "ogo.res.budgetNote":
+      "Amounts are never added across currencies. AI credits are shown separately and are never counted as money.",
     "ogo.res.recs": "Recommendations",
-    "ogo.res.recsIntro": "Rule-based suggestions from spending pace, goal progress and specialist use. Preparing one creates a proposal; nothing moves until the right people approve.",
+    "ogo.res.recsIntro":
+      "Rule-based suggestions from spending pace, goal progress and specialist use. Preparing one creates a proposal; nothing moves until the right people approve.",
     "ogo.res.noRecs": "No resource changes suggested right now.",
     "ogo.rec.budget": "Move {amount} of {channel} budget from {from} to {to}",
     "ogo.rec.spec.raise": "Raise the {specialist} limit for {business} to {cap}",
@@ -305,7 +335,8 @@ export const ogo = defineArea("ogo", {
     "ogo.rec.spec.enable": "Switch {specialist} back on for {business}",
     "ogo.recKind.budget_shift": "Budget shift",
     "ogo.recKind.specialist_capacity": "Specialist limit",
-    "ogo.why.underPace": "{channel}: {spent} of {planned} {cur} spent with {pct}% of the month gone",
+    "ogo.why.underPace":
+      "{channel}: {spent} of {planned} {cur} spent with {pct}% of the month gone",
     "ogo.why.overPace": "{channel}: on pace for {projected} of {planned} {cur}",
     "ogo.why.receiverBehind": "{n} goals behind target",
     "ogo.why.capNear": "{used} of {cap} credits used with {open} tasks open",
@@ -315,7 +346,8 @@ export const ogo = defineArea("ogo", {
     "ogo.res.alreadyProposed": "A proposal for this is already waiting.",
     "ogo.res.proposed": "Proposal created; it waits for approval",
     "ogo.res.proposals": "Resource proposals",
-    "ogo.res.proposalsIntro": "Budget shifts need an editor of both businesses; specialist limits need that business's administrator. Every decision is kept in the history.",
+    "ogo.res.proposalsIntro":
+      "Budget shifts need an editor of both businesses; specialist limits need that business's administrator. Every decision is kept in the history.",
     "ogo.res.noProposals": "No resource proposals yet.",
     "ogo.propStatus.pending": "Waiting for approval",
     "ogo.propStatus.applied": "Applied",
@@ -328,14 +360,16 @@ export const ogo = defineArea("ogo", {
     "ogo.res.apply": "Approve and apply",
     "ogo.res.reject": "Reject",
     "ogo.res.withdraw": "Withdraw",
-    "ogo.res.applyNote": "Applying changes the budget lines or specialist setting exactly as shown and records it in the history.",
+    "ogo.res.applyNote":
+      "Applying changes the budget lines or specialist setting exactly as shown and records it in the history.",
     "ogo.res.needs.budget_shift": "Waits for someone who can edit budgets in both businesses.",
     "ogo.res.needs.specialist_capacity": "Waits for an administrator of that business.",
     "ogo.res.decided.apply": "Proposal applied",
     "ogo.res.decided.reject": "Proposal rejected",
     "ogo.res.decided.withdraw": "Proposal withdrawn",
     "ogo.res.insights": "Specialist insights",
-    "ogo.res.insightsIntro": "Where specialist work is in demand, shared, capped or idle across businesses.",
+    "ogo.res.insightsIntro":
+      "Where specialist work is in demand, shared, capped or idle across businesses.",
     "ogo.res.noInsights": "No specialist patterns across businesses yet.",
     "ogo.ins.high_demand": "high demand · {open} open tasks",
     "ogo.ins.underused": "limit barely used",
@@ -343,7 +377,8 @@ export const ogo = defineArea("ogo", {
     "ogo.ins.bottleneck": "monthly limit reached or close",
     "ogo.res.today": "Figures as of {date}.",
     "ogo.mon.title": "Organization monitoring",
-    "ogo.mon.intro": "Signals across businesses, from the same records each business sees. They point to evidence, not to a cause.",
+    "ogo.mon.intro":
+      "Signals across businesses, from the same records each business sees. They point to evidence, not to a cause.",
     "ogo.mon.none": "Nothing needs organization-level attention right now.",
     "ogo.sev.high": "High",
     "ogo.sev.medium": "Medium",
@@ -357,7 +392,8 @@ export const ogo = defineArea("ogo", {
     "ogo.mon.coordination_waiting": "“{title}” waits for decisions from {names}",
     "ogo.mon.validated_without_initiative": "Validated opportunity “{title}” has no initiative yet",
     "ogo.mon.multi_business_risk": "Several businesses need attention at once: {names}",
-    "ogo.mon.priority_without_goal": "The approved organization strategy has priorities without a measurable goal",
+    "ogo.mon.priority_without_goal":
+      "The approved organization strategy has priorities without a measurable goal",
     "ogo.mon.execution_paused": "{names}: AI execution is paused",
     "ogo.pending.title": "Pending decisions",
     "ogo.pending.intro": "What waits for a person before anything changes.",
@@ -393,7 +429,8 @@ export const ogo = defineArea("ogo", {
     "ogo.audit.strategy_superseded": "Organization strategy replaced or retired",
     "ogo.cr.title": "AI credits",
     "ogo.cr.intro": "Organization-wide AI credit use, with usage per business and per specialist.",
-    "ogo.cr.pool": "Credits are one shared pool owned by the organization. Businesses do not have their own balance and credits are not allocated or transferred between them: the figures per business show how much each business used from the shared pool.",
+    "ogo.cr.pool":
+      "Credits are one shared pool owned by the organization. Businesses do not have their own balance and credits are not allocated or transferred between them: the figures per business show how much each business used from the shared pool.",
     "ogo.cr.loading": "Loading AI credits…",
     "ogo.cr.failed": "The AI credit overview could not be loaded.",
     "ogo.cr.off": "The organization credit overview is not switched on in this environment yet.",
@@ -409,8 +446,10 @@ export const ogo = defineArea("ogo", {
     "ogo.cr.releasedNote": "Reserved but not needed, returned to the pool",
     "ogo.cr.officer": "Organization Growth Officer",
     "ogo.cr.officerNote": "Total used by organization strategy requests",
-    "ogo.cr.reconciles": "Checked: {granted} credits granted minus usage, reservations and other debits equals the balance.",
-    "ogo.cr.noReconcile": "The credit records do not add up to the balance. Report this before relying on these figures.",
+    "ogo.cr.reconciles":
+      "Checked: {granted} credits granted minus usage, reservations and other debits equals the balance.",
+    "ogo.cr.noReconcile":
+      "The credit records do not add up to the balance. Report this before relying on these figures.",
     "ogo.cr.byBusiness": "Usage per business",
     "ogo.cr.col.month": "This month",
     "ogo.cr.col.total": "Total",
@@ -421,22 +460,28 @@ export const ogo = defineArea("ogo", {
     "ogo.cr.directRow": "Earlier usage not linked to a request",
     "ogo.cr.totalRow": "Organization total",
     "ogo.cr.mismatch": "The rows do not add up to the organization total.",
-    "ogo.cr.drill": "Open a business to see its use per specialist. Every request is counted once, in the business that ran it.",
+    "ogo.cr.drill":
+      "Open a business to see its use per specialist. Every request is counted once, in the business that ran it.",
     "ogo.cr.bySpecialist": "Usage per specialist",
     "ogo.cr.inBusinesses": "businesses: {n}",
     "ogo.cr.specLine": "{month} this month · {total} total · {runs} requests",
     "ogo.cr.noSpecialists": "No specialist usage yet in the businesses you can open.",
-    "ogo.cr.notMoney": "AI credits are platform usage units. They are never counted as revenue, advertising cost or any other money amount.",
+    "ogo.cr.notMoney":
+      "AI credits are platform usage units. They are never counted as revenue, advertising cost or any other money amount.",
     "ogo.cr.businessOfficer": "Business Growth Officer",
-    "ogo.strat.namesReconstructed": "Business names were filled in from this draft's business list; the stored text is unchanged.",
+    "ogo.strat.namesReconstructed":
+      "Business names were filled in from this draft's business list; the stored text is unchanged.",
     "ogo.tab.economics": "Economics",
     "ogo.ec.title": "Economics per business",
-    "ogo.ec.intro": "Each business's figures come from its own Growth economics page, for the period chosen above. Amounts stay in their own currency.",
+    "ogo.ec.intro":
+      "Each business's figures come from its own Growth economics page, for the period chosen above. Amounts stay in their own currency.",
     "ogo.ec.loading": "Loading the economics of each business…",
-    "ogo.ec.failed": "The economics of one or more businesses could not be read, so no totals are shown.",
+    "ogo.ec.failed":
+      "The economics of one or more businesses could not be read, so no totals are shown.",
     "ogo.ec.off": "Growth economics is not installed in this environment.",
     "ogo.ec.capped": "Only the first {n} businesses are shown.",
-    "ogo.ec.incomplete": "Some records of {names} could not be read completely; their totals may be too low.",
+    "ogo.ec.incomplete":
+      "Some records of {names} could not be read completely; their totals may be too low.",
     "ogo.ec.col.business": "Business",
     "ogo.ec.col.currency": "Currency",
     "ogo.ec.col.net": "Net revenue",
@@ -450,34 +495,45 @@ export const ogo = defineArea("ogo", {
     "ogo.ec.notCalc": "Not calculable — costs missing",
     "ogo.ec.total": "Total · {n} business(es) in this currency",
     "ogo.ec.gpMissing": "Not totalled: {n} business(es) cannot calculate it",
-    "ogo.ec.unpriced": "{n} credits were used without a credit price in effect and are shown in credits only.",
-    "ogo.ec.note": "Totals add only amounts in the same currency. Simulated spending is shown apart and never counted. A comparison between businesses shows a difference, not its cause.",
+    "ogo.ec.unpriced":
+      "{n} credits were used without a credit price in effect and are shown in credits only.",
+    "ogo.ec.note":
+      "Totals add only amounts in the same currency. Simulated spending is shown apart and never counted. A comparison between businesses shows a difference, not its cause.",
     "ogo.cv.title": "Converted to {cur}",
     "ogo.cv.loading": "Loading exchange rates…",
-    "ogo.cv.failed": "Exchange rates could not be read, so nothing is converted. The amounts above remain valid in their own currency.",
-    "ogo.cv.method": "Each month is converted at its own closing rate: the latest official ECB rate (or a recorded rate) published on or before the month's last day — today for the current month — and at most {d} days older. Weekends and public holidays use the last publication day.",
-    "ogo.cv.ratesIncomplete": "Not all stored exchange rates could be read; some conversions may be withheld.",
+    "ogo.cv.failed":
+      "Exchange rates could not be read, so nothing is converted. The amounts above remain valid in their own currency.",
+    "ogo.cv.method":
+      "Each month is converted at its own closing rate: the latest official ECB rate (or a recorded rate) published on or before the month's last day — today for the current month — and at most {d} days older. Weekends and public holidays use the last publication day.",
+    "ogo.cv.ratesIncomplete":
+      "Not all stored exchange rates could be read; some conversions may be withheld.",
     "ogo.cv.col.figure": "Figure",
     "ogo.cv.col.original": "Original amounts",
     "ogo.cv.col.converted": "In {cur}",
     "ogo.cv.withheld": "Not converted — a rate is missing (see below)",
     "ogo.cv.notAdding": "Not converted — the months of {names} do not add up to the period figure",
-    "ogo.cv.gpWithheld": "Not converted — gross profit cannot be calculated month by month for {names}",
+    "ogo.cv.gpWithheld":
+      "Not converted — gross profit cannot be calculated month by month for {names}",
     "ogo.cv.short.notAdding": "not by month",
     "ogo.cv.short.withheld": "rate missing",
     "ogo.cv.rates": "Rates used",
     "ogo.cv.rate.direct": "{pair} · {source}, {date} (closing rate for {month})",
     "ogo.cv.rate.inverse": "{pair} · inverse of {source}, {date} (closing rate for {month})",
-    "ogo.cv.rate.ecb_cross": "{pair} · ECB cross rate via the euro, {date} (closing rate for {month})",
+    "ogo.cv.rate.ecb_cross":
+      "{pair} · ECB cross rate via the euro, {date} (closing rate for {month})",
     "ogo.cv.rate.same": "{pair}",
-    "ogo.cv.miss.none": "No rate for {pair} on or before {date}. Import the ECB history on the Resources tab, or record a rate.",
-    "ogo.cv.miss.old": "The latest rate for {pair} before {date} is from {latest}, more than {d} days earlier, so it is not used.",
+    "ogo.cv.miss.none":
+      "No rate for {pair} on or before {date}. Import the ECB history on the Resources tab, or record a rate.",
+    "ogo.cv.miss.old":
+      "The latest rate for {pair} before {date} is from {latest}, more than {d} days earlier, so it is not used.",
     "ogo.cv.allSame": "All amounts are already in {cur}; nothing needed converting.",
-    "ogo.cv.note": "Converted amounts are a reporting view: the original amounts and currencies remain the record, and converted and original amounts are never added together.",
+    "ogo.cv.note":
+      "Converted amounts are a reporting view: the original amounts and currencies remain the record, and converted and original amounts are never added together.",
   },
   nl: {
     "ogo.context.org": "Organisatieoverzicht",
-    "ogo.context.orgHint": "Je bekijkt alle {n} bedrijven die je kunt openen samen. Elk bedrijf houdt zijn eigen gegevens en beslissingen.",
+    "ogo.context.orgHint":
+      "Je bekijkt alle {n} bedrijven die je kunt openen samen. Elk bedrijf houdt zijn eigen gegevens en beslissingen.",
     "ogo.context.change": "Organisatie, bedrijf of merk wijzigen",
     "ogo.context.organization": "Organisatie",
     "ogo.context.business": "Bedrijf",
@@ -496,7 +552,8 @@ export const ogo = defineArea("ogo", {
     "ogo.tab.resources": "Middelen",
     "ogo.tab.risks": "Risico’s & beslissingen",
     "ogo.otherBusiness": "een ander bedrijf",
-    "ogo.off": "Organisatiestrategie, kansen en gedeelde initiatieven zijn in deze omgeving nog niet ingeschakeld. Het overzicht blijft werken.",
+    "ogo.off":
+      "Organisatiestrategie, kansen en gedeelde initiatieven zijn in deze omgeving nog niet ingeschakeld. Het overzicht blijft werken.",
     "ogo.note": "Notitie",
     "ogo.notePh": "Optionele notitie voor de geschiedenis",
     "ogo.cancel": "Annuleren",
@@ -505,39 +562,52 @@ export const ogo = defineArea("ogo", {
     "ogo.filter.open": "Open",
     "ogo.filter.all": "Alle, ook afgesloten",
     "ogo.single.title": "{name} is je enige bedrijf",
-    "ogo.single.text": "Organisatiestrategie, kansen tussen bedrijven en gedeelde initiatieven verschijnen zodra je twee of meer bedrijven hebt. Tot dan doet de Growth Officer van je bedrijf alles.",
+    "ogo.single.text":
+      "Organisatiestrategie, kansen tussen bedrijven en gedeelde initiatieven verschijnen zodra je twee of meer bedrijven hebt. Tot dan doet de Growth Officer van je bedrijf alles.",
     "ogo.single.cta": "Growth Officer openen",
     "ogo.officer.title": "Organisatie-Growth Officer",
-    "ogo.officer.intro": "Coördineert de bedrijven en zoekt wat geen enkel bedrijf alleen ziet. Het analyseert en stelt voor; mensen beslissen.",
+    "ogo.officer.intro":
+      "Coördineert de bedrijven en zoekt wat geen enkel bedrijf alleen ziet. Het analyseert en stelt voor; mensen beslissen.",
     "ogo.officer.open": "Strategie openen",
     "ogo.officer.approved": "Goedgekeurde organisatiestrategie · versie {v} · {date}",
     "ogo.officer.draftWaiting": "Een ontwerp van de organisatiestrategie wacht op beoordeling.",
-    "ogo.officer.none": "Nog geen organisatiestrategie. Een organisatiebeheerder kan de Organisatie-Growth Officer om een eerste ontwerp vragen.",
-    "ogo.officer.adminsOnly": "Alleen organisatiebeheerders kunnen de Organisatie-Growth Officer om een strategie vragen. Hieronder lees je goedgekeurde en ontwerpstrategieën.",
+    "ogo.officer.none":
+      "Nog geen organisatiestrategie. Een organisatiebeheerder kan de Organisatie-Growth Officer om een eerste ontwerp vragen.",
+    "ogo.officer.adminsOnly":
+      "Alleen organisatiebeheerders kunnen de Organisatie-Growth Officer om een strategie vragen. Hieronder lees je goedgekeurde en ontwerpstrategieën.",
     "ogo.officer.runTitle": "Vraag een organisatiestrategie",
-    "ogo.officer.runIntro": "De Organisatie-Growth Officer leest elk gekozen bedrijf apart (profiel, doelen, budgetten, kosten, omzet, campagnes, experimenten, specialisten) plus de vergelijking van het platform, en stelt doelen, prioriteiten per bedrijf, gedeelde kansen, voorstellen voor middelen, risico’s en indicatoren op. Het ontwerp verandert niets tot een beheerder het goedkeurt, en goedkeuren overschrijft nooit de goedgekeurde strategie van een bedrijf.",
+    "ogo.officer.runIntro":
+      "De Organisatie-Growth Officer leest elk gekozen bedrijf apart (profiel, doelen, budgetten, kosten, omzet, campagnes, experimenten, specialisten) plus de vergelijking van het platform, en stelt doelen, prioriteiten per bedrijf, gedeelde kansen, voorstellen voor middelen, risico’s en indicatoren op. Het ontwerp verandert niets tot een beheerder het goedkeurt, en goedkeuren overschrijft nooit de goedgekeurde strategie van een bedrijf.",
     "ogo.officer.businesses": "Bedrijven om op te nemen (minstens twee)",
     "ogo.officer.horizon": "Tijdshorizon",
     "ogo.officer.months": "{n} maanden",
     "ogo.officer.anchor": "Verzoek registreren onder",
-    "ogo.officer.anchorHint": "AI-ontvangstbewijzen worden per bedrijf bewaard, dus één van de geanalyseerde bedrijven registreert het verzoek. Het team ziet dat er een organisatieanalyse liep, nooit de inhoud; de kosten tellen als organisatiekosten.",
+    "ogo.officer.anchorHint":
+      "AI-ontvangstbewijzen worden per bedrijf bewaard, dus één van de geanalyseerde bedrijven registreert het verzoek. Het team ziet dat er een organisatieanalyse liep, nooit de inhoud; de kosten tellen als organisatiekosten.",
     "ogo.officer.focus": "Focus (optioneel)",
     "ogo.officer.focusPh": "Bijvoorbeeld: meer kantoorklanten via bakkerij en catering in 2027",
     "ogo.officer.run": "Organisatiestrategie opstellen",
     "ogo.officer.running": "Bezig met opstellen…",
     "ogo.officer.needTwo": "Kies minstens twee bedrijven.",
-    "ogo.officer.cost": "Gebruikt AI-credits: eerst worden er {n} gereserveerd, daarna verrekend op het echte gebruik.",
-    "ogo.officer.limits": "Hij mag analyseren, vergelijken, aanbevelen en opstellen. Hij kan geen budgetten of credits verschuiven, geen rechten, creditlimieten of autonomie-instellingen wijzigen, geen koppelingen activeren, niets publiceren en niemand contacteren.",
-    "ogo.officer.done": "Ontwerpversie {v} bewaard · {credits} credits · {n} kansen toegevoegd als hypothese",
-    "ogo.officer.doneUnstructured": "Versie {v} bewaard als ongestructureerd antwoord · {credits} credits. Er werd niets opnieuw verstuurd.",
+    "ogo.officer.cost":
+      "Gebruikt AI-credits: eerst worden er {n} gereserveerd, daarna verrekend op het echte gebruik.",
+    "ogo.officer.limits":
+      "Hij mag analyseren, vergelijken, aanbevelen en opstellen. Hij kan geen budgetten of credits verschuiven, geen rechten, creditlimieten of autonomie-instellingen wijzigen, geen koppelingen activeren, niets publiceren en niemand contacteren.",
+    "ogo.officer.done":
+      "Ontwerpversie {v} bewaard · {credits} credits · {n} kansen toegevoegd als hypothese",
+    "ogo.officer.doneUnstructured":
+      "Versie {v} bewaard als ongestructureerd antwoord · {credits} credits. Er werd niets opnieuw verstuurd.",
     "ogo.recover.title": "Onafgewerkte organisatieverzoeken",
-    "ogo.recover.intro": "Een verzoek werd onderbroken. Herstellen bewaart een antwoord dat al binnen was of sluit een verzoek dat nooit startte; de AI wordt nooit opnieuw gevraagd.",
+    "ogo.recover.intro":
+      "Een verzoek werd onderbroken. Herstellen bewaart een antwoord dat al binnen was of sluit een verzoek dat nooit startte; de AI wordt nooit opnieuw gevraagd.",
     "ogo.recover.item": "Verzoek organisatiestrategie · {date}",
     "ogo.recover.saved": "Bewaard antwoord hersteld als ontwerpstrategie",
-    "ogo.recover.closed": "Het verzoek startte nooit; het is gesloten en de credits zijn teruggegeven",
+    "ogo.recover.closed":
+      "Het verzoek startte nooit; het is gesloten en de credits zijn teruggegeven",
     "ogo.recover.done": "Dit verzoek is al gesloten",
     "ogo.next.title": "Volgende beste acties voor de organisatie",
-    "ogo.next.intro": "Gerangschikt op belang, impact, omzet, zekerheid, kosten, snelheid, risico, middelen en afhankelijkheden. Elke actie toont waarom ze op de lijst staat.",
+    "ogo.next.intro":
+      "Gerangschikt op belang, impact, omzet, zekerheid, kosten, snelheid, risico, middelen en afhankelijkheden. Elke actie toont waarom ze op de lijst staat.",
     "ogo.next.why": "Score {score} · {factors}",
     "ogo.factor.importance": "belangrijk",
     "ogo.factor.impact": "grote impact",
@@ -567,7 +637,8 @@ export const ogo = defineArea("ogo", {
     "ogo.act.coordination_waiting": "“{title}” wacht nog op beslissingen van bedrijven",
     "ogo.act.validated_without_initiative": "Bevestigde kans zonder initiatief: “{title}”",
     "ogo.act.multi_business_risk": "Meerdere bedrijven vragen aandacht: {names}",
-    "ogo.act.priority_without_goal": "De organisatiestrategie heeft prioriteiten zonder meetbaar doel",
+    "ogo.act.priority_without_goal":
+      "De organisatiestrategie heeft prioriteiten zonder meetbaar doel",
     "ogo.act.execution_paused": "{businesses}: AI-uitvoering is gepauzeerd",
     "ogo.act.opp_cross_sell": "Verken kruisverkoop tussen {businesses}",
     "ogo.act.opp_joint_campaign": "Verken een gezamenlijke campagne voor {subject}",
@@ -586,7 +657,8 @@ export const ogo = defineArea("ogo", {
     "ogo.cls.assumption": "Aanname",
     "ogo.cls.missing": "Ontbrekende gegevens",
     "ogo.strat.title": "Organisatiestrategieën",
-    "ogo.strat.intro": "Elk ontwerp blijft bewaard als genummerde versie. Goedkeuren vervangt de vorige goedgekeurde versie; strategieën van bedrijven blijven zoals ze zijn.",
+    "ogo.strat.intro":
+      "Elk ontwerp blijft bewaard als genummerde versie. Goedkeuren vervangt de vorige goedgekeurde versie; strategieën van bedrijven blijven zoals ze zijn.",
     "ogo.strat.none": "Er is nog geen organisatiestrategie opgesteld.",
     "ogo.strat.meta": "Versie {v} · {date} · {months} maanden · {n} bedrijven",
     "ogo.strat.status.draft": "Ontwerp",
@@ -597,7 +669,8 @@ export const ogo = defineArea("ogo", {
     "ogo.strat.decided.reject": "Strategie afgewezen",
     "ogo.strat.decided.retire": "Strategie ingetrokken",
     "ogo.strat.covers": "Omvat: {names}",
-    "ogo.strat.unstructured": "Het antwoord kon niet als gestructureerde strategie gelezen worden en is als tekst bewaard.",
+    "ogo.strat.unstructured":
+      "Het antwoord kon niet als gestructureerde strategie gelezen worden en is als tekst bewaard.",
     "ogo.strat.show": "Details tonen",
     "ogo.strat.hide": "Details verbergen",
     "ogo.strat.objectives": "Doelstellingen",
@@ -622,14 +695,19 @@ export const ogo = defineArea("ogo", {
     "ogo.strat.approve": "Goedkeuren",
     "ogo.strat.reject": "Afwijzen",
     "ogo.strat.retire": "Intrekken",
-    "ogo.strat.approveNote": "Goedkeuren registreert enkel de beslissing. Het wijzigt geen gegevens, budget of rechten van een bedrijf.",
-    "ogo.opp.privacy": "Kansen worden gevonden in bedrijfsprofielen, budgetten, campagnes, doelen, experimenten en specialistenwerk. Er worden geen klantgegevens tussen bedrijven vergeleken.",
+    "ogo.strat.approveNote":
+      "Goedkeuren registreert enkel de beslissing. Het wijzigt geen gegevens, budget of rechten van een bedrijf.",
+    "ogo.opp.privacy":
+      "Kansen worden gevonden in bedrijfsprofielen, budgetten, campagnes, doelen, experimenten en specialistenwerk. Er worden geen klantgegevens tussen bedrijven vergeleken.",
     "ogo.opp.detected": "Nu gevonden",
-    "ogo.opp.detectedIntro": "Hypotheses op basis van de huidige gegevens. Volg er een op om ze met de teams te toetsen.",
+    "ogo.opp.detectedIntro":
+      "Hypotheses op basis van de huidige gegevens. Volg er een op om ze met de teams te toetsen.",
     "ogo.opp.needTwo": "Kansen tussen bedrijven vragen minstens twee bedrijven die je kunt openen.",
-    "ogo.opp.noneDetected": "Nog geen overlap gevonden. Vul doelgroepen, aanbod en markten in elk bedrijfsprofiel in om meer te vinden.",
+    "ogo.opp.noneDetected":
+      "Nog geen overlap gevonden. Vul doelgroepen, aanbod en markten in elk bedrijfsprofiel in om meer te vinden.",
     "ogo.opp.tracked": "Gevolgde kansen",
-    "ogo.opp.trackedIntro": "Uit detectie of van de Organisatie-Growth Officer. Elke kans blijft een hypothese tot iemand ze bevestigt.",
+    "ogo.opp.trackedIntro":
+      "Uit detectie of van de Organisatie-Growth Officer. Elke kans blijft een hypothese tot iemand ze bevestigt.",
     "ogo.opp.noneTracked": "Nog geen kansen gevolgd.",
     "ogo.opp.hypothesis": "Hypothese, geen resultaat",
     "ogo.opp.track": "Kans opvolgen",
@@ -713,12 +791,15 @@ export const ogo = defineArea("ogo", {
     "ogo.oppMove.hypothesis": "Terug naar hypothese",
     "ogo.origin.rule": "Gevonden door regels",
     "ogo.origin.ai": "Voorgesteld door de Organisatie-Growth Officer",
-    "ogo.ini.rule": "Een gedeeld initiatief verandert niets in een bedrijf tot de eigen beheerder van dat bedrijf zijn deel goedkeurt. Goedkeuring maakt het project en de taken alleen in dat bedrijf aan.",
+    "ogo.ini.rule":
+      "Een gedeeld initiatief verandert niets in een bedrijf tot de eigen beheerder van dat bedrijf zijn deel goedkeurt. Goedkeuring maakt het project en de taken alleen in dat bedrijf aan.",
     "ogo.ini.title": "Gedeelde initiatieven",
-    "ogo.ini.intro": "Gecoördineerd werk over bedrijven heen, met een apart engagement per bedrijf.",
+    "ogo.ini.intro":
+      "Gecoördineerd werk over bedrijven heen, met een apart engagement per bedrijf.",
     "ogo.ini.none": "Nog geen gedeelde initiatieven.",
     "ogo.ini.new": "Nieuw gedeeld initiatief",
-    "ogo.ini.fromOpp": "Voorbereid vanuit een gevolgde kans; het wordt een initiatief zodra elk bedrijf goedkeurt.",
+    "ogo.ini.fromOpp":
+      "Voorbereid vanuit een gevolgde kans; het wordt een initiatief zodra elk bedrijf goedkeurt.",
     "ogo.ini.f.title": "Titel",
     "ogo.ini.f.shared": "Gedeeld doel",
     "ogo.ini.f.metrics": "Succesmaatstaven (één per regel, “maatstaf: doel”)",
@@ -731,7 +812,8 @@ export const ogo = defineArea("ogo", {
     "ogo.ini.f.currency": "Munt",
     "ogo.ini.f.tasks": "Taken (één per regel, optioneel “| JJJJ-MM-DD” deadline)",
     "ogo.ini.f.tasksPh": "Aanbodpagina voorbereiden | 2026-09-01",
-    "ogo.ini.f.note": "Budgetten blijven in de eigen munt van elk bedrijf en worden nooit opgeteld. Er wordt niets aangemaakt tot elk bedrijf goedkeurt.",
+    "ogo.ini.f.note":
+      "Budgetten blijven in de eigen munt van elk bedrijf en worden nooit opgeteld. Er wordt niets aangemaakt tot elk bedrijf goedkeurt.",
     "ogo.ini.submit": "Ter goedkeuring naar de bedrijven sturen",
     "ogo.ini.needTwo": "Kies minstens twee bedrijven.",
     "ogo.ini.needObjective": "Beschrijf waartoe elk gekozen bedrijf zich engageert.",
@@ -750,7 +832,8 @@ export const ogo = defineArea("ogo", {
     "ogo.ini.waitsFor": "Wacht op een beheerder van {name}",
     "ogo.ini.approved": "Goedgekeurd voor {name}; project en taken daar aangemaakt",
     "ogo.ini.declined": "Geweigerd voor dit bedrijf",
-    "ogo.ini.declinedKeep": "Een bedrijf weigerde. Werk dat andere bedrijven al goedkeurden blijft in die bedrijven.",
+    "ogo.ini.declinedKeep":
+      "Een bedrijf weigerde. Werk dat andere bedrijven al goedkeurden blijft in die bedrijven.",
     "ogo.iniStatus.awaiting_commitments": "Wacht op bedrijven",
     "ogo.iniStatus.committed": "Alle bedrijven geëngageerd",
     "ogo.iniStatus.declined": "Geweigerd",
@@ -764,13 +847,16 @@ export const ogo = defineArea("ogo", {
     "ogo.iniMove.completed": "Markeren als afgerond",
     "ogo.iniMove.cancelled": "Initiatief annuleren",
     "ogo.res.budget": "Budget per bedrijf",
-    "ogo.res.budgetIntro": "Gepland en uitgegeven marketingbudget van deze maand, per bedrijf en per munt.",
+    "ogo.res.budgetIntro":
+      "Gepland en uitgegeven marketingbudget van deze maand, per bedrijf en per munt.",
     "ogo.res.col.planned": "Gepland",
     "ogo.res.col.spent": "Uitgegeven",
     "ogo.res.col.use": "Gebruik",
-    "ogo.res.budgetNote": "Bedragen worden nooit over munten heen opgeteld. AI-credits staan apart en tellen nooit als geld.",
+    "ogo.res.budgetNote":
+      "Bedragen worden nooit over munten heen opgeteld. AI-credits staan apart en tellen nooit als geld.",
     "ogo.res.recs": "Aanbevelingen",
-    "ogo.res.recsIntro": "Voorstellen op basis van uitgavetempo, voortgang van doelen en gebruik van specialisten. Voorbereiden maakt een voorstel; er verschuift niets tot de juiste mensen goedkeuren.",
+    "ogo.res.recsIntro":
+      "Voorstellen op basis van uitgavetempo, voortgang van doelen en gebruik van specialisten. Voorbereiden maakt een voorstel; er verschuift niets tot de juiste mensen goedkeuren.",
     "ogo.res.noRecs": "Momenteel geen wijzigingen in middelen voorgesteld.",
     "ogo.rec.budget": "Verschuif {amount} {channel}-budget van {from} naar {to}",
     "ogo.rec.spec.raise": "Verhoog de limiet van {specialist} voor {business} naar {cap}",
@@ -778,7 +864,8 @@ export const ogo = defineArea("ogo", {
     "ogo.rec.spec.enable": "Zet {specialist} weer aan voor {business}",
     "ogo.recKind.budget_shift": "Budgetverschuiving",
     "ogo.recKind.specialist_capacity": "Specialistenlimiet",
-    "ogo.why.underPace": "{channel}: {spent} van {planned} {cur} uitgegeven bij {pct}% van de maand",
+    "ogo.why.underPace":
+      "{channel}: {spent} van {planned} {cur} uitgegeven bij {pct}% van de maand",
     "ogo.why.overPace": "{channel}: op weg naar {projected} van {planned} {cur}",
     "ogo.why.receiverBehind": "{n} doelen achter op schema",
     "ogo.why.capNear": "{used} van {cap} credits gebruikt met {open} open taken",
@@ -788,7 +875,8 @@ export const ogo = defineArea("ogo", {
     "ogo.res.alreadyProposed": "Hiervoor wacht al een voorstel.",
     "ogo.res.proposed": "Voorstel aangemaakt; het wacht op goedkeuring",
     "ogo.res.proposals": "Voorstellen voor middelen",
-    "ogo.res.proposalsIntro": "Budgetverschuivingen vragen een redacteur van beide bedrijven; specialistenlimieten de beheerder van dat bedrijf. Elke beslissing blijft in de geschiedenis.",
+    "ogo.res.proposalsIntro":
+      "Budgetverschuivingen vragen een redacteur van beide bedrijven; specialistenlimieten de beheerder van dat bedrijf. Elke beslissing blijft in de geschiedenis.",
     "ogo.res.noProposals": "Nog geen voorstellen voor middelen.",
     "ogo.propStatus.pending": "Wacht op goedkeuring",
     "ogo.propStatus.applied": "Toegepast",
@@ -801,14 +889,16 @@ export const ogo = defineArea("ogo", {
     "ogo.res.apply": "Goedkeuren en toepassen",
     "ogo.res.reject": "Afwijzen",
     "ogo.res.withdraw": "Intrekken",
-    "ogo.res.applyNote": "Toepassen wijzigt de budgetregels of de specialisteninstelling precies zoals getoond en registreert dat in de geschiedenis.",
+    "ogo.res.applyNote":
+      "Toepassen wijzigt de budgetregels of de specialisteninstelling precies zoals getoond en registreert dat in de geschiedenis.",
     "ogo.res.needs.budget_shift": "Wacht op iemand die budgetten in beide bedrijven mag wijzigen.",
     "ogo.res.needs.specialist_capacity": "Wacht op een beheerder van dat bedrijf.",
     "ogo.res.decided.apply": "Voorstel toegepast",
     "ogo.res.decided.reject": "Voorstel afgewezen",
     "ogo.res.decided.withdraw": "Voorstel ingetrokken",
     "ogo.res.insights": "Inzichten over specialisten",
-    "ogo.res.insightsIntro": "Waar specialistenwerk gevraagd, gedeeld, begrensd of ongebruikt is over de bedrijven.",
+    "ogo.res.insightsIntro":
+      "Waar specialistenwerk gevraagd, gedeeld, begrensd of ongebruikt is over de bedrijven.",
     "ogo.res.noInsights": "Nog geen patronen in specialistenwerk over bedrijven.",
     "ogo.ins.high_demand": "veel vraag · {open} open taken",
     "ogo.ins.underused": "limiet nauwelijks gebruikt",
@@ -816,7 +906,8 @@ export const ogo = defineArea("ogo", {
     "ogo.ins.bottleneck": "maandlimiet bereikt of bijna",
     "ogo.res.today": "Cijfers op {date}.",
     "ogo.mon.title": "Opvolging van de organisatie",
-    "ogo.mon.intro": "Signalen over bedrijven heen, uit dezelfde gegevens die elk bedrijf ziet. Ze wijzen naar feiten, niet naar een oorzaak.",
+    "ogo.mon.intro":
+      "Signalen over bedrijven heen, uit dezelfde gegevens die elk bedrijf ziet. Ze wijzen naar feiten, niet naar een oorzaak.",
     "ogo.mon.none": "Momenteel vraagt niets aandacht op organisatieniveau.",
     "ogo.sev.high": "Hoog",
     "ogo.sev.medium": "Gemiddeld",
@@ -830,16 +921,19 @@ export const ogo = defineArea("ogo", {
     "ogo.mon.coordination_waiting": "“{title}” wacht op beslissingen van {names}",
     "ogo.mon.validated_without_initiative": "Bevestigde kans “{title}” heeft nog geen initiatief",
     "ogo.mon.multi_business_risk": "Meerdere bedrijven vragen tegelijk aandacht: {names}",
-    "ogo.mon.priority_without_goal": "De goedgekeurde organisatiestrategie heeft prioriteiten zonder meetbaar doel",
+    "ogo.mon.priority_without_goal":
+      "De goedgekeurde organisatiestrategie heeft prioriteiten zonder meetbaar doel",
     "ogo.mon.execution_paused": "{names}: AI-uitvoering is gepauzeerd",
     "ogo.pending.title": "Openstaande beslissingen",
     "ogo.pending.intro": "Wat op een persoon wacht voor er iets verandert.",
     "ogo.pending.strategies": "Ontwerpen van organisatiestrategie te beoordelen: {n}",
-    "ogo.pending.commitments": "Wachtende engagementen van bedrijven: {n} (jij kunt er {mine} beslissen)",
+    "ogo.pending.commitments":
+      "Wachtende engagementen van bedrijven: {n} (jij kunt er {mine} beslissen)",
     "ogo.pending.proposals": "Wachtende voorstellen voor middelen: {n}",
     "ogo.pending.validated": "Bevestigde kansen zonder initiatief: {n}",
     "ogo.hist.title": "Beslissingsgeschiedenis",
-    "ogo.hist.intro": "Beslissingen van de organisatie worden blijvend vastgelegd en kunnen niet gewijzigd worden.",
+    "ogo.hist.intro":
+      "Beslissingen van de organisatie worden blijvend vastgelegd en kunnen niet gewijzigd worden.",
     "ogo.hist.adminsOnly": "Alleen organisatiebeheerders kunnen de beslissingsgeschiedenis lezen.",
     "ogo.hist.failed": "De geschiedenis kon niet geladen worden.",
     "ogo.hist.none": "Nog geen beslissingen van de organisatie.",
@@ -865,15 +959,19 @@ export const ogo = defineArea("ogo", {
     "ogo.audit.strategy_rejected": "Organisatiestrategie afgewezen",
     "ogo.audit.strategy_superseded": "Organisatiestrategie vervangen of ingetrokken",
     "ogo.cr.title": "AI-credits",
-    "ogo.cr.intro": "AI-creditgebruik van de hele organisatie, met gebruik per bedrijf en per specialist.",
-    "ogo.cr.pool": "Credits zijn één gedeelde pot van de organisatie. Bedrijven hebben geen eigen saldo en credits worden niet toegewezen of tussen bedrijven verschoven: de cijfers per bedrijf tonen hoeveel elk bedrijf uit de gedeelde pot gebruikte.",
+    "ogo.cr.intro":
+      "AI-creditgebruik van de hele organisatie, met gebruik per bedrijf en per specialist.",
+    "ogo.cr.pool":
+      "Credits zijn één gedeelde pot van de organisatie. Bedrijven hebben geen eigen saldo en credits worden niet toegewezen of tussen bedrijven verschoven: de cijfers per bedrijf tonen hoeveel elk bedrijf uit de gedeelde pot gebruikte.",
     "ogo.cr.loading": "AI-credits laden…",
     "ogo.cr.failed": "Het overzicht van AI-credits kon niet geladen worden.",
-    "ogo.cr.off": "Het creditoverzicht van de organisatie is in deze omgeving nog niet ingeschakeld.",
+    "ogo.cr.off":
+      "Het creditoverzicht van de organisatie is in deze omgeving nog niet ingeschakeld.",
     "ogo.cr.available": "Beschikbaar in de gedeelde pot",
     "ogo.cr.availableNote": "Saldo van de organisatie na alles wat gebruikt of vastgehouden is",
     "ogo.cr.pending": "Gereserveerd voor lopend werk",
-    "ogo.cr.pendingNote": "Vastgehouden voor verzoeken die nog lopen; daarna verrekend of vrijgegeven",
+    "ogo.cr.pendingNote":
+      "Vastgehouden voor verzoeken die nog lopen; daarna verrekend of vrijgegeven",
     "ogo.cr.month": "Gebruikt deze maand",
     "ogo.cr.monthNote": "Verrekend sinds de 1e van deze maand (UTC)",
     "ogo.cr.consumed": "Totaal gebruikt",
@@ -882,8 +980,10 @@ export const ogo = defineArea("ogo", {
     "ogo.cr.releasedNote": "Gereserveerd maar niet nodig, teruggezet in de pot",
     "ogo.cr.officer": "Organisatie-Growth Officer",
     "ogo.cr.officerNote": "Totaal gebruikt door organisatiestrategieverzoeken",
-    "ogo.cr.reconciles": "Gecontroleerd: {granted} toegekende credits min gebruik, reservaties en andere afboekingen is gelijk aan het saldo.",
-    "ogo.cr.noReconcile": "De creditgegevens tellen niet op tot het saldo. Meld dit voor je op deze cijfers vertrouwt.",
+    "ogo.cr.reconciles":
+      "Gecontroleerd: {granted} toegekende credits min gebruik, reservaties en andere afboekingen is gelijk aan het saldo.",
+    "ogo.cr.noReconcile":
+      "De creditgegevens tellen niet op tot het saldo. Meld dit voor je op deze cijfers vertrouwt.",
     "ogo.cr.byBusiness": "Gebruik per bedrijf",
     "ogo.cr.col.month": "Deze maand",
     "ogo.cr.col.total": "Totaal",
@@ -894,22 +994,28 @@ export const ogo = defineArea("ogo", {
     "ogo.cr.directRow": "Vroeger gebruik zonder gekoppeld verzoek",
     "ogo.cr.totalRow": "Totaal organisatie",
     "ogo.cr.mismatch": "De rijen tellen niet op tot het totaal van de organisatie.",
-    "ogo.cr.drill": "Open een bedrijf om het gebruik per specialist te zien. Elk verzoek telt één keer, bij het bedrijf dat het uitvoerde.",
+    "ogo.cr.drill":
+      "Open een bedrijf om het gebruik per specialist te zien. Elk verzoek telt één keer, bij het bedrijf dat het uitvoerde.",
     "ogo.cr.bySpecialist": "Gebruik per specialist",
     "ogo.cr.inBusinesses": "bedrijven: {n}",
     "ogo.cr.specLine": "{month} deze maand · {total} totaal · {runs} verzoeken",
     "ogo.cr.noSpecialists": "Nog geen specialistengebruik in de bedrijven die je kunt openen.",
-    "ogo.cr.notMoney": "AI-credits zijn gebruikseenheden van het platform. Ze tellen nooit als omzet, advertentiekosten of een ander geldbedrag.",
+    "ogo.cr.notMoney":
+      "AI-credits zijn gebruikseenheden van het platform. Ze tellen nooit als omzet, advertentiekosten of een ander geldbedrag.",
     "ogo.cr.businessOfficer": "Growth Officer van het bedrijf",
-    "ogo.strat.namesReconstructed": "Bedrijfsnamen zijn ingevuld op basis van de bedrijvenlijst van dit ontwerp; de bewaarde tekst is ongewijzigd.",
+    "ogo.strat.namesReconstructed":
+      "Bedrijfsnamen zijn ingevuld op basis van de bedrijvenlijst van dit ontwerp; de bewaarde tekst is ongewijzigd.",
     "ogo.tab.economics": "Economie",
     "ogo.ec.title": "Economie per bedrijf",
-    "ogo.ec.intro": "De cijfers van elk bedrijf komen van zijn eigen pagina Groei-economie, voor de periode hierboven. Bedragen blijven in hun eigen valuta.",
+    "ogo.ec.intro":
+      "De cijfers van elk bedrijf komen van zijn eigen pagina Groei-economie, voor de periode hierboven. Bedragen blijven in hun eigen valuta.",
     "ogo.ec.loading": "Economie van elk bedrijf laden…",
-    "ogo.ec.failed": "De economie van een of meer bedrijven kon niet worden gelezen, dus er worden geen totalen getoond.",
+    "ogo.ec.failed":
+      "De economie van een of meer bedrijven kon niet worden gelezen, dus er worden geen totalen getoond.",
     "ogo.ec.off": "Groei-economie is niet geïnstalleerd in deze omgeving.",
     "ogo.ec.capped": "Alleen de eerste {n} bedrijven worden getoond.",
-    "ogo.ec.incomplete": "Sommige registraties van {names} konden niet volledig worden gelezen; hun totalen kunnen te laag zijn.",
+    "ogo.ec.incomplete":
+      "Sommige registraties van {names} konden niet volledig worden gelezen; hun totalen kunnen te laag zijn.",
     "ogo.ec.col.business": "Bedrijf",
     "ogo.ec.col.currency": "Valuta",
     "ogo.ec.col.net": "Netto-omzet",
@@ -923,19 +1029,26 @@ export const ogo = defineArea("ogo", {
     "ogo.ec.notCalc": "Niet te berekenen — kosten ontbreken",
     "ogo.ec.total": "Totaal · {n} bedrijf/bedrijven in deze valuta",
     "ogo.ec.gpMissing": "Geen totaal: {n} bedrijf/bedrijven kunnen het niet berekenen",
-    "ogo.ec.unpriced": "{n} credits werden gebruikt zonder geldende creditprijs en worden alleen in credits getoond.",
-    "ogo.ec.note": "Totalen tellen alleen bedragen in dezelfde valuta op. Gesimuleerde uitgaven staan apart en tellen nooit mee. Een vergelijking tussen bedrijven toont een verschil, niet de oorzaak.",
+    "ogo.ec.unpriced":
+      "{n} credits werden gebruikt zonder geldende creditprijs en worden alleen in credits getoond.",
+    "ogo.ec.note":
+      "Totalen tellen alleen bedragen in dezelfde valuta op. Gesimuleerde uitgaven staan apart en tellen nooit mee. Een vergelijking tussen bedrijven toont een verschil, niet de oorzaak.",
     "ogo.cv.title": "Omgerekend naar {cur}",
     "ogo.cv.loading": "Wisselkoersen laden…",
-    "ogo.cv.failed": "De wisselkoersen konden niet worden gelezen, dus er wordt niets omgerekend. De bedragen hierboven blijven geldig in hun eigen valuta.",
-    "ogo.cv.method": "Elke maand wordt omgerekend tegen zijn eigen slotkoers: de laatste officiële ECB-koers (of een geregistreerde koers) gepubliceerd op of vóór de laatste dag van de maand — vandaag voor de lopende maand — en hoogstens {d} dagen ouder. Weekends en feestdagen gebruiken de laatste publicatiedag.",
-    "ogo.cv.ratesIncomplete": "Niet alle opgeslagen wisselkoersen konden worden gelezen; sommige omrekeningen kunnen worden achtergehouden.",
+    "ogo.cv.failed":
+      "De wisselkoersen konden niet worden gelezen, dus er wordt niets omgerekend. De bedragen hierboven blijven geldig in hun eigen valuta.",
+    "ogo.cv.method":
+      "Elke maand wordt omgerekend tegen zijn eigen slotkoers: de laatste officiële ECB-koers (of een geregistreerde koers) gepubliceerd op of vóór de laatste dag van de maand — vandaag voor de lopende maand — en hoogstens {d} dagen ouder. Weekends en feestdagen gebruiken de laatste publicatiedag.",
+    "ogo.cv.ratesIncomplete":
+      "Niet alle opgeslagen wisselkoersen konden worden gelezen; sommige omrekeningen kunnen worden achtergehouden.",
     "ogo.cv.col.figure": "Cijfer",
     "ogo.cv.col.original": "Oorspronkelijke bedragen",
     "ogo.cv.col.converted": "In {cur}",
     "ogo.cv.withheld": "Niet omgerekend — er ontbreekt een koers (zie hieronder)",
-    "ogo.cv.notAdding": "Niet omgerekend — de maanden van {names} tellen niet op tot het cijfer van de periode",
-    "ogo.cv.gpWithheld": "Niet omgerekend — de brutowinst kan niet per maand worden berekend voor {names}",
+    "ogo.cv.notAdding":
+      "Niet omgerekend — de maanden van {names} tellen niet op tot het cijfer van de periode",
+    "ogo.cv.gpWithheld":
+      "Niet omgerekend — de brutowinst kan niet per maand worden berekend voor {names}",
     "ogo.cv.short.notAdding": "niet per maand",
     "ogo.cv.short.withheld": "koers ontbreekt",
     "ogo.cv.rates": "Gebruikte koersen",
@@ -943,14 +1056,18 @@ export const ogo = defineArea("ogo", {
     "ogo.cv.rate.inverse": "{pair} · omgekeerde van {source}, {date} (slotkoers voor {month})",
     "ogo.cv.rate.ecb_cross": "{pair} · ECB-kruiskoers via de euro, {date} (slotkoers voor {month})",
     "ogo.cv.rate.same": "{pair}",
-    "ogo.cv.miss.none": "Geen koers voor {pair} op of vóór {date}. Importeer de ECB-geschiedenis op het tabblad Middelen, of registreer een koers.",
-    "ogo.cv.miss.old": "De laatste koers voor {pair} vóór {date} is van {latest}, meer dan {d} dagen eerder, en wordt dus niet gebruikt.",
+    "ogo.cv.miss.none":
+      "Geen koers voor {pair} op of vóór {date}. Importeer de ECB-geschiedenis op het tabblad Middelen, of registreer een koers.",
+    "ogo.cv.miss.old":
+      "De laatste koers voor {pair} vóór {date} is van {latest}, meer dan {d} dagen eerder, en wordt dus niet gebruikt.",
     "ogo.cv.allSame": "Alle bedragen staan al in {cur}; er hoefde niets te worden omgerekend.",
-    "ogo.cv.note": "Omgerekende bedragen zijn een rapportageweergave: de oorspronkelijke bedragen en valuta blijven de registratie, en omgerekende en oorspronkelijke bedragen worden nooit samengeteld.",
+    "ogo.cv.note":
+      "Omgerekende bedragen zijn een rapportageweergave: de oorspronkelijke bedragen en valuta blijven de registratie, en omgerekende en oorspronkelijke bedragen worden nooit samengeteld.",
   },
   fr: {
     "ogo.context.org": "Vue d’ensemble de l’organisation",
-    "ogo.context.orgHint": "Vous voyez ensemble les {n} entreprises auxquelles vous avez accès. Chaque entreprise garde ses propres données et décisions.",
+    "ogo.context.orgHint":
+      "Vous voyez ensemble les {n} entreprises auxquelles vous avez accès. Chaque entreprise garde ses propres données et décisions.",
     "ogo.context.change": "Changer d’organisation, d’entreprise ou de marque",
     "ogo.context.organization": "Organisation",
     "ogo.context.business": "Entreprise",
@@ -969,7 +1086,8 @@ export const ogo = defineArea("ogo", {
     "ogo.tab.resources": "Ressources",
     "ogo.tab.risks": "Risques & décisions",
     "ogo.otherBusiness": "une autre entreprise",
-    "ogo.off": "La stratégie d’organisation, les opportunités et les initiatives communes ne sont pas encore activées dans cet environnement. La vue d’ensemble reste disponible.",
+    "ogo.off":
+      "La stratégie d’organisation, les opportunités et les initiatives communes ne sont pas encore activées dans cet environnement. La vue d’ensemble reste disponible.",
     "ogo.note": "Note",
     "ogo.notePh": "Note facultative pour l’historique",
     "ogo.cancel": "Annuler",
@@ -978,39 +1096,51 @@ export const ogo = defineArea("ogo", {
     "ogo.filter.open": "Ouvertes",
     "ogo.filter.all": "Toutes, y compris clôturées",
     "ogo.single.title": "{name} est votre seule entreprise",
-    "ogo.single.text": "La stratégie d’organisation, les opportunités entre entreprises et les initiatives communes apparaissent dès que vous gérez deux entreprises ou plus. D’ici là, le Growth Officer de votre entreprise couvre tout.",
+    "ogo.single.text":
+      "La stratégie d’organisation, les opportunités entre entreprises et les initiatives communes apparaissent dès que vous gérez deux entreprises ou plus. D’ici là, le Growth Officer de votre entreprise couvre tout.",
     "ogo.single.cta": "Ouvrir le Growth Officer",
     "ogo.officer.title": "Growth Officer de l’organisation",
-    "ogo.officer.intro": "Coordonne les entreprises et cherche ce qu’aucune entreprise ne voit seule. Il analyse et propose ; les personnes décident.",
+    "ogo.officer.intro":
+      "Coordonne les entreprises et cherche ce qu’aucune entreprise ne voit seule. Il analyse et propose ; les personnes décident.",
     "ogo.officer.open": "Ouvrir la stratégie",
     "ogo.officer.approved": "Stratégie d’organisation approuvée · version {v} · {date}",
     "ogo.officer.draftWaiting": "Un projet de stratégie d’organisation attend une revue.",
-    "ogo.officer.none": "Pas encore de stratégie d’organisation. Un administrateur peut demander un premier projet au Growth Officer de l’organisation.",
-    "ogo.officer.adminsOnly": "Seuls les administrateurs de l’organisation peuvent demander une stratégie. Vous pouvez lire ci-dessous les stratégies approuvées et les projets.",
+    "ogo.officer.none":
+      "Pas encore de stratégie d’organisation. Un administrateur peut demander un premier projet au Growth Officer de l’organisation.",
+    "ogo.officer.adminsOnly":
+      "Seuls les administrateurs de l’organisation peuvent demander une stratégie. Vous pouvez lire ci-dessous les stratégies approuvées et les projets.",
     "ogo.officer.runTitle": "Demander une stratégie d’organisation",
-    "ogo.officer.runIntro": "Le Growth Officer de l’organisation lit chaque entreprise choisie séparément (profil, objectifs, budgets, coûts, chiffre d’affaires, campagnes, expériences, spécialistes) ainsi que la comparaison de la plateforme, et rédige objectifs, priorités par entreprise, opportunités communes, propositions de ressources, risques et indicateurs. Le projet ne change rien tant qu’un administrateur ne l’approuve pas, et l’approbation ne remplace jamais la stratégie approuvée d’une entreprise.",
+    "ogo.officer.runIntro":
+      "Le Growth Officer de l’organisation lit chaque entreprise choisie séparément (profil, objectifs, budgets, coûts, chiffre d’affaires, campagnes, expériences, spécialistes) ainsi que la comparaison de la plateforme, et rédige objectifs, priorités par entreprise, opportunités communes, propositions de ressources, risques et indicateurs. Le projet ne change rien tant qu’un administrateur ne l’approuve pas, et l’approbation ne remplace jamais la stratégie approuvée d’une entreprise.",
     "ogo.officer.businesses": "Entreprises à inclure (au moins deux)",
     "ogo.officer.horizon": "Horizon",
     "ogo.officer.months": "{n} mois",
     "ogo.officer.anchor": "Enregistrer la demande sous",
-    "ogo.officer.anchorHint": "Les reçus d’IA sont conservés par entreprise ; l’une des entreprises analysées enregistre donc la demande. Son équipe voit qu’une analyse d’organisation a eu lieu, jamais son contenu ; le coût est compté au niveau de l’organisation.",
+    "ogo.officer.anchorHint":
+      "Les reçus d’IA sont conservés par entreprise ; l’une des entreprises analysées enregistre donc la demande. Son équipe voit qu’une analyse d’organisation a eu lieu, jamais son contenu ; le coût est compté au niveau de l’organisation.",
     "ogo.officer.focus": "Priorité (facultatif)",
-    "ogo.officer.focusPh": "Par exemple : développer la clientèle de bureaux entre boulangerie et traiteur en 2027",
+    "ogo.officer.focusPh":
+      "Par exemple : développer la clientèle de bureaux entre boulangerie et traiteur en 2027",
     "ogo.officer.run": "Rédiger la stratégie d’organisation",
     "ogo.officer.running": "Rédaction…",
     "ogo.officer.needTwo": "Choisissez au moins deux entreprises.",
     "ogo.officer.cost": "Utilise des crédits IA : {n} sont réservés puis ajustés à l’usage réel.",
-    "ogo.officer.limits": "Il peut analyser, comparer, recommander et rédiger. Il ne peut pas déplacer de budgets ni de crédits, modifier les droits, limites de crédits ou réglages d’autonomie, activer des intégrations, publier ni contacter qui que ce soit.",
-    "ogo.officer.done": "Projet version {v} enregistré · {credits} crédits · {n} opportunités ajoutées comme hypothèses",
-    "ogo.officer.doneUnstructured": "Version {v} enregistrée comme réponse non structurée · {credits} crédits. Rien n’a été renvoyé.",
+    "ogo.officer.limits":
+      "Il peut analyser, comparer, recommander et rédiger. Il ne peut pas déplacer de budgets ni de crédits, modifier les droits, limites de crédits ou réglages d’autonomie, activer des intégrations, publier ni contacter qui que ce soit.",
+    "ogo.officer.done":
+      "Projet version {v} enregistré · {credits} crédits · {n} opportunités ajoutées comme hypothèses",
+    "ogo.officer.doneUnstructured":
+      "Version {v} enregistrée comme réponse non structurée · {credits} crédits. Rien n’a été renvoyé.",
     "ogo.recover.title": "Demandes d’organisation inachevées",
-    "ogo.recover.intro": "Une demande a été interrompue. La récupération enregistre une réponse déjà reçue ou clôt une demande jamais lancée ; l’IA n’est jamais relancée.",
+    "ogo.recover.intro":
+      "Une demande a été interrompue. La récupération enregistre une réponse déjà reçue ou clôt une demande jamais lancée ; l’IA n’est jamais relancée.",
     "ogo.recover.item": "Demande de stratégie d’organisation · {date}",
     "ogo.recover.saved": "Réponse enregistrée récupérée comme projet de stratégie",
     "ogo.recover.closed": "La demande n’a jamais démarré ; elle est close et ses crédits rendus",
     "ogo.recover.done": "Cette demande est déjà close",
     "ogo.next.title": "Prochaines meilleures actions de l’organisation",
-    "ogo.next.intro": "Classées selon importance, impact, chiffre d’affaires, confiance, coût, rapidité, risque, ressources et dépendances. Chacune indique pourquoi elle figure dans la liste.",
+    "ogo.next.intro":
+      "Classées selon importance, impact, chiffre d’affaires, confiance, coût, rapidité, risque, ressources et dépendances. Chacune indique pourquoi elle figure dans la liste.",
     "ogo.next.why": "Score {score} · {factors}",
     "ogo.factor.importance": "important",
     "ogo.factor.impact": "fort impact",
@@ -1030,7 +1160,8 @@ export const ogo = defineArea("ogo", {
     "ogo.act.decide_commitment": "Décidez si {businesses} participe à « {title} »",
     "ogo.act.decide_allocation": "Décidez de la proposition de ressources « {title} »",
     "ogo.act.review_strategy": "Examinez {n} projet de stratégie d’organisation",
-    "ogo.act.propose_initiative": "Transformez l’opportunité validée « {title} » en initiative commune",
+    "ogo.act.propose_initiative":
+      "Transformez l’opportunité validée « {title} » en initiative commune",
     "ogo.act.behind_target": "{businesses} : {n} objectifs sur {active} en retard",
     "ogo.act.exceeding": "{businesses} est en avance : tirez les leçons de ce qui marche",
     "ogo.act.conflicting_strategies": "Alignez {businesses} sur « {subject} »",
@@ -1040,7 +1171,8 @@ export const ogo = defineArea("ogo", {
     "ogo.act.coordination_waiting": "« {title} » attend encore des décisions des entreprises",
     "ogo.act.validated_without_initiative": "Opportunité validée sans initiative : « {title} »",
     "ogo.act.multi_business_risk": "Plusieurs entreprises demandent de l’attention : {names}",
-    "ogo.act.priority_without_goal": "La stratégie d’organisation a des priorités sans objectif mesurable",
+    "ogo.act.priority_without_goal":
+      "La stratégie d’organisation a des priorités sans objectif mesurable",
     "ogo.act.execution_paused": "{businesses} : l’exécution IA est en pause",
     "ogo.act.opp_cross_sell": "Explorez une vente croisée entre {businesses}",
     "ogo.act.opp_joint_campaign": "Explorez une campagne commune pour {subject}",
@@ -1059,7 +1191,8 @@ export const ogo = defineArea("ogo", {
     "ogo.cls.assumption": "Hypothèse",
     "ogo.cls.missing": "Données manquantes",
     "ogo.strat.title": "Stratégies d’organisation",
-    "ogo.strat.intro": "Chaque projet est conservé comme version numérotée. En approuver un remplace la version approuvée précédente ; les stratégies des entreprises restent inchangées.",
+    "ogo.strat.intro":
+      "Chaque projet est conservé comme version numérotée. En approuver un remplace la version approuvée précédente ; les stratégies des entreprises restent inchangées.",
     "ogo.strat.none": "Aucune stratégie d’organisation n’a encore été rédigée.",
     "ogo.strat.meta": "Version {v} · {date} · {months} mois · {n} entreprises",
     "ogo.strat.status.draft": "Projet",
@@ -1070,7 +1203,8 @@ export const ogo = defineArea("ogo", {
     "ogo.strat.decided.reject": "Stratégie rejetée",
     "ogo.strat.decided.retire": "Stratégie retirée",
     "ogo.strat.covers": "Couvre : {names}",
-    "ogo.strat.unstructured": "La réponse n’a pas pu être lue comme stratégie structurée ; elle est conservée en texte.",
+    "ogo.strat.unstructured":
+      "La réponse n’a pas pu être lue comme stratégie structurée ; elle est conservée en texte.",
     "ogo.strat.show": "Afficher les détails",
     "ogo.strat.hide": "Masquer les détails",
     "ogo.strat.objectives": "Objectifs",
@@ -1095,14 +1229,20 @@ export const ogo = defineArea("ogo", {
     "ogo.strat.approve": "Approuver",
     "ogo.strat.reject": "Rejeter",
     "ogo.strat.retire": "Retirer",
-    "ogo.strat.approveNote": "Approuver enregistre seulement la décision. Aucune donnée, aucun budget ni droit d’entreprise n’est modifié.",
-    "ogo.opp.privacy": "Les opportunités proviennent des profils, budgets, campagnes, objectifs, expériences et travaux de spécialistes. Aucune donnée client n’est comparée entre entreprises.",
+    "ogo.strat.approveNote":
+      "Approuver enregistre seulement la décision. Aucune donnée, aucun budget ni droit d’entreprise n’est modifié.",
+    "ogo.opp.privacy":
+      "Les opportunités proviennent des profils, budgets, campagnes, objectifs, expériences et travaux de spécialistes. Aucune donnée client n’est comparée entre entreprises.",
     "ogo.opp.detected": "Détectées maintenant",
-    "ogo.opp.detectedIntro": "Hypothèses tirées des données actuelles. Suivez-en une pour la valider avec les équipes.",
-    "ogo.opp.needTwo": "Les opportunités entre entreprises nécessitent au moins deux entreprises accessibles.",
-    "ogo.opp.noneDetected": "Aucun recoupement pour l’instant. Renseignez publics, offres et marchés dans chaque profil pour en trouver davantage.",
+    "ogo.opp.detectedIntro":
+      "Hypothèses tirées des données actuelles. Suivez-en une pour la valider avec les équipes.",
+    "ogo.opp.needTwo":
+      "Les opportunités entre entreprises nécessitent au moins deux entreprises accessibles.",
+    "ogo.opp.noneDetected":
+      "Aucun recoupement pour l’instant. Renseignez publics, offres et marchés dans chaque profil pour en trouver davantage.",
     "ogo.opp.tracked": "Opportunités suivies",
-    "ogo.opp.trackedIntro": "Issues de la détection ou du Growth Officer de l’organisation. Chacune reste une hypothèse tant que personne ne la valide.",
+    "ogo.opp.trackedIntro":
+      "Issues de la détection ou du Growth Officer de l’organisation. Chacune reste une hypothèse tant que personne ne la valide.",
     "ogo.opp.noneTracked": "Aucune opportunité suivie pour l’instant.",
     "ogo.opp.hypothesis": "Hypothèse, pas un résultat",
     "ogo.opp.track": "Suivre l’opportunité",
@@ -1186,12 +1326,15 @@ export const ogo = defineArea("ogo", {
     "ogo.oppMove.hypothesis": "Revenir à l’hypothèse",
     "ogo.origin.rule": "Trouvée par des règles",
     "ogo.origin.ai": "Suggérée par le Growth Officer de l’organisation",
-    "ogo.ini.rule": "Une initiative commune ne change rien dans une entreprise tant que son propre administrateur n’a pas approuvé sa partie. L’approbation crée le projet et les tâches uniquement dans cette entreprise.",
+    "ogo.ini.rule":
+      "Une initiative commune ne change rien dans une entreprise tant que son propre administrateur n’a pas approuvé sa partie. L’approbation crée le projet et les tâches uniquement dans cette entreprise.",
     "ogo.ini.title": "Initiatives communes",
-    "ogo.ini.intro": "Travail coordonné entre entreprises, avec un engagement distinct par entreprise.",
+    "ogo.ini.intro":
+      "Travail coordonné entre entreprises, avec un engagement distinct par entreprise.",
     "ogo.ini.none": "Pas encore d’initiative commune.",
     "ogo.ini.new": "Nouvelle initiative commune",
-    "ogo.ini.fromOpp": "Préparée à partir d’une opportunité suivie ; elle devient initiative dès que chaque entreprise approuve.",
+    "ogo.ini.fromOpp":
+      "Préparée à partir d’une opportunité suivie ; elle devient initiative dès que chaque entreprise approuve.",
     "ogo.ini.f.title": "Titre",
     "ogo.ini.f.shared": "Objectif commun",
     "ogo.ini.f.metrics": "Mesures de réussite (une par ligne, « mesure : cible »)",
@@ -1204,7 +1347,8 @@ export const ogo = defineArea("ogo", {
     "ogo.ini.f.currency": "Devise",
     "ogo.ini.f.tasks": "Tâches (une par ligne, échéance facultative « | AAAA-MM-JJ »)",
     "ogo.ini.f.tasksPh": "Préparer la page d’offre | 2026-09-01",
-    "ogo.ini.f.note": "Les budgets restent dans la devise de chaque entreprise et ne sont jamais additionnés. Rien n’est créé avant l’approbation de chaque entreprise.",
+    "ogo.ini.f.note":
+      "Les budgets restent dans la devise de chaque entreprise et ne sont jamais additionnés. Rien n’est créé avant l’approbation de chaque entreprise.",
     "ogo.ini.submit": "Envoyer aux entreprises pour approbation",
     "ogo.ini.needTwo": "Choisissez au moins deux entreprises.",
     "ogo.ini.needObjective": "Décrivez l’engagement de chaque entreprise choisie.",
@@ -1219,11 +1363,13 @@ export const ogo = defineArea("ogo", {
     "ogo.ini.openProject": "Ouvrir le projet dans cette entreprise",
     "ogo.ini.approve": "Approuver pour cette entreprise",
     "ogo.ini.decline": "Refuser",
-    "ogo.ini.approveNote": "Approuver crée un projet et ces tâches uniquement dans cette entreprise.",
+    "ogo.ini.approveNote":
+      "Approuver crée un projet et ces tâches uniquement dans cette entreprise.",
     "ogo.ini.waitsFor": "En attente d’un administrateur de {name}",
     "ogo.ini.approved": "Approuvée pour {name} ; projet et tâches créés",
     "ogo.ini.declined": "Refusée pour cette entreprise",
-    "ogo.ini.declinedKeep": "Une entreprise a refusé. Le travail déjà approuvé par d’autres reste dans ces entreprises.",
+    "ogo.ini.declinedKeep":
+      "Une entreprise a refusé. Le travail déjà approuvé par d’autres reste dans ces entreprises.",
     "ogo.iniStatus.awaiting_commitments": "En attente des entreprises",
     "ogo.iniStatus.committed": "Toutes engagées",
     "ogo.iniStatus.declined": "Refusée",
@@ -1237,13 +1383,16 @@ export const ogo = defineArea("ogo", {
     "ogo.iniMove.completed": "Marquer terminée",
     "ogo.iniMove.cancelled": "Annuler l’initiative",
     "ogo.res.budget": "Budget par entreprise",
-    "ogo.res.budgetIntro": "Budget marketing prévu et dépensé ce mois-ci, par entreprise et par devise.",
+    "ogo.res.budgetIntro":
+      "Budget marketing prévu et dépensé ce mois-ci, par entreprise et par devise.",
     "ogo.res.col.planned": "Prévu",
     "ogo.res.col.spent": "Dépensé",
     "ogo.res.col.use": "Utilisation",
-    "ogo.res.budgetNote": "Les montants ne sont jamais additionnés entre devises. Les crédits IA figurent séparément et ne comptent jamais comme de l’argent.",
+    "ogo.res.budgetNote":
+      "Les montants ne sont jamais additionnés entre devises. Les crédits IA figurent séparément et ne comptent jamais comme de l’argent.",
     "ogo.res.recs": "Recommandations",
-    "ogo.res.recsIntro": "Suggestions fondées sur le rythme de dépense, l’avancement des objectifs et l’usage des spécialistes. Préparer en fait une proposition ; rien ne bouge sans l’accord des bonnes personnes.",
+    "ogo.res.recsIntro":
+      "Suggestions fondées sur le rythme de dépense, l’avancement des objectifs et l’usage des spécialistes. Préparer en fait une proposition ; rien ne bouge sans l’accord des bonnes personnes.",
     "ogo.res.noRecs": "Aucun changement de ressources suggéré pour l’instant.",
     "ogo.rec.budget": "Déplacer {amount} du budget {channel} de {from} vers {to}",
     "ogo.rec.spec.raise": "Relever la limite de {specialist} pour {business} à {cap}",
@@ -1261,7 +1410,8 @@ export const ogo = defineArea("ogo", {
     "ogo.res.alreadyProposed": "Une proposition attend déjà à ce sujet.",
     "ogo.res.proposed": "Proposition créée ; elle attend une approbation",
     "ogo.res.proposals": "Propositions de ressources",
-    "ogo.res.proposalsIntro": "Les transferts de budget exigent un éditeur des deux entreprises ; les limites de spécialistes, l’administrateur de l’entreprise. Chaque décision est conservée dans l’historique.",
+    "ogo.res.proposalsIntro":
+      "Les transferts de budget exigent un éditeur des deux entreprises ; les limites de spécialistes, l’administrateur de l’entreprise. Chaque décision est conservée dans l’historique.",
     "ogo.res.noProposals": "Pas encore de proposition de ressources.",
     "ogo.propStatus.pending": "En attente d’approbation",
     "ogo.propStatus.applied": "Appliquée",
@@ -1274,14 +1424,17 @@ export const ogo = defineArea("ogo", {
     "ogo.res.apply": "Approuver et appliquer",
     "ogo.res.reject": "Rejeter",
     "ogo.res.withdraw": "Retirer",
-    "ogo.res.applyNote": "Appliquer modifie les lignes de budget ou le réglage du spécialiste exactement comme indiqué et l’enregistre dans l’historique.",
-    "ogo.res.needs.budget_shift": "En attente d’une personne pouvant modifier les budgets des deux entreprises.",
+    "ogo.res.applyNote":
+      "Appliquer modifie les lignes de budget ou le réglage du spécialiste exactement comme indiqué et l’enregistre dans l’historique.",
+    "ogo.res.needs.budget_shift":
+      "En attente d’une personne pouvant modifier les budgets des deux entreprises.",
     "ogo.res.needs.specialist_capacity": "En attente d’un administrateur de cette entreprise.",
     "ogo.res.decided.apply": "Proposition appliquée",
     "ogo.res.decided.reject": "Proposition rejetée",
     "ogo.res.decided.withdraw": "Proposition retirée",
     "ogo.res.insights": "Analyses des spécialistes",
-    "ogo.res.insightsIntro": "Où le travail des spécialistes est demandé, partagé, plafonné ou inutilisé entre entreprises.",
+    "ogo.res.insightsIntro":
+      "Où le travail des spécialistes est demandé, partagé, plafonné ou inutilisé entre entreprises.",
     "ogo.res.noInsights": "Pas encore de tendance entre entreprises pour les spécialistes.",
     "ogo.ins.high_demand": "forte demande · {open} tâches ouvertes",
     "ogo.ins.underused": "limite peu utilisée",
@@ -1289,30 +1442,39 @@ export const ogo = defineArea("ogo", {
     "ogo.ins.bottleneck": "limite mensuelle atteinte ou proche",
     "ogo.res.today": "Chiffres au {date}.",
     "ogo.mon.title": "Suivi de l’organisation",
-    "ogo.mon.intro": "Signaux entre entreprises, tirés des mêmes données que chaque entreprise voit. Ils montrent des faits, pas une cause.",
+    "ogo.mon.intro":
+      "Signaux entre entreprises, tirés des mêmes données que chaque entreprise voit. Ils montrent des faits, pas une cause.",
     "ogo.mon.none": "Rien ne demande d’attention au niveau de l’organisation pour l’instant.",
     "ogo.sev.high": "Élevé",
     "ogo.sev.medium": "Moyen",
     "ogo.sev.low": "Faible",
     "ogo.mon.behind_target": "{names} : {n} objectifs sur {active} en retard",
-    "ogo.mon.exceeding": "{names} est en avance : {achieved} objectifs atteints, {on} en bonne voie",
+    "ogo.mon.exceeding":
+      "{names} est en avance : {achieved} objectifs atteints, {on} en bonne voie",
     "ogo.mon.conflicting_strategies": "{names} ciblent « {subject} » en même temps",
     "ogo.mon.shared_bottleneck": "{names} partagent un goulot : {subject}",
-    "ogo.mon.budget_imbalance": "{cur} : {high} dépensent vite tandis que {low} dépensent lentement",
-    "ogo.mon.specialist_capacity": "{specialist} est sous pression chez {names} ({open} tâches ouvertes)",
+    "ogo.mon.budget_imbalance":
+      "{cur} : {high} dépensent vite tandis que {low} dépensent lentement",
+    "ogo.mon.specialist_capacity":
+      "{specialist} est sous pression chez {names} ({open} tâches ouvertes)",
     "ogo.mon.coordination_waiting": "« {title} » attend des décisions de {names}",
-    "ogo.mon.validated_without_initiative": "L’opportunité validée « {title} » n’a pas encore d’initiative",
-    "ogo.mon.multi_business_risk": "Plusieurs entreprises demandent de l’attention en même temps : {names}",
-    "ogo.mon.priority_without_goal": "La stratégie approuvée a des priorités sans objectif mesurable",
+    "ogo.mon.validated_without_initiative":
+      "L’opportunité validée « {title} » n’a pas encore d’initiative",
+    "ogo.mon.multi_business_risk":
+      "Plusieurs entreprises demandent de l’attention en même temps : {names}",
+    "ogo.mon.priority_without_goal":
+      "La stratégie approuvée a des priorités sans objectif mesurable",
     "ogo.mon.execution_paused": "{names} : l’exécution IA est en pause",
     "ogo.pending.title": "Décisions en attente",
     "ogo.pending.intro": "Ce qui attend une personne avant tout changement.",
     "ogo.pending.strategies": "Projets de stratégie à examiner : {n}",
-    "ogo.pending.commitments": "Engagements d’entreprises en attente : {n} (vous pouvez en décider {mine})",
+    "ogo.pending.commitments":
+      "Engagements d’entreprises en attente : {n} (vous pouvez en décider {mine})",
     "ogo.pending.proposals": "Propositions de ressources en attente : {n}",
     "ogo.pending.validated": "Opportunités validées sans initiative : {n}",
     "ogo.hist.title": "Historique des décisions",
-    "ogo.hist.intro": "Les décisions de l’organisation sont enregistrées de façon permanente et ne peuvent pas être modifiées.",
+    "ogo.hist.intro":
+      "Les décisions de l’organisation sont enregistrées de façon permanente et ne peuvent pas être modifiées.",
     "ogo.hist.adminsOnly": "Seuls les administrateurs de l’organisation peuvent lire l’historique.",
     "ogo.hist.failed": "L’historique n’a pas pu être chargé.",
     "ogo.hist.none": "Pas encore de décision de l’organisation.",
@@ -1338,11 +1500,14 @@ export const ogo = defineArea("ogo", {
     "ogo.audit.strategy_rejected": "Stratégie d’organisation rejetée",
     "ogo.audit.strategy_superseded": "Stratégie d’organisation remplacée ou retirée",
     "ogo.cr.title": "Crédits IA",
-    "ogo.cr.intro": "Utilisation des crédits IA de toute l’organisation, par entreprise et par spécialiste.",
-    "ogo.cr.pool": "Les crédits forment une seule réserve commune appartenant à l’organisation. Les entreprises n’ont pas de solde propre et les crédits ne sont ni attribués ni transférés entre elles : les chiffres par entreprise montrent ce que chacune a utilisé de la réserve commune.",
+    "ogo.cr.intro":
+      "Utilisation des crédits IA de toute l’organisation, par entreprise et par spécialiste.",
+    "ogo.cr.pool":
+      "Les crédits forment une seule réserve commune appartenant à l’organisation. Les entreprises n’ont pas de solde propre et les crédits ne sont ni attribués ni transférés entre elles : les chiffres par entreprise montrent ce que chacune a utilisé de la réserve commune.",
     "ogo.cr.loading": "Chargement des crédits IA…",
     "ogo.cr.failed": "L’aperçu des crédits IA n’a pas pu être chargé.",
-    "ogo.cr.off": "L’aperçu des crédits de l’organisation n’est pas encore activé dans cet environnement.",
+    "ogo.cr.off":
+      "L’aperçu des crédits de l’organisation n’est pas encore activé dans cet environnement.",
     "ogo.cr.available": "Disponible dans la réserve commune",
     "ogo.cr.availableNote": "Solde de l’organisation après tout ce qui est utilisé ou réservé",
     "ogo.cr.pending": "Réservés pour le travail en cours",
@@ -1355,8 +1520,10 @@ export const ogo = defineArea("ogo", {
     "ogo.cr.releasedNote": "Réservés mais non utilisés, rendus à la réserve",
     "ogo.cr.officer": "Growth Officer de l’organisation",
     "ogo.cr.officerNote": "Total utilisé par les demandes de stratégie d’organisation",
-    "ogo.cr.reconciles": "Vérifié : {granted} crédits accordés moins utilisation, réservations et autres débits égalent le solde.",
-    "ogo.cr.noReconcile": "Les enregistrements de crédits ne correspondent pas au solde. Signalez-le avant de vous fier à ces chiffres.",
+    "ogo.cr.reconciles":
+      "Vérifié : {granted} crédits accordés moins utilisation, réservations et autres débits égalent le solde.",
+    "ogo.cr.noReconcile":
+      "Les enregistrements de crédits ne correspondent pas au solde. Signalez-le avant de vous fier à ces chiffres.",
     "ogo.cr.byBusiness": "Utilisation par entreprise",
     "ogo.cr.col.month": "Ce mois-ci",
     "ogo.cr.col.total": "Total",
@@ -1367,22 +1534,29 @@ export const ogo = defineArea("ogo", {
     "ogo.cr.directRow": "Utilisation antérieure non liée à une demande",
     "ogo.cr.totalRow": "Total de l’organisation",
     "ogo.cr.mismatch": "Les lignes ne correspondent pas au total de l’organisation.",
-    "ogo.cr.drill": "Ouvrez une entreprise pour voir l’utilisation par spécialiste. Chaque demande est comptée une fois, dans l’entreprise qui l’a lancée.",
+    "ogo.cr.drill":
+      "Ouvrez une entreprise pour voir l’utilisation par spécialiste. Chaque demande est comptée une fois, dans l’entreprise qui l’a lancée.",
     "ogo.cr.bySpecialist": "Utilisation par spécialiste",
     "ogo.cr.inBusinesses": "entreprises : {n}",
     "ogo.cr.specLine": "{month} ce mois-ci · {total} au total · {runs} demandes",
-    "ogo.cr.noSpecialists": "Pas encore d’utilisation de spécialistes dans les entreprises accessibles.",
-    "ogo.cr.notMoney": "Les crédits IA sont des unités d’usage de la plateforme. Ils ne comptent jamais comme chiffre d’affaires, coût publicitaire ou autre montant monétaire.",
+    "ogo.cr.noSpecialists":
+      "Pas encore d’utilisation de spécialistes dans les entreprises accessibles.",
+    "ogo.cr.notMoney":
+      "Les crédits IA sont des unités d’usage de la plateforme. Ils ne comptent jamais comme chiffre d’affaires, coût publicitaire ou autre montant monétaire.",
     "ogo.cr.businessOfficer": "Growth Officer de l’entreprise",
-    "ogo.strat.namesReconstructed": "Les noms d’entreprise ont été complétés à partir de la liste d’entreprises de ce projet ; le texte enregistré est inchangé.",
+    "ogo.strat.namesReconstructed":
+      "Les noms d’entreprise ont été complétés à partir de la liste d’entreprises de ce projet ; le texte enregistré est inchangé.",
     "ogo.tab.economics": "Économie",
     "ogo.ec.title": "Économie par entreprise",
-    "ogo.ec.intro": "Les chiffres de chaque entreprise proviennent de sa propre page Économie de la croissance, pour la période choisie ci-dessus. Les montants restent dans leur devise.",
+    "ogo.ec.intro":
+      "Les chiffres de chaque entreprise proviennent de sa propre page Économie de la croissance, pour la période choisie ci-dessus. Les montants restent dans leur devise.",
     "ogo.ec.loading": "Chargement de l’économie de chaque entreprise…",
-    "ogo.ec.failed": "L’économie d’une ou plusieurs entreprises n’a pas pu être lue : aucun total n’est affiché.",
+    "ogo.ec.failed":
+      "L’économie d’une ou plusieurs entreprises n’a pas pu être lue : aucun total n’est affiché.",
     "ogo.ec.off": "L’économie de la croissance n’est pas installée dans cet environnement.",
     "ogo.ec.capped": "Seules les {n} premières entreprises sont affichées.",
-    "ogo.ec.incomplete": "Certains enregistrements de {names} n’ont pas pu être lus entièrement ; leurs totaux peuvent être trop bas.",
+    "ogo.ec.incomplete":
+      "Certains enregistrements de {names} n’ont pas pu être lus entièrement ; leurs totaux peuvent être trop bas.",
     "ogo.ec.col.business": "Entreprise",
     "ogo.ec.col.currency": "Devise",
     "ogo.ec.col.net": "CA net",
@@ -1396,29 +1570,40 @@ export const ogo = defineArea("ogo", {
     "ogo.ec.notCalc": "Non calculable — coûts manquants",
     "ogo.ec.total": "Total · {n} entreprise(s) dans cette devise",
     "ogo.ec.gpMissing": "Pas de total : {n} entreprise(s) ne peuvent pas la calculer",
-    "ogo.ec.unpriced": "{n} crédits ont été utilisés sans prix du crédit en vigueur et sont affichés en crédits uniquement.",
-    "ogo.ec.note": "Les totaux n’additionnent que des montants de même devise. Les dépenses simulées sont à part et jamais comptées. Une comparaison entre entreprises montre une différence, pas sa cause.",
+    "ogo.ec.unpriced":
+      "{n} crédits ont été utilisés sans prix du crédit en vigueur et sont affichés en crédits uniquement.",
+    "ogo.ec.note":
+      "Les totaux n’additionnent que des montants de même devise. Les dépenses simulées sont à part et jamais comptées. Une comparaison entre entreprises montre une différence, pas sa cause.",
     "ogo.cv.title": "Converti en {cur}",
     "ogo.cv.loading": "Chargement des taux de change…",
-    "ogo.cv.failed": "Les taux de change n’ont pas pu être lus, rien n’est donc converti. Les montants ci-dessus restent valables dans leur propre devise.",
-    "ogo.cv.method": "Chaque mois est converti à son propre taux de clôture : le dernier taux officiel de la BCE (ou un taux enregistré) publié au plus tard le dernier jour du mois — aujourd’hui pour le mois en cours — et datant d’au plus {d} jours. Les week-ends et jours fériés utilisent le dernier jour de publication.",
-    "ogo.cv.ratesIncomplete": "Tous les taux de change enregistrés n’ont pas pu être lus ; certaines conversions peuvent être retenues.",
+    "ogo.cv.failed":
+      "Les taux de change n’ont pas pu être lus, rien n’est donc converti. Les montants ci-dessus restent valables dans leur propre devise.",
+    "ogo.cv.method":
+      "Chaque mois est converti à son propre taux de clôture : le dernier taux officiel de la BCE (ou un taux enregistré) publié au plus tard le dernier jour du mois — aujourd’hui pour le mois en cours — et datant d’au plus {d} jours. Les week-ends et jours fériés utilisent le dernier jour de publication.",
+    "ogo.cv.ratesIncomplete":
+      "Tous les taux de change enregistrés n’ont pas pu être lus ; certaines conversions peuvent être retenues.",
     "ogo.cv.col.figure": "Indicateur",
     "ogo.cv.col.original": "Montants d’origine",
     "ogo.cv.col.converted": "En {cur}",
     "ogo.cv.withheld": "Non converti — un taux manque (voir ci-dessous)",
-    "ogo.cv.notAdding": "Non converti — les mois de {names} ne correspondent pas au chiffre de la période",
-    "ogo.cv.gpWithheld": "Non converti — la marge brute ne peut pas être calculée mois par mois pour {names}",
+    "ogo.cv.notAdding":
+      "Non converti — les mois de {names} ne correspondent pas au chiffre de la période",
+    "ogo.cv.gpWithheld":
+      "Non converti — la marge brute ne peut pas être calculée mois par mois pour {names}",
     "ogo.cv.short.notAdding": "pas par mois",
     "ogo.cv.short.withheld": "taux manquant",
     "ogo.cv.rates": "Taux utilisés",
     "ogo.cv.rate.direct": "{pair} · {source}, {date} (taux de clôture pour {month})",
     "ogo.cv.rate.inverse": "{pair} · inverse de {source}, {date} (taux de clôture pour {month})",
-    "ogo.cv.rate.ecb_cross": "{pair} · taux croisé BCE via l’euro, {date} (taux de clôture pour {month})",
+    "ogo.cv.rate.ecb_cross":
+      "{pair} · taux croisé BCE via l’euro, {date} (taux de clôture pour {month})",
     "ogo.cv.rate.same": "{pair}",
-    "ogo.cv.miss.none": "Aucun taux pour {pair} au plus tard le {date}. Importez l’historique BCE dans l’onglet Ressources, ou enregistrez un taux.",
-    "ogo.cv.miss.old": "Le dernier taux pour {pair} avant le {date} date du {latest}, plus de {d} jours avant, il n’est donc pas utilisé.",
+    "ogo.cv.miss.none":
+      "Aucun taux pour {pair} au plus tard le {date}. Importez l’historique BCE dans l’onglet Ressources, ou enregistrez un taux.",
+    "ogo.cv.miss.old":
+      "Le dernier taux pour {pair} avant le {date} date du {latest}, plus de {d} jours avant, il n’est donc pas utilisé.",
     "ogo.cv.allSame": "Tous les montants sont déjà en {cur} ; rien n’a dû être converti.",
-    "ogo.cv.note": "Les montants convertis sont une vue de reporting : les montants et devises d’origine restent l’enregistrement, et montants convertis et d’origine ne sont jamais additionnés.",
+    "ogo.cv.note":
+      "Les montants convertis sont une vue de reporting : les montants et devises d’origine restent l’enregistrement, et montants convertis et d’origine ne sont jamais additionnés.",
   },
 });

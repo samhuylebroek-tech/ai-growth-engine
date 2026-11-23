@@ -13,21 +13,49 @@ export const designRequestSchema = z.object({
 });
 export type DesignRequest = z.infer<typeof designRequestSchema>;
 
-const text = (max: number) => z.string().trim().min(1).transform((s) => s.slice(0, max));
-const optText = (max: number) => z.string().default("").transform((s) => s.trim().slice(0, max));
-const rate = z.union([z.number(), z.null()]).optional().transform((n) => (n == null || !Number.isFinite(n) || n <= 0 || n >= 100 ? null : Math.round(n * 100) / 100));
+const text = (max: number) =>
+  z
+    .string()
+    .trim()
+    .min(1)
+    .transform((s) => s.slice(0, max));
+const optText = (max: number) =>
+  z
+    .string()
+    .default("")
+    .transform((s) => s.trim().slice(0, max));
+const rate = z
+  .union([z.number(), z.null()])
+  .optional()
+  .transform((n) =>
+    n == null || !Number.isFinite(n) || n <= 0 || n >= 100 ? null : Math.round(n * 100) / 100,
+  );
 
 export const designSchema = z
   .object({
-    title: z.string().trim().min(3).transform((s) => s.slice(0, 160)),
+    title: z
+      .string()
+      .trim()
+      .min(3)
+      .transform((s) => s.slice(0, 160)),
     hypothesis: text(1000),
     intervention: text(1000),
     control_description: optText(500),
-    method: z.enum(["ab_test", "comparison_group", "before_after", "observational"]).catch("ab_test"),
+    method: z
+      .enum(["ab_test", "comparison_group", "before_after", "observational"])
+      .catch("ab_test"),
     objective: optText(500),
     audience: optText(300),
     primary_kpi: text(200),
-    secondary_kpis: z.array(z.string()).default([]).transform((a) => a.map((s) => s.trim().slice(0, 200)).filter(Boolean).slice(0, 5)),
+    secondary_kpis: z
+      .array(z.string())
+      .default([])
+      .transform((a) =>
+        a
+          .map((s) => s.trim().slice(0, 200))
+          .filter(Boolean)
+          .slice(0, 5),
+      ),
     baseline_rate: rate,
     baseline_source: optText(300),
     min_effect: rate,
@@ -41,14 +69,22 @@ export const designSchema = z
     // A rate without a named recorded source is a guess: drop it so the sample size stays visibly unknown.
     const sourced = d.baseline_rate !== null && d.baseline_source.length > 0;
     const baseline = sourced ? d.baseline_rate : null;
-    const effect = baseline !== null && d.min_effect !== null && baseline + d.min_effect < 100 ? d.min_effect : null;
+    const effect =
+      baseline !== null && d.min_effect !== null && baseline + d.min_effect < 100
+        ? d.min_effect
+        : null;
     return { ...d, baseline_rate: effect === null ? null : baseline, min_effect: effect };
   });
 export type Design = z.infer<typeof designSchema>;
 
 export function parseDesigns(raw: string): Design[] {
-  const s = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
-  const arr = z.object({ experiments: z.array(z.unknown()) }).parse(JSON.parse(s) as unknown).experiments;
+  const s = raw
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/```\s*$/, "");
+  const arr = z
+    .object({ experiments: z.array(z.unknown()) })
+    .parse(JSON.parse(s) as unknown).experiments;
   const seen = new Set<string>();
   const out = arr
     .map((x) => designSchema.safeParse(x))
@@ -66,7 +102,13 @@ export function parseDesigns(raw: string): Design[] {
 
 /** Payload for design_experiment; the baseline source is kept with the risks so reviewers see where the rate came from. */
 export function designPayload(d: Design): Record<string, unknown> {
-  const risks = [d.risks, d.baseline_rate !== null ? `Current rate source: ${d.baseline_source}` : ""].filter(Boolean).join("\n").slice(0, 1000);
+  const risks = [
+    d.risks,
+    d.baseline_rate !== null ? `Current rate source: ${d.baseline_source}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n")
+    .slice(0, 1000);
   return {
     title: d.title,
     hypothesis: d.hypothesis,
@@ -83,13 +125,20 @@ export function designPayload(d: Design): Record<string, unknown> {
     expected_result: d.expected_result,
     risks,
     origin: "growth_officer",
-    ...(d.baseline_rate !== null && d.min_effect !== null ? { baseline_rate: d.baseline_rate, min_effect: d.min_effect } : {}),
+    ...(d.baseline_rate !== null && d.min_effect !== null
+      ? { baseline_rate: d.baseline_rate, min_effect: d.min_effect }
+      : {}),
   };
 }
 
 /** Stable per-design request key derived from the request, so a recovered answer never saves the same draft twice. */
 export async function designKey(requestKey: string, index: number): Promise<string> {
-  const h = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`experiment-design:${requestKey}:${index}`)));
+  const h = new Uint8Array(
+    await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(`experiment-design:${requestKey}:${index}`),
+    ),
+  );
   h[6] = (h[6]! & 0x0f) | 0x40;
   h[8] = (h[8]! & 0x3f) | 0x80;
   const x = Array.from(h.slice(0, 16), (b) => b.toString(16).padStart(2, "0")).join("");

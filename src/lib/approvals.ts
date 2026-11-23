@@ -1,10 +1,14 @@
 // Approval lifecycle. SQL function public.decide_approval enforces pending -> approved|rejected.
-export type ApprovalStatus = "pending" | "approved" | "rejected" | "executed" | "failed" | "expired";
+export type ApprovalStatus =
+  "pending" | "approved" | "rejected" | "executed" | "failed" | "expired";
 
 const TRANSITIONS: Record<ApprovalStatus, ApprovalStatus[]> = {
   pending: ["approved", "rejected", "expired"],
   approved: ["executed", "failed"],
-  rejected: [], executed: [], failed: [], expired: [],
+  rejected: [],
+  executed: [],
+  failed: [],
+  expired: [],
 };
 
 export function canTransition(from: ApprovalStatus, to: ApprovalStatus): boolean {

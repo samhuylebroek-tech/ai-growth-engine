@@ -76,7 +76,9 @@ export function BiState({
 export function BusinessOverview({ initialUnit = null }: { initialUnit?: string | null } = {}) {
   const q = useBi();
   // A brand/unit chosen in the context switcher opens the overview filtered to it.
-  const [filters, setFilters] = useState<Filters>(initialUnit ? { ...NO_FILTERS, unit: initialUnit } : NO_FILTERS);
+  const [filters, setFilters] = useState<Filters>(
+    initialUnit ? { ...NO_FILTERS, unit: initialUnit } : NO_FILTERS,
+  );
   const [model, setModel] = useState<Model>("last_touch");
   return (
     <BiState q={q}>
@@ -310,12 +312,16 @@ export function KpiLabel({ k }: { k: KpiKey }) {
     <details className="min-w-0 max-w-full">
       <summary className="cursor-pointer list-none">
         {t(tk(`bi.kpi.${k}`))}{" "}
-        <span className="text-[10px] text-muted-foreground underline decoration-dotted">{t("bi.kdef.show")}</span>
+        <span className="text-[10px] text-muted-foreground underline decoration-dotted">
+          {t("bi.kdef.show")}
+        </span>
       </summary>
       <p className="mt-1 text-[11px] text-foreground">
         {formulaText(d, (x) => t(tk("in" in x ? `bi.input.${x.in}` : `bi.kterm.${x.term}`)))}
       </p>
-      <p className="text-[10px] text-muted-foreground">{t(d.better === "higher" ? "bi.kdef.higher" : "bi.kdef.lower")} · {t("bi.kdef.rule")}</p>
+      <p className="text-[10px] text-muted-foreground">
+        {t(d.better === "higher" ? "bi.kdef.higher" : "bi.kdef.lower")} · {t("bi.kdef.rule")}
+      </p>
     </details>
   );
 }
@@ -404,7 +410,10 @@ export function GrowthActions({
   async function decide(a: GrowthAction, decision: "postponed" | "dismissed" | "restored") {
     if (!o.workspace) return;
     setBusy(a.id);
-    const until = decision === "postponed" ? new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10) : null;
+    const until =
+      decision === "postponed"
+        ? new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10)
+        : null;
     const r = await growthDb.rpc("decide_recommendation", {
       _workspace: o.workspace.id,
       _key: a.id,
@@ -415,7 +424,9 @@ export function GrowthActions({
     });
     setBusy(null);
     if (r.error) {
-      toast.error(isNotInstalled(r.error) ? t("bi.rec.notInstalled") : t("bi.failed", { e: r.error.message }));
+      toast.error(
+        isNotInstalled(r.error) ? t("bi.rec.notInstalled") : t("bi.failed", { e: r.error.message }),
+      );
       return;
     }
     toast.success(t(tk(`bi.rec.done.${decision}`)));
@@ -444,14 +455,18 @@ export function GrowthActions({
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
             <QualityBadge q={a.quality} />
-            {a.uncertain && <span className="text-[11px] text-muted-foreground">{t("ev.indicative")}</span>}
+            {a.uncertain && (
+              <span className="text-[11px] text-muted-foreground">{t("ev.indicative")}</span>
+            )}
             {a.ranksAboveBy && !compact ? (
               <span className="text-[11px] text-muted-foreground">
                 {t("bi.rec.ranksAbove", { f: t(tk(`bi.rec.factor.${a.ranksAboveBy}`)) })}
               </span>
             ) : null}
             {a.alsoSuggested?.length ? (
-              <span className="text-[11px] text-muted-foreground">{t("bi.actions.alsoSuggested", { n: a.alsoSuggested.length })}</span>
+              <span className="text-[11px] text-muted-foreground">
+                {t("bi.actions.alsoSuggested", { n: a.alsoSuggested.length })}
+              </span>
             ) : null}
           </div>
           {!compact && (
@@ -484,10 +499,20 @@ export function GrowthActions({
             </Link>
             {editor && !compact && (
               <>
-                <button type="button" disabled={!!busy} className="text-[11px] text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50" onClick={() => decide(a, "postponed")}>
+                <button
+                  type="button"
+                  disabled={!!busy}
+                  className="text-[11px] text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50"
+                  onClick={() => decide(a, "postponed")}
+                >
                   {t("bi.rec.postpone")}
                 </button>
-                <button type="button" disabled={!!busy} className="text-[11px] text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50" onClick={() => decide(a, "dismissed")}>
+                <button
+                  type="button"
+                  disabled={!!busy}
+                  className="text-[11px] text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50"
+                  onClick={() => decide(a, "dismissed")}
+                >
                   {t("bi.rec.dismiss")}
                 </button>
               </>
@@ -499,7 +524,9 @@ export function GrowthActions({
   );
   const hiddenList = !compact && hidden.length > 0 && (
     <details className="mt-3 rounded-lg border border-dashed border-border p-3 text-[11px]">
-      <summary className="cursor-pointer text-muted-foreground">{t("bi.rec.hidden", { n: hidden.length })}</summary>
+      <summary className="cursor-pointer text-muted-foreground">
+        {t("bi.rec.hidden", { n: hidden.length })}
+      </summary>
       <p className="mt-1 text-muted-foreground">{t("bi.rec.hiddenHelp")}</p>
       <ul className="mt-2 space-y-1.5">
         {hidden.map(({ action: a, decision: dd }) => (
@@ -507,11 +534,19 @@ export function GrowthActions({
             <span className="min-w-0 break-words">
               {actionTitle(a, t)} ·{" "}
               {dd.decision === "postponed" && dd.until
-                ? t("bi.rec.until", { d: new Date(`${dd.until}T12:00:00Z`).toLocaleDateString(tag) })
+                ? t("bi.rec.until", {
+                    d: new Date(`${dd.until}T12:00:00Z`).toLocaleDateString(tag),
+                  })
                 : t("bi.rec.dismissed")}
             </span>
             {editor && (
-              <Button size="sm" variant="outline" className="h-7" disabled={!!busy} onClick={() => decide(a, "restored")}>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7"
+                disabled={!!busy}
+                onClick={() => decide(a, "restored")}
+              >
                 {t("bi.rec.restore")}
               </Button>
             )}
@@ -767,15 +802,30 @@ function Levers({ d }: { d: BiData }) {
     <Section title={t("bi.lever.title")} intro={t("bi.lever.intro")}>
       <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {coverage.map((c) => (
-          <li key={c.lever} className="min-w-0 rounded-md border border-border bg-card px-3 py-2 text-xs">
+          <li
+            key={c.lever}
+            className="min-w-0 rounded-md border border-border bg-card px-3 py-2 text-xs"
+          >
             <div className="flex items-center justify-between gap-2">
               <span className="font-medium">{t(tk(`bi.lever.${c.lever}`))}</span>
               <Badge kind={c.missing.length === 0 ? "high" : c.have.length ? "medium" : "low"}>
-                {c.missing.length === 0 ? t("bi.lever.ready") : c.have.length ? t("bi.lever.partial") : t("bi.lever.none")}
+                {c.missing.length === 0
+                  ? t("bi.lever.ready")
+                  : c.have.length
+                    ? t("bi.lever.partial")
+                    : t("bi.lever.none")}
               </Badge>
             </div>
-            {c.have.length > 0 && <p className="mt-1 break-words text-[11px] text-muted-foreground">{t("bi.lever.have")} {c.have.map(src).join(", ")}</p>}
-            {c.missing.length > 0 && <p className="mt-0.5 break-words text-[11px] text-muted-foreground">{t("bi.lever.missing")} {c.missing.map(src).join(", ")}</p>}
+            {c.have.length > 0 && (
+              <p className="mt-1 break-words text-[11px] text-muted-foreground">
+                {t("bi.lever.have")} {c.have.map(src).join(", ")}
+              </p>
+            )}
+            {c.missing.length > 0 && (
+              <p className="mt-0.5 break-words text-[11px] text-muted-foreground">
+                {t("bi.lever.missing")} {c.missing.map(src).join(", ")}
+              </p>
+            )}
           </li>
         ))}
       </ul>

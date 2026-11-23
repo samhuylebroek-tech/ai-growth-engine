@@ -7,11 +7,15 @@ export const FACTS_READ_MAX = 5000;
 export type FactsRead<T> = { rows: T[]; complete: boolean };
 
 export async function readFactPages<T extends { id: string }>(
-  fetchPage: (cursor: string | undefined, size: number) => PromiseLike<{ data: T[] | null; error: unknown }>,
+  fetchPage: (
+    cursor: string | undefined,
+    size: number,
+  ) => PromiseLike<{ data: T[] | null; error: unknown }>,
   max = FACTS_READ_MAX,
   size = FACTS_PAGE,
 ): Promise<FactsRead<T>> {
-  if (!Number.isInteger(size) || size < 1 || size > 1000 || max < 1) throw new Error("Invalid fact page size");
+  if (!Number.isInteger(size) || size < 1 || size > 1000 || max < 1)
+    throw new Error("Invalid fact page size");
   const rows: T[] = [];
   let cursor: string | undefined;
   for (;;) {

@@ -7,24 +7,32 @@ export const ob = defineArea("ob", {
     "ob.path.title": "Your first growth steps",
     "ob.path.intro": "Do them in this order. Nothing is created or changed without you.",
     "ob.path.fill.title": "Fill in what is still missing",
-    "ob.path.fill.why": "{n} topics are still unknown. Advice on those stays general until you add them.",
+    "ob.path.fill.why":
+      "{n} topics are still unknown. Advice on those stays general until you add them.",
     "ob.path.fill.cta": "Add missing details",
     "ob.path.situation.title": "See your growth situation",
-    "ob.path.situation.why": "What is going well, what is unknown and where the biggest opportunity is, from your own records. No credits.",
+    "ob.path.situation.why":
+      "What is going well, what is unknown and where the biggest opportunity is, from your own records. No credits.",
     "ob.path.situation.cta": "Open growth situation",
     "ob.path.ask.title": "Ask the Growth Officer for the first step",
-    "ob.path.ask.why": "It uses only the confirmed parts and labels every statement. It costs a few credits; nothing changes without your approval.",
+    "ob.path.ask.why":
+      "It uses only the confirmed parts and labels every statement. It costs a few credits; nothing changes without your approval.",
     "ob.path.ask.cta": "Prepare the question",
-    "ob.path.ask.question": "Based on what you now know about our business: what is the most valuable first step, why, and which missing information would change your advice?",
+    "ob.path.ask.question":
+      "Based on what you now know about our business: what is the most valuable first step, why, and which missing information would change your advice?",
     "ob.path.goal.title": "Turn it into a measurable goal",
-    "ob.path.goal.why": "A goal makes progress visible. You choose the target and date; nothing is created automatically.",
+    "ob.path.goal.why":
+      "A goal makes progress visible. You choose the target and date; nothing is created automatically.",
     "ob.path.goal.cta": "Set a goal",
-    "ob.path.viewer": "Editors and administrators can add details, ask the Growth Officer and set goals.",
-    "ob.sum.introRead": "Everything below comes from what was confirmed or found for this business.",
+    "ob.path.viewer":
+      "Editors and administrators can add details, ask the Growth Officer and set goals.",
+    "ob.sum.introRead":
+      "Everything below comes from what was confirmed or found for this business.",
     "ob.area.horizon": "Time horizon",
     "ob.how.missing": "Answer a few short questions in “Getting to know your business”.",
     "ob.title": "Getting to know your business",
-    "ob.intro": "A few short questions so advice fits how your business really works. Answer what you know, skip the rest, and come back whenever you like.",
+    "ob.intro":
+      "A few short questions so advice fits how your business really works. Answer what you know, skip the rest, and come back whenever you like.",
     "ob.progress": "{answered} of {total} key questions answered",
     "ob.basics.title": "Website and basic details",
     "ob.basics.intro": "What you do, what you sell, your markets and your budget.",
@@ -32,7 +40,8 @@ export const ob = defineArea("ob", {
     "ob.basics.todo": "Not set up yet",
     "ob.basics.open": "Open",
     "ob.loading": "Loading your answers…",
-    "ob.readFailed": "Your answers could not be loaded. Nothing is shown as missing until they can be read.",
+    "ob.readFailed":
+      "Your answers could not be loaded. Nothing is shown as missing until they can be read.",
     "ob.status.done": "Done",
     "ob.status.partly": "{done} of {total} key questions",
     "ob.status.todo": "Not answered yet",
@@ -59,27 +68,36 @@ export const ob = defineArea("ob", {
     "ob.back": "Back to overview",
     "ob.saved": "Answers saved. The Growth Officer uses them from now on.",
     "ob.unchanged": "Nothing changed.",
-    "ob.changed": "Someone else changed these answers in the meantime. The latest answers are loaded; check them and save again.",
+    "ob.changed":
+      "Someone else changed these answers in the meantime. The latest answers are loaded; check them and save again.",
     "ob.failed": "Your answers could not be saved. They are still here; try again.",
     "ob.unavailable": "Saving these answers is not available in this environment yet.",
     "ob.forbidden": "Only editors and administrators of this business can save answers.",
-    "ob.readOnly": "Only editors and administrators of this business can change these answers. You can read them here; ask one of them to add or correct something.",
+    "ob.readOnly":
+      "Only editors and administrators of this business can change these answers. You can read them here; ask one of them to add or correct something.",
     "ob.noAnswer": "Not answered",
     "ob.summaryLink": "See what we understand",
     "ob.section.customers.title": "Your customers",
-    "ob.section.customers.intro": "Who buys from you and why. Advice aimed at the right people works faster and costs less.",
+    "ob.section.customers.intro":
+      "Who buys from you and why. Advice aimed at the right people works faster and costs less.",
     "ob.section.sales.title": "How you sell",
-    "ob.section.sales.intro": "How people find you and become customers. This shows where growth gets stuck.",
+    "ob.section.sales.intro":
+      "How people find you and become customers. This shows where growth gets stuck.",
     "ob.section.challenges.title": "What is holding you back",
-    "ob.section.challenges.intro": "Pick only what applies. We never assume a problem you did not mention.",
+    "ob.section.challenges.intro":
+      "Pick only what applies. We never assume a problem you did not mention.",
     "ob.section.resources.title": "Time and people",
-    "ob.section.resources.intro": "What you can realistically put into growth, so plans stay doable.",
+    "ob.section.resources.intro":
+      "What you can realistically put into growth, so plans stay doable.",
     "ob.section.ambitions.title": "What you want to achieve",
-    "ob.section.ambitions.intro": "Your goals and when you want results, so priorities match your ambition.",
+    "ob.section.ambitions.intro":
+      "Your goals and when you want results, so priorities match your ambition.",
     "ob.section.constraints.title": "Boundaries",
-    "ob.section.constraints.intro": "What must not happen. Advice and AI work always respect these boundaries.",
+    "ob.section.constraints.intro":
+      "What must not happen. Advice and AI work always respect these boundaries.",
     "ob.q.customer_type.label": "Who are your customers?",
-    "ob.q.customer_type.why": "Selling to businesses or to consumers changes almost every recommendation.",
+    "ob.q.customer_type.why":
+      "Selling to businesses or to consumers changes almost every recommendation.",
     "ob.q.ideal_customer.label": "Describe your ideal customer",
     "ob.q.ideal_customer.why": "So we can look for more people like your best customers.",
     "ob.q.customer_needs.label": "What problem do you solve for them?",
@@ -95,7 +113,8 @@ export const ob = defineArea("ob", {
     "ob.q.sales_cycle.label": "How long does it usually take before someone buys?",
     "ob.q.sales_cycle.why": "Decides when results can reasonably be expected.",
     "ob.q.decision.label": "Who decides on a purchase at your customers?",
-    "ob.q.decision.why": "With business customers the user and the decision-maker are often different people.",
+    "ob.q.decision.why":
+      "With business customers the user and the decision-maker are often different people.",
     "ob.q.obstacles.label": "Why do interested people sometimes not buy?",
     "ob.q.obstacles.why": "Removing one obstacle can be worth more than extra visitors.",
     "ob.q.follow_up.label": "What happens after someone asks a question?",
@@ -223,7 +242,8 @@ export const ob = defineArea("ob", {
     "ob.o.approvals.team_small": "The team may approve small things",
     "ob.o.approvals.formal": "We have a formal approval process",
     "ob.sum.title": "What AI Growth Engine understands about your business",
-    "ob.sum.intro": "Everything below comes from what you confirmed or what was found. Check it: anything wrong can be corrected right away.",
+    "ob.sum.intro":
+      "Everything below comes from what you confirmed or what was found. Check it: anything wrong can be corrected right away.",
     "ob.sum.topic.does": "What the business does",
     "ob.sum.topic.sells": "What it sells",
     "ob.sum.topic.customers": "Who the customers are",
@@ -246,24 +266,31 @@ export const ob = defineArea("ob", {
     "ob.path.title": "Je eerste groeistappen",
     "ob.path.intro": "Doe ze in deze volgorde. Er wordt niets aangemaakt of gewijzigd zonder jou.",
     "ob.path.fill.title": "Vul aan wat nog ontbreekt",
-    "ob.path.fill.why": "{n} onderwerpen zijn nog onbekend. Advies daarover blijft algemeen tot je ze aanvult.",
+    "ob.path.fill.why":
+      "{n} onderwerpen zijn nog onbekend. Advies daarover blijft algemeen tot je ze aanvult.",
     "ob.path.fill.cta": "Ontbrekende gegevens aanvullen",
     "ob.path.situation.title": "Bekijk je groeisituatie",
-    "ob.path.situation.why": "Wat goed gaat, wat onbekend is en waar de grootste kans ligt, uit je eigen gegevens. Kost geen credits.",
+    "ob.path.situation.why":
+      "Wat goed gaat, wat onbekend is en waar de grootste kans ligt, uit je eigen gegevens. Kost geen credits.",
     "ob.path.situation.cta": "Groeisituatie openen",
     "ob.path.ask.title": "Vraag de Growth Officer om de eerste stap",
-    "ob.path.ask.why": "Hij gebruikt alleen de bevestigde delen en labelt elke uitspraak. Het kost een paar credits; er verandert niets zonder jouw goedkeuring.",
+    "ob.path.ask.why":
+      "Hij gebruikt alleen de bevestigde delen en labelt elke uitspraak. Het kost een paar credits; er verandert niets zonder jouw goedkeuring.",
     "ob.path.ask.cta": "Vraag klaarzetten",
-    "ob.path.ask.question": "Op basis van wat je nu over ons bedrijf weet: wat is de waardevolste eerste stap, waarom, en welke ontbrekende informatie zou je advies veranderen?",
+    "ob.path.ask.question":
+      "Op basis van wat je nu over ons bedrijf weet: wat is de waardevolste eerste stap, waarom, en welke ontbrekende informatie zou je advies veranderen?",
     "ob.path.goal.title": "Maak er een meetbaar doel van",
-    "ob.path.goal.why": "Een doel maakt vooruitgang zichtbaar. Jij kiest het doel en de datum; er wordt niets automatisch aangemaakt.",
+    "ob.path.goal.why":
+      "Een doel maakt vooruitgang zichtbaar. Jij kiest het doel en de datum; er wordt niets automatisch aangemaakt.",
     "ob.path.goal.cta": "Doel instellen",
-    "ob.path.viewer": "Redacteurs en beheerders kunnen gegevens aanvullen, de Growth Officer vragen en doelen instellen.",
+    "ob.path.viewer":
+      "Redacteurs en beheerders kunnen gegevens aanvullen, de Growth Officer vragen en doelen instellen.",
     "ob.sum.introRead": "Alles hieronder komt uit wat voor dit bedrijf bevestigd of gevonden werd.",
     "ob.area.horizon": "Termijn",
     "ob.how.missing": "Beantwoord een paar korte vragen bij “Je bedrijf leren kennen”.",
     "ob.title": "Je bedrijf leren kennen",
-    "ob.intro": "Een paar korte vragen, zodat het advies past bij hoe jouw bedrijf echt werkt. Beantwoord wat je weet, sla de rest over en kom terug wanneer je wilt.",
+    "ob.intro":
+      "Een paar korte vragen, zodat het advies past bij hoe jouw bedrijf echt werkt. Beantwoord wat je weet, sla de rest over en kom terug wanneer je wilt.",
     "ob.progress": "{answered} van {total} belangrijke vragen beantwoord",
     "ob.basics.title": "Website en basisgegevens",
     "ob.basics.intro": "Wat je doet, wat je verkoopt, je markten en je budget.",
@@ -271,7 +298,8 @@ export const ob = defineArea("ob", {
     "ob.basics.todo": "Nog niet ingesteld",
     "ob.basics.open": "Openen",
     "ob.loading": "Je antwoorden laden…",
-    "ob.readFailed": "Je antwoorden konden niet geladen worden. Niets wordt als ontbrekend getoond tot ze gelezen kunnen worden.",
+    "ob.readFailed":
+      "Je antwoorden konden niet geladen worden. Niets wordt als ontbrekend getoond tot ze gelezen kunnen worden.",
     "ob.status.done": "Klaar",
     "ob.status.partly": "{done} van {total} belangrijke vragen",
     "ob.status.todo": "Nog niet beantwoord",
@@ -298,27 +326,37 @@ export const ob = defineArea("ob", {
     "ob.back": "Terug naar overzicht",
     "ob.saved": "Antwoorden opgeslagen. De Growth Officer gebruikt ze vanaf nu.",
     "ob.unchanged": "Niets gewijzigd.",
-    "ob.changed": "Iemand anders heeft deze antwoorden intussen gewijzigd. De nieuwste antwoorden zijn geladen; controleer ze en sla opnieuw op.",
-    "ob.failed": "Je antwoorden konden niet opgeslagen worden. Ze staan er nog; probeer het opnieuw.",
+    "ob.changed":
+      "Iemand anders heeft deze antwoorden intussen gewijzigd. De nieuwste antwoorden zijn geladen; controleer ze en sla opnieuw op.",
+    "ob.failed":
+      "Je antwoorden konden niet opgeslagen worden. Ze staan er nog; probeer het opnieuw.",
     "ob.unavailable": "Deze antwoorden opslaan is in deze omgeving nog niet beschikbaar.",
     "ob.forbidden": "Alleen redacteurs en beheerders van dit bedrijf kunnen antwoorden opslaan.",
-    "ob.readOnly": "Alleen redacteurs en beheerders van dit bedrijf kunnen deze antwoorden wijzigen. Je kunt ze hier lezen; vraag een van hen om iets toe te voegen of te verbeteren.",
+    "ob.readOnly":
+      "Alleen redacteurs en beheerders van dit bedrijf kunnen deze antwoorden wijzigen. Je kunt ze hier lezen; vraag een van hen om iets toe te voegen of te verbeteren.",
     "ob.noAnswer": "Niet beantwoord",
     "ob.summaryLink": "Bekijk wat we begrijpen",
     "ob.section.customers.title": "Je klanten",
-    "ob.section.customers.intro": "Wie bij je koopt en waarom. Advies dat op de juiste mensen gericht is, werkt sneller en kost minder.",
+    "ob.section.customers.intro":
+      "Wie bij je koopt en waarom. Advies dat op de juiste mensen gericht is, werkt sneller en kost minder.",
     "ob.section.sales.title": "Hoe je verkoopt",
-    "ob.section.sales.intro": "Hoe mensen je vinden en klant worden. Zo zie je waar groei vastloopt.",
+    "ob.section.sales.intro":
+      "Hoe mensen je vinden en klant worden. Zo zie je waar groei vastloopt.",
     "ob.section.challenges.title": "Wat je tegenhoudt",
-    "ob.section.challenges.intro": "Kies alleen wat van toepassing is. We gaan nooit uit van een probleem dat je niet noemde.",
+    "ob.section.challenges.intro":
+      "Kies alleen wat van toepassing is. We gaan nooit uit van een probleem dat je niet noemde.",
     "ob.section.resources.title": "Tijd en mensen",
-    "ob.section.resources.intro": "Wat je realistisch in groei kunt steken, zodat plannen haalbaar blijven.",
+    "ob.section.resources.intro":
+      "Wat je realistisch in groei kunt steken, zodat plannen haalbaar blijven.",
     "ob.section.ambitions.title": "Wat je wilt bereiken",
-    "ob.section.ambitions.intro": "Je doelen en wanneer je resultaat wilt, zodat prioriteiten passen bij je ambitie.",
+    "ob.section.ambitions.intro":
+      "Je doelen en wanneer je resultaat wilt, zodat prioriteiten passen bij je ambitie.",
     "ob.section.constraints.title": "Grenzen",
-    "ob.section.constraints.intro": "Wat niet mag gebeuren. Advies en AI-werk houden altijd rekening met deze grenzen.",
+    "ob.section.constraints.intro":
+      "Wat niet mag gebeuren. Advies en AI-werk houden altijd rekening met deze grenzen.",
     "ob.q.customer_type.label": "Wie zijn je klanten?",
-    "ob.q.customer_type.why": "Verkopen aan bedrijven of aan consumenten verandert bijna elk advies.",
+    "ob.q.customer_type.why":
+      "Verkopen aan bedrijven of aan consumenten verandert bijna elk advies.",
     "ob.q.ideal_customer.label": "Beschrijf je ideale klant",
     "ob.q.ideal_customer.why": "Zo kunnen we zoeken naar meer mensen zoals je beste klanten.",
     "ob.q.customer_needs.label": "Welk probleem los je voor hen op?",
@@ -328,13 +366,15 @@ export const ob = defineArea("ob", {
     "ob.q.repeat.label": "Kopen klanten opnieuw?",
     "ob.q.repeat.why": "Terugkerende klanten zijn vaak de goedkoopste manier om te groeien.",
     "ob.q.discovery_channels.label": "Hoe vinden nieuwe klanten je?",
-    "ob.q.discovery_channels.why": "We bouwen verder op wat al werkt voordat we iets nieuws voorstellen.",
+    "ob.q.discovery_channels.why":
+      "We bouwen verder op wat al werkt voordat we iets nieuws voorstellen.",
     "ob.q.enquiries.label": "Hoe komen vragen en bestellingen binnen?",
     "ob.q.enquiries.why": "Laat zien waar mensen kunnen afhaken voordat ze kopen.",
     "ob.q.sales_cycle.label": "Hoe lang duurt het meestal voordat iemand koopt?",
     "ob.q.sales_cycle.why": "Bepaalt wanneer je redelijkerwijs resultaat kunt verwachten.",
     "ob.q.decision.label": "Wie beslist bij je klanten over een aankoop?",
-    "ob.q.decision.why": "Bij zakelijke klanten zijn de gebruiker en de beslisser vaak verschillende mensen.",
+    "ob.q.decision.why":
+      "Bij zakelijke klanten zijn de gebruiker en de beslisser vaak verschillende mensen.",
     "ob.q.obstacles.label": "Waarom kopen geïnteresseerden soms niet?",
     "ob.q.obstacles.why": "Eén drempel wegnemen kan meer opleveren dan extra bezoekers.",
     "ob.q.follow_up.label": "Wat gebeurt er nadat iemand een vraag stelt?",
@@ -370,7 +410,8 @@ export const ob = defineArea("ob", {
     "ob.q.excluded_activities.label": "Is er iets wat je bedrijf niet wil doen?",
     "ob.q.excluded_activities.why": "Bijvoorbeeld bepaalde acties of partners.",
     "ob.q.regulation.label": "Zijn er regels of wetten waar je rekening mee moet houden?",
-    "ob.q.regulation.why": "Bijvoorbeeld regels over reclame, gezondheid of financiën in je sector.",
+    "ob.q.regulation.why":
+      "Bijvoorbeeld regels over reclame, gezondheid of financiën in je sector.",
     "ob.q.brand_rules.label": "Zijn er merkregels om te volgen?",
     "ob.q.brand_rules.why": "Woorden, kleuren of beloftes die je altijd gebruikt of vermijdt.",
     "ob.q.geography.label": "Zijn er plaatsen die je niet kunt of wilt bedienen?",
@@ -462,7 +503,8 @@ export const ob = defineArea("ob", {
     "ob.o.approvals.team_small": "Het team mag kleine dingen goedkeuren",
     "ob.o.approvals.formal": "We hebben een vaste goedkeuringsprocedure",
     "ob.sum.title": "Wat AI Growth Engine begrijpt van je bedrijf",
-    "ob.sum.intro": "Alles hieronder komt uit wat je bevestigde of wat gevonden werd. Controleer het: wat niet klopt, kun je meteen verbeteren.",
+    "ob.sum.intro":
+      "Alles hieronder komt uit wat je bevestigde of wat gevonden werd. Controleer het: wat niet klopt, kun je meteen verbeteren.",
     "ob.sum.topic.does": "Wat het bedrijf doet",
     "ob.sum.topic.sells": "Wat het verkoopt",
     "ob.sum.topic.customers": "Wie de klanten zijn",
@@ -485,24 +527,33 @@ export const ob = defineArea("ob", {
     "ob.path.title": "Vos premières étapes de croissance",
     "ob.path.intro": "Faites-les dans cet ordre. Rien n'est créé ni modifié sans vous.",
     "ob.path.fill.title": "Complétez ce qui manque encore",
-    "ob.path.fill.why": "{n} sujets sont encore inconnus. Les conseils à leur sujet restent généraux tant qu'ils ne sont pas complétés.",
+    "ob.path.fill.why":
+      "{n} sujets sont encore inconnus. Les conseils à leur sujet restent généraux tant qu'ils ne sont pas complétés.",
     "ob.path.fill.cta": "Ajouter les informations manquantes",
     "ob.path.situation.title": "Voyez votre situation de croissance",
-    "ob.path.situation.why": "Ce qui va bien, ce qui est inconnu et où se trouve la plus grande opportunité, à partir de vos propres données. Sans crédits.",
+    "ob.path.situation.why":
+      "Ce qui va bien, ce qui est inconnu et où se trouve la plus grande opportunité, à partir de vos propres données. Sans crédits.",
     "ob.path.situation.cta": "Ouvrir la situation de croissance",
     "ob.path.ask.title": "Demandez la première étape au Growth Officer",
-    "ob.path.ask.why": "Il n'utilise que les parties confirmées et étiquette chaque affirmation. Cela coûte quelques crédits ; rien ne change sans votre approbation.",
+    "ob.path.ask.why":
+      "Il n'utilise que les parties confirmées et étiquette chaque affirmation. Cela coûte quelques crédits ; rien ne change sans votre approbation.",
     "ob.path.ask.cta": "Préparer la question",
-    "ob.path.ask.question": "D'après ce que vous savez maintenant de notre entreprise : quelle est la première étape la plus utile, pourquoi, et quelle information manquante changerait votre conseil ?",
+    "ob.path.ask.question":
+      "D'après ce que vous savez maintenant de notre entreprise : quelle est la première étape la plus utile, pourquoi, et quelle information manquante changerait votre conseil ?",
     "ob.path.goal.title": "Transformez-la en objectif mesurable",
-    "ob.path.goal.why": "Un objectif rend les progrès visibles. Vous choisissez la cible et la date ; rien n'est créé automatiquement.",
+    "ob.path.goal.why":
+      "Un objectif rend les progrès visibles. Vous choisissez la cible et la date ; rien n'est créé automatiquement.",
     "ob.path.goal.cta": "Définir un objectif",
-    "ob.path.viewer": "Les éditeurs et administrateurs peuvent compléter les informations, interroger le Growth Officer et définir des objectifs.",
-    "ob.sum.introRead": "Tout ce qui suit provient de ce qui a été confirmé ou trouvé pour cette entreprise.",
+    "ob.path.viewer":
+      "Les éditeurs et administrateurs peuvent compléter les informations, interroger le Growth Officer et définir des objectifs.",
+    "ob.sum.introRead":
+      "Tout ce qui suit provient de ce qui a été confirmé ou trouvé pour cette entreprise.",
     "ob.area.horizon": "Horizon de temps",
-    "ob.how.missing": "Répondez à quelques questions courtes dans « Apprendre à connaître votre entreprise ».",
+    "ob.how.missing":
+      "Répondez à quelques questions courtes dans « Apprendre à connaître votre entreprise ».",
     "ob.title": "Apprendre à connaître votre entreprise",
-    "ob.intro": "Quelques questions courtes pour que les conseils correspondent au fonctionnement réel de votre entreprise. Répondez à ce que vous savez, passez le reste et revenez quand vous voulez.",
+    "ob.intro":
+      "Quelques questions courtes pour que les conseils correspondent au fonctionnement réel de votre entreprise. Répondez à ce que vous savez, passez le reste et revenez quand vous voulez.",
     "ob.progress": "{answered} questions clés sur {total} répondues",
     "ob.basics.title": "Site web et informations de base",
     "ob.basics.intro": "Ce que vous faites, ce que vous vendez, vos marchés et votre budget.",
@@ -510,7 +561,8 @@ export const ob = defineArea("ob", {
     "ob.basics.todo": "Pas encore configuré",
     "ob.basics.open": "Ouvrir",
     "ob.loading": "Chargement de vos réponses…",
-    "ob.readFailed": "Vos réponses n'ont pas pu être chargées. Rien n'est indiqué comme manquant tant qu'elles ne peuvent pas être lues.",
+    "ob.readFailed":
+      "Vos réponses n'ont pas pu être chargées. Rien n'est indiqué comme manquant tant qu'elles ne peuvent pas être lues.",
     "ob.status.done": "Terminé",
     "ob.status.partly": "{done} questions clés sur {total}",
     "ob.status.todo": "Pas encore répondu",
@@ -537,43 +589,58 @@ export const ob = defineArea("ob", {
     "ob.back": "Retour à l'aperçu",
     "ob.saved": "Réponses enregistrées. Le Growth Officer les utilise désormais.",
     "ob.unchanged": "Rien n'a changé.",
-    "ob.changed": "Quelqu'un d'autre a modifié ces réponses entre-temps. Les dernières réponses sont chargées ; vérifiez-les et enregistrez à nouveau.",
+    "ob.changed":
+      "Quelqu'un d'autre a modifié ces réponses entre-temps. Les dernières réponses sont chargées ; vérifiez-les et enregistrez à nouveau.",
     "ob.failed": "Vos réponses n'ont pas pu être enregistrées. Elles sont toujours là ; réessayez.",
-    "ob.unavailable": "L'enregistrement de ces réponses n'est pas encore disponible dans cet environnement.",
-    "ob.forbidden": "Seuls les éditeurs et administrateurs de cette entreprise peuvent enregistrer des réponses.",
-    "ob.readOnly": "Seuls les éditeurs et administrateurs de cette entreprise peuvent modifier ces réponses. Vous pouvez les lire ici ; demandez-leur d'ajouter ou de corriger quelque chose.",
+    "ob.unavailable":
+      "L'enregistrement de ces réponses n'est pas encore disponible dans cet environnement.",
+    "ob.forbidden":
+      "Seuls les éditeurs et administrateurs de cette entreprise peuvent enregistrer des réponses.",
+    "ob.readOnly":
+      "Seuls les éditeurs et administrateurs de cette entreprise peuvent modifier ces réponses. Vous pouvez les lire ici ; demandez-leur d'ajouter ou de corriger quelque chose.",
     "ob.noAnswer": "Sans réponse",
     "ob.summaryLink": "Voir ce que nous avons compris",
     "ob.section.customers.title": "Vos clients",
-    "ob.section.customers.intro": "Qui achète chez vous et pourquoi. Des conseils ciblant les bonnes personnes fonctionnent plus vite et coûtent moins cher.",
+    "ob.section.customers.intro":
+      "Qui achète chez vous et pourquoi. Des conseils ciblant les bonnes personnes fonctionnent plus vite et coûtent moins cher.",
     "ob.section.sales.title": "Comment vous vendez",
-    "ob.section.sales.intro": "Comment les gens vous trouvent et deviennent clients. Cela montre où la croissance bloque.",
+    "ob.section.sales.intro":
+      "Comment les gens vous trouvent et deviennent clients. Cela montre où la croissance bloque.",
     "ob.section.challenges.title": "Ce qui vous freine",
-    "ob.section.challenges.intro": "Choisissez seulement ce qui s'applique. Nous ne supposons jamais un problème que vous n'avez pas mentionné.",
+    "ob.section.challenges.intro":
+      "Choisissez seulement ce qui s'applique. Nous ne supposons jamais un problème que vous n'avez pas mentionné.",
     "ob.section.resources.title": "Temps et personnes",
-    "ob.section.resources.intro": "Ce que vous pouvez réellement consacrer à la croissance, pour que les plans restent réalisables.",
+    "ob.section.resources.intro":
+      "Ce que vous pouvez réellement consacrer à la croissance, pour que les plans restent réalisables.",
     "ob.section.ambitions.title": "Ce que vous voulez atteindre",
-    "ob.section.ambitions.intro": "Vos objectifs et quand vous voulez des résultats, pour que les priorités correspondent à votre ambition.",
+    "ob.section.ambitions.intro":
+      "Vos objectifs et quand vous voulez des résultats, pour que les priorités correspondent à votre ambition.",
     "ob.section.constraints.title": "Limites",
-    "ob.section.constraints.intro": "Ce qui ne doit pas arriver. Les conseils et le travail de l'IA respectent toujours ces limites.",
+    "ob.section.constraints.intro":
+      "Ce qui ne doit pas arriver. Les conseils et le travail de l'IA respectent toujours ces limites.",
     "ob.q.customer_type.label": "Qui sont vos clients ?",
-    "ob.q.customer_type.why": "Vendre à des entreprises ou à des particuliers change presque chaque recommandation.",
+    "ob.q.customer_type.why":
+      "Vendre à des entreprises ou à des particuliers change presque chaque recommandation.",
     "ob.q.ideal_customer.label": "Décrivez votre client idéal",
     "ob.q.ideal_customer.why": "Pour chercher davantage de personnes comme vos meilleurs clients.",
     "ob.q.customer_needs.label": "Quel problème résolvez-vous pour eux ?",
-    "ob.q.customer_needs.why": "Les messages qui nomment le problème du client convertissent mieux.",
+    "ob.q.customer_needs.why":
+      "Les messages qui nomment le problème du client convertissent mieux.",
     "ob.q.segments.label": "Avez-vous différents groupes de clients ?",
     "ob.q.segments.why": "Des groupes différents demandent souvent une approche différente.",
     "ob.q.repeat.label": "Les clients achètent-ils à nouveau ?",
     "ob.q.repeat.why": "Les clients fidèles sont souvent le moyen le moins coûteux de croître.",
     "ob.q.discovery_channels.label": "Comment les nouveaux clients vous trouvent-ils ?",
-    "ob.q.discovery_channels.why": "Nous partons de ce qui fonctionne déjà avant de proposer du nouveau.",
+    "ob.q.discovery_channels.why":
+      "Nous partons de ce qui fonctionne déjà avant de proposer du nouveau.",
     "ob.q.enquiries.label": "Comment arrivent les demandes et les commandes ?",
     "ob.q.enquiries.why": "Montre où les gens peuvent abandonner avant d'acheter.",
-    "ob.q.sales_cycle.label": "Combien de temps faut-il généralement avant qu'une personne achète ?",
+    "ob.q.sales_cycle.label":
+      "Combien de temps faut-il généralement avant qu'une personne achète ?",
     "ob.q.sales_cycle.why": "Détermine quand des résultats peuvent raisonnablement être attendus.",
     "ob.q.decision.label": "Qui décide d'un achat chez vos clients ?",
-    "ob.q.decision.why": "Chez les clients professionnels, l'utilisateur et le décideur sont souvent différents.",
+    "ob.q.decision.why":
+      "Chez les clients professionnels, l'utilisateur et le décideur sont souvent différents.",
     "ob.q.obstacles.label": "Pourquoi des personnes intéressées n'achètent-elles parfois pas ?",
     "ob.q.obstacles.why": "Lever un obstacle peut valoir plus que des visiteurs supplémentaires.",
     "ob.q.follow_up.label": "Que se passe-t-il après qu'une personne pose une question ?",
@@ -581,7 +648,8 @@ export const ob = defineArea("ob", {
     "ob.q.sales_tools.label": "Quels outils de vente ou de suivi client utilisez-vous ?",
     "ob.q.sales_tools.why": "Pour que les suggestions s'adaptent à vos outils.",
     "ob.q.challenges.label": "Lesquels s'appliquent à votre entreprise en ce moment ?",
-    "ob.q.challenges.why": "Choisissez ce que vous reconnaissez. Laissez vide si rien ne s'applique.",
+    "ob.q.challenges.why":
+      "Choisissez ce que vous reconnaissez. Laissez vide si rien ne s'applique.",
     "ob.q.main_challenge.label": "Lequel compte le plus ?",
     "ob.q.main_challenge.why": "Nous commençons par ce qui compte le plus pour vous.",
     "ob.q.hours.label": "Combien de temps par semaine pouvez-vous consacrer à la croissance ?",
@@ -589,7 +657,8 @@ export const ob = defineArea("ob", {
     "ob.q.team.label": "Qui peut aider à la croissance ?",
     "ob.q.team.why": "Pour que les tâches reviennent à des personnes capables de les faire.",
     "ob.q.capacity.label": "Pouvez-vous accueillir plus de clients aujourd'hui ?",
-    "ob.q.capacity.why": "Si vous êtes presque complet, plus de clients n'est pas la première étape.",
+    "ob.q.capacity.why":
+      "Si vous êtes presque complet, plus de clients n'est pas la première étape.",
     "ob.q.content.label": "Que pouvez-vous produire vous-mêmes ?",
     "ob.q.content.why": "Les plans de contenu doivent correspondre à ce que vous pouvez produire.",
     "ob.q.tools.label": "Quels outils marketing utilisez-vous ?",
@@ -601,15 +670,18 @@ export const ob = defineArea("ob", {
     "ob.q.priority_now.label": "Que doit-il se passer dans les 30 prochains jours ?",
     "ob.q.priority_now.why": "Aide à choisir la toute première étape.",
     "ob.q.revenue_ambition.label": "Avez-vous une ambition de chiffre d'affaires ?",
-    "ob.q.revenue_ambition.why": "Seulement si vous la connaissez. Vous pouvez l'ajouter plus tard.",
+    "ob.q.revenue_ambition.why":
+      "Seulement si vous la connaissez. Vous pouvez l'ajouter plus tard.",
     "ob.q.excluded_channels.label": "Y a-t-il des canaux à ne jamais utiliser ?",
     "ob.q.excluded_channels.why": "Nous ne proposons jamais rien de cette liste.",
     "ob.q.approvals.label": "Qui doit approuver le travail avant sa diffusion ?",
     "ob.q.approvals.why": "Rien n'est diffusé sans l'approbation que vous choisissez.",
-    "ob.q.excluded_activities.label": "Y a-t-il quelque chose que votre entreprise ne veut pas faire ?",
+    "ob.q.excluded_activities.label":
+      "Y a-t-il quelque chose que votre entreprise ne veut pas faire ?",
     "ob.q.excluded_activities.why": "Par exemple certaines promotions ou certains partenaires.",
     "ob.q.regulation.label": "Y a-t-il des règles ou réglementations à respecter ?",
-    "ob.q.regulation.why": "Par exemple des règles sur la publicité, la santé ou la finance dans votre secteur.",
+    "ob.q.regulation.why":
+      "Par exemple des règles sur la publicité, la santé ou la finance dans votre secteur.",
     "ob.q.brand_rules.label": "Y a-t-il des règles de marque à suivre ?",
     "ob.q.brand_rules.why": "Mots, couleurs ou promesses à toujours utiliser ou éviter.",
     "ob.q.geography.label": "Y a-t-il des zones que vous ne pouvez pas ou ne voulez pas servir ?",
@@ -653,7 +725,8 @@ export const ob = defineArea("ob", {
     "ob.o.challenges.retention": "Les clients ne reviennent pas",
     "ob.o.challenges.order_value": "Les commandes sont trop petites",
     "ob.o.challenges.awareness": "Trop peu de gens nous connaissent",
-    "ob.o.challenges.inefficient_marketing": "Le marketing demande des efforts pour peu de résultats",
+    "ob.o.challenges.inefficient_marketing":
+      "Le marketing demande des efforts pour peu de résultats",
     "ob.o.challenges.sales_capacity": "Pas assez de temps pour vendre",
     "ob.o.challenges.acquisition_cost": "Les nouveaux clients coûtent trop cher",
     "ob.o.challenges.operations": "Le travail quotidien gêne",
@@ -701,7 +774,8 @@ export const ob = defineArea("ob", {
     "ob.o.approvals.team_small": "L'équipe peut approuver les petites choses",
     "ob.o.approvals.formal": "Nous avons une procédure d'approbation formelle",
     "ob.sum.title": "Ce qu'AI Growth Engine comprend de votre entreprise",
-    "ob.sum.intro": "Tout ce qui suit provient de ce que vous avez confirmé ou de ce qui a été trouvé. Vérifiez : ce qui est faux peut être corrigé tout de suite.",
+    "ob.sum.intro":
+      "Tout ce qui suit provient de ce que vous avez confirmé ou de ce qui a été trouvé. Vérifiez : ce qui est faux peut être corrigé tout de suite.",
     "ob.sum.topic.does": "Ce que fait l'entreprise",
     "ob.sum.topic.sells": "Ce qu'elle vend",
     "ob.sum.topic.customers": "Qui sont les clients",

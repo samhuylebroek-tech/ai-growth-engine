@@ -24,7 +24,8 @@ export const pg = defineArea("pg", {
     "pg.act.openSource": "Open source",
     "pg.act.noMatch": "No matching work",
     "pg.act.none": "No recorded activity yet",
-    "pg.act.noMatchText": "No loaded activity matches these filters. Older records may be available below.",
+    "pg.act.noMatchText":
+      "No loaded activity matches these filters. Older records may be available below.",
     "pg.act.noneText": "No AI assignments, documents or decisions are recorded in this workspace.",
     "pg.loading": "Loading…",
     "pg.act.older": "Load older activity",
@@ -49,7 +50,8 @@ export const pg = defineArea("pg", {
     "pg.not.open": "Open {t}",
     "pg.not.upToDate": "You're up to date.",
     "pg.not.noMatch": "No matching notifications.",
-    "pg.not.footer": "Read state is saved on this device. Email and push delivery are not configured.",
+    "pg.not.footer":
+      "Read state is saved on this device. Email and push delivery are not configured.",
     "pg.doc.title": "Documents",
     "pg.doc.intro": "Private source files for this workspace.",
     "pg.doc.working": "Working…",
@@ -66,7 +68,8 @@ export const pg = defineArea("pg", {
     "pg.doc.extract": "Extract facts",
     "pg.doc.delete": "Delete",
     "pg.doc.emptyTitle": "Bring your business knowledge together",
-    "pg.doc.emptyText": "Business plans, pricing and brand guides become source-backed claims for you to review.",
+    "pg.doc.emptyText":
+      "Business plans, pricing and brand guides become source-backed claims for you to review.",
     "pg.doc.first": "Upload your first document",
     "pg.doc.planLimit": "Your plan allows {n} documents. Upgrade for more.",
     "pg.doc.uploadFailed": "Upload failed: {n}",
@@ -86,23 +89,28 @@ export const pg = defineArea("pg", {
     "pg.mod.strategy.t": "Strategy & growth",
     "pg.mod.strategy.x": "Business understanding, opportunities and an evidence-aware action plan.",
     "pg.mod.strategy.a": "Open growth intelligence",
-    "pg.mod.strategy.n": "Goals, budgets, growth strategies, growth plans and improvement proposals with evidence labels are available.",
+    "pg.mod.strategy.n":
+      "Goals, budgets, growth strategies, growth plans and improvement proposals with evidence labels are available.",
     "pg.mod.marketing.t": "Marketing",
     "pg.mod.marketing.x": "Strategy, content, social, advertising and lifecycle communication.",
     "pg.mod.marketing.a": "Open Content Studio",
-    "pg.mod.marketing.n": "Campaign planning and content drafting, review and versioned approval are available. Publishing, scheduling and sending to external platforms are not configured.",
+    "pg.mod.marketing.n":
+      "Campaign planning and content drafting, review and versioned approval are available. Publishing, scheduling and sending to external platforms are not configured.",
     "pg.mod.sales.t": "Sales & customers",
     "pg.mod.sales.x": "Acquisition, customer understanding and sales priorities.",
     "pg.mod.sales.a": "Open sales pipeline",
-    "pg.mod.sales.n": "Contacts and deals you enter are tracked by stage. A read-only HubSpot import is available once connected; nothing is written to your CRM.",
+    "pg.mod.sales.n":
+      "Contacts and deals you enter are tracked by stage. A read-only HubSpot import is available once connected; nothing is written to your CRM.",
     "pg.mod.website.t": "Website & conversion",
     "pg.mod.website.x": "Research your public website and confirm business findings.",
     "pg.mod.website.a": "Open SEO check",
-    "pg.mod.website.n": "Public website discovery and a technical SEO check of public pages are available. Rankings and traffic need a connected Search Console or Analytics account.",
+    "pg.mod.website.n":
+      "Public website discovery and a technical SEO check of public pages are available. Rankings and traffic need a connected Search Console or Analytics account.",
     "pg.mod.analytics.t": "Analytics & results",
     "pg.mod.analytics.x": "Recorded AI work, credit usage and business measurement.",
     "pg.mod.analytics.a": "Open business performance",
-    "pg.mod.analytics.n": "Recorded revenue, attribution, metrics, experiments and costs are available, each labelled with its source. Scheduled reports are not configured.",
+    "pg.mod.analytics.n":
+      "Recorded revenue, attribution, metrics, experiments and costs are available, each labelled with its source. Scheduled reports are not configured.",
   },
   nl: {
     "pg.act.title": "Activiteit & resultaten",
@@ -126,8 +134,10 @@ export const pg = defineArea("pg", {
     "pg.act.openSource": "Bron openen",
     "pg.act.noMatch": "Geen overeenkomend werk",
     "pg.act.none": "Nog geen vastgelegde activiteit",
-    "pg.act.noMatchText": "Geen geladen activiteit past bij deze filters. Oudere records staan mogelijk hieronder.",
-    "pg.act.noneText": "Er zijn nog geen AI-opdrachten, documenten of beslissingen vastgelegd in deze werkruimte.",
+    "pg.act.noMatchText":
+      "Geen geladen activiteit past bij deze filters. Oudere records staan mogelijk hieronder.",
+    "pg.act.noneText":
+      "Er zijn nog geen AI-opdrachten, documenten of beslissingen vastgelegd in deze werkruimte.",
     "pg.loading": "Laden…",
     "pg.act.older": "Oudere activiteit laden",
     "pg.act.audit": "Auditlog van de organisatie",
@@ -151,7 +161,8 @@ export const pg = defineArea("pg", {
     "pg.not.open": "{t} openen",
     "pg.not.upToDate": "Je bent helemaal bij.",
     "pg.not.noMatch": "Geen overeenkomende meldingen.",
-    "pg.not.footer": "Wat je gelezen hebt, wordt op dit toestel bewaard. Meldingen via e-mail en push zijn niet ingesteld.",
+    "pg.not.footer":
+      "Wat je gelezen hebt, wordt op dit toestel bewaard. Meldingen via e-mail en push zijn niet ingesteld.",
     "pg.doc.title": "Documenten",
     "pg.doc.intro": "Privébronbestanden voor deze werkruimte.",
     "pg.doc.working": "Bezig…",
@@ -168,7 +179,8 @@ export const pg = defineArea("pg", {
     "pg.doc.extract": "Feiten halen",
     "pg.doc.delete": "Verwijderen",
     "pg.doc.emptyTitle": "Breng je bedrijfskennis samen",
-    "pg.doc.emptyText": "Ondernemingsplannen, prijzen en merkrichtlijnen worden onderbouwde uitspraken die jij beoordeelt.",
+    "pg.doc.emptyText":
+      "Ondernemingsplannen, prijzen en merkrichtlijnen worden onderbouwde uitspraken die jij beoordeelt.",
     "pg.doc.first": "Upload je eerste document",
     "pg.doc.planLimit": "Je abonnement laat {n} documenten toe. Upgrade voor meer.",
     "pg.doc.uploadFailed": "Upload mislukt: {n}",
@@ -178,7 +190,8 @@ export const pg = defineArea("pg", {
     "pg.doc.downloadFailed": "Het document kon niet worden gedownload.",
     "pg.doc.confirmDelete": "{n} verwijderen?",
     "pg.doc.notAllowed": "Niet toegestaan",
-    "pg.doc.cleanup": "Document uit de lijst verwijderd; het opgeslagen bestand kon niet volledig worden opgeruimd.",
+    "pg.doc.cleanup":
+      "Document uit de lijst verwijderd; het opgeslagen bestand kon niet volledig worden opgeruimd.",
     "pg.mod.title": "Groeidomeinen",
     "pg.mod.intro": "Je bedrijfsprioriteiten, samengebracht.",
     "pg.mod.search": "Groeidomeinen doorzoeken",
@@ -188,23 +201,29 @@ export const pg = defineArea("pg", {
     "pg.mod.strategy.t": "Strategie & groei",
     "pg.mod.strategy.x": "Inzicht in je bedrijf, kansen en een actieplan dat bewijs respecteert.",
     "pg.mod.strategy.a": "Groei-inzicht openen",
-    "pg.mod.strategy.n": "Doelen, budgetten, groeistrategieën, groeiplannen en verbetervoorstellen met bewijslabels zijn beschikbaar.",
+    "pg.mod.strategy.n":
+      "Doelen, budgetten, groeistrategieën, groeiplannen en verbetervoorstellen met bewijslabels zijn beschikbaar.",
     "pg.mod.marketing.t": "Marketing",
-    "pg.mod.marketing.x": "Strategie, content, sociale media, advertenties en communicatie doorheen de klantlevenscyclus.",
+    "pg.mod.marketing.x":
+      "Strategie, content, sociale media, advertenties en communicatie doorheen de klantlevenscyclus.",
     "pg.mod.marketing.a": "Contentstudio openen",
-    "pg.mod.marketing.n": "Campagneplanning en het schrijven, beoordelen en per versie goedkeuren van content zijn beschikbaar. Publiceren, plannen en versturen naar externe platformen zijn niet ingesteld.",
+    "pg.mod.marketing.n":
+      "Campagneplanning en het schrijven, beoordelen en per versie goedkeuren van content zijn beschikbaar. Publiceren, plannen en versturen naar externe platformen zijn niet ingesteld.",
     "pg.mod.sales.t": "Verkoop & klanten",
     "pg.mod.sales.x": "Klantenwerving, klantinzicht en verkoopprioriteiten.",
     "pg.mod.sales.a": "Verkooppijplijn openen",
-    "pg.mod.sales.n": "Contacten en deals die je invoert, worden per fase gevolgd. Een alleen-lezen HubSpot-import is beschikbaar zodra die gekoppeld is; er wordt niets naar je CRM geschreven.",
+    "pg.mod.sales.n":
+      "Contacten en deals die je invoert, worden per fase gevolgd. Een alleen-lezen HubSpot-import is beschikbaar zodra die gekoppeld is; er wordt niets naar je CRM geschreven.",
     "pg.mod.website.t": "Website & conversie",
     "pg.mod.website.x": "Onderzoek je publieke website en bevestig bevindingen over je bedrijf.",
     "pg.mod.website.a": "SEO-controle openen",
-    "pg.mod.website.n": "Websiteonderzoek en een technische SEO-controle van publieke pagina's zijn beschikbaar. Posities en verkeer vragen een gekoppeld Search Console- of Analytics-account.",
+    "pg.mod.website.n":
+      "Websiteonderzoek en een technische SEO-controle van publieke pagina's zijn beschikbaar. Posities en verkeer vragen een gekoppeld Search Console- of Analytics-account.",
     "pg.mod.analytics.t": "Analyse & resultaten",
     "pg.mod.analytics.x": "Vastgelegd AI-werk, creditgebruik en bedrijfsmetingen.",
     "pg.mod.analytics.a": "Bedrijfsprestaties openen",
-    "pg.mod.analytics.n": "Vastgelegde omzet, attributie, metingen, experimenten en kosten zijn beschikbaar, elk met hun bron. Geplande rapporten zijn niet ingesteld.",
+    "pg.mod.analytics.n":
+      "Vastgelegde omzet, attributie, metingen, experimenten en kosten zijn beschikbaar, elk met hun bron. Geplande rapporten zijn niet ingesteld.",
   },
   fr: {
     "pg.act.title": "Activité et résultats",
@@ -228,8 +247,10 @@ export const pg = defineArea("pg", {
     "pg.act.openSource": "Ouvrir la source",
     "pg.act.noMatch": "Aucun travail correspondant",
     "pg.act.none": "Aucune activité enregistrée",
-    "pg.act.noMatchText": "Aucune activité chargée ne correspond à ces filtres. Des enregistrements plus anciens sont peut-être disponibles plus bas.",
-    "pg.act.noneText": "Aucune mission IA, aucun document ni aucune décision n'est enregistré dans cet espace.",
+    "pg.act.noMatchText":
+      "Aucune activité chargée ne correspond à ces filtres. Des enregistrements plus anciens sont peut-être disponibles plus bas.",
+    "pg.act.noneText":
+      "Aucune mission IA, aucun document ni aucune décision n'est enregistré dans cet espace.",
     "pg.loading": "Chargement…",
     "pg.act.older": "Charger l'activité plus ancienne",
     "pg.act.audit": "Journal d'audit de l'organisation",
@@ -253,7 +274,8 @@ export const pg = defineArea("pg", {
     "pg.not.open": "Ouvrir {t}",
     "pg.not.upToDate": "Vous êtes à jour.",
     "pg.not.noMatch": "Aucune notification correspondante.",
-    "pg.not.footer": "L'état lu est enregistré sur cet appareil. L'envoi par e-mail et push n'est pas configuré.",
+    "pg.not.footer":
+      "L'état lu est enregistré sur cet appareil. L'envoi par e-mail et push n'est pas configuré.",
     "pg.doc.title": "Documents",
     "pg.doc.intro": "Fichiers sources privés de cet espace.",
     "pg.doc.working": "En cours…",
@@ -270,17 +292,21 @@ export const pg = defineArea("pg", {
     "pg.doc.extract": "Extraire des faits",
     "pg.doc.delete": "Supprimer",
     "pg.doc.emptyTitle": "Rassemblez les connaissances de votre entreprise",
-    "pg.doc.emptyText": "Plans d'affaires, tarifs et chartes de marque deviennent des affirmations sourcées que vous examinez.",
+    "pg.doc.emptyText":
+      "Plans d'affaires, tarifs et chartes de marque deviennent des affirmations sourcées que vous examinez.",
     "pg.doc.first": "Importez votre premier document",
-    "pg.doc.planLimit": "Votre offre permet {n} documents. Passez à l'offre supérieure pour en ajouter.",
+    "pg.doc.planLimit":
+      "Votre offre permet {n} documents. Passez à l'offre supérieure pour en ajouter.",
     "pg.doc.uploadFailed": "Échec de l'import : {n}",
     "pg.doc.saveFailed": "Le document n'a pas pu être enregistré",
-    "pg.doc.extracted": "{f} faits extraits ({c} crédits). Examinez-les dans le profil de l'entreprise.",
+    "pg.doc.extracted":
+      "{f} faits extraits ({c} crédits). Examinez-les dans le profil de l'entreprise.",
     "pg.doc.extractFailed": "La lecture du document n'a pas pu aboutir.",
     "pg.doc.downloadFailed": "Le document n'a pas pu être téléchargé.",
     "pg.doc.confirmDelete": "Supprimer {n} ?",
     "pg.doc.notAllowed": "Non autorisé",
-    "pg.doc.cleanup": "Document retiré de la liste ; le nettoyage du fichier stocké n'a pas pu aboutir.",
+    "pg.doc.cleanup":
+      "Document retiré de la liste ; le nettoyage du fichier stocké n'a pas pu aboutir.",
     "pg.mod.title": "Domaines de croissance",
     "pg.mod.intro": "Les priorités de votre entreprise, réunies.",
     "pg.mod.search": "Rechercher des domaines",
@@ -288,24 +314,31 @@ export const pg = defineArea("pg", {
     "pg.mod.none": "Aucun domaine ne correspond à votre recherche.",
     "pg.mod.start": "Commencer avec le Growth Officer",
     "pg.mod.strategy.t": "Stratégie et croissance",
-    "pg.mod.strategy.x": "Compréhension de l'entreprise, opportunités et plan d'action fondé sur des preuves.",
+    "pg.mod.strategy.x":
+      "Compréhension de l'entreprise, opportunités et plan d'action fondé sur des preuves.",
     "pg.mod.strategy.a": "Ouvrir l'intelligence de croissance",
-    "pg.mod.strategy.n": "Objectifs, budgets, stratégies, plans de croissance et propositions d'amélioration avec étiquettes de preuve sont disponibles.",
+    "pg.mod.strategy.n":
+      "Objectifs, budgets, stratégies, plans de croissance et propositions d'amélioration avec étiquettes de preuve sont disponibles.",
     "pg.mod.marketing.t": "Marketing",
-    "pg.mod.marketing.x": "Stratégie, contenu, réseaux sociaux, publicité et communication tout au long du cycle client.",
+    "pg.mod.marketing.x":
+      "Stratégie, contenu, réseaux sociaux, publicité et communication tout au long du cycle client.",
     "pg.mod.marketing.a": "Ouvrir le studio de contenu",
-    "pg.mod.marketing.n": "La planification des campagnes et la rédaction, l'examen et l'approbation par version du contenu sont disponibles. La publication, la programmation et l'envoi vers des plateformes externes ne sont pas configurés.",
+    "pg.mod.marketing.n":
+      "La planification des campagnes et la rédaction, l'examen et l'approbation par version du contenu sont disponibles. La publication, la programmation et l'envoi vers des plateformes externes ne sont pas configurés.",
     "pg.mod.sales.t": "Ventes et clients",
     "pg.mod.sales.x": "Acquisition, compréhension des clients et priorités commerciales.",
     "pg.mod.sales.a": "Ouvrir le pipeline commercial",
-    "pg.mod.sales.n": "Les contacts et affaires que vous saisissez sont suivis par étape. Un import HubSpot en lecture seule est disponible une fois connecté ; rien n'est écrit dans votre CRM.",
+    "pg.mod.sales.n":
+      "Les contacts et affaires que vous saisissez sont suivis par étape. Un import HubSpot en lecture seule est disponible une fois connecté ; rien n'est écrit dans votre CRM.",
     "pg.mod.website.t": "Site web et conversion",
     "pg.mod.website.x": "Étudiez votre site public et confirmez les constats sur votre entreprise.",
     "pg.mod.website.a": "Ouvrir le contrôle SEO",
-    "pg.mod.website.n": "L'étude du site public et un contrôle SEO technique des pages publiques sont disponibles. Les positions et le trafic nécessitent un compte Search Console ou Analytics connecté.",
+    "pg.mod.website.n":
+      "L'étude du site public et un contrôle SEO technique des pages publiques sont disponibles. Les positions et le trafic nécessitent un compte Search Console ou Analytics connecté.",
     "pg.mod.analytics.t": "Analyse et résultats",
     "pg.mod.analytics.x": "Travail IA enregistré, consommation de crédits et mesure de l'activité.",
     "pg.mod.analytics.a": "Ouvrir la performance de l'entreprise",
-    "pg.mod.analytics.n": "Chiffre d'affaires enregistré, attribution, indicateurs, expériences et coûts sont disponibles, chacun avec sa source. Les rapports programmés ne sont pas configurés.",
+    "pg.mod.analytics.n":
+      "Chiffre d'affaires enregistré, attribution, indicateurs, expériences et coûts sont disponibles, chacun avec sa source. Les rapports programmés ne sont pas configurés.",
   },
 });
