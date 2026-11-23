@@ -1,10 +1,20 @@
 # AI Growth OS — Task Queue
+## Round 3 — continuous master development (2026-11-23, staging only)
+- [x] E Connected growth journey: 12 steps from onboarding to "what happens next", per role, unknown when a read fails, contradictions counted; compact on Home, full under the business summary (EN/NL/FR, tested, browser-checked).
+- [x] A Evidence per AI statement: each label opens the cited records (looked up under the viewer's access), what the answer itself says about source/formula/period, and a plain support verdict; no invented confidence. Real staging conversation: 5 credits = usage event = ledger.
+- [x] B Same labels on every report figure (business, economics, initiative, strategy, learning) with source, formula and period; estimated gross profit labelled estimate.
+- [x] C Organization Growth Officer: same labels for objectives, priorities, recommendations, risks, KPIs, gaps and opportunity evidence; facts need a cited business record; business vs organization level shown. Real staging run: 12 reserved, 4 refunded, 8 charged = usage event.
+- [ ] D Visual consistency pass across modules.
+- [ ] F Growth Officer intelligence improvements.
+- [ ] G Five persona journeys re-run on the new screens.
+- [ ] H Security revalidation after this round (no schema changes this round).
+- [ ] J GitHub sync: commits are pushed by the platform after the turn; verify next round.
 ## Round 2 — onboarding, trustworthy answers, journeys (2026-11-22, staging only)
 - [x] Verify branch, HEAD, clean tree, staging project and ledger before work (HEAD 0f9fc65, ledger 57, proposals to 0090).
 - [x] A Onboarding: customers, sales process, challenges, resources, ambitions, time horizon, constraints; short skippable steps, saved progress, editable, EN/NL/FR, mobile; reuse existing facts/knowledge (no second store).
 - [x] A Business understanding summary after onboarding (confirmed vs assumption, missing), editable; connect to Growth Officer, knowledge, goals, next step.
 - [x] B Growth Officer + specialist/team answers: claim-level labels (EN/NL/FR), fact worded uncertain → hypothesis, legend.
-- [ ] B Evidence drill-down per labelled statement; same labels in reports and organization officer.
+- [x] B Evidence drill-down per labelled statement; same labels in reports and organization officer (round 3).
 - [x] B Five controlled staging Growth Officer scenarios; 27 credits = usage events = ledger.
 - [x] C Persona journeys (page walkthroughs A–E + member/viewer; fixes: read-only onboarding overview for non-editors, economics main title) A–E (simulated), roles, languages, devices.
 - [x] D First-growth journey after onboarding: summary → fill gaps → growth situation → prepared Growth Officer question → goal (per role, tested).
