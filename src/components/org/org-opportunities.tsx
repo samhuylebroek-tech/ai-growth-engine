@@ -12,7 +12,9 @@ import type { OppDraft } from "@/lib/org/opportunities";
 import { Section, Badge, sel } from "@/components/bi/parts";
 import { Panel, StatusChip } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
-import { tk, useRefNamer, useNames, useKnown, EvidenceBadge, Empty, type OrgModel } from "@/components/org/org-model";
+import { tk, useRefNamer, useNames, useKnown, Empty, type OrgModel } from "@/components/org/org-model";
+import { EvidenceLabel, EvidenceScopeProvider } from "@/components/ai/evidence";
+import { orgClaim } from "@/lib/org/claims";
 import { INITIATIVE_DRAFT_KEY, type InitiativeDraft } from "@/components/org/org-strategy";
 
 type Ev = { text: string; class: string };
@@ -80,15 +82,18 @@ function Details({ origin, evidence, impact, cost, deps, risks, next }: { origin
   const { t } = useI18n();
   // Rule evidence is read from records; AI "verified" claims count as unverified assumptions (proposal 0073).
   const quality = evidenceQuality(evidence.map((e) => fromClassified(e.class, origin)));
-  return <dl className="mt-3 space-y-1.5 text-xs">
+  const o = useOrg();
+  // Cited business records are looked up across every business of the organization the viewer may open.
+  const body = <dl className="mt-3 space-y-1.5 text-xs">
     <div><QualityBadge q={quality} showReasons /></div>
-    <div><dt className="font-medium">{t("ogo.opp.evidence")}</dt><dd><ul className="mt-0.5 space-y-0.5">{evidence.map((e, i) => <li key={i} className="flex flex-wrap items-start gap-1.5"><EvidenceBadge cls={e.class} /><span>{e.text}</span></li>)}</ul></dd></div>
+    <div><dt className="font-medium">{t("ogo.opp.evidence")}</dt><dd><ul className="mt-0.5 space-y-0.5">{evidence.map((e, i) => { const c = orgClaim(e.class, origin, e.text); return <li key={i}><EvidenceLabel kind={c.kind} downgraded={c.downgraded} text={e.text} /><span>{e.text}</span></li>; })}</ul></dd></div>
     {impact && <div><dt className="inline font-medium">{t("ogo.opp.impact")}: </dt><dd className="inline">{impact}</dd></div>}
     {cost && <div><dt className="inline font-medium">{t("ogo.opp.cost")}: </dt><dd className="inline">{cost}</dd></div>}
     {deps && <div><dt className="inline font-medium">{t("ogo.opp.deps")}: </dt><dd className="inline">{deps}</dd></div>}
     {risks && <div><dt className="inline font-medium">{t("ogo.opp.risks")}: </dt><dd className="inline">{risks}</dd></div>}
     {next && <div><dt className="inline font-medium">{t("ogo.opp.next")}: </dt><dd className="inline">{next}</dd></div>}
   </dl>;
+  return o.org ? <EvidenceScopeProvider value={{ orgId: o.org.id, workspaceId: null }}>{body}</EvidenceScopeProvider> : body;
 }
 
 const MOVES: Record<string, ("validating" | "validated" | "dismissed" | "hypothesis")[]> = {

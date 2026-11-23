@@ -164,6 +164,7 @@ export function fromClassified(
     verified: "verified_fact",
     recorded: "measured_observation",
     measured: "measured_observation",
+    calculated: "measured_observation",
     estimate: "estimate",
     assumption: "assumption",
     hypothesis: "hypothesis",

@@ -16,7 +16,9 @@ import { Section, sel, useFmt } from "@/components/bi/parts";
 import { Panel, StatusChip } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { tk, useRefNamer, newKey, useNames, EvidenceBadge, Empty, type OrgModel } from "@/components/org/org-model";
+import { tk, useRefNamer, newKey, useNames, Empty, type OrgModel } from "@/components/org/org-model";
+import { EvidenceLabel, EvidenceScopeProvider } from "@/components/ai/evidence";
+import { claimScope, orgClaim, SECTION_KIND } from "@/lib/org/claims";
 
 export const INITIATIVE_DRAFT_KEY = (org: string) => `ogo-initiative-draft:${org}`;
 export type InitiativeDraft = { title: string; shared: string; businesses: string[]; objectives: Record<string, string>; opportunityId?: string; strategyId?: string };
@@ -141,7 +143,7 @@ function StrategyCard({ s }: { s: OrgStrategyRow }) {
     sessionStorage.setItem(INITIATIVE_DRAFT_KEY(o.org.id), JSON.stringify(draft));
     void navigate({ to: "/app/organization", search: { tab: "initiatives" } });
   }
-  return <Panel>
+  return <EvidenceScopeProvider value={{ orgId: s.org_id, workspaceId: null, asOf: s.created_at }}><Panel>
     <div className="flex flex-wrap items-start justify-between gap-2">
       <div className="min-w-0"><p className="text-xs text-muted-foreground">{t("ogo.strat.meta", { v: String(s.version), date: f.date(s.created_at), months: String(s.horizon_months), n: String(s.business_ids.length) })}</p>
         <p className="mt-1 font-medium">{named(s.title)}</p></div>
@@ -153,16 +155,16 @@ function StrategyCard({ s }: { s: OrgStrategyRow }) {
     {unstructured && <p className="mt-2 text-xs text-warning">{t("ogo.strat.unstructured")}</p>}
     {b && !unstructured && <Button size="sm" variant="ghost" className="mt-2 px-0" onClick={() => setOpenBody((x) => !x)}>{openBody ? t("ogo.strat.hide") : t("ogo.strat.show")}</Button>}
     {b && !unstructured && openBody && <div className="mt-2 grid gap-4 text-sm md:grid-cols-2">
-      {b.objectives.length > 0 && <Block title={t("ogo.strat.objectives")}>{b.objectives.map((x, i) => <li key={i}>{x.objective}{x.kpi && <span className="text-muted-foreground"> · {x.kpi}{x.target ? ` → ${x.target}` : ""}</span>} <EvidenceBadge cls={x.basis} /></li>)}</Block>}
-      {b.business_priorities.length > 0 && <Block title={t("ogo.strat.priorities")}>{[...b.business_priorities].sort((x, y) => x.priority - y.priority).map((x, i) => <li key={i}><span className="font-medium">{name(x.business_id)}</span> ({t(tk(`ogo.prio.${x.priority}`))}): {x.focus}{x.rationale && <span className="block text-xs text-muted-foreground">{x.rationale}</span>}</li>)}</Block>}
-      {b.collaboration.length > 0 && <Block title={t("ogo.strat.collaboration")}>{b.collaboration.map((x, i) => <li key={i}>{x}</li>)}</Block>}
-      {b.resource_recommendations.length > 0 && <Block title={t("ogo.strat.resources")}>{b.resource_recommendations.map((x, i) => <li key={i}><span className="text-xs text-muted-foreground">{t(tk(`ogo.resType.${x.type}`))} · {x.businesses.map(name).join(" · ")}</span><br />{x.recommendation}{x.reason && <span className="block text-xs text-muted-foreground">{x.reason}</span>}</li>)}</Block>}
-      {b.specialist_needs.length > 0 && <Block title={t("ogo.strat.specialists")}>{b.specialist_needs.map((x, i) => <li key={i}><span className="font-medium">{x.specialist}</span> · {x.businesses.map(name).join(" · ")}{x.reason && <span className="block text-xs text-muted-foreground">{x.reason}</span>}</li>)}</Block>}
-      {b.initiatives.length > 0 && <Block title={t("ogo.strat.initiatives")}>{b.initiatives.map((x, i) => <li key={i}><span className="font-medium">{x.title}</span> · {x.businesses.map(name).join(" · ")}<span className="block text-xs text-muted-foreground">{x.shared_objective}</span>
+      {b.objectives.length > 0 && <Block title={t("ogo.strat.objectives")}>{b.objectives.map((x, i) => { const c = orgClaim(x.basis, "ai", `${x.objective} ${x.kpi} ${x.target}`); return <li key={i}><EvidenceLabel kind={c.kind} downgraded={c.downgraded} text={`${x.objective} (${x.kpi}${x.target ? ` → ${x.target}` : ""})`} />{x.objective}{x.kpi && <span className="text-muted-foreground"> · {x.kpi}{x.target ? ` → ${x.target}` : ""}</span>} <Scope ids={[]} /></li>; })}</Block>}
+      {b.business_priorities.length > 0 && <Block title={t("ogo.strat.priorities")}>{[...b.business_priorities].sort((x, y) => x.priority - y.priority).map((x, i) => <li key={i}><EvidenceLabel kind={SECTION_KIND.priorities} text={`${x.focus} ${x.rationale}`} /><span className="font-medium">{name(x.business_id)}</span> ({t(tk(`ogo.prio.${x.priority}`))}): {x.focus} <Scope ids={[x.business_id]} />{x.rationale && <span className="block text-xs text-muted-foreground">{x.rationale}</span>}</li>)}</Block>}
+      {b.collaboration.length > 0 && <Block title={t("ogo.strat.collaboration")}>{b.collaboration.map((x, i) => <li key={i}><EvidenceLabel kind={SECTION_KIND.collaboration} text={x} />{x}</li>)}</Block>}
+      {b.resource_recommendations.length > 0 && <Block title={t("ogo.strat.resources")}>{b.resource_recommendations.map((x, i) => <li key={i}><EvidenceLabel kind={SECTION_KIND.resources} text={`${x.recommendation} ${x.reason}`} /><Scope ids={x.businesses} /> <span className="text-xs text-muted-foreground">{t(tk(`ogo.resType.${x.type}`))} · {x.businesses.map(name).join(" · ")}</span><br />{x.recommendation}{x.reason && <span className="block text-xs text-muted-foreground">{x.reason}</span>}</li>)}</Block>}
+      {b.specialist_needs.length > 0 && <Block title={t("ogo.strat.specialists")}>{b.specialist_needs.map((x, i) => <li key={i}><EvidenceLabel kind={SECTION_KIND.specialists} text={x.reason} /><span className="font-medium">{x.specialist}</span> · {x.businesses.map(name).join(" · ")}{x.reason && <span className="block text-xs text-muted-foreground">{x.reason}</span>}</li>)}</Block>}
+      {b.initiatives.length > 0 && <Block title={t("ogo.strat.initiatives")}>{b.initiatives.map((x, i) => <li key={i}><EvidenceLabel kind={SECTION_KIND.initiatives} text={`${x.title}: ${x.shared_objective}`} /><span className="font-medium">{x.title}</span> · {x.businesses.map(name).join(" · ")}<span className="block text-xs text-muted-foreground">{x.shared_objective}</span>
         {can(o.role, "org.coordinate") && x.businesses.every((id) => o.workspaces.some((w) => w.id === id)) && <Button size="sm" variant="link" className="h-auto px-0 text-xs" onClick={() => prepare(x)}>{t("ogo.strat.prepare")}</Button>}</li>)}</Block>}
-      {b.risks.length > 0 && <Block title={t("ogo.strat.risks")}>{b.risks.map((x, i) => <li key={i}>{x.risk}{x.businesses.length > 0 && <span className="text-xs text-muted-foreground"> · {x.businesses.map(name).join(" · ")}</span>}{x.mitigation && <span className="block text-xs text-muted-foreground">{t("ogo.strat.mitigation", { m: x.mitigation })}</span>}</li>)}</Block>}
-      {b.kpis.length > 0 && <Block title={t("ogo.strat.kpis")}>{b.kpis.map((x, i) => <li key={i}>{x.name}{x.target && ` → ${x.target}`}{x.business_id && <span className="text-xs text-muted-foreground"> · {name(x.business_id)}</span>}</li>)}</Block>}
-      {b.data_gaps.length > 0 && <Block title={t("ogo.strat.gaps")}>{b.data_gaps.map((x, i) => <li key={i}><EvidenceBadge cls="missing" /> {x}</li>)}</Block>}
+      {b.risks.length > 0 && <Block title={t("ogo.strat.risks")}>{b.risks.map((x, i) => <li key={i}><EvidenceLabel kind={SECTION_KIND.risks} text={`${x.risk} ${x.mitigation}`} />{x.risk}{x.businesses.length > 0 && <span className="text-xs text-muted-foreground"> · {x.businesses.map(name).join(" · ")}</span>}{x.mitigation && <span className="block text-xs text-muted-foreground">{t("ogo.strat.mitigation", { m: x.mitigation })}</span>}</li>)}</Block>}
+      {b.kpis.length > 0 && <Block title={t("ogo.strat.kpis")}>{b.kpis.map((x, i) => <li key={i}><EvidenceLabel kind={SECTION_KIND.kpis} text={`${x.name} → ${x.target}`} />{x.name}{x.target && ` → ${x.target}`}{x.business_id && <span className="text-xs text-muted-foreground"> · {name(x.business_id)}</span>} <Scope ids={[x.business_id]} /></li>)}</Block>}
+      {b.data_gaps.length > 0 && <Block title={t("ogo.strat.gaps")}>{b.data_gaps.map((x, i) => <li key={i}><EvidenceLabel kind={SECTION_KIND.gaps} text={x} />{x}</li>)}</Block>}
     </div>}
     {s.decided_at && <p className="mt-3 text-xs text-muted-foreground">{t("ogo.strat.decidedOn", { date: f.date(s.decided_at) })}{s.decision_note && ` · ${s.decision_note}`}</p>}
     {admin && (s.status === "draft" || s.status === "approved") && <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
@@ -171,8 +173,14 @@ function StrategyCard({ s }: { s: OrgStrategyRow }) {
       {s.status === "approved" && <Button size="sm" variant="outline" onClick={() => decide("retire")} disabled={busy}>{t("ogo.strat.retire")}</Button>}
       <p className="w-full text-[11px] text-muted-foreground">{t("ogo.strat.approveNote")}</p>
     </div>}
-  </Panel>;
+  </Panel></EvidenceScopeProvider>;
 }
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return <div className="min-w-0"><p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">{title}</p><ul className="space-y-1.5">{children}</ul></div>;
+}
+
+/** Business-level or organization-level, so business facts never read as organization results. */
+function Scope({ ids }: { ids: readonly (string | null | undefined)[] }) {
+  const { t } = useI18n();
+  return <span className="whitespace-nowrap rounded border border-border px-1 py-px text-[10px] text-muted-foreground">{t(claimScope(ids) === "business" ? "evd.scope.business" : "evd.scope.organization")}</span>;
 }

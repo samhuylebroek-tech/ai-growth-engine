@@ -80,7 +80,7 @@ export function useKnown() {
   return (k: string, fallback: string, params?: Record<string, string>) => (k in MESSAGES.en ? t(tk(k), params) : fallback);
 }
 
-const EV_TONE: Record<string, string> = { verified: "actual", recorded: "manual", estimate: "estimated", assumption: "planned", missing: "low" };
+const EV_TONE: Record<string, string> = { verified: "actual", recorded: "manual", calculated: "manual", estimate: "estimated", assumption: "planned", missing: "low" };
 export function EvidenceBadge({ cls }: { cls: string }) {
   const { t } = useI18n();
   return <Badge kind={EV_TONE[cls] ?? "none"}>{t(tk(`ogo.cls.${cls}`))}</Badge>;
