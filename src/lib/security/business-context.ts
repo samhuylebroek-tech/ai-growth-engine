@@ -136,6 +136,8 @@ async function optional<T>(
 const rowsOf = <T>(read: DomainRead<T>) => (read.status === "ok" ? read.rows : []);
 
 export type Fact = {
+  /** Present when read for the AI context, so a statement can cite the record (see `recordRef`). */
+  id?: string;
   key: string;
   value: string;
   source_type: string;
@@ -519,7 +521,7 @@ export async function readBusinessDomains(
     ),
     strict<Fact>(
       "verified facts",
-      t("business_facts", "key,value,source_type,source_ref,verified,created_at")
+      t("business_facts", "id,key,value,source_type,source_ref,verified,created_at")
         .eq("verified", true)
         .order("created_at", { ascending: false })
         .limit(LIMITS.facts),
@@ -950,6 +952,12 @@ const clip = (value: unknown, max: number) => {
   return text.length > max ? `${text.slice(0, max - 1)}…` : text;
 };
 const day = (iso: string | null | undefined) => (iso ? String(iso).slice(0, 10) : null);
+/** Short record reference the AI may cite in "(source: …)"; resolved on screen by `src/lib/claims.ts` + evidence panel. */
+export const REF_PREFIX = { fact: "F", goal: "G", initiative: "I", campaign: "C", metric: "K" } as const;
+export function recordRef(type: keyof typeof REF_PREFIX, id: string | null | undefined): string {
+  const hex = (id ?? "").toLowerCase().replace(/[^0-9a-f]/g, "").slice(0, 8);
+  return hex.length === 8 ? `#${REF_PREFIX[type]}-${hex} ` : "";
+}
 const ageDays = (iso: string | null | undefined, now: Date) =>
   iso ? Math.floor((now.getTime() - new Date(iso).getTime()) / DAY) : null;
 const money = (value: number, currency: string) => `${currency} ${Math.round(value * 100) / 100}`;
@@ -1076,7 +1084,7 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
       priority: 1,
       lines: [
         "Boundaries stated here (channels not to use, activities not wanted, rules, approvals) are binding: never recommend against them.",
-        ...answers.map((f) => `- ${clip(f.key, 60)}: ${clip(f.value.replace(/\s*\n\s*/g, "; "), 220)}`),
+        ...answers.map((f) => `- ${recordRef("fact", f.id)}${clip(f.key, 60)}: ${clip(f.value.replace(/\s*\n\s*/g, "; "), 220)}`),
       ],
     });
   sections.push({
@@ -1087,7 +1095,7 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
     priority: 1,
     lines: d.facts.filter((f) => f.source_ref !== ANSWER_SOURCE).map(
       (f) =>
-        `- ${clip(f.key, 60)}: ${clip(f.value, 220)} (source: ${f.source_type}${f.created_at ? `, confirmed ${day(f.created_at)}` : ""})`,
+        `- ${recordRef("fact", f.id)}${clip(f.key, 60)}: ${clip(f.value, 220)} (source: ${f.source_type}${f.created_at ? `, confirmed ${day(f.created_at)}` : ""})`,
     ),
   });
 
@@ -1115,7 +1123,7 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
       const overdue = g.due_date && g.due_date < today && g.status === "active" ? " OVERDUE" : "";
       const m = goalMeasurement(g, today);
       const measure = m.measurable ? "" : ` NOT MEASURABLE (missing ${m.missing.filter((k) => k === "metric" || k === "baseline" || k === "target").join(", ")}; never assume a value)`;
-      return `- [${g.priority}/${g.status}]${measure} ${clip(g.title, 100)} — ${clip(g.metric || g.objective, 60)}: baseline ${g.baseline ?? "?"} → target ${g.target ?? "?"}, user-entered current ${g.current_value ?? "not recorded"}; due ${g.due_date ?? "none"}${overdue}${age !== null && age > 60 ? `; not updated for ${age} days (possibly stale)` : ""}`;
+      return `- ${recordRef("goal", g.id)}[${g.priority}/${g.status}]${measure} ${clip(g.title, 100)} — ${clip(g.metric || g.objective, 60)}: baseline ${g.baseline ?? "?"} → target ${g.target ?? "?"}, user-entered current ${g.current_value ?? "not recorded"}; due ${g.due_date ?? "none"}${overdue}${age !== null && age > 60 ? `; not updated for ${age} days (possibly stale)` : ""}`;
     }),
   });
 
@@ -1149,7 +1157,7 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
         ? `work "${clip(project.title, 60)}" (${project.status}), tasks ${done}/${tasks.length} done${overdueTasks ? `, ${overdueTasks} overdue` : ""}`
         : "no linked work";
       planLines.push(
-        `  - [${item.status}] ${clip(item.title, 90)} (${item.channel}${item.target_week ? `, week ${item.target_week}` : ""}) owner ${op?.owner_id ? "assigned" : "UNASSIGNED"}; ${due}; ${metric}; ${work}${op?.blocker_note ? `; BLOCKER: ${clip(op.blocker_note, 140)}` : ""}`,
+        `  - ${recordRef("initiative", item.id)}[${item.status}] ${clip(item.title, 90)} (${item.channel}${item.target_week ? `, week ${item.target_week}` : ""}) owner ${op?.owner_id ? "assigned" : "UNASSIGNED"}; ${due}; ${metric}; ${work}${op?.blocker_note ? `; BLOCKER: ${clip(op.blocker_note, 140)}` : ""}`,
       );
     }
   }
@@ -1352,7 +1360,7 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
   else
     for (const c of d.campaigns.rows)
       performanceLines.push(
-        `- ${clip(c.title, 70)} [${c.status}, ${c.category}] planned budget EUR ${c.budget_eur}${spendNote(d, c)}${c.results ? `; team-noted results: ${clip(c.results, 120)}` : ""}`,
+        `- ${recordRef("campaign", c.id)}${clip(c.title, 70)} [${c.status}, ${c.category}] planned budget EUR ${c.budget_eur}${spendNote(d, c)}${c.results ? `; team-noted results: ${clip(c.results, 120)}` : ""}`,
       );
   const connected =
     d.connections.status === "ok"
@@ -1403,7 +1411,7 @@ export function renderBusinessContext(d: BusinessDomains, now: Date = new Date()
       ]
         .filter(Boolean)
         .join(", ");
-      const head = `- metric ${clip(m.label, 60)} (${unit}, ${m.direction === "decrease" ? "lower is better" : "higher is better"}${links ? `; linked to ${links}` : ""})`;
+      const head = `- ${recordRef("metric", m.id)}metric ${clip(m.label, 60)} (${unit}, ${m.direction === "decrease" ? "lower is better" : "higher is better"}${links ? `; linked to ${links}` : ""})`;
       if (!s.period) {
         metricLines.push(`${head}: no values recorded`);
         continue;
