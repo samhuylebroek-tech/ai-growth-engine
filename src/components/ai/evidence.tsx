@@ -167,7 +167,7 @@ export const CLAIM_TONE: Record<ClaimKind, string> = {
   missing: "border-destructive/30 bg-destructive/10 text-destructive",
 };
 const LABEL =
-  "mr-1 inline-flex items-center whitespace-nowrap rounded-full border px-1.5 py-px align-baseline text-[10px] font-medium not-italic";
+  "mr-1 inline-flex items-center whitespace-nowrap rounded-full border px-1.5 py-px align-baseline text-[10px] font-medium not-italic relative before:absolute before:-inset-y-1.5 before:inset-x-0";
 
 function RecordLink({ r }: { r: EvidenceRecord }) {
   const { t } = useI18n();

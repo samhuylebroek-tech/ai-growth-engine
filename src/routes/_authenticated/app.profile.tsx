@@ -15,6 +15,7 @@ import { can } from "@/lib/permissions";
 import { PageHeader, StatusChip, EmptyState } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Field } from "@/components/app/field";
 import { Textarea } from "@/components/ui/textarea";
 import { FactConflicts } from "@/components/app/fact-conflicts";
 import { BusinessUnderstanding } from "@/components/app/business-understanding";
@@ -286,23 +287,19 @@ function Profile() {
         </select>
       </div>
       {edit && (
-        <form onSubmit={addFact} className="mb-4 flex flex-wrap gap-2">
-          <Input
-            placeholder={t("account.profile.topic")}
-            value={k}
-            onChange={(e) => setK(e.target.value)}
-            required
-            maxLength={120}
-            className="max-w-xs"
-          />
-          <Input
-            placeholder={t("account.profile.fact")}
-            value={v}
-            onChange={(e) => setV(e.target.value)}
-            required
-            maxLength={1000}
-            className="min-w-0 flex-1"
-          />
+        <form onSubmit={addFact} className="mb-4 flex flex-wrap items-end gap-2">
+          <Field label={t("account.profile.topicLabel")} className="w-full sm:max-w-xs">
+            <Input
+              placeholder={t("account.profile.topicPh")}
+              value={k}
+              onChange={(e) => setK(e.target.value)}
+              required
+              maxLength={120}
+            />
+          </Field>
+          <Field label={t("account.profile.fact")} className="min-w-0 flex-1">
+            <Input value={v} onChange={(e) => setV(e.target.value)} required maxLength={1000} />
+          </Field>
           <Button type="submit">{t("account.profile.add")}</Button>
         </form>
       )}

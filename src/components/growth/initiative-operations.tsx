@@ -218,8 +218,11 @@ export function InitiativeOperations({
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">{tr("goals.op.metric")}</label>
+              <label className="text-xs text-muted-foreground" htmlFor={initiativeId + "-metric"}>
+                {tr("goals.op.metric")}
+              </label>
               <Input
+                id={initiativeId + "-metric"}
                 className="h-8"
                 placeholder={tr("goals.op.metricPh")}
                 value={form.success_metric}
@@ -229,7 +232,7 @@ export function InitiativeOperations({
             </div>
             {(["baseline_value", "target_value", "current_value"] as const).map((key) => (
               <div key={key} className="space-y-1">
-                <label className="text-xs text-muted-foreground">
+                <label className="text-xs text-muted-foreground" htmlFor={`${initiativeId}-${key}`}>
                   {key === "baseline_value"
                     ? tr("goals.baseline")
                     : key === "target_value"
@@ -237,6 +240,7 @@ export function InitiativeOperations({
                       : tr("goals.op.current")}
                 </label>
                 <Input
+                  id={`${initiativeId}-${key}`}
                   type="number"
                   min={0}
                   className="h-8"
@@ -253,8 +257,11 @@ export function InitiativeOperations({
             </p>
           )}
           <div className="space-y-1">
-            <label className="text-xs text-muted-foreground">{tr("goals.op.blocker")}</label>
+            <label className="text-xs text-muted-foreground" htmlFor={initiativeId + "-blocker"}>
+              {tr("goals.op.blocker")}
+            </label>
             <Input
+              id={initiativeId + "-blocker"}
               className="h-8"
               maxLength={1000}
               placeholder={tr("goals.op.blockerPh")}

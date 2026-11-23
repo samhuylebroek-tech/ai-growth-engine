@@ -1,4 +1,14 @@
 # AI Growth OS — Task Queue
+## Round 6 — complete UX/UI workstream, phase A–B (2026-11-23, staging only)
+- [x] Phase A audit: automated sweep of all 34 signed-in pages × desktop/tablet/phone + screenshots; inventory, findings and backlog in `docs/ux/UX_AUDIT.md`.
+- [x] Phase B navigation: 7 destinations in journey order (Home, AI team, Your business, Growth plan, Execution, Results, Organization), max 7 tabs, AI specialists added, URLs unchanged; EN/NL/FR; rules tested.
+- [x] Active tab visible again; current tab scrolls into view on phones; 44 px tab targets.
+- [x] Accessibility: 70 unnamed fields on Goals and 2 on Business knowledge named; Organization overview title shown while loading/failing; AI statement labels and recommendation links meet 24 px target size.
+- [x] "Performance" renamed "KPIs & targets" (NL/FR) so it no longer reads like Business performance.
+- [ ] P1 Home density (6.5k px desktop / 12.7k px phone): first screen answers "what now?", secondary sections folded.
+- [ ] P1 Goals & budget split reading vs planning (7.4k / 13.2k px).
+- [ ] P2 Growth Officer layout (conclusion/actions first, evidence expandable), Tasks filters, tablet Results tabs.
+- [ ] P3 Small text sizes to token scale; persona re-sweeps after each P1 change.
 ## Round 5 — ultimate master build: CI stabilization + lifecycle validation (2026-11-23, staging only)
 - [x] GitHub audit: branch product/operating-system-experience-blueprint, local HEAD a280a0c = GitHub branch HEAD (Synchronized), PR #1 open → main; CI 4/5 green, ESLint red.
 - [x] ESLint root cause (reproduced on a clean install of the PR merge commit): 16,266 Prettier findings in 470 files + one `any`; formatted with the project's own settings, generated backend client excluded from formatting, local build cache excluded from lint. Lint: 0 errors, 58 warnings left visible (react-refresh structure, 2 intentional id-keyed effects).

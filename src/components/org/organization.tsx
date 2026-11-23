@@ -88,19 +88,26 @@ function Overview({
     void navigate({ to });
   };
 
+  // The title stays in place while figures load or fail, so the page never opens without saying where you are.
   if (m.q.isLoading)
     return (
-      <p role="status" className="py-12 text-sm text-muted-foreground">
-        {t("org.loading")}
-      </p>
+      <>
+        <PageHeader title={t("org.title")} description={o.org?.name} />
+        <p role="status" className="py-12 text-sm text-muted-foreground">
+          {t("org.loading")}
+        </p>
+      </>
     );
   if (m.q.isError || !m.model || !m.q.data)
     return (
-      <div role="alert" className="py-6 text-sm text-destructive">
-        {String((m.q.error as Error | null)?.message ?? "").startsWith("too_many")
-          ? t("org.tooMany")
-          : t("org.loadFailed")}
-      </div>
+      <>
+        <PageHeader title={t("org.title")} description={o.org?.name} />
+        <div role="alert" className="py-6 text-sm text-destructive">
+          {String((m.q.error as Error | null)?.message ?? "").startsWith("too_many")
+            ? t("org.tooMany")
+            : t("org.loadFailed")}
+        </div>
+      </>
     );
   const cur = target ?? m.model.view.defaultCurrency;
   const tabs: OrgTab[] = (

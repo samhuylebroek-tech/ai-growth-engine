@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   Shield,
@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { NAVIGATION, primaryNavigation } from "@/lib/navigation";
+import { FALLBACK_GROUP, NAVIGATION, primaryNavigation } from "@/lib/navigation";
 import {
   CommandDialog,
   CommandInput,
@@ -65,9 +65,19 @@ function Shell() {
   const isAt = (to: string) => to === path || (to !== "/app" && path.startsWith(`${to}/`));
   const group =
     NAVIGATION.find((g) => g.items.some((it) => isAt(it.to))) ??
-    NAVIGATION.find((g) => g.group === "Knowledge");
+    NAVIGATION.find((g) => g.group === FALLBACK_GROUP);
   const current = group?.items.find((it) => isAt(it.to));
   const [open, setOpen] = useState(false);
+  const tabsRef = useRef<HTMLElement>(null);
+  // Keep the current tab visible when a destination has more tabs than fit (phones, tablets).
+  useEffect(() => {
+    const nav = tabsRef.current;
+    const active = nav?.querySelector<HTMLElement>('[data-status="active"]');
+    if (!nav || !active) return;
+    const left = active.offsetLeft - nav.offsetLeft;
+    if (left < nav.scrollLeft || left + active.offsetWidth > nav.scrollLeft + nav.clientWidth)
+      nav.scrollLeft = left - 24;
+  }, [path, o.loading]);
   const [search, setSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedTerm, setDebouncedTerm] = useState("");
@@ -406,15 +416,16 @@ function Shell() {
         </header>
         {group && group.items.length > 1 && (
           <nav
+            ref={tabsRef}
             aria-label={groupLabel(group.group)}
-            className="flex gap-4 overflow-x-auto border-b border-border px-4 md:px-8"
+            className="flex gap-5 overflow-x-auto border-b border-border px-4 [mask-image:linear-gradient(to_right,transparent,black_16px,black_calc(100%-24px),transparent)] [scrollbar-width:none] md:px-8"
           >
             {group.items.map((it) => (
               <Link
                 key={it.to}
                 to={it.to}
-                className="shrink-0 border-b-2 border-transparent py-3 text-xs font-medium text-muted-foreground hover:text-foreground"
-                activeProps={{ className: "border-primary text-foreground" }}
+                activeOptions={{ exact: "exact" in it && it.exact }}
+                className="flex min-h-11 shrink-0 items-center border-b-2 border-transparent text-xs font-medium text-muted-foreground hover:text-foreground data-[status=active]:border-primary data-[status=active]:text-foreground"
               >
                 <span>{navLabel(it.to)}</span>
               </Link>

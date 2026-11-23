@@ -6,7 +6,7 @@ export const performance = defineArea("performance", {
     "performance.loading": "Loading…",
     "performance.chooseWs": "Choose a workspace to track performance.",
     "performance.chooseWsShort": "Choose a workspace.",
-    "performance.title": "Performance",
+    "performance.title": "KPIs & targets",
     "performance.allMetrics": "← All metrics",
     "performance.intro":
       "Define the numbers that matter, then record plans, estimates and results per month. Values here are entered by your team; no analytics, ad or payment source is connected, so nothing is marked as verified. Corrections never overwrite history.",
@@ -196,7 +196,7 @@ export const performance = defineArea("performance", {
     "performance.loading": "Laden…",
     "performance.chooseWs": "Kies een werkruimte om resultaten te volgen.",
     "performance.chooseWsShort": "Kies een werkruimte.",
-    "performance.title": "Resultaten",
+    "performance.title": "KPI's & doelwaarden",
     "performance.allMetrics": "← Alle maatstaven",
     "performance.intro":
       "Bepaal de cijfers die ertoe doen en registreer per maand plannen, ramingen en resultaten. Je team vult deze waarden zelf in; er is geen analyse-, advertentie- of betaalbron gekoppeld, dus niets wordt als geverifieerd gemarkeerd. Correcties overschrijven nooit de geschiedenis.",
@@ -390,7 +390,7 @@ export const performance = defineArea("performance", {
     "performance.loading": "Chargement…",
     "performance.chooseWs": "Choisissez un espace pour suivre les résultats.",
     "performance.chooseWsShort": "Choisissez un espace.",
-    "performance.title": "Résultats",
+    "performance.title": "KPI & objectifs",
     "performance.allMetrics": "← Tous les indicateurs",
     "performance.intro":
       "Définissez les chiffres qui comptent, puis enregistrez chaque mois plans, estimations et résultats. Ces valeurs sont saisies par votre équipe ; aucune source d’analyse, de publicité ou de paiement n’est connectée, donc rien n’est marqué comme vérifié. Les corrections n’écrasent jamais l’historique.",

@@ -36,7 +36,7 @@ export function ClaimLabel({
     <span
       title={downgraded ? t("cl.downgraded") : t(`cl.d.${kind}` as MessageKey)}
       className={cn(
-        "mr-1 inline-flex items-center whitespace-nowrap rounded-full border px-1.5 py-px align-baseline text-[10px] font-medium not-italic",
+        "mr-1 inline-flex items-center whitespace-nowrap rounded-full border px-1.5 py-px align-baseline text-[10px] font-medium not-italic relative before:absolute before:-inset-y-1.5 before:inset-x-0",
         TONE[kind],
       )}
     >

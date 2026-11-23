@@ -494,7 +494,10 @@ export function GrowthActions({
             </p>
           )}
           <div className="mt-1 flex flex-wrap items-center gap-3">
-            <Link to={a.to} className="text-[11px] text-primary hover:underline">
+            <Link
+              to={a.to}
+              className="inline-flex min-h-6 items-center text-[11px] text-primary hover:underline"
+            >
               {t("bi.actions.open")}
             </Link>
             {editor && !compact && (
@@ -502,7 +505,7 @@ export function GrowthActions({
                 <button
                   type="button"
                   disabled={!!busy}
-                  className="text-[11px] text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50"
+                  className="inline-flex min-h-6 items-center text-[11px] text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50"
                   onClick={() => decide(a, "postponed")}
                 >
                   {t("bi.rec.postpone")}
@@ -510,7 +513,7 @@ export function GrowthActions({
                 <button
                   type="button"
                   disabled={!!busy}
-                  className="text-[11px] text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50"
+                  className="inline-flex min-h-6 items-center text-[11px] text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50"
                   onClick={() => decide(a, "dismissed")}
                 >
                   {t("bi.rec.dismiss")}
