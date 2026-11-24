@@ -1,4 +1,7 @@
+import { useId, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { AGENTS } from "@/lib/registry/agents";
@@ -7,7 +10,11 @@ import { formatMetricValue } from "@/lib/performance";
 
 const agentName = (key: string) => AGENTS.find((a) => a.key === key)?.name ?? key;
 
-/** Everything a reviewer needs before approving: the why, audience, budget, timeline, steps, measurement, risks and evidence. */
+/**
+ * Everything a reviewer needs before approving: the why, audience, budget, timeline, steps, measurement, risks and evidence.
+ * The decision essentials (opportunity, outcome, timeline, budget, step titles, KPIs) are always shown; the reasoning,
+ * step details, risks and evidence open on request so a long plan stays readable — nothing is left out.
+ */
 export function PlanDetails({
   strategy,
   compact = false,
@@ -16,6 +23,8 @@ export function PlanDetails({
   compact?: boolean;
 }) {
   const { t, tag } = useI18n();
+  const [more, setMore] = useState(false);
+  const moreId = useId();
   const field = (
     k: "opportunity" | "relevance" | "outcome" | "audience" | "timeline" | "measurement",
   ) =>
@@ -41,9 +50,9 @@ export function PlanDetails({
     <div className="space-y-3 text-sm">
       <dl className="grid gap-2">
         {field("opportunity")}
-        {field("relevance")}
+        {more && field("relevance")}
         {field("outcome")}
-        {field("audience")}
+        {more && field("audience")}
         {field("timeline")}
         {budget && (
           <div>
@@ -60,7 +69,7 @@ export function PlanDetails({
           </div>
         )}
       </dl>
-      {strategy.channels.length > 0 && (
+      {more && strategy.channels.length > 0 && (
         <div>
           <p className="text-xs font-medium text-muted-foreground">{t("goals.s.channelFocus")}</p>
           <ul className="space-y-1">
@@ -88,7 +97,7 @@ export function PlanDetails({
                   <Badge variant="secondary">{t("goals.pd.needsApproval")}</Badge>
                 )}
               </div>
-              {!compact && a.detail && (
+              {more && !compact && a.detail && (
                 <span className="block text-muted-foreground">{a.detail}</span>
               )}
               <span className="block text-xs text-muted-foreground">
@@ -124,19 +133,33 @@ export function PlanDetails({
           </ul>
         </div>
       )}
-      {list(t("goals.s.risks"), strategy.risks)}
-      {list(t("goals.pd.dependencies"), strategy.dependencies)}
-      {strategy.evidence.facts.length +
-        strategy.evidence.estimates.length +
-        strategy.evidence.hypotheses.length >
-        0 && (
-        <div className="grid gap-2 rounded-md border p-2">
-          {list(t("goals.pd.facts"), strategy.evidence.facts)}
-          {list(t("goals.pd.estimates"), strategy.evidence.estimates)}
-          {list(t("goals.pd.hypotheses"), strategy.evidence.hypotheses)}
-        </div>
-      )}
-      {list(t("goals.s.assumptions"), strategy.assumptions)}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        aria-expanded={more}
+        aria-controls={moreId}
+        onClick={() => setMore((v) => !v)}
+      >
+        <ChevronDown aria-hidden className={more ? "" : "-rotate-90"} />
+        {more ? t("goals.pd.less") : t("goals.pd.more")}
+      </Button>
+      <div id={moreId} className="space-y-3" hidden={!more}>
+        {more && list(t("goals.s.risks"), strategy.risks)}
+        {more && list(t("goals.pd.dependencies"), strategy.dependencies)}
+        {more &&
+          strategy.evidence.facts.length +
+            strategy.evidence.estimates.length +
+            strategy.evidence.hypotheses.length >
+            0 && (
+            <div className="grid gap-2 rounded-md border p-2">
+              {list(t("goals.pd.facts"), strategy.evidence.facts)}
+              {list(t("goals.pd.estimates"), strategy.evidence.estimates)}
+              {list(t("goals.pd.hypotheses"), strategy.evidence.hypotheses)}
+            </div>
+          )}
+        {more && list(t("goals.s.assumptions"), strategy.assumptions)}
+      </div>
     </div>
   );
 }

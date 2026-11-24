@@ -388,9 +388,15 @@ function Planner({
           {(goals.data ?? []).map((x) => {
             const p = goalProgress(x.baseline, x.target, x.current_value);
             return (
-              <div key={x.id} className="min-w-0 space-y-2 rounded-lg border bg-card p-4">
+              <article
+                key={x.id}
+                aria-labelledby={`goal-${x.id}-title`}
+                className="min-w-0 space-y-2 rounded-lg border bg-card p-4"
+              >
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium">{x.title}</span>
+                  <h3 id={`goal-${x.id}-title`} className="text-base font-medium">
+                    {x.title}
+                  </h3>
                   {unitName(x.unit_id) && <Badge variant="outline">{unitName(x.unit_id)}</Badge>}
                   {x.priority === "primary" && <Badge>{tr("goals.primary")}</Badge>}
                   <Badge variant="outline">{tr(objKey(x.objective))}</Badge>
@@ -488,7 +494,7 @@ function Planner({
                   <div className="flex flex-wrap items-center gap-2">
                     {!x.metric.trim() && (
                       <Input
-                        aria-label={tr("goals.metric")}
+                        aria-label={`${tr("goals.metric")} (${x.title})`}
                         className="h-8 w-48"
                         placeholder={`${tr("goals.metric")}: ${tr("goals.metricPh")}`}
                         defaultValue=""
@@ -500,7 +506,7 @@ function Planner({
                     )}
                     {x.baseline === null && (
                       <Input
-                        aria-label={tr("goals.baseline")}
+                        aria-label={`${tr("goals.baseline")} (${x.title})`}
                         className="h-8 w-32"
                         type="number"
                         min={0}
@@ -514,7 +520,7 @@ function Planner({
                     )}
                     {x.target === null && (
                       <Input
-                        aria-label={tr("goals.target")}
+                        aria-label={`${tr("goals.target")} (${x.title})`}
                         className="h-8 w-32"
                         type="number"
                         min={0}
@@ -527,7 +533,7 @@ function Planner({
                       />
                     )}
                     <Input
-                      aria-label={tr("goals.currentValue")}
+                      aria-label={`${tr("goals.currentValue")} (${x.title})`}
                       className="h-8 w-32"
                       type="number"
                       min={0}
@@ -573,7 +579,7 @@ function Planner({
                     </Button>
                   </div>
                 )}
-              </div>
+              </article>
             );
           })}
         </div>

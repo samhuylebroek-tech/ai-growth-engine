@@ -6,7 +6,7 @@
 - [x] Accessibility: 70 unnamed fields on Goals and 2 on Business knowledge named; Organization overview title shown while loading/failing; AI statement labels and recommendation links meet 24 px target size.
 - [x] "Performance" renamed "KPIs & targets" (NL/FR) so it no longer reads like Business performance.
 - [x] P1 Home: attention, goal, priorities and active work first; four secondary sections fold (remembered); readable activity previews (no raw AI Markdown); phone 12.7k → 9.6k px.
-- [ ] Home: merge the two "next best actions" lists (business summary + signals).
+- [x] Home: merge the two "next best actions" lists (business summary + signals).
 - [x] P1 Goals & budget: plan, budget and linked work fold per goal (primary open); 7.4k → 3.4k px desktop.
 - [x] P2 Growth Officer: conclusion + actions first, evidence/reasoning folds (label-based, tested); question box pinned on all sizes; clean conversation titles. Browser: admin desktop/tablet, member phone.
 - [x] P2 Tasks filters: one scrolling row on phones (36 px), chosen filter kept in view. Results tabs fit at 820 px; overflow arrows elsewhere.
@@ -18,8 +18,8 @@
 - [x] Experiments: lifecycle as one line + quiet progress bar (chips looked like buttons); hypothesis first, full design on request (phone 5.0k → 2.9k px). Growth intelligence: fact source shown in words ("Confirmed · Entered by your team"), not the raw value "user"; valid description-list markup.
 - [ ] Remaining page redesign sweep: Business profile/knowledge, Situation, Opportunities, Strategies, Campaigns, KPIs, Economics, Reports, Experiments, Organization, Integrations, Approvals, Settings, Owner center, Billing.
 - [ ] Persona re-sweep (5 roles × EN/NL/FR × desktop/tablet/phone) after the redesign.
-- [ ] Full lifecycle run creating new records on staging, end to end.
-- [ ] GitHub sync + CI result for the newest commits (`bun scripts/ci/github-status.ts`).
+- [x] Full lifecycle run on staging through the interface (admin, EN): goal → AI strategy (saved) → Growth Plan draft → approved → initiative turned into a project → campaign linked to goal/strategy/initiative with KPI → awaiting approval → approved → active → task → done → €120 hand-entered spending → Growth economics shows €120 → metric + October result → growth chain shows the result. Found and fixed on the way: strategies came back in the business-facts language instead of the interface language; new campaigns could not pick a goal; campaign progress always said spending was "not recorded"; a search inside "My tasks" gave no way to search all work; long strategies were one wall of text; goal cards had no heading and their fields repeated the same names; the results step said "done" instead of "measured".
+- [ ] GitHub sync + CI result for the newest commits (`bun scripts/ci/github-status.ts`). Last check: GitHub at d625c84 with CI passed; later commits are pushed by the platform after the turn.
 ## Round 5 — ultimate master build: CI stabilization + lifecycle validation (2026-11-23, staging only)
 - [x] GitHub audit: branch product/operating-system-experience-blueprint, local HEAD a280a0c = GitHub branch HEAD (Synchronized), PR #1 open → main; CI 4/5 green, ESLint red.
 - [x] ESLint root cause (reproduced on a clean install of the PR merge commit): 16,266 Prettier findings in 470 files + one `any`; formatted with the project's own settings, generated backend client excluded from formatting, local build cache excluded from lint. Lint: 0 errors, 58 warnings left visible (react-refresh structure, 2 intentional id-keyed effects).

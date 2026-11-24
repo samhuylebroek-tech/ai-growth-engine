@@ -838,6 +838,11 @@ export function ExecutionWorkspace({
                   {tx("work.clearFilters")}
                 </Button>
               )}
+              {items.length > 0 && filter !== "all" && search.trim() && (
+                <Button variant="link" onClick={() => setFilter("all")}>
+                  {tx("work.searchAll", { q: search.trim() })}
+                </Button>
+              )}
             </div>
           )}
         </>
@@ -942,7 +947,14 @@ export function WorkForm({
     agent_key: item && "agent_key" in item ? (item.agent_key ?? "") : "",
     recurrence: item && "recurrence" in item ? item.recurrence : "none",
     unit_id: (item as { unit_id?: string | null } | undefined)?.unit_id ?? "",
+    // Optional goal for a new campaign; an existing campaign changes its goal in its strategy panel.
+    goal_id: "",
   }));
+  const goalChoices = useQuery({
+    ...campaignLinkOptions(o.workspace?.id),
+    enabled: kind === "campaigns" && !item && !!o.workspace,
+  });
+  const activeGoals = (goalChoices.data?.goals ?? []).filter((g) => g.status === "active");
   // Brands and units of this business (proposal 0066); a campaign may target one of them.
   const units = useQuery({
     queryKey: ["business-units", o.workspace?.id],
@@ -1072,6 +1084,7 @@ export function WorkForm({
               .eq("workspace_id", o.workspace.id)
           : await growthDb.from("campaigns").insert({
               ...values,
+              ...(form.goal_id ? { goal_id: form.goal_id } : {}),
               org_id: o.org.id,
               workspace_id: o.workspace.id,
               created_by: o.userId,
@@ -1088,7 +1101,7 @@ export function WorkForm({
     }
   }
   const field = (key: keyof typeof form, title: string, type = "text") => (
-    <label className="space-y-1 text-xs" key={key}>
+    <label className="block space-y-1 text-xs" key={key}>
       {title}
       <Input
         aria-label={title}
@@ -1108,7 +1121,7 @@ export function WorkForm({
     title: string,
     options: { value: string; label: string }[],
   ) => (
-    <label className="space-y-1 text-xs" key={key}>
+    <label className="block space-y-1 text-xs" key={key}>
       {title}
       <select
         aria-label={title}
@@ -1216,6 +1229,12 @@ export function WorkForm({
             {field("audience", tx("work.f.audience"))}
             {field("budget_eur", tx("work.f.budget"), "number")}
             {field("channels", tx("work.f.channels"))}
+            {!item &&
+              activeGoals.length > 0 &&
+              select("goal_id", tx("work.f.goal"), [
+                { value: "", label: tx("work.f.noGoal") },
+                ...activeGoals.map((g) => ({ value: g.id, label: g.title })),
+              ])}
             {!!units.data?.length &&
               select("unit_id", tx("work.f.brand"), [
                 { value: "", label: tx("work.f.brandWhole") },
@@ -1933,7 +1952,7 @@ function CampaignHealthLine({
   today: string;
   detailed?: boolean;
 }) {
-  const { t: tx } = useI18n();
+  const { t: tx, tag } = useI18n();
   const o = useOrg();
   const spend = useQuery({
     ...campaignSpendOptions(o.org?.id, o.workspace?.id),
@@ -1947,6 +1966,8 @@ function CampaignHealthLine({
         spend.data.filter((r) => r.campaign_id === item.id),
       )
     : undefined;
+  const eur = (n: number) =>
+    new Intl.NumberFormat(tag, { style: "currency", currency: "EUR" }).format(n);
   const h = campaignHealth(
     {
       status: item.status,
@@ -1986,11 +2007,29 @@ function CampaignHealthLine({
       </p>
       {detailed && (
         <p className="mt-2 text-muted-foreground">
-          {tx("work.health.basis", {
-            d: h.done,
-            n: h.total,
-            p: h.elapsed === null ? "?" : Math.round(h.elapsed * 100),
-          })}
+          {money
+            ? [
+                tx("work.health.basisTime", {
+                  d: h.done,
+                  n: h.total,
+                  p: h.elapsed === null ? "?" : Math.round(h.elapsed * 100),
+                }),
+                money.budget > 0
+                  ? tx("work.health.spent", {
+                      s: eur(money.eur.spent),
+                      b: eur(money.budget),
+                    })
+                  : tx("work.health.spentNoBudget", { s: eur(money.eur.spent) }),
+                money.simulatedEntries > 0 &&
+                  tx("work.health.simulated", { s: eur(money.simulatedEur.spent) }),
+              ]
+                .filter(Boolean)
+                .join(" · ")
+            : tx("work.health.basis", {
+                d: h.done,
+                n: h.total,
+                p: h.elapsed === null ? "?" : Math.round(h.elapsed * 100),
+              })}
         </p>
       )}
     </div>

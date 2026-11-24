@@ -526,8 +526,13 @@ export function CampaignSpend({
               {tx("rp.spend.save")}
             </Button>
             {target && (
-              <Button size="sm" variant="ghost" onClick={() => pick("spend")}>
-                ✕
+              <Button
+                size="sm"
+                variant="ghost"
+                aria-label={tx("ev.cancel")}
+                onClick={() => pick("spend")}
+              >
+                <span aria-hidden>✕</span>
               </Button>
             )}
           </div>

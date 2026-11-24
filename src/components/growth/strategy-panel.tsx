@@ -38,7 +38,7 @@ export function StrategyPanel({
 }) {
   const run = useServerFn(planGrowthStrategy);
   const qc = useQueryClient();
-  const { t: tr, tag } = useI18n();
+  const { t: tr, tag, locale } = useI18n();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [weeks, setWeeks] = useState(12);
@@ -74,7 +74,7 @@ export function StrategyPanel({
     setBusy(true);
     try {
       const r = await run({
-        data: { orgId, workspaceId: wsId, goalId, requestKey, horizonWeeks: weeks },
+        data: { orgId, workspaceId: wsId, goalId, requestKey, horizonWeeks: weeks, locale },
       });
       if (!r.ok) return void toast.error(r.error);
       setResult({ strategy: r.data.strategy, key: requestKey, saved: false });

@@ -183,7 +183,7 @@ export function GrowthChain({
                       <span className="block text-muted-foreground">
                         {t(`goals.chain.st.${s.state}`)}
                         {s.total != null
-                          ? ` · ${t("goals.chain.of", { n: s.count, total: s.total })}`
+                          ? ` · ${t(s.stage === "results" ? "goals.chain.measured" : "goals.chain.of", { n: s.count, total: s.total })}`
                           : s.count > 1
                             ? ` · ${s.count}`
                             : ""}

@@ -1651,6 +1651,8 @@ export const planGrowthStrategy = createServerFn({ method: "POST" })
         goalId: z.guid(),
         requestKey: z.guid(),
         horizonWeeks: z.number().int().min(2).max(26),
+        // Interface language, so the strategy is written in it rather than in the language of the business facts.
+        locale: z.enum(["en", "nl", "fr"]),
       })
       .parse(input),
   )
@@ -1766,7 +1768,12 @@ export const planGrowthStrategy = createServerFn({ method: "POST" })
         _workspace: data.workspaceId,
         _request: data.requestKey,
         _kind: "strategy",
-        _input: { request, goalId: data.goalId, horizonWeeks: data.horizonWeeks },
+        _input: {
+          request,
+          goalId: data.goalId,
+          horizonWeeks: data.horizonWeeks,
+          locale: data.locale,
+        },
         _proof: accountingProof(),
       });
       if (claimed.error) throw new Error(dbText(claimed.error.message));
@@ -1807,7 +1814,7 @@ export const planGrowthStrategy = createServerFn({ method: "POST" })
           input: [
             {
               role: "user",
-              content: `${business}\n\n${quoteUntrusted("goal and budget", brief, 4000)}${oppText ? `\n\n${quoteUntrusted("growth opportunity this goal came from (AI analysis; its numbers are estimates)", oppText, 5000)}` : ""}${underway ? `\n\n${quoteUntrusted("campaigns and approved initiatives already under way (do not duplicate)", underway, 3000)}` : ""}${competitorText ? `\n\n${quoteUntrusted("confirmed competitor observations (public page facts; treat as context, never copy)", competitorText, 4000)}` : ""}`,
+              content: `${business}\n\nWrite every human-readable text value in ${{ en: "English", nl: "Dutch", fr: "French" }[data.locale]}; keep JSON keys in English.\n\n${quoteUntrusted("goal and budget", brief, 4000)}${oppText ? `\n\n${quoteUntrusted("growth opportunity this goal came from (AI analysis; its numbers are estimates)", oppText, 5000)}` : ""}${underway ? `\n\n${quoteUntrusted("campaigns and approved initiatives already under way (do not duplicate)", underway, 3000)}` : ""}${competitorText ? `\n\n${quoteUntrusted("confirmed competitor observations (public page facts; treat as context, never copy)", competitorText, 4000)}` : ""}`,
             },
           ],
           maxOutputTokens: 6000,
