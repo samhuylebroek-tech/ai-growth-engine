@@ -170,7 +170,7 @@ export const performance = defineArea("performance", {
     "performance.i.retry": "Retry",
     "performance.i.foundation": "Business foundation",
     "performance.i.whatWeKnow": "What we know",
-    "performance.i.confirmed": "User-confirmed · {s}",
+    "performance.i.confirmed": "Confirmed · {s}",
     "performance.i.needsFoundation": "Your strategy needs a verified foundation",
     "performance.i.awaiting":
       "{n} claims await review. None are being presented as confirmed business intelligence.",
@@ -364,7 +364,7 @@ export const performance = defineArea("performance", {
     "performance.i.retry": "Opnieuw proberen",
     "performance.i.foundation": "Basis van het bedrijf",
     "performance.i.whatWeKnow": "Wat we weten",
-    "performance.i.confirmed": "Bevestigd door gebruiker · {s}",
+    "performance.i.confirmed": "Bevestigd · {s}",
     "performance.i.needsFoundation": "Je strategie heeft een geverifieerde basis nodig",
     "performance.i.awaiting":
       "{n} beweringen wachten op controle. Geen enkele wordt als bevestigd inzicht getoond.",
@@ -560,7 +560,7 @@ export const performance = defineArea("performance", {
     "performance.i.retry": "Réessayer",
     "performance.i.foundation": "Fondations de l’entreprise",
     "performance.i.whatWeKnow": "Ce que nous savons",
-    "performance.i.confirmed": "Confirmé par l’utilisateur · {s}",
+    "performance.i.confirmed": "Confirmé · {s}",
     "performance.i.needsFoundation": "Votre stratégie a besoin de fondations vérifiées",
     "performance.i.awaiting":
       "{n} affirmations attendent une vérification. Aucune n’est présentée comme une information confirmée.",

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { factSourceKey } from "@/lib/fact-source";
 import { useI18n } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { Compass, ArrowUpRight, Target, CheckSquare } from "lucide-react";
@@ -68,9 +69,14 @@ function Intelligence() {
                       <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">
                         {f.value}
                       </dd>
-                      <p className="mt-2 text-2xs text-muted-foreground">
-                        {t("performance.i.confirmed", { s: f.source_type })}
-                      </p>
+                      <dd className="mt-2 text-2xs text-muted-foreground">
+                        {t("performance.i.confirmed", {
+                          s: (() => {
+                            const k = factSourceKey(f.source_type);
+                            return k ? t(k) : f.source_type;
+                          })(),
+                        })}
+                      </dd>
                     </div>
                   ))}
                 </dl>

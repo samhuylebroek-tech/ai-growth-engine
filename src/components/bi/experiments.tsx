@@ -115,27 +115,26 @@ function Body({ d }: { d: BiData }) {
   );
 }
 
+/** Where the experiment is in its lifecycle: one line of text plus a quiet segmented bar (the bar is decorative). */
 function Stepper({ status }: { status: string }) {
   const { t } = useI18n();
   const at = STAGES.indexOf(status as (typeof STAGES)[number]);
   if (at < 0) return null;
   return (
-    <ol className="mt-2 flex flex-wrap gap-1" aria-label={t(tk(`bi.estatus.${status}`))}>
-      {STAGES.map((s, i) => (
-        <li
-          key={s}
-          aria-current={i === at ? "step" : undefined}
-          className={cn(
-            "rounded-full border px-1.5 py-0.5 text-2xs",
-            i < at && "border-primary/30 bg-primary/10 text-primary",
-            i === at && "border-primary bg-primary text-primary-foreground",
-            i > at && "border-border text-muted-foreground",
-          )}
-        >
-          {t(tk(`bi.estatus.${s}`))}
-        </li>
-      ))}
-    </ol>
+    <div className="mt-2">
+      <p className="text-2xs text-muted-foreground">
+        {t("exp.stage", { n: at + 1, total: STAGES.length, s: t(tk(`bi.estatus.${status}`)) })}
+      </p>
+      <div aria-hidden className="mt-1 flex max-w-md gap-0.5">
+        {STAGES.map((s, i) => (
+          <span
+            key={s}
+            title={t(tk(`bi.estatus.${s}`))}
+            className={cn("h-1 flex-1 rounded-full", i <= at ? "bg-primary" : "bg-muted")}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -161,6 +160,8 @@ function Card({
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
   const [start, setStart] = useState("");
+  // The hypothesis is always visible; the rest of the design opens on request.
+  const [design, setDesign] = useState(false);
   const obs = det.observations[x.id] ?? [];
   const latest = obs[0] ?? null;
   const events = det.events[x.id] ?? [];
@@ -223,59 +224,79 @@ function Card({
       <div className="mt-1.5">
         <QualityBadge q={experimentQuality(x.status, x.evidence_strength)} />
       </div>
-      <dl className="mt-2 grid gap-x-4 gap-y-1.5 sm:grid-cols-2">
-        {(
-          [
-            ["bi.exp.hypothesis", x.hypothesis],
-            ["bi.exp.intervention", x.intervention],
-            ["exp.f.control", x.control_description ?? ""],
-            ["bi.exp.objective", x.objective],
-            ["bi.exp.audience", x.audience],
+      {x.hypothesis && (
+        <p className="mt-2 break-words text-xs leading-relaxed">
+          <span className="text-muted-foreground">{t("bi.exp.hypothesis")}: </span>
+          {x.hypothesis}
+        </p>
+      )}
+      <Button
+        type="button"
+        variant="link"
+        size="sm"
+        className="h-auto min-h-6 px-0 text-xs"
+        aria-expanded={design}
+        aria-controls={`exp-design-${x.id}`}
+        onClick={() => setDesign((v) => !v)}
+      >
+        {design ? t("exp.design.hide") : t("exp.design.show")}
+      </Button>
+      {design && (
+        <dl id={`exp-design-${x.id}`} className="mt-1 grid gap-x-4 gap-y-1.5 sm:grid-cols-2">
+          {(
             [
-              "exp.kpis",
-              [x.primary_kpi || x.success_metric, ...(x.secondary_kpis ?? [])]
-                .filter(Boolean)
-                .join(" · "),
-            ],
-            ["exp.f.successCriteria", x.success_criteria ?? ""],
-            ["exp.f.stopCriteria", x.stop_criteria ?? ""],
-            ["bi.exp.expected", x.expected_result],
-            ["bi.exp.risks", x.risks],
-          ] as const
-        )
-          .filter(([, v]) => v)
-          .map(([k, v]) => (
-            <div key={k} className="min-w-0">
-              <dt className="text-2xs text-muted-foreground">{t(tk(k))}</dt>
-              <dd className="break-words">{v}</dd>
-            </div>
-          ))}
-        <div>
-          <dt className="text-2xs text-muted-foreground">{t("bi.exp.duration")}</dt>
-          <dd>
-            {t("bi.exp.days", { n: x.duration_days })}
-            {x.scheduled_start && x.status === "scheduled"
-              ? ` · ${t("exp.scheduledFor", { d: fm.date(x.scheduled_start) })}`
-              : ""}
-            {x.started_at ? ` · ${t("bi.exp.started", { d: fm.date(x.started_at) })}` : ""}
-          </dd>
-        </div>
-        {x.sample_per_group != null && (
+              ["bi.exp.intervention", x.intervention],
+              ["exp.f.control", x.control_description ?? ""],
+              ["bi.exp.objective", x.objective],
+              ["bi.exp.audience", x.audience],
+              [
+                "exp.kpis",
+                [x.primary_kpi || x.success_metric, ...(x.secondary_kpis ?? [])]
+                  .filter(Boolean)
+                  .join(" · "),
+              ],
+              ["exp.f.successCriteria", x.success_criteria ?? ""],
+              ["exp.f.stopCriteria", x.stop_criteria ?? ""],
+              ["bi.exp.expected", x.expected_result],
+              ["bi.exp.risks", x.risks],
+            ] as const
+          )
+            .filter(([, v]) => v)
+            .map(([k, v]) => (
+              <div key={k} className="min-w-0">
+                <dt className="text-2xs text-muted-foreground">{t(tk(k))}</dt>
+                <dd className="break-words">{v}</dd>
+              </div>
+            ))}
           <div>
-            <dt className="text-2xs text-muted-foreground">
-              {t("exp.samplePlanned", { n: x.sample_per_group })}
-            </dt>
+            <dt className="text-2xs text-muted-foreground">{t("bi.exp.duration")}</dt>
             <dd>
-              {x.baseline_rate}% → {Number(x.baseline_rate) + Number(x.min_effect)}%
-              {x.sample_per_group < 30 ? ` · ${t("exp.sampleMin")}` : ""}
+              {t("bi.exp.days", { n: x.duration_days })}
+              {x.scheduled_start && x.status === "scheduled"
+                ? ` · ${t("exp.scheduledFor", { d: fm.date(x.scheduled_start) })}`
+                : ""}
+              {x.started_at ? ` · ${t("bi.exp.started", { d: fm.date(x.started_at) })}` : ""}
             </dd>
           </div>
-        )}
-        <div>
-          <dt className="text-2xs text-muted-foreground">{t("bi.exp.budget")}</dt>
-          <dd>{x.budget !== null && x.currency ? fm.money(Number(x.budget), x.currency) : "—"}</dd>
-        </div>
-      </dl>
+          {x.sample_per_group != null && (
+            <div>
+              <dt className="text-2xs text-muted-foreground">
+                {t("exp.samplePlanned", { n: x.sample_per_group })}
+              </dt>
+              <dd>
+                {x.baseline_rate}% → {Number(x.baseline_rate) + Number(x.min_effect)}%
+                {x.sample_per_group < 30 ? ` · ${t("exp.sampleMin")}` : ""}
+              </dd>
+            </div>
+          )}
+          <div>
+            <dt className="text-2xs text-muted-foreground">{t("bi.exp.budget")}</dt>
+            <dd>
+              {x.budget !== null && x.currency ? fm.money(Number(x.budget), x.currency) : "—"}
+            </dd>
+          </div>
+        </dl>
+      )}
       {gaps.length > 0 && (
         <p className="mt-2 rounded-md border border-warning/40 bg-warning/10 p-2 text-2xs">
           {t("exp.gaps", { list: gaps.map((g) => t(tk(`exp.gap.${g}`))).join(", ") })}

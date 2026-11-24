@@ -5,6 +5,7 @@ import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { FACT_SOURCE_LABEL } from "@/lib/fact-source";
 import { toast } from "sonner";
 import { Check, Trash2, Pencil, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,13 +31,7 @@ export const Route = createFileRoute("/_authenticated/app/profile")({
 });
 
 const FACT_PAGE = 8;
-const SOURCE_LABEL = {
-  user: "account.profile.source.user",
-  document: "account.profile.source.document",
-  website: "account.profile.source.website",
-  ai_assumption: "account.profile.source.ai_assumption",
-  external: "account.profile.source.external",
-} as const;
+const SOURCE_LABEL = FACT_SOURCE_LABEL;
 
 function Profile() {
   const { t } = useI18n();

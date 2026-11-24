@@ -15,6 +15,7 @@
 - [x] Home: one "Next best actions" list — signals to act on first, then the top 3 growth actions; business summary is figures only ("Revenue and spend"). Browser: admin desktop, member phone.
 - [x] Sweep 2 (33 pages × desktop admin / tablet viewer FR / phone member): no horizontal overflow, one h1 everywhere, no console errors; standalone links ≥ 24 px (Home, Situation, Business, Revenue, Improvements, task titles).
 - [x] AI specialists: capability table folds (phone 6.6k → 4.4k px). Notifications: translated titles/details per kind (were English-only), AI summaries as 2-line previews (6.0k → 3.8k px). Knowledge base: first 8 facts + show all (7.6k → 5.3k). Business performance: top 4 growth actions, comparison and growth levers fold (8.9k → 6.0k).
+- [x] Experiments: lifecycle as one line + quiet progress bar (chips looked like buttons); hypothesis first, full design on request (phone 5.0k → 2.9k px). Growth intelligence: fact source shown in words ("Confirmed · Entered by your team"), not the raw value "user"; valid description-list markup.
 - [ ] Remaining page redesign sweep: Business profile/knowledge, Situation, Opportunities, Strategies, Campaigns, KPIs, Economics, Reports, Experiments, Organization, Integrations, Approvals, Settings, Owner center, Billing.
 - [ ] Persona re-sweep (5 roles × EN/NL/FR × desktop/tablet/phone) after the redesign.
 - [ ] Full lifecycle run creating new records on staging, end to end.
