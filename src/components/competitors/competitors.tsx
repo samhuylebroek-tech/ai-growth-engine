@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { serverErrorText } from "@/lib/server-error";
 import { PageHeader } from "@/components/app/status";
 import { Field } from "@/components/app/field";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -215,7 +216,7 @@ function Competitors({
                         setBusy(true);
                         try {
                           const r = await check({ data: { competitorId: current.id } });
-                          if (!r.ok) toast.error(r.error);
+                          if (!r.ok) toast.error(serverErrorText(r.error));
                           else {
                             toast.success(
                               r.changes || r.added

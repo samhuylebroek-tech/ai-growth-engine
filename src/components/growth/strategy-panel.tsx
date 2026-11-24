@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { serverErrorText } from "@/lib/server-error";
 import { evidenceQuality, fromClassified } from "@/lib/evidence";
 import { QualityBadge } from "@/components/bi/evidence";
 import { useI18n } from "@/lib/i18n";
+import { SingleAIRecovery } from "@/components/app/single-ai-recovery";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -76,7 +78,7 @@ export function StrategyPanel({
       const r = await run({
         data: { orgId, workspaceId: wsId, goalId, requestKey, horizonWeeks: weeks, locale },
       });
-      if (!r.ok) return void toast.error(r.error);
+      if (!r.ok) return void toast.error(serverErrorText(r.error));
       setResult({ strategy: r.data.strategy, key: requestKey, saved: false });
       setStrategyId(null);
       setPlanDraftCreated(false);
@@ -419,6 +421,8 @@ export function StrategyPanel({
           ))}
         </div>
       )}
+      {/* An interrupted or refused request can block the next one; it is closed or recovered here, never replayed. */}
+      <SingleAIRecovery pendingOnly />
     </div>
   );
 }

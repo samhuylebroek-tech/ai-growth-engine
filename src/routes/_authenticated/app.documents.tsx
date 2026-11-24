@@ -1,4 +1,5 @@
 import { localHead } from "@/lib/page-head";
+import { serverErrorText } from "@/lib/server-error";
 import { limitAware, parseRateLimit } from "@/lib/rate-limit";
 import { useI18n } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -118,7 +119,7 @@ function Documents() {
     try {
       const r = await extract({ data: { documentId: id, orgId, workspaceId: ws } });
       if (r.ok) toast.success(t("pg.doc.extracted", { f: r.data.facts, c: r.data.credits }));
-      else toast.error(r.error);
+      else toast.error(serverErrorText(r.error));
     } catch {
       toast.error(t("pg.doc.extractFailed"));
     } finally {

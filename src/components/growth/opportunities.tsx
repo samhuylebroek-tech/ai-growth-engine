@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
+import { serverErrorText } from "@/lib/server-error";
 import { PageHeader } from "@/components/app/status";
 import { evidenceQuality, fromClassified } from "@/lib/evidence";
 import { QualityBadge } from "@/components/bi/evidence";
@@ -152,7 +153,7 @@ function Opportunities({
           locale,
         },
       });
-      if (!r.ok) return void toast.error(r.error);
+      if (!r.ok) return void toast.error(serverErrorText(r.error));
       if (!r.data.saved) return void toast.error(t("opp.generate.notSaved"));
       sessionStorage.removeItem(`single-ai-attempt:${scope}`);
       toast.success(t("opp.generate.done", { n: r.data.count, credits: r.data.credits }));

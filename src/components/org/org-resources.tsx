@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { serverErrorText } from "@/lib/server-error";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -539,7 +540,7 @@ function Rates({ orgId, data }: { orgId: string; data: OrgOverviewData }) {
     try {
       const r = await syncHistory({ data: { orgId } });
       if (!r.ok) {
-        toast.error(r.error);
+        toast.error(serverErrorText(r.error));
         return;
       }
       const v = {
@@ -564,7 +565,7 @@ function Rates({ orgId, data }: { orgId: string; data: OrgOverviewData }) {
     try {
       const r = await sync({ data: { orgId } });
       if (!r.ok) {
-        toast.error(r.error);
+        toast.error(serverErrorText(r.error));
         return;
       }
       toast.success(

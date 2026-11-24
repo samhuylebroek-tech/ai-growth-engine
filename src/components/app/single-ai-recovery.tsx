@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { serverErrorText } from "@/lib/server-error";
 import { AiMarkdown } from "@/components/ai/ai-markdown";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -42,7 +43,10 @@ export function SingleAIRecovery({
         .order("created_at", { ascending: false })
         .limit(20);
       if (r.error) throw r.error;
-      return pendingOnly ? r.data.filter((row) => row.status !== "succeeded") : r.data;
+      // Closed (failed) requests are finished too; only open ones need attention here.
+      return pendingOnly
+        ? r.data.filter((row) => row.status !== "succeeded" && row.status !== "failed")
+        : r.data;
     },
   });
   async function restore(id: string) {
@@ -53,7 +57,7 @@ export function SingleAIRecovery({
         data: { orgId: o.org.id, workspaceId: o.workspace.id, requestId: id },
       });
       if (!r.ok) {
-        toast.error(r.error);
+        toast.error(serverErrorText(r.error));
         return;
       }
       if (r.data.status === "uncertain") {
@@ -105,7 +109,7 @@ export function SingleAIRecovery({
         data: { orgId: o.org.id, workspaceId: o.workspace.id, requestId: id },
       });
       if (!r.ok) {
-        toast.error(r.error);
+        toast.error(serverErrorText(r.error));
         return;
       }
       setUncertain(null);

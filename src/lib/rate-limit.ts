@@ -35,5 +35,14 @@ export function rateLimitText(r: RateLimit, t: T): string {
 /** A database error message, with a rate-limit refusal replaced by its plain sentence. */
 export function limitAware(message: string, t: T): string {
   const r = parseRateLimit(message);
-  return r ? rateLimitText(r, t) : message;
+  if (r) return rateLimitText(r, t);
+  const known = KNOWN.find(([m]) => message.startsWith(m));
+  return known ? t(known[1]) : message;
 }
+
+// Server refusals that reach people often enough to need their own sentence in every language.
+const KNOWN: [string, string][] = [
+  ["Not enough AI credits left this period", "lim.err.noCredits"],
+  ["Another request is running", "lim.err.busy"],
+  ["Request is still active", "lim.err.active"],
+];

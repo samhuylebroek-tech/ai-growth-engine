@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { serverErrorText } from "@/lib/server-error";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { Sparkles } from "lucide-react";
@@ -60,7 +61,7 @@ export function DraftPanel({
     setBusy(true);
     try {
       const r = await run({ data: { orgId, workspaceId: wsId, assetId, requestKey, brief } });
-      if (!r.ok) return void toast.error(r.error);
+      if (!r.ok) return void toast.error(serverErrorText(r.error));
       setResult(r.data.draft);
       setRequestKey(crypto.randomUUID());
       toast.success(tx("marketing.cs.draftReady", { n: r.data.credits }));

@@ -1,5 +1,6 @@
 // Quality control of one finished specialist result (proposal 0081): free rule checks, an optional independent
 // second review by a different specialist (one metered call), and the final decision by an editor or higher.
+import { serverErrorText } from "@/lib/server-error";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -119,7 +120,7 @@ export function SpecialistQC({ run }: { run: TaskRunRow }) {
           locale,
         },
       });
-      if (!r.ok) return void toast.error(r.error);
+      if (!r.ok) return void toast.error(serverErrorText(r.error));
       sessionStorage.removeItem(`single-ai-attempt:${scope}`);
       toast.success(
         t("qc.requested", {

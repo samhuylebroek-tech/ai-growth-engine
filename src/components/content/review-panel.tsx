@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { serverErrorText } from "@/lib/server-error";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { ClipboardCheck, Check, X, Eye } from "lucide-react";
@@ -77,7 +78,7 @@ export function ReviewPanel({
           dimensions: dims,
         },
       });
-      if (!r.ok) return void toast.error(r.error);
+      if (!r.ok) return void toast.error(serverErrorText(r.error));
       setReview(r.data.review);
       setDone({});
       setPicked([]);

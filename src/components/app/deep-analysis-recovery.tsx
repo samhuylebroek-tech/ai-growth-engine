@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { serverErrorText } from "@/lib/server-error";
 import { useI18n } from "@/lib/i18n";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -56,7 +57,7 @@ export function DeepAnalysisRecovery() {
           close: new Date(row.lease_expires_at).getTime() <= Date.now(),
         },
       });
-      if (!result.ok) toast.error(result.error);
+      if (!result.ok) toast.error(serverErrorText(result.error));
       else if (result.data.status === "succeeded") toast.success(t("officer.deep.recovered"));
       else if (result.data.pending > 0) toast.info(t("officer.deep.reconciling"));
       else toast.success(t("officer.deep.checked"));

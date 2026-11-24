@@ -1,5 +1,6 @@
 // Growth Officer analysis of an open re-planning proposal (proposal 0082): one metered call that explains cause,
 // consequences, affected tasks and the options. Advice only; the editor still applies an option in the panel above.
+import { serverErrorText } from "@/lib/server-error";
 import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -84,7 +85,7 @@ export function ReplanAnalysisPanel({
           locale,
         },
       });
-      if (!r.ok) return void toast.error(r.error);
+      if (!r.ok) return void toast.error(serverErrorText(r.error));
       key.current = null;
       toast.success(t("ra.done", { c: r.data.credits }));
       await qc.invalidateQueries({ queryKey: ["replan-analyses"] });

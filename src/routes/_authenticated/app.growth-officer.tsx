@@ -1,4 +1,5 @@
 import { requestAttemptKey } from "@/lib/single-ai-request";
+import { serverErrorText } from "@/lib/server-error";
 import { PageHeader } from "@/components/app/status";
 import { AiMarkdown } from "@/components/ai/ai-markdown";
 import { useI18n } from "@/lib/i18n";
@@ -169,7 +170,7 @@ function GrowthOfficer() {
           },
         });
         if (!result.ok) {
-          toast.error(result.error);
+          toast.error(serverErrorText(result.error));
           setText(message);
           return;
         }
@@ -200,7 +201,7 @@ function GrowthOfficer() {
           },
         });
         if (!r.ok) {
-          toast.error(r.error);
+          toast.error(serverErrorText(r.error));
           setText(message);
           return;
         }

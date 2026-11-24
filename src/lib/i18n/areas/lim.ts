@@ -18,6 +18,11 @@ export const lim = defineArea("lim", {
     "lim.wait.minutes": "{n} minutes",
     "lim.wait.hours": "about {n} hours",
     "lim.noCredits": "No credits were used for this request.",
+    "lim.err.noCredits": "Not enough AI credits left this period.",
+    "lim.err.active":
+      "This request started less than 15 minutes ago. Try closing it again a little later; nothing is charged.",
+    "lim.err.busy":
+      "Another AI request of yours is still open. Under “Unfinished AI requests” you can close it 15 minutes after it began, at no cost.",
     "lim.unavailable": "Usage limits could not be checked right now. Try again in a moment.",
   },
   nl: {
@@ -37,6 +42,11 @@ export const lim = defineArea("lim", {
     "lim.wait.minutes": "{n} minuten",
     "lim.wait.hours": "ongeveer {n} uur",
     "lim.noCredits": "Voor deze aanvraag zijn geen credits gebruikt.",
+    "lim.err.noCredits": "Er zijn deze periode niet genoeg AI-credits meer over.",
+    "lim.err.active":
+      "Deze aanvraag is minder dan 15 minuten geleden gestart. Probeer haar iets later opnieuw af te sluiten; er wordt niets aangerekend.",
+    "lim.err.busy":
+      "Er staat nog een AI-aanvraag van jou open. Onder “Onvoltooide AI-verzoeken” kun je die 15 minuten na de start kosteloos afsluiten.",
     "lim.unavailable":
       "De gebruikslimieten konden nu niet gecontroleerd worden. Probeer het zo opnieuw.",
   },
@@ -57,6 +67,11 @@ export const lim = defineArea("lim", {
     "lim.wait.minutes": "{n} minutes",
     "lim.wait.hours": "environ {n} heures",
     "lim.noCredits": "Aucun crédit n’a été utilisé pour cette demande.",
+    "lim.err.noCredits": "Il ne reste plus assez de crédits IA pour cette période.",
+    "lim.err.active":
+      "Cette demande a démarré il y a moins de 15 minutes. Réessayez de la clôturer un peu plus tard ; rien n’est facturé.",
+    "lim.err.busy":
+      "Une autre demande IA est encore ouverte. Sous « Demandes d’IA non terminées », vous pouvez la clôturer sans frais 15 minutes après son début.",
     "lim.unavailable":
       "Les limites d’utilisation n’ont pas pu être vérifiées. Réessayez dans un instant.",
   },

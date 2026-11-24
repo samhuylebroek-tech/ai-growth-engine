@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { serverErrorText } from "@/lib/server-error";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -106,7 +107,7 @@ function Officer({ m }: { m: OrgModel }) {
         },
       });
       if (!r.ok) {
-        toast.error(r.error);
+        toast.error(serverErrorText(r.error));
         return;
       }
       toast.success(
@@ -258,7 +259,7 @@ function Recovery() {
     try {
       const r = await recover({ data: { orgId: o.org.id, requestId: id } });
       if (!r.ok) {
-        toast.error(r.error);
+        toast.error(serverErrorText(r.error));
         return;
       }
       if (r.data.status === "uncertain") {
@@ -282,7 +283,7 @@ function Recovery() {
         data: { orgId: o.org.id, workspaceId: uncertain.ws, requestId: uncertain.id },
       });
       if (!r.ok) {
-        toast.error(r.error);
+        toast.error(serverErrorText(r.error));
         return;
       }
       toast.success(t("recovery.accepted", { credits: String(r.data.credits) }));

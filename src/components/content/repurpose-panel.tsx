@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { serverErrorText } from "@/lib/server-error";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { Repeat } from "lucide-react";
@@ -66,7 +67,7 @@ export function RepurposePanel({
           channels: CHANNELS.filter((c) => channels.has(c)),
         },
       });
-      if (!r.ok) return void toast.error(r.error);
+      if (!r.ok) return void toast.error(serverErrorText(r.error));
       setItems(r.data.items);
       setRequestKey(crypto.randomUUID());
       toast.success(

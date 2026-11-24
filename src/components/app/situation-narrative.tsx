@@ -1,6 +1,7 @@
 // AI-written explanation of the growth situation (one metered Growth Officer call, started by a member). Each
 // statement shows its kind and the findings it rests on; an explanation older than the current findings is marked
 // outdated. The latest own explanation is read back from the private request record, so it is never paid twice.
+import { serverErrorText } from "@/lib/server-error";
 import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -126,7 +127,7 @@ export function AiExplanation({
           ...(campaignId ? { campaignId } : {}),
         },
       });
-      if (!r.ok) return void toast.error(r.error);
+      if (!r.ok) return void toast.error(serverErrorText(r.error));
       key.current = null;
       toast.success(t("sn.done", { c: r.data.credits }));
       await qc.invalidateQueries({ queryKey: ["situation-narrative"] });

@@ -1,4 +1,5 @@
 // "Ask the Growth Officer to design experiments": one explicit metered request; results become drafts only.
+import { serverErrorText } from "@/lib/server-error";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -39,7 +40,7 @@ export function ExperimentAI() {
       const r = await run({
         data: { orgId, workspaceId: wsId, requestKey, focus: focus.trim(), locale },
       });
-      if (!r.ok) return void toast.error(r.error);
+      if (!r.ok) return void toast.error(serverErrorText(r.error));
       sessionStorage.removeItem(`single-ai-attempt:${scope}`);
       toast.success(t("exp.ai.done", { n: r.data.saved, c: r.data.credits }));
       setFocus("");

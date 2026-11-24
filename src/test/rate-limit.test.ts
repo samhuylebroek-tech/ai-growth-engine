@@ -37,7 +37,25 @@ describe("rate limit messages", () => {
       "too many failed attempts",
     );
   });
+  it("names known refusals in the interface language", () => {
+    expect(limitAware("Not enough AI credits left this period.", nl)).toBe(
+      "Er zijn deze periode niet genoeg AI-credits meer over.",
+    );
+    expect(limitAware("Another request is running; recover saved work first", nl)).toContain(
+      "Onvoltooide AI-verzoeken",
+    );
+  });
+  it("keeps known refusals short enough to reach the screen (server errors over 200 characters are replaced)", () => {
+    for (const l of ["en", "nl", "fr"] as const)
+      for (const m of [
+        "Not enough AI credits left this period.",
+        "Another request is running",
+        "Request is still active",
+      ])
+        expect(limitAware(m, (k, v) => translate(l, k, v)).length).toBeLessThan(200);
+  });
   it("leaves other errors unchanged", () => {
+    expect(limitAware("Goal not found.", nl)).toBe("Goal not found.");
     expect(limitAware("Not enough AI credits left this period.", en)).toBe(
       "Not enough AI credits left this period.",
     );
