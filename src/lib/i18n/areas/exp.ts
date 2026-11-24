@@ -14,6 +14,7 @@ export const exp = defineArea("exp", {
     "exp.simNotEvidence":
       "Based on simulated test data: this practises the process and is not evidence about real customers, so its evidence strength stays inconclusive.",
     "exp.sampleMin": "At least 30 per group are always required.",
+    "exp.rulesTitle": "How an experiment works and when it counts as proof",
     "exp.rules":
       "An experiment goes from draft to review, administrator approval, running, data collection and evaluation. The sample size is computed up front (5% significance, 80% power); a controlled test only counts as successful when the planned sample is reached and the improvement is statistically significant. Before/after and observation show correlation, never cause. Nothing here changes a real campaign.",
     "exp.sec.design": "Being designed",
@@ -128,6 +129,7 @@ export const exp = defineArea("exp", {
     "exp.simNotEvidence":
       "Gebaseerd op gesimuleerde testgegevens: dit oefent het proces en is geen bewijs over echte klanten, dus de bewijskracht blijft onbeslist.",
     "exp.sampleMin": "Er zijn altijd minstens 30 per groep nodig.",
+    "exp.rulesTitle": "Hoe een experiment werkt en wanneer het als bewijs telt",
     "exp.rules":
       "Een experiment gaat van concept naar beoordeling, goedkeuring door een beheerder, uitvoering, gegevensverzameling en evaluatie. De steekproefgrootte wordt vooraf berekend (5% significantie, 80% power); een gecontroleerde test telt pas als geslaagd wanneer de geplande steekproef is bereikt en de verbetering statistisch significant is. Voor/na-vergelijkingen en observaties tonen samenhang, nooit oorzaak. Niets hier wijzigt een echte campagne.",
     "exp.sec.design": "In ontwerp",
@@ -245,6 +247,7 @@ export const exp = defineArea("exp", {
     "exp.simNotEvidence":
       "Basé sur des données de test simulées : cela sert à exercer le processus et ne prouve rien sur de vrais clients ; la force de la preuve reste non concluante.",
     "exp.sampleMin": "Il faut toujours au moins 30 par groupe.",
+    "exp.rulesTitle": "Fonctionnement d’une expérience et quand elle fait preuve",
     "exp.rules":
       "Une expérience passe du brouillon à la revue, à l’approbation par un administrateur, à l’exécution, à la collecte des données et à l’évaluation. La taille d’échantillon est calculée à l’avance (seuil de 5 %, puissance de 80 %) ; un test contrôlé ne compte comme réussi que si l’échantillon prévu est atteint et que l’amélioration est statistiquement significative. Les comparaisons avant/après et les observations montrent une corrélation, jamais une cause. Rien ici ne modifie une vraie campagne.",
     "exp.sec.design": "En conception",

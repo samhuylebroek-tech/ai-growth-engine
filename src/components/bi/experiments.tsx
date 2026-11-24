@@ -77,9 +77,12 @@ function Body({ d }: { d: BiData }) {
     );
   return (
     <>
-      <p className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
-        {t("exp.rules")}
-      </p>
+      <details className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
+        <summary className="min-h-6 cursor-pointer font-medium text-foreground">
+          {t("exp.rulesTitle")}
+        </summary>
+        <p className="mt-2">{t("exp.rules")}</p>
+      </details>
       {detail.isError && (
         <p className="mt-3 text-xs text-destructive">
           {t("bi.failed", { e: String((detail.error as Error).message) })}
