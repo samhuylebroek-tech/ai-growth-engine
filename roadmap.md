@@ -1,4 +1,11 @@
 # AI Growth OS — Task Queue
+## Campaign-first A–Z product correction (24 November 2026)
+- [ ] 1–3 Audit/dependencies, campaign-first navigation and start overview; preserve every existing destination.
+- [ ] 4 Guided campaign creation and contextual Growth Officer, explicit proposal review and costs.
+- [ ] 5–6 Strategy/goals/opportunities; plain-language tasks, execution, budgets and approvals.
+- [ ] Explicit test-record classification and scoped exclusion across UI/AI/reporting without deleting history (staging-only reviewed schema needed).
+- [ ] 7–8 Results/financials; business, organization/settings and integrations.
+- [ ] 9–10 NL/EN/FR, accessibility, desktop/tablet/phone and role-based end-to-end verification; no paid AI calls for deterministic checks.
 ## Reported module-load failure (2026-11-24)
 - [x] Shared eager route fallback and document-reload retry for failed page chunks; all route declarations and other loading paths inspected (`docs/ux/MODULE_LOAD_RECOVERY.md`), EN tablet/FR desktop browser recovery passed, 966 tests passed; original remote asset availability and signed-in Growth Officer not independently verified. No database, authentication or production changes.
 ## Round 6 — complete UX/UI workstream, phase A–B (2026-11-23, staging only)
