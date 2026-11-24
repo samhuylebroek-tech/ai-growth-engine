@@ -40,6 +40,9 @@ export const Route = createFileRoute("/_authenticated/app/growth-officer")({
   component: GrowthOfficer,
 });
 
+/** Stored titles start with the internal agent key ("growth_officer: …"); people only need the question. */
+const conversationTitle = (title: string) => title.replace(/^[a-z_]+:\s*/, "");
+
 const STARTERS = [
   "officer.starter.opportunities",
   "officer.starter.plan30",
@@ -133,9 +136,10 @@ function GrowthOfficer() {
     },
   });
   useEffect(() => {
+    // The page scrolls (the question box is pinned below), so bring the start of the newest message into view.
     end.current?.scrollIntoView({
       behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
-      block: "nearest",
+      block: "start",
     });
   }, [msgs.data, pending]);
 
@@ -222,7 +226,8 @@ function GrowthOfficer() {
   const allowed = can(o.workspaceRole, "ai.use");
   const list = msgs.data ?? [];
   const verified = context.data?.filter((f) => f.verified) ?? [];
-  const title = convs.data?.find((c) => c.id === conv)?.title;
+  const rawTitle = convs.data?.find((c) => c.id === conv)?.title;
+  const title = rawTitle ? conversationTitle(rawTitle) : undefined;
   async function exportConversation() {
     if (!list.length) return;
     const text = list
@@ -309,7 +314,7 @@ function GrowthOfficer() {
                   conv === c.id && "bg-secondary text-foreground",
                 )}
               >
-                <span className="line-clamp-3">{c.title}</span>
+                <span className="line-clamp-3">{conversationTitle(c.title)}</span>
               </Button>
             ))}
           </div>
@@ -326,7 +331,7 @@ function GrowthOfficer() {
           <div className="mb-4 flex lg:hidden">
             <select
               aria-label={t("officer.conversation")}
-              className="w-full min-w-0 rounded-md border border-border bg-card px-3 text-xs"
+              className="min-h-11 w-full min-w-0 rounded-md border border-border bg-card px-3 text-sm"
               disabled={busy}
               value={conv ?? ""}
               onChange={(e) => setConv(e.target.value || null)}
@@ -334,12 +339,12 @@ function GrowthOfficer() {
               <option value="">{t("officer.newConversation")}</option>
               {convs.data?.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.title}
+                  {conversationTitle(c.title)}
                 </option>
               ))}
             </select>
           </div>
-          <div className="max-h-[600px] min-h-[310px] flex-1 overflow-y-auto pr-1">
+          <div className="min-h-[200px] flex-1 lg:min-h-[310px]">
             {msgs.isLoading && (
               <p role="status" className="py-5 text-sm text-muted-foreground">
                 {t("officer.opening")}
@@ -354,9 +359,9 @@ function GrowthOfficer() {
               </p>
             )}
             {!conv && !pending ? (
-              <div className="py-10">
-                <Sparkles className="mb-6 h-7 w-7 text-primary" />
-                <h2 className="max-w-lg text-2xl font-semibold leading-snug">
+              <div className="py-4 sm:py-10">
+                <Sparkles className="mb-4 h-7 w-7 text-primary sm:mb-6" />
+                <h2 className="max-w-lg text-xl font-semibold leading-snug sm:text-2xl">
                   {t("officer.heroA")}
                   <br />
                   {t("officer.heroB")}
@@ -369,12 +374,12 @@ function GrowthOfficer() {
                       })
                     : t("officer.noFacts")}
                 </p>
-                <div className="mt-7 grid gap-2 sm:grid-cols-2">
+                <div className="mt-5 grid gap-2 sm:mt-7 sm:grid-cols-2">
                   {STARTERS.map((starter) => (
                     <Button
                       key={starter}
                       variant="outline"
-                      className="h-auto min-h-16 justify-between whitespace-normal p-3 text-left text-xs"
+                      className="h-auto min-h-12 justify-between whitespace-normal p-3 text-left text-xs sm:min-h-16"
                       disabled={!allowed || busy}
                       onClick={() => setText(t(starter))}
                     >
@@ -386,8 +391,12 @@ function GrowthOfficer() {
               </div>
             ) : (
               <div className="space-y-6 pb-4">
-                {list.map((m) => (
-                  <div key={m.id}>
+                {list.map((m, i) => (
+                  <div
+                    key={m.id}
+                    ref={!pending && i === list.length - 1 ? end : undefined}
+                    className="scroll-mt-24"
+                  >
                     <Bubble role={m.role} content={m.content} at={m.created_at} />
                     {m.role === "assistant" && allowed && (
                       <div className="mt-3">
@@ -397,7 +406,7 @@ function GrowthOfficer() {
                   </div>
                 ))}
                 {pending && (
-                  <>
+                  <div ref={end} className="scroll-mt-24">
                     <Bubble role="user" content={pending} />
                     <div
                       role="status"
@@ -406,55 +415,28 @@ function GrowthOfficer() {
                       <Sparkles className="h-4 w-4 text-primary" />
                       {t("officer.working")}
                     </div>
-                  </>
+                  </div>
                 )}
-                <div ref={end} />
               </div>
             )}
           </div>
-          {allowed && (
-            <div className="mt-3">
-              <ExecutionContextPicker
-                value={executionContext}
-                onChange={setExecutionContext}
-                disabled={busy}
-              />
-            </div>
-          )}
           {allowed ? (
-            <div className="mt-5 space-y-2">
-              <label
-                htmlFor="growth-officer-deep-analysis"
-                className="flex items-start gap-2 rounded-md border border-border px-3 py-2 text-xs"
-              >
-                <Checkbox
-                  id="growth-officer-deep-analysis"
-                  checked={deepAnalysis}
-                  onCheckedChange={(v) => setDeepAnalysis(v === true)}
-                  disabled={busy}
-                />
-                <span>
-                  <strong className="block font-medium">{t("officer.deepTitle")}</strong>
-                  <span className="text-muted-foreground">
-                    {t("officer.deepBody", { n: COORDINATION_LIMITS.maxCredits })}
-                  </span>
-                </span>
-              </label>
+            <div className="sticky bottom-0 z-10 -mx-4 mt-3 border-t border-border bg-background/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:-mx-8 md:px-8 lg:mx-0 lg:mt-5 lg:px-0">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   send(text);
                 }}
-                className="rounded-lg border border-border bg-card p-3 focus-within:border-primary/50"
+                className="rounded-lg border border-border bg-card p-2 focus-within:border-primary/50 sm:p-3"
               >
                 <Textarea
                   aria-label={t("officer.questionLabel")}
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  rows={3}
+                  rows={2}
                   maxLength={4000}
                   placeholder={t("officer.placeholder")}
-                  className="min-h-20 resize-none border-0 bg-transparent p-1 shadow-none focus-visible:ring-0"
+                  className="min-h-14 resize-none border-0 bg-transparent p-1 text-base shadow-none focus-visible:ring-0 sm:min-h-20 sm:text-sm"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
@@ -462,14 +444,36 @@ function GrowthOfficer() {
                     }
                   }}
                 />
-                <div className="mt-2 flex items-center justify-between gap-2">
-                  <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                    <BookOpen className="h-3 w-3" />
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <ExecutionContextPicker
+                    value={executionContext}
+                    onChange={setExecutionContext}
+                    disabled={busy}
+                  />
+                  <label
+                    htmlFor="growth-officer-deep-analysis"
+                    className={cn(
+                      "inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-md border px-2.5 text-xs",
+                      deepAnalysis ? "border-primary/50 bg-primary/5" : "border-border",
+                    )}
+                  >
+                    <Checkbox
+                      id="growth-officer-deep-analysis"
+                      checked={deepAnalysis}
+                      onCheckedChange={(v) => setDeepAnalysis(v === true)}
+                      disabled={busy}
+                      aria-describedby="growth-officer-deep-analysis-cost"
+                    />
+                    <span className="font-medium">{t("officer.deepTitle")}</span>
+                  </label>
+                  <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
+                    <BookOpen className="h-3.5 w-3.5" />
                     {t("officer.factsScoped", { n: verified.length })}
                   </span>
                   <Button
                     type="submit"
                     size="icon"
+                    className="ml-auto"
                     disabled={busy || !text.trim()}
                     aria-label={t("officer.send")}
                     title={t("officer.sendTitle")}
@@ -477,12 +481,21 @@ function GrowthOfficer() {
                     <Send />
                   </Button>
                 </div>
+                <p
+                  id="growth-officer-deep-analysis-cost"
+                  className={cn(
+                    "mt-2 text-xs leading-relaxed text-muted-foreground",
+                    !deepAnalysis && "sr-only",
+                  )}
+                >
+                  {t("officer.deepBody", { n: COORDINATION_LIMITS.maxCredits })}
+                </p>
               </form>
             </div>
           ) : (
             <p className="mt-5 text-sm text-muted-foreground">{t("officer.viewerOnly")}</p>
           )}
-          <p className="mt-3 text-[10px] text-muted-foreground">
+          <p className="mt-3 text-xs text-muted-foreground">
             {t("officer.creditsApply")} ·{" "}
             <Link to="/app/billing" className="underline">
               {t("officer.viewUsage")}
@@ -504,7 +517,7 @@ function GrowthOfficer() {
             </p>
           ) : (
             <>
-              <p className="mt-2 text-[11px] text-muted-foreground">
+              <p className="mt-2 text-2xs text-muted-foreground">
                 {t("officer.factCounts", {
                   v: verified.length,
                   p: (context.data?.length ?? 0) - verified.length,
@@ -513,8 +526,8 @@ function GrowthOfficer() {
               <div className="mt-4 space-y-4">
                 {verified.slice(0, 4).map((f) => (
                   <div key={f.id}>
-                    <h3 className="text-[11px] font-semibold">{f.key}</h3>
-                    <p className="mt-1 line-clamp-3 text-[11px] leading-relaxed text-muted-foreground">
+                    <h3 className="text-2xs font-semibold">{f.key}</h3>
+                    <p className="mt-1 line-clamp-3 text-2xs leading-relaxed text-muted-foreground">
                       {f.value}
                     </p>
                   </div>
@@ -547,7 +560,7 @@ function GrowthOfficer() {
               </Link>
             </Button>
           </div>
-          <p className="mt-6 text-[10px] leading-relaxed text-muted-foreground">
+          <p className="mt-6 text-2xs leading-relaxed text-muted-foreground">
             {t("officer.sideNote")}
           </p>
         </aside>
@@ -576,7 +589,7 @@ function Bubble({ role, content, at }: { role: string; content: string; at?: str
       )}
     >
       <div className="mb-3 flex items-center justify-between">
-        <span className="flex items-center gap-2 text-[11px] font-semibold">
+        <span className="flex items-center gap-2 text-2xs font-semibold">
           {role === "user" ? (
             t("officer.you")
           ) : (
@@ -604,7 +617,7 @@ function Bubble({ role, content, at }: { role: string; content: string; at?: str
           role === "user" ? "whitespace-pre-wrap" : "prose-chat",
         )}
       >
-        {role === "user" ? content : <AiMarkdown content={content} asOf={at ?? null} />}
+        {role === "user" ? content : <AiMarkdown content={content} asOf={at ?? null} summary />}
       </div>
     </article>
   );

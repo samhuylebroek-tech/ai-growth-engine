@@ -330,7 +330,7 @@ function Profile() {
                 ) : (
                   <p className="break-words text-sm leading-relaxed">{f.value}</p>
                 )}
-                <p className="mt-2 break-all text-[10px] text-muted-foreground">
+                <p className="mt-2 break-all text-2xs text-muted-foreground">
                   {f.source_type in SOURCE_LABEL
                     ? t(SOURCE_LABEL[f.source_type as keyof typeof SOURCE_LABEL])
                     : f.source_type}

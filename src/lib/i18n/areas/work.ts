@@ -152,6 +152,7 @@ export const work = defineArea("work", {
     "work.noStart": "No start date",
     "work.noMatch": "No matching work",
     "work.tryFilter": "Try another filter.",
+    "work.filterGroup": "Show",
     "work.createFirst": "Create your first item or review a Growth Officer recommendation.",
     "work.clearFilters": "Clear filters",
     "work.mine.none": "Nothing is assigned to you",
@@ -397,6 +398,7 @@ export const work = defineArea("work", {
     "work.noStart": "Geen startdatum",
     "work.noMatch": "Geen passend werk",
     "work.tryFilter": "Probeer een andere filter.",
+    "work.filterGroup": "Tonen",
     "work.createFirst": "Maak je eerste item of bekijk een aanbeveling van de Growth Officer.",
     "work.clearFilters": "Filters wissen",
     "work.mine.none": "Er is niets aan jou toegewezen",
@@ -642,6 +644,7 @@ export const work = defineArea("work", {
     "work.noStart": "Pas de date de début",
     "work.noMatch": "Aucun élément correspondant",
     "work.tryFilter": "Essayez un autre filtre.",
+    "work.filterGroup": "Afficher",
     "work.createFirst":
       "Créez votre premier élément ou examinez une recommandation du Growth Officer.",
     "work.clearFilters": "Effacer les filtres",

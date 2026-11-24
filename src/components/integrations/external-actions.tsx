@@ -220,7 +220,7 @@ function Prepare({ data, initialTask }: { data: HubData; initialTask?: string | 
       ) : (
         <>
           <div className="mt-3 grid gap-3 md:grid-cols-3">
-            <label className="text-[11px]">
+            <label className="text-2xs">
               <span className="mb-1 block font-medium">{t("xa.prepare.task")}</span>
               <select
                 className={sel}
@@ -239,7 +239,7 @@ function Prepare({ data, initialTask }: { data: HubData; initialTask?: string | 
                 ))}
               </select>
             </label>
-            <label className="text-[11px]">
+            <label className="text-2xs">
               <span className="mb-1 block font-medium">{t("xa.prepare.type")}</span>
               <select
                 className={sel}
@@ -259,7 +259,7 @@ function Prepare({ data, initialTask }: { data: HubData; initialTask?: string | 
                 ))}
               </select>
             </label>
-            <label className="text-[11px]">
+            <label className="text-2xs">
               <span className="mb-1 block font-medium">{t("xa.prepare.connection")}</span>
               <select
                 className={sel}
@@ -278,20 +278,20 @@ function Prepare({ data, initialTask }: { data: HubData; initialTask?: string | 
             </label>
           </div>
           {task?.specialist && (
-            <p className="mt-2 text-[11px] text-muted-foreground">
+            <p className="mt-2 text-2xs text-muted-foreground">
               {t("xa.prepare.specialist", { s: t(`run.sp.${task.specialist}` as MessageKey) })}
             </p>
           )}
           {spec && (
             <div className="mt-3 space-y-3">
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-2xs text-muted-foreground">
                 {t("xa.prepare.needs", { level: t(`xa.level.${spec.level}` as MessageKey) })}{" "}
                 {approvalRequired(spec.level, data.mode)
                   ? t("xa.prepare.approvalNeeded")
                   : t("xa.prepare.policy")}
               </p>
               <div className="grid gap-3 md:grid-cols-2">
-                <label className="text-[11px]">
+                <label className="text-2xs">
                   <span className="mb-1 block font-medium">{t("xa.field.actionTitle")}</span>
                   <Input
                     value={title}
@@ -300,14 +300,14 @@ function Prepare({ data, initialTask }: { data: HubData; initialTask?: string | 
                     placeholder={t(`xa.type.${spec.type}` as MessageKey)}
                   />
                 </label>
-                <label className="text-[11px]">
+                <label className="text-2xs">
                   <span className="mb-1 block font-medium">{t("xa.field.actionNote")}</span>
                   <Input value={desc} maxLength={2000} onChange={(e) => setDesc(e.target.value)} />
                 </label>
                 {spec.fields.map((fd) => (
                   <label
                     key={fd.key}
-                    className={cn("text-[11px]", fd.kind === "textarea" && "md:col-span-2")}
+                    className={cn("text-2xs", fd.kind === "textarea" && "md:col-span-2")}
                   >
                     <span className="mb-1 block font-medium">
                       {t(`xa.field.${fd.key}` as MessageKey)}
@@ -331,7 +331,7 @@ function Prepare({ data, initialTask }: { data: HubData; initialTask?: string | 
                     )}
                   </label>
                 ))}
-                <div className="flex items-end gap-2 text-[11px]">
+                <div className="flex items-end gap-2 text-2xs">
                   <label className="flex-1">
                     <span className="mb-1 block font-medium">{t("xa.field.cost")}</span>
                     <Input
@@ -433,20 +433,20 @@ function ActionCard({ a, data }: { a: ExternalActionRow; data: HubData }) {
       <div className="flex flex-wrap items-start gap-2">
         <div className="min-w-0 flex-1">
           <h3 className="break-words text-sm font-semibold">{a.title}</h3>
-          <p className="mt-0.5 text-[11px] text-muted-foreground">
+          <p className="mt-0.5 text-2xs text-muted-foreground">
             {t(`xa.type.${a.action_type}` as MessageKey)} · {providerName(a.provider)} ·{" "}
             {t(`run.sp.${a.specialist_key}` as MessageKey)} ·{" "}
             {t("xa.needsLevel", { level: t(`xa.level.${level}` as MessageKey) })}
           </p>
         </div>
         {a.simulated && <SimBadge />}
-        <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-[11px] font-medium">
+        <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-2xs font-medium">
           {t(`xa.stage.${a.stage}` as MessageKey)}
         </span>
         {a.stage === "executed" && (
           <span
             className={cn(
-              "rounded-full border px-2 py-0.5 text-[11px] font-medium",
+              "rounded-full border px-2 py-0.5 text-2xs font-medium",
               a.verification === "verified"
                 ? "border-success/40 text-success"
                 : a.verification === "failed"
@@ -460,7 +460,7 @@ function ActionCard({ a, data }: { a: ExternalActionRow; data: HubData }) {
       </div>
       <ol
         aria-label={t("xa.lifecycle")}
-        className="mt-3 flex flex-wrap items-center gap-1 text-[10px]"
+        className="mt-3 flex flex-wrap items-center gap-1 text-2xs"
       >
         {STEPS.map((s, i) => (
           <li key={s} className="flex items-center gap-1">
@@ -485,7 +485,7 @@ function ActionCard({ a, data }: { a: ExternalActionRow; data: HubData }) {
           </li>
         ))}
       </ol>
-      <p className="mt-2 text-[11px] text-muted-foreground">
+      <p className="mt-2 text-2xs text-muted-foreground">
         {t("xa.task")}:{" "}
         <Link to="/app/tasks" className="text-foreground hover:underline">
           {task?.title ?? "—"}
@@ -514,12 +514,10 @@ function ActionCard({ a, data }: { a: ExternalActionRow; data: HubData }) {
           </>
         )}
       </p>
-      {a.error && <p className="mt-1 break-words text-[11px] text-destructive">{a.error}</p>}
-      {gate && (
-        <p className="mt-1 text-[11px] text-warning">{t(`xa.gate.${gate}` as MessageKey)}</p>
-      )}
+      {a.error && <p className="mt-1 break-words text-2xs text-destructive">{a.error}</p>}
+      {gate && <p className="mt-1 text-2xs text-warning">{t(`xa.gate.${gate}` as MessageKey)}</p>}
       {a.stage === "executed" && (
-        <p className="mt-1 text-[11px] text-muted-foreground">{t("xa.businessImpact")}</p>
+        <p className="mt-1 text-2xs text-muted-foreground">{t("xa.businessImpact")}</p>
       )}
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {a.stage === "draft" && member && (
@@ -585,15 +583,15 @@ function ActionCard({ a, data }: { a: ExternalActionRow; data: HubData }) {
           </>
         )}
         {a.stage === "in_review" && !admin && (
-          <span className="text-[11px] text-muted-foreground">{t("xa.awaitAdmin")}</span>
+          <span className="text-2xs text-muted-foreground">{t("xa.awaitAdmin")}</span>
         )}
         {["approved", "failed"].includes(a.stage) && a.attempts < 3 && mayExecute && (
           <>
             {a.simulated && (
-              <label className="flex items-center gap-1.5 text-[11px]">
+              <label className="flex items-center gap-1.5 text-2xs">
                 {t("xa.simResponse")}
                 <select
-                  className="rounded-md border border-border bg-card px-2 py-1 text-[11px]"
+                  className="rounded-md border border-border bg-card px-2 py-1 text-2xs"
                   value={scenario}
                   onChange={(e) => setScenario(e.target.value as Scenario)}
                 >
@@ -612,12 +610,10 @@ function ActionCard({ a, data }: { a: ExternalActionRow; data: HubData }) {
           </>
         )}
         {["approved", "failed"].includes(a.stage) && member && !mayExecute && (
-          <span className="text-[11px] text-muted-foreground">{t("xa.gate.admin_required")}</span>
+          <span className="text-2xs text-muted-foreground">{t("xa.gate.admin_required")}</span>
         )}
         {a.stage === "failed" && a.attempts >= 3 && (
-          <span className="text-[11px] text-muted-foreground">
-            {t("xa.gate.attempts_exhausted")}
-          </span>
+          <span className="text-2xs text-muted-foreground">{t("xa.gate.attempts_exhausted")}</span>
         )}
         {a.stage === "executing" &&
           member &&
@@ -671,7 +667,7 @@ function ActionCard({ a, data }: { a: ExternalActionRow; data: HubData }) {
         </Button>
       </div>
       {a.stage === "uncertain" && (
-        <p className="mt-2 text-[11px] text-muted-foreground">{t("xa.uncertainHelp")}</p>
+        <p className="mt-2 text-2xs text-muted-foreground">{t("xa.uncertainHelp")}</p>
       )}
       {open && <Details a={a} payload={payload} />}
     </li>
@@ -698,7 +694,7 @@ function Details({ a, payload }: { a: ExternalActionRow; payload: Record<string,
   const ev = (a.evidence ?? {}) as Record<string, unknown>;
   const spec = ACTIONS.find((x) => x.type === a.action_type);
   return (
-    <div className="mt-3 grid gap-4 border-t border-border pt-3 text-[11px] md:grid-cols-2">
+    <div className="mt-3 grid gap-4 border-t border-border pt-3 text-2xs md:grid-cols-2">
       <div>
         <p className="mb-1 font-medium">{t("xa.draftContent")}</p>
         <dl className="space-y-1">

@@ -56,7 +56,7 @@ export function Badge({ kind, children }: { kind: string; children: ReactNode })
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium",
+        "inline-flex items-center rounded-full border px-2 py-0.5 text-2xs font-medium",
         TONE[kind] ?? TONE["none"],
       )}
     >
@@ -91,7 +91,7 @@ export function Figure({
   return (
     <div className="flex min-w-0 flex-col rounded-lg border border-border bg-card p-3">
       <div className="flex items-start justify-between gap-2">
-        <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
+        <span className="text-2xs font-medium text-muted-foreground">{label}</span>
         {value !== null && <ClassBadge cls={cls ?? null} />}
       </div>
       {value !== null ? (
@@ -99,8 +99,8 @@ export function Figure({
       ) : (
         <div className="mt-1 text-xs text-muted-foreground">{missing}</div>
       )}
-      {note && <p className="mt-1 text-[11px] text-muted-foreground">{note}</p>}
-      <div className="mt-auto pt-2 text-[10px] text-muted-foreground">
+      {note && <p className="mt-1 text-2xs text-muted-foreground">{note}</p>}
+      <div className="mt-auto pt-2 text-2xs text-muted-foreground">
         {source} · {period}
       </div>
     </div>
@@ -138,7 +138,7 @@ export function FilterBar({
       role="group"
       aria-label={t("bi.filters")}
     >
-      <label className="text-[11px]">
+      <label className="text-2xs">
         <span className="mb-1 block font-medium">{t("bi.f.period")}</span>
         <select
           className={sel}
@@ -152,7 +152,7 @@ export function FilterBar({
           ))}
         </select>
       </label>
-      <label className="text-[11px]">
+      <label className="text-2xs">
         <span className="mb-1 block font-medium">{t("bi.f.unit")}</span>
         <select
           className={sel}
@@ -169,7 +169,7 @@ export function FilterBar({
             ))}
         </select>
       </label>
-      <label className="text-[11px]">
+      <label className="text-2xs">
         <span className="mb-1 block font-medium">{t("bi.f.strategy")}</span>
         <select
           className={sel}
@@ -184,7 +184,7 @@ export function FilterBar({
           ))}
         </select>
       </label>
-      <label className="text-[11px]">
+      <label className="text-2xs">
         <span className="mb-1 block font-medium">{t("bi.f.campaign")}</span>
         <select
           className={sel}
@@ -199,7 +199,7 @@ export function FilterBar({
           ))}
         </select>
       </label>
-      <label className="text-[11px]">
+      <label className="text-2xs">
         <span className="mb-1 block font-medium">{t("bi.f.channel")}</span>
         <select
           className={sel}
@@ -215,7 +215,7 @@ export function FilterBar({
         </select>
       </label>
       {onModel && model && (
-        <label className="text-[11px]">
+        <label className="text-2xs">
           <span className="mb-1 block font-medium">{t("bi.f.model")}</span>
           <select className={sel} value={model} onChange={(e) => onModel(e.target.value as Model)}>
             {MODELS.map((m) => (

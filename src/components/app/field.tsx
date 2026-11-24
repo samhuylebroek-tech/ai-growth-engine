@@ -17,7 +17,7 @@ export function Field({
     <label className={cn("flex min-w-0 flex-col gap-1 text-xs", className)}>
       <span className="font-medium text-muted-foreground">{label}</span>
       {children}
-      {hint && <span className="text-[11px] text-muted-foreground">{hint}</span>}
+      {hint && <span className="text-2xs text-muted-foreground">{hint}</span>}
     </label>
   );
 }

@@ -129,7 +129,7 @@ export function BlockedExplanation({
           </Button>
         )}
       </div>
-      <p className="text-[11px] text-muted-foreground">{t("bk.nothingChanges")}</p>
+      <p className="text-2xs text-muted-foreground">{t("bk.nothingChanges")}</p>
     </section>
   );
 }

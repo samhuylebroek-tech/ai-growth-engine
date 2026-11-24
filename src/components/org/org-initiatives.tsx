@@ -281,7 +281,7 @@ function NewInitiative({ m }: { m: OrgModel }) {
             );
           })}
         </fieldset>
-        <p className="text-[11px] text-muted-foreground">{t("ogo.ini.f.note")}</p>
+        <p className="text-2xs text-muted-foreground">{t("ogo.ini.f.note")}</p>
         <div className="flex gap-2">
           <Button type="submit" disabled={busy}>
             {t("ogo.ini.submit")}
@@ -459,7 +459,7 @@ function InitiativeCard({
                     >
                       {t("ogo.ini.decline")}
                     </Button>
-                    <p className="w-full text-[11px] text-muted-foreground">
+                    <p className="w-full text-2xs text-muted-foreground">
                       {t("ogo.ini.approveNote")}
                     </p>
                   </div>

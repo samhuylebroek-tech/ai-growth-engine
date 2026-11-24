@@ -11,6 +11,7 @@ import {
   Sun,
   Moon,
   Search,
+  ChevronLeft,
   ChevronRight,
   Sparkles,
   Building2,
@@ -75,9 +76,36 @@ function Shell() {
     const active = nav?.querySelector<HTMLElement>('[data-status="active"]');
     if (!nav || !active) return;
     const left = active.offsetLeft - nav.offsetLeft;
-    if (left < nav.scrollLeft || left + active.offsetWidth > nav.scrollLeft + nav.clientWidth)
-      nav.scrollLeft = left - 24;
+    // 40 px leaves room for the scroll arrow that covers each overflowing edge.
+    if (
+      left < nav.scrollLeft + 40 ||
+      left + active.offsetWidth > nav.scrollLeft + nav.clientWidth - 40
+    )
+      nav.scrollLeft = left - 48;
+    updateTabEdges();
   }, [path, o.loading]);
+  // Arrows appear only when tabs are hidden on that side (tablets, phones), so every tab stays reachable by pointer.
+  const [tabEdges, setTabEdges] = useState({ left: false, right: false });
+  function updateTabEdges() {
+    const nav = tabsRef.current;
+    if (!nav) return;
+    const left = nav.scrollLeft > 4;
+    const right = nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 4;
+    setTabEdges((e) => (e.left === left && e.right === right ? e : { left, right }));
+  }
+  useEffect(() => {
+    const nav = tabsRef.current;
+    if (!nav || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => updateTabEdges());
+    ro.observe(nav);
+    return () => ro.disconnect();
+  });
+  function scrollTabs(dir: 1 | -1) {
+    const nav = tabsRef.current;
+    if (!nav) return;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    nav.scrollBy({ left: dir * nav.clientWidth * 0.6, behavior: reduce ? "instant" : "smooth" });
+  }
   const [search, setSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedTerm, setDebouncedTerm] = useState("");
@@ -181,7 +209,7 @@ function Shell() {
             </span>
             <span className="text-sm font-bold leading-tight">
               Growth Engine
-              <span className="block text-[10px] font-medium text-muted-foreground">
+              <span className="block text-2xs font-medium text-muted-foreground">
                 BUSINESS OPERATING SYSTEM
               </span>
             </span>
@@ -244,7 +272,7 @@ function Shell() {
             </span>
             <div className="min-w-0">
               <p className="truncate text-xs font-medium">{o.email}</p>
-              <p className="mt-0.5 text-[10px] capitalize text-muted-foreground">
+              <p className="mt-0.5 text-2xs capitalize text-muted-foreground">
                 {o.role ? roleLabel(o.role) : ""} ·{" "}
                 {o.workspaceRole ? roleLabel(o.workspaceRole) : t("pages.sh.noWsAccess")}
               </p>
@@ -387,7 +415,7 @@ function Shell() {
           {staging && (
             <span
               role="note"
-              className="shrink-0 rounded-full border border-warning/40 bg-warning/10 px-2 py-0.5 text-[10px] font-semibold text-warning"
+              className="shrink-0 rounded-full border border-warning/40 bg-warning/10 px-2 py-0.5 text-2xs font-semibold text-warning"
               title={t("shell.staging")}
             >
               <span className="sm:hidden">Staging</span>
@@ -415,22 +443,48 @@ function Shell() {
           </div>
         </header>
         {group && group.items.length > 1 && (
-          <nav
-            ref={tabsRef}
-            aria-label={groupLabel(group.group)}
-            className="flex gap-5 overflow-x-auto border-b border-border px-4 [mask-image:linear-gradient(to_right,transparent,black_16px,black_calc(100%-24px),transparent)] [scrollbar-width:none] md:px-8"
-          >
-            {group.items.map((it) => (
-              <Link
-                key={it.to}
-                to={it.to}
-                activeOptions={{ exact: "exact" in it && it.exact }}
-                className="flex min-h-11 shrink-0 items-center border-b-2 border-transparent text-xs font-medium text-muted-foreground hover:text-foreground data-[status=active]:border-primary data-[status=active]:text-foreground"
-              >
-                <span>{navLabel(it.to)}</span>
-              </Link>
-            ))}
-          </nav>
+          <div className="relative border-b border-border">
+            <nav
+              ref={tabsRef}
+              aria-label={groupLabel(group.group)}
+              onScroll={updateTabEdges}
+              className="flex gap-4 overflow-x-auto px-4 [mask-image:linear-gradient(to_right,transparent,black_16px,black_calc(100%-24px),transparent)] [scrollbar-width:none] md:px-6 lg:gap-5 lg:px-8"
+            >
+              {group.items.map((it) => (
+                <Link
+                  key={it.to}
+                  to={it.to}
+                  activeOptions={{ exact: "exact" in it && it.exact }}
+                  className="flex min-h-11 shrink-0 items-center border-b-2 border-transparent text-xs font-medium text-muted-foreground hover:text-foreground data-[status=active]:border-primary data-[status=active]:text-foreground"
+                >
+                  <span>{navLabel(it.to)}</span>
+                </Link>
+              ))}
+            </nav>
+            {(["left", "right"] as const).map((side) =>
+              tabEdges[side] ? (
+                <button
+                  key={side}
+                  type="button"
+                  tabIndex={-1}
+                  aria-hidden
+                  onClick={() => scrollTabs(side === "left" ? -1 : 1)}
+                  className={cn(
+                    "absolute inset-y-0 hidden w-9 items-center justify-center bg-background text-muted-foreground hover:text-foreground sm:flex",
+                    side === "left"
+                      ? "left-0 border-r border-border"
+                      : "right-0 border-l border-border",
+                  )}
+                >
+                  {side === "left" ? (
+                    <ChevronLeft className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </button>
+              ) : null,
+            )}
+          </div>
         )}
         <div
           key={`${o.org?.id}/${o.workspace?.id}`}

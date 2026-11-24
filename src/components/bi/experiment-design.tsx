@@ -155,7 +155,7 @@ export function ExperimentDesigner({
     label: string,
     opts: { area?: boolean; req?: boolean; help?: string } = {},
   ) => (
-    <label className={cn("text-[11px]", opts.area && "sm:col-span-2")}>
+    <label className={cn("text-2xs", opts.area && "sm:col-span-2")}>
       <span className="mb-1 block font-medium">
         {label}
         {opts.req ? " *" : ""}
@@ -184,7 +184,7 @@ export function ExperimentDesigner({
     label: string,
     req = false,
   ) => (
-    <label className="text-[11px]">
+    <label className="text-2xs">
       <span className="mb-1 block font-medium">
         {label}
         {req ? " *" : ""}
@@ -207,7 +207,7 @@ export function ExperimentDesigner({
       )}
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         {field("title", t("bi.exp.title"), { req: true })}
-        <label className="text-[11px]">
+        <label className="text-2xs">
           <span className="mb-1 block font-medium">{t("bi.exp.method")}</span>
           <select
             className={sel}
@@ -234,7 +234,7 @@ export function ExperimentDesigner({
         {field("objective", t("bi.exp.objective"))}
         {field("audience", t("bi.exp.audience"))}
         {field("primary_kpi", t("exp.f.primaryKpi"), { req: true })}
-        <label className="text-[11px]">
+        <label className="text-2xs">
           <span className="mb-1 block font-medium">{t("exp.f.secondary")}</span>
           <Textarea rows={2} value={v.secondary} onChange={set("secondary")} maxLength={1000} />
         </label>
@@ -244,7 +244,7 @@ export function ExperimentDesigner({
             {numField("effect", t("exp.f.effect"))}
             {numField("traffic", t("exp.f.traffic"))}
             <div
-              className="rounded-md border border-border bg-muted/40 p-2 text-[11px]"
+              className="rounded-md border border-border bg-muted/40 p-2 text-2xs"
               aria-live="polite"
             >
               {n ? (
@@ -268,7 +268,7 @@ export function ExperimentDesigner({
         {field("success_criteria", t("exp.f.successCriteria"), { area: true })}
         {field("stop_criteria", t("exp.f.stopCriteria"), { area: true })}
         {field("expected_result", t("bi.exp.expected"))}
-        <div className="flex items-end gap-2 text-[11px]">
+        <div className="flex items-end gap-2 text-2xs">
           <label className="flex-1">
             <span className="mb-1 block font-medium">{t("bi.exp.budget")}</span>
             <Input inputMode="decimal" value={v.budget} onChange={set("budget")} />
@@ -286,7 +286,7 @@ export function ExperimentDesigner({
             </select>
           </label>
         </div>
-        <label className="text-[11px]">
+        <label className="text-2xs">
           <span className="mb-1 block font-medium">{t("bi.exp.goal")}</span>
           <select className={sel} value={goal} onChange={(e) => setGoal(e.target.value)}>
             <option value="">—</option>
@@ -299,7 +299,7 @@ export function ExperimentDesigner({
               ))}
           </select>
         </label>
-        <label className="text-[11px]">
+        <label className="text-2xs">
           <span className="mb-1 block font-medium">{t("bi.exp.metric")}</span>
           <select className={sel} value={metric} onChange={(e) => setMetric(e.target.value)}>
             <option value="">—</option>

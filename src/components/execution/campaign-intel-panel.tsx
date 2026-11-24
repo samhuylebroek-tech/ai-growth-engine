@@ -226,13 +226,13 @@ export function CampaignIntelPanel({
                 >
                   {show(f)}
                 </dd>
-                <dd className="text-[11px] text-muted-foreground">{t(tk(`ci.s.${f.source}`))}</dd>
+                <dd className="text-2xs text-muted-foreground">{t(tk(`ci.s.${f.source}`))}</dd>
               </div>
             );
           })}
         </dl>
         {intel.simulated && (
-          <p className="mt-2 rounded border border-warning/50 px-2 py-1 text-[11px] text-warning">
+          <p className="mt-2 rounded border border-warning/50 px-2 py-1 text-2xs text-warning">
             {t("ci.simLine", {
               n: intel.simulated.entries,
               s: money(intel.simulated.spent),

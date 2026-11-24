@@ -229,7 +229,7 @@ export function GrowthSituation() {
       className="break-words"
     >
       {text(f)}
-      <span className="block text-[11px] text-muted-foreground">
+      <span className="block text-2xs text-muted-foreground">
         {t("sa.src", { s: t(tk(`sa.s.${f.source}`)), r: t(tk(`sa.r.${f.reliability}`)) })}
       </span>
     </li>
@@ -252,7 +252,7 @@ export function GrowthSituation() {
             {s.priorities.map((p) => (
               <li key={`${p.code}-${p.section}`} className="break-words">
                 <span className="font-medium">{text(p)}</span>
-                <span className="block text-[11px] text-muted-foreground">
+                <span className="block text-2xs text-muted-foreground">
                   {t("sa.src", { s: t(tk(`sa.s.${p.source}`)), r: t(tk(`sa.r.${p.reliability}`)) })}
                 </span>
                 <span className="block text-xs">
@@ -272,7 +272,7 @@ export function GrowthSituation() {
                     {t("sa.p.depends", { d: t(tk(`sa.dep.${p.dependsOn}`)) })}
                   </span>
                 )}
-                <span className="block text-[11px] text-muted-foreground">{t("sa.p.cost")}</span>
+                <span className="block text-2xs text-muted-foreground">{t("sa.p.cost")}</span>
                 <Link
                   to={p.action.to}
                   className="mt-1 inline-block text-xs font-medium text-primary underline-offset-2 hover:underline"
@@ -286,7 +286,7 @@ export function GrowthSituation() {
           <p className="mt-2 text-sm text-muted-foreground">{t("sa.noPriorities")}</p>
         )}
         {s.priorities.length > 0 && (
-          <p className="mt-2 text-[11px] text-muted-foreground">{t("sa.p.note")}</p>
+          <p className="mt-2 text-2xs text-muted-foreground">{t("sa.p.note")}</p>
         )}
       </div>
       <div className="grid gap-3 md:grid-cols-2">

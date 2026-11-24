@@ -193,18 +193,18 @@ export function FactConflicts({
                 <StatusChip status={STATUS_CHIP[st.status]}>
                   {t(`ev.cf.status.${st.status}` as MessageKey)}
                 </StatusChip>
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-2xs text-muted-foreground">
                   {t("ev.cf.values", { n: c.values })}
                 </span>
               </div>
               {c.confirmedConflict && (
-                <p className="mt-1 text-[11px] text-warning">{t("ev.cf.bothConfirmed")}</p>
+                <p className="mt-1 text-2xs text-warning">{t("ev.cf.bothConfirmed")}</p>
               )}
               {open && !c.preferred && (
-                <p className="mt-1 text-[11px] text-muted-foreground">{t("ev.cf.undetermined")}</p>
+                <p className="mt-1 text-2xs text-muted-foreground">{t("ev.cf.undetermined")}</p>
               )}
               {open && (
-                <p className="mt-1 text-[11px]">
+                <p className="mt-1 text-2xs">
                   <span className="font-medium">{t("ev.cf.impact")}</span>{" "}
                   {deps.length
                     ? deps.map((p) => p.title).join(" · ")
@@ -221,7 +221,7 @@ export function FactConflicts({
                   >
                     <div className="min-w-0 flex-1">
                       <p className="break-words text-sm">{f.value}</p>
-                      <p className="mt-0.5 break-all text-[10px] text-muted-foreground">
+                      <p className="mt-0.5 break-all text-2xs text-muted-foreground">
                         {sourceLabel(f.source_type)}
                         {f.source_ref ? ` · ${f.source_ref}` : ""}
                         {f.created_at ? ` · ${new Date(f.created_at).toLocaleDateString(tag)}` : ""}
@@ -296,10 +296,10 @@ export function FactConflicts({
                   )}
                 </div>
               ) : (
-                <p className="mt-2 text-[11px] text-muted-foreground">{t("ev.cf.editorOnly")}</p>
+                <p className="mt-2 text-2xs text-muted-foreground">{t("ev.cf.editorOnly")}</p>
               )}
               {st.history.length > 0 && (
-                <details className="mt-2 text-[11px]">
+                <details className="mt-2 text-2xs">
                   <summary className="cursor-pointer text-muted-foreground">
                     {t("ev.cf.history", { n: st.history.length })}
                   </summary>

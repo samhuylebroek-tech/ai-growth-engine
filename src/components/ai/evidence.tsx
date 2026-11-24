@@ -167,7 +167,7 @@ export const CLAIM_TONE: Record<ClaimKind, string> = {
   missing: "border-destructive/30 bg-destructive/10 text-destructive",
 };
 const LABEL =
-  "mr-1 inline-flex items-center whitespace-nowrap rounded-full border px-1.5 py-px align-baseline text-[10px] font-medium not-italic relative before:absolute before:-inset-y-1.5 before:inset-x-0";
+  "mr-1 inline-flex items-center whitespace-nowrap rounded-full border px-1.5 py-px align-baseline text-2xs font-medium not-italic relative before:absolute before:-inset-y-1.5 before:inset-x-0";
 
 function RecordLink({ r }: { r: EvidenceRecord }) {
   const { t } = useI18n();
@@ -209,13 +209,13 @@ function RefRow({ x }: { x: ResolvedRef }) {
   const title = question ? t(`ob.q.${question.id}.label` as MessageKey) : r.title;
   return (
     <li className="rounded-md border border-border p-2">
-      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+      <p className="text-2xs uppercase tracking-wide text-muted-foreground">
         {t(`evd.type.${r.type}` as MessageKey)}{" "}
         <span className="font-mono normal-case">{x.ref.code}</span>
       </p>
       <p className="mt-0.5 text-sm font-medium break-words">{title}</p>
       {r.detail && <p className="text-xs break-words text-muted-foreground">{r.detail}</p>}
-      <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
+      <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-2xs text-muted-foreground">
         {r.type === "fact" && (
           <li className={r.verified ? "text-success" : "text-warning"}>
             {t(r.verified ? "evd.confirmed" : "evd.unconfirmed")}
@@ -295,7 +295,7 @@ function EvidenceBody({
             </ul>
           )}
           {q.data && !q.data.complete && (
-            <p className="mt-1 text-[11px] text-muted-foreground">{t("evd.incomplete")}</p>
+            <p className="mt-1 text-2xs text-muted-foreground">{t("evd.incomplete")}</p>
           )}
         </section>
       )}

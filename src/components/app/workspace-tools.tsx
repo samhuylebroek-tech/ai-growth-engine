@@ -64,7 +64,7 @@ export function WorkspaceContext() {
           aria-label={t("ogo.context.change")}
         >
           <span className="min-w-0">
-            <span className="block max-w-40 truncate text-[10px] text-muted-foreground">
+            <span className="block max-w-40 truncate text-2xs text-muted-foreground">
               {o.org?.name}
               {!onOrg && multi ? ` · ${t("ogo.context.business")}` : ""}
             </span>

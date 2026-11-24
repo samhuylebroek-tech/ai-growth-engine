@@ -60,7 +60,7 @@ export function ExternalTiles() {
         <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-6">
           {tiles.map(([k, v, to, warn]) => (
             <Link key={k} to={to} className="flex min-w-0 flex-col bg-card p-3 hover:bg-muted/40">
-              <span className="break-words text-[11px] font-medium text-muted-foreground">
+              <span className="break-words text-2xs font-medium text-muted-foreground">
                 {t(`xa.home.k.${k}` as MessageKey)}
               </span>
               <span
@@ -75,7 +75,7 @@ export function ExternalTiles() {
           ))}
         </div>
       )}
-      <p className="mt-2 text-[11px] text-muted-foreground">
+      <p className="mt-2 text-2xs text-muted-foreground">
         {costs.length
           ? t("xa.home.costs", {
               list: costs

@@ -101,13 +101,13 @@ export function GrowthSignals() {
                 <div className="mb-1.5 flex flex-wrap items-center gap-2">
                   <span
                     className={cn(
-                      "inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                      "inline-flex rounded-full border px-2 py-0.5 text-2xs font-medium",
                       TONE[s.kind],
                     )}
                   >
                     {t(`signals.kind.${s.kind}` as MessageKey)}
                   </span>
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-2xs text-muted-foreground">
                     {t("signals.impact", {
                       impact: level(s.impact),
                       urgency: t(`signals.urgency.${s.urgency}` as MessageKey),
@@ -117,7 +117,7 @@ export function GrowthSignals() {
                 <p className="break-words text-sm font-medium">
                   {t(`signal.${s.code}.title` as MessageKey, s.vars)}
                 </p>
-                <p className="mt-1 text-[11px] text-muted-foreground">
+                <p className="mt-1 text-2xs text-muted-foreground">
                   {t(`signal.basis.${s.basis}` as MessageKey)}
                 </p>
                 <p className="mt-1 text-xs">

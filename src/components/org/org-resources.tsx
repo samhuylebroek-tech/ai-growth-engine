@@ -298,7 +298,7 @@ function ProposalCard({ p, m }: { p: OrgAllocationRow; m: OrgModel }) {
           <StatusChip status={p.status}>{t(tk(`ogo.propStatus.${p.status}`))}</StatusChip>
         </div>
         <p className="mt-2 text-xs">{p.reasoning}</p>
-        <p className="mt-1 text-[11px] text-muted-foreground">
+        <p className="mt-1 text-2xs text-muted-foreground">
           {t("ogo.res.proposedOn", { date: f.date(p.created_at) })}
           {p.decided_at && ` · ${t("ogo.res.decidedOn", { date: f.date(p.decided_at) })}`}
           {p.decision_note && ` · ${p.decision_note}`}
@@ -335,7 +335,7 @@ function ProposalCard({ p, m }: { p: OrgAllocationRow; m: OrgModel }) {
                 {t("ogo.res.withdraw")}
               </Button>
             )}
-            <p className="w-full text-[11px] text-muted-foreground">
+            <p className="w-full text-2xs text-muted-foreground">
               {mayDecide ? t("ogo.res.applyNote") : t(tk(`ogo.res.needs.${p.kind}`))}
             </p>
           </div>

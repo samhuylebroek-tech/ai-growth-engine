@@ -225,7 +225,7 @@ export function BusinessTiles() {
           ))}
         </div>
       )}
-      <p className="mt-2 text-[11px] text-muted-foreground">{t("home.tiles.note")}</p>
+      <p className="mt-2 text-2xs text-muted-foreground">{t("home.tiles.note")}</p>
     </section>
   );
 }
@@ -250,7 +250,7 @@ function TileCard({ tile }: { tile: Tile }) {
       <div className="flex items-start justify-between gap-1">
         <Link
           to={tile.to}
-          className="group min-w-0 text-[11px] font-medium text-muted-foreground hover:text-foreground"
+          className="group min-w-0 text-2xs font-medium text-muted-foreground hover:text-foreground"
         >
           <span className="break-words">{label}</span>
           <ArrowUpRight className="ml-0.5 inline h-3 w-3 opacity-0 group-hover:opacity-100" />
@@ -297,7 +297,7 @@ function TileCard({ tile }: { tile: Tile }) {
           ))}
         </Link>
       )}
-      <p className="mt-auto pt-2 text-[10px] text-muted-foreground">
+      <p className="mt-auto pt-2 text-2xs text-muted-foreground">
         <span
           className={cn(
             "mr-1 rounded border px-1",

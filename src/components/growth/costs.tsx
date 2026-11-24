@@ -156,9 +156,9 @@ function Report({
   );
   const Stat = ({ k, v, note }: { k: string; v: string; note: string }) => (
     <div className="min-w-0 rounded-lg border bg-card p-3">
-      <p className="text-[11px] font-medium text-muted-foreground">{k}</p>
+      <p className="text-2xs font-medium text-muted-foreground">{k}</p>
       <p className="mt-1 break-words text-xl font-semibold tabular-nums">{v}</p>
-      <p className="mt-1 text-[11px] text-muted-foreground">{note}</p>
+      <p className="mt-1 text-2xs text-muted-foreground">{note}</p>
     </div>
   );
   return (
@@ -276,7 +276,7 @@ function Report({
             </table>
           </div>
         )}
-        <p className="mt-2 text-[11px] text-muted-foreground">
+        <p className="mt-2 text-2xs text-muted-foreground">
           {t("cost.levelsNote")}
           {r.unlinkedTasks ? ` ${t("cost.unlinked", { n: r.unlinkedTasks })}` : ""}
         </p>

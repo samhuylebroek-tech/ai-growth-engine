@@ -99,7 +99,7 @@ export function DeepAnalysisRecovery() {
                     ? t("officer.deep.running")
                     : t("officer.deep.needsRecon")}
                 </p>
-                <p className="mt-1 text-[10px] text-muted-foreground">
+                <p className="mt-1 text-2xs text-muted-foreground">
                   {new Date(row.created_at).toLocaleString(tag)}
                   {row.error ? ` · ${row.error}` : ""}
                 </p>

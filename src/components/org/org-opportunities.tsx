@@ -342,9 +342,7 @@ function TrackedCard({ x }: { x: OrgOpportunityRow }) {
           <Badge kind="planned">{t(tk(`ogo.kind.${x.kind}`))}</Badge>
           <Badge kind={x.confidence}>{t(tk(`ogo.conf.${x.confidence}`))}</Badge>
           <StatusChip status={x.status}>{t(tk(`ogo.oppStatus.${x.status}`))}</StatusChip>
-          <span className="text-[11px] text-muted-foreground">
-            {t(tk(`ogo.origin.${x.origin}`))}
-          </span>
+          <span className="text-2xs text-muted-foreground">{t(tk(`ogo.origin.${x.origin}`))}</span>
         </div>
         <p className="mt-2 text-sm font-medium">{x.title}</p>
         <p className="mt-0.5 text-xs text-muted-foreground">

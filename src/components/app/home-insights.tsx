@@ -126,7 +126,7 @@ export function HomePerformance() {
             ))}
           </div>
           {missing.length > 0 && (
-            <p className="mt-3 text-[11px] text-muted-foreground">
+            <p className="mt-3 text-2xs text-muted-foreground">
               {t("performance.h.next", {
                 month: monthName,
                 list:
@@ -140,7 +140,7 @@ export function HomePerformance() {
           )}
         </>
       )}
-      <p className="mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+      <p className="mt-3 flex items-center gap-1.5 text-2xs text-muted-foreground">
         <Plug className="h-3 w-3" />
         {t("performance.h.notConfigured")}
       </p>
@@ -192,7 +192,7 @@ function AttentionLink({ title, detail }: { title: string; detail: string }) {
       <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
       <div className="min-w-0 flex-1">
         <p className="break-words text-xs font-medium group-hover:text-primary">{title}</p>
-        <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{detail}</p>
+        <p className="mt-1 text-2xs leading-relaxed text-muted-foreground">{detail}</p>
       </div>
       <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
     </Link>
@@ -288,7 +288,7 @@ export function HomeBudget() {
           ))}
         </div>
       )}
-      <p className="mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+      <p className="mt-3 flex items-center gap-1.5 text-2xs text-muted-foreground">
         <LineChart className="h-3 w-3" />
         {t("performance.b.currencies")}
       </p>
@@ -304,7 +304,7 @@ export function GoalLinkedMetrics({ goalId }: { goalId: string }) {
   if (!linked.length) return null;
   return (
     <div className="mt-3 space-y-1.5 border-t border-border pt-3">
-      <p className="text-[11px] text-muted-foreground">{t("performance.g.linked")}</p>
+      <p className="text-2xs text-muted-foreground">{t("performance.g.linked")}</p>
       {linked.slice(0, 3).map(({ metric, summary, status }) => (
         <Link
           key={metric.id}

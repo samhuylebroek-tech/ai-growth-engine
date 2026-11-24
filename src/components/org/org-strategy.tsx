@@ -193,7 +193,7 @@ function Officer({ m }: { m: OrgModel }) {
                 </option>
               ))}
           </select>
-          <span className="mt-1 block text-[11px] text-muted-foreground">
+          <span className="mt-1 block text-2xs text-muted-foreground">
             {t("ogo.officer.anchorHint")}
           </span>
         </label>
@@ -221,7 +221,7 @@ function Officer({ m }: { m: OrgModel }) {
             : t("ogo.officer.cost", { n: String(CREDIT_RULES.reserveOrganization) })}
         </p>
       </div>
-      <p className="mt-3 text-[11px] text-muted-foreground">{t("ogo.officer.limits")}</p>
+      <p className="mt-3 text-2xs text-muted-foreground">{t("ogo.officer.limits")}</p>
     </Panel>
   );
 }
@@ -397,9 +397,7 @@ function StrategyCard({ s }: { s: OrgStrategyRow }) {
         </div>
         <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{named(s.summary)}</p>
         {reconstructed && /\bB\d{1,2}\b/.test(JSON.stringify(s.body ?? "") + s.summary) && (
-          <p className="mt-1 text-[11px] text-muted-foreground">
-            {t("ogo.strat.namesReconstructed")}
-          </p>
+          <p className="mt-1 text-2xs text-muted-foreground">{t("ogo.strat.namesReconstructed")}</p>
         )}
         <p className="mt-2 text-xs text-muted-foreground">
           {t("ogo.strat.covers", { names: s.business_ids.map(name).join(" · ") })}
@@ -621,7 +619,7 @@ function StrategyCard({ s }: { s: OrgStrategyRow }) {
                 {t("ogo.strat.retire")}
               </Button>
             )}
-            <p className="w-full text-[11px] text-muted-foreground">{t("ogo.strat.approveNote")}</p>
+            <p className="w-full text-2xs text-muted-foreground">{t("ogo.strat.approveNote")}</p>
           </div>
         )}
       </Panel>
@@ -643,7 +641,7 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
 function Scope({ ids }: { ids: readonly (string | null | undefined)[] }) {
   const { t } = useI18n();
   return (
-    <span className="whitespace-nowrap rounded border border-border px-1 py-px text-[10px] text-muted-foreground">
+    <span className="whitespace-nowrap rounded border border-border px-1 py-px text-2xs text-muted-foreground">
       {t(claimScope(ids) === "business" ? "evd.scope.business" : "evd.scope.organization")}
     </span>
   );

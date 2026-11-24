@@ -208,7 +208,7 @@ function ActivityPage() {
                           })()
                         : a.title}
                     </h2>
-                    <time className="mt-1 block text-[10px] text-muted-foreground">
+                    <time className="mt-1 block text-2xs text-muted-foreground">
                       {new Date(a.time).toLocaleString(tag)} · {t(`pg.act.kind.${a.kind}`)}
                     </time>
                   </div>

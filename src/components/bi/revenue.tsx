@@ -54,7 +54,7 @@ function Body({ d }: { d: BiData }) {
       </p>
       <RecordRevenue d={d} />
       <div className="mt-6 grid gap-2 sm:grid-cols-2 lg:max-w-xl">
-        <label className="text-[11px]">
+        <label className="text-2xs">
           <span className="mb-1 block font-medium">{t("bi.f.period")}</span>
           <select
             className={sel}
@@ -68,7 +68,7 @@ function Body({ d }: { d: BiData }) {
             ))}
           </select>
         </label>
-        <label className="text-[11px]">
+        <label className="text-2xs">
           <span className="mb-1 block font-medium">{t("bi.f.model")}</span>
           <select className={sel} value={model} onChange={(e) => setModel(e.target.value as Model)}>
             {MODELS.map((m) => (
@@ -79,14 +79,14 @@ function Body({ d }: { d: BiData }) {
           </select>
         </label>
       </div>
-      <p className="mt-1 text-[11px] text-muted-foreground">{t(tk(`bi.modelHelp.${model}`))}</p>
+      <p className="mt-1 text-2xs text-muted-foreground">{t(tk(`bi.modelHelp.${model}`))}</p>
       <Section title={t("bi.rev.totals")} intro={`${f.date(range.from)} – ${f.date(range.to)}`}>
         {!totals.length ? (
           <p className="text-xs text-muted-foreground">{t("bi.rev.noneInPeriod")}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[560px] text-xs">
-              <thead className="text-left text-[11px] text-muted-foreground">
+              <thead className="text-left text-2xs text-muted-foreground">
                 <tr>
                   {["currency", "gross", "refunds", "net", "imported", "manual", "estimated"].map(
                     (h) => (
@@ -154,7 +154,7 @@ function Body({ d }: { d: BiData }) {
                           </span>
                           <span className="flex items-center gap-2">
                             <span className="font-medium">{f.money(c.amount, a.currency)}</span>
-                            <span className="text-[11px] text-muted-foreground">
+                            <span className="text-2xs text-muted-foreground">
                               {t("bi.rev.sales", { n: c.sales })}
                             </span>
                             <Badge kind={c.confidence}>{t(tk(`bi.quality.${c.confidence}`))}</Badge>
@@ -250,7 +250,7 @@ function RecordRevenue({ d }: { d: BiData }) {
       <h2 className="text-sm font-semibold">{t("bi.rev.record")}</h2>
       <p className="mt-1 text-xs text-muted-foreground">{t("bi.rev.recordIntro")}</p>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <label className="text-[11px]">
+        <label className="text-2xs">
           <span className="mb-1 block font-medium">{t("bi.rev.kind")}</span>
           <select className={sel} value={kind} onChange={(e) => setKind(e.target.value)}>
             {["sale", "refund", "cancellation", "correction"].map((k) => (
@@ -260,7 +260,7 @@ function RecordRevenue({ d }: { d: BiData }) {
             ))}
           </select>
         </label>
-        <label className="text-[11px]">
+        <label className="text-2xs">
           <span className="mb-1 block font-medium">
             {kind === "correction" ? t("bi.rev.amountCorrection") : t("bi.rev.amount")}
           </span>
@@ -271,7 +271,7 @@ function RecordRevenue({ d }: { d: BiData }) {
             required
           />
         </label>
-        <label className="text-[11px]">
+        <label className="text-2xs">
           <span className="mb-1 block font-medium">{t("bi.rev.currency")}</span>
           <select className={sel} value={currency} onChange={(e) => setCurrency(e.target.value)}>
             {["EUR", "USD", "GBP", "CHF"].map((c) => (
@@ -279,7 +279,7 @@ function RecordRevenue({ d }: { d: BiData }) {
             ))}
           </select>
         </label>
-        <label className="text-[11px]">
+        <label className="text-2xs">
           <span className="mb-1 block font-medium">{t("bi.rev.date")}</span>
           <Input
             type="date"
@@ -289,7 +289,7 @@ function RecordRevenue({ d }: { d: BiData }) {
             required
           />
         </label>
-        <label className="text-[11px]">
+        <label className="text-2xs">
           <span className="mb-1 block font-medium">{t("bi.rev.class")}</span>
           <select
             className={sel}
@@ -304,7 +304,7 @@ function RecordRevenue({ d }: { d: BiData }) {
           </select>
         </label>
         {kind !== "sale" && (
-          <label className="text-[11px] lg:col-span-2">
+          <label className="text-2xs lg:col-span-2">
             <span className="mb-1 block font-medium">{t("bi.rev.relates")}</span>
             <select
               className={sel}
@@ -324,7 +324,7 @@ function RecordRevenue({ d }: { d: BiData }) {
             </select>
           </label>
         )}
-        <label className="text-[11px]">
+        <label className="text-2xs">
           <span className="mb-1 block font-medium">{t("bi.rev.ref")}</span>
           <Input
             value={ref}
@@ -333,7 +333,7 @@ function RecordRevenue({ d }: { d: BiData }) {
             placeholder={t("bi.rev.refHint")}
           />
         </label>
-        <label className="text-[11px]">
+        <label className="text-2xs">
           <span className="mb-1 block font-medium">{t("bi.rev.customer")}</span>
           <Input
             value={customer}
@@ -343,7 +343,7 @@ function RecordRevenue({ d }: { d: BiData }) {
           />
         </label>
         {kind === "sale" && d.units.length > 0 && (
-          <label className="text-[11px]">
+          <label className="text-2xs">
             <span className="mb-1 block font-medium">{t("bi.f.unit")}</span>
             <select className={sel} value={unit} onChange={(e) => setUnit(e.target.value)}>
               <option value="">{t("bi.f.wholeBusiness")}</option>
@@ -355,7 +355,7 @@ function RecordRevenue({ d }: { d: BiData }) {
             </select>
           </label>
         )}
-        <label className="text-[11px] sm:col-span-2">
+        <label className="text-2xs sm:col-span-2">
           <span className="mb-1 block font-medium">{t("bi.rev.note")}</span>
           <Input value={note} maxLength={300} onChange={(e) => setNote(e.target.value)} />
         </label>
@@ -398,12 +398,12 @@ function Ledger({ d }: { d: BiData }) {
                   </span>
                   <span className="flex flex-wrap items-center gap-2">
                     <ClassBadge cls={CLS[n.sale.data_class] ?? "manual"} />
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-2xs text-muted-foreground">
                       {n.sale.source === "manual" ? t("bi.src.team") : n.sale.source}
                     </span>
                     <button
                       type="button"
-                      className="text-[11px] text-primary hover:underline"
+                      className="text-2xs text-primary hover:underline"
                       onClick={() => setOpen(open === n.sale.id ? null : n.sale.id)}
                       aria-expanded={open === n.sale.id}
                     >
@@ -507,7 +507,7 @@ function Touchpoints({ d, saleId }: { d: BiData; saleId: string }) {
                 {!x.retracted_at && member && (x.evidence === "manual" || admin) && (
                   <button
                     type="button"
-                    className="text-[11px] text-muted-foreground hover:text-destructive"
+                    className="text-2xs text-muted-foreground hover:text-destructive"
                     onClick={() => retract(x.id)}
                   >
                     {t("bi.tp.retract")}
@@ -526,7 +526,7 @@ function Touchpoints({ d, saleId }: { d: BiData; saleId: string }) {
           className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-5"
           aria-label={t("bi.tp.add")}
         >
-          <label className="text-[11px]">
+          <label className="text-2xs">
             <span className="mb-1 block font-medium">{t("bi.f.campaign")}</span>
             <select className={sel} value={campaign} onChange={(e) => setCampaign(e.target.value)}>
               <option value="">—</option>
@@ -537,7 +537,7 @@ function Touchpoints({ d, saleId }: { d: BiData; saleId: string }) {
               ))}
             </select>
           </label>
-          <label className="text-[11px]">
+          <label className="text-2xs">
             <span className="mb-1 block font-medium">{t("bi.tp.initiative")}</span>
             <select
               className={sel}
@@ -552,7 +552,7 @@ function Touchpoints({ d, saleId }: { d: BiData; saleId: string }) {
               ))}
             </select>
           </label>
-          <label className="text-[11px]">
+          <label className="text-2xs">
             <span className="mb-1 block font-medium">{t("bi.f.channel")}</span>
             <Input
               value={channel}
@@ -562,7 +562,7 @@ function Touchpoints({ d, saleId }: { d: BiData; saleId: string }) {
               className="h-8"
             />
           </label>
-          <label className="text-[11px]">
+          <label className="text-2xs">
             <span className="mb-1 block font-medium">{t("bi.tp.date")}</span>
             <Input
               type="date"
@@ -579,7 +579,7 @@ function Touchpoints({ d, saleId }: { d: BiData; saleId: string }) {
           </div>
         </form>
       )}
-      <p className="mt-2 text-[11px] text-muted-foreground">{t("bi.tp.manualNote")}</p>
+      <p className="mt-2 text-2xs text-muted-foreground">{t("bi.tp.manualNote")}</p>
     </div>
   );
 }

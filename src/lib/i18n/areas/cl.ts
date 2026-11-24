@@ -17,6 +17,8 @@ export const cl = defineArea("cl", {
     "cl.d.missing": "Information needed for a reliable answer that is not available yet.",
     "cl.downgraded": "Labelled as a fact but worded as uncertain, so shown as a hypothesis.",
     "cl.legend": "What the labels mean",
+    "cl.showSupport": "Show the evidence and reasoning",
+    "cl.hideSupport": "Hide the evidence and reasoning",
     "cl.inAnswer": "In this answer:",
     "cl.unlabelled":
       "This answer has no labels. Treat its statements as unverified unless a source is named.",
@@ -37,6 +39,8 @@ export const cl = defineArea("cl", {
     "cl.d.missing": "Informatie die nodig is voor een betrouwbaar antwoord, maar nog ontbreekt.",
     "cl.downgraded": "Als feit gelabeld maar onzeker verwoord, daarom als hypothese getoond.",
     "cl.legend": "Wat de labels betekenen",
+    "cl.showSupport": "Toon het bewijs en de redenering",
+    "cl.hideSupport": "Verberg het bewijs en de redenering",
     "cl.inAnswer": "In dit antwoord:",
     "cl.unlabelled":
       "Dit antwoord heeft geen labels. Beschouw de uitspraken als niet gecontroleerd, tenzij er een bron bij staat.",
@@ -58,6 +62,8 @@ export const cl = defineArea("cl", {
     "cl.downgraded":
       "Indiqué comme fait mais formulé avec incertitude, donc affiché comme hypothèse.",
     "cl.legend": "Ce que signifient les étiquettes",
+    "cl.showSupport": "Afficher les preuves et le raisonnement",
+    "cl.hideSupport": "Masquer les preuves et le raisonnement",
     "cl.inAnswer": "Dans cette réponse :",
     "cl.unlabelled":
       "Cette réponse n'a pas d'étiquettes. Considérez ses affirmations comme non vérifiées, sauf si une source est indiquée.",

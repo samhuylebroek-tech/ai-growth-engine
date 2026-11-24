@@ -55,9 +55,7 @@ export function QualityBadge({
         </span>
       </Badge>
       {showReasons && reasons && (
-        <span className="text-[11px] text-muted-foreground">
-          {t("ev.qBecause", { r: reasons })}
-        </span>
+        <span className="text-2xs text-muted-foreground">{t("ev.qBecause", { r: reasons })}</span>
       )}
     </span>
   );
@@ -144,12 +142,12 @@ export function EvidenceList({
   return (
     <div className="mt-3 rounded-md border border-border bg-muted/30 p-2.5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-[11px] font-semibold">{t("ev.panel")}</span>
+        <span className="text-2xs font-semibold">{t("ev.panel")}</span>
         {canAdd && !adding && (
           <Button
             size="sm"
             variant="ghost"
-            className="h-7 text-[11px]"
+            className="h-7 text-2xs"
             onClick={() => setAdding(true)}
           >
             {t("ev.add")}
@@ -157,11 +155,11 @@ export function EvidenceList({
         )}
       </div>
       {!items.length ? (
-        <p className="mt-1 text-[11px] text-muted-foreground">{t("ev.none")}</p>
+        <p className="mt-1 text-2xs text-muted-foreground">{t("ev.none")}</p>
       ) : (
         <ul className="mt-1.5 space-y-1.5" aria-label={t("ev.panel")}>
           {items.map((e) => (
-            <li key={e.id} className="min-w-0 rounded border border-border bg-card p-2 text-[11px]">
+            <li key={e.id} className="min-w-0 rounded border border-border bg-card p-2 text-2xs">
               <div className="flex flex-wrap items-center gap-1">
                 {e.evidence_type && (
                   <Badge
@@ -210,7 +208,7 @@ export function EvidenceList({
                 <div className="mt-1.5 flex gap-1.5">
                   <Button
                     size="sm"
-                    className="h-7 text-[11px]"
+                    className="h-7 text-2xs"
                     disabled={busy === e.id}
                     onClick={() => decide(e.id, "accept")}
                   >
@@ -219,7 +217,7 @@ export function EvidenceList({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="h-7 text-[11px]"
+                    className="h-7 text-2xs"
                     disabled={busy === e.id}
                     onClick={() => decide(e.id, "reject")}
                   >
@@ -361,7 +359,7 @@ function AddEvidence({ p, d, onDone }: { p: ProposalRow; d: BiData; onDone: () =
     <form
       onSubmit={submit}
       aria-label={t("ev.addTitle")}
-      className="mt-2 space-y-2 rounded border border-border bg-card p-2.5 text-[11px]"
+      className="mt-2 space-y-2 rounded border border-border bg-card p-2.5 text-2xs"
     >
       <p className="font-medium">{t("ev.addTitle")}</p>
       <div role="radiogroup" className="flex flex-wrap gap-1">

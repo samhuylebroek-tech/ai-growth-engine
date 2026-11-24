@@ -158,7 +158,7 @@ export function HomeWork({
             >
               {p.title} <ArrowUpRight className="inline h-3 w-3" />
             </Link>
-            <p className="mt-1 text-[11px] text-muted-foreground">
+            <p className="mt-1 text-2xs text-muted-foreground">
               {ws(p.status)} · {pr(p.priority)}
             </p>
             {(() => {
@@ -166,7 +166,7 @@ export function HomeWork({
               if (!initiative) return null;
               const ops = operationsForInitiative(initiative.id);
               return (
-                <div className="mt-1 space-y-1 text-[11px] text-muted-foreground">
+                <div className="mt-1 space-y-1 text-2xs text-muted-foreground">
                   <p>{tr("work.initiative", { t: initiative.title, s: gs(initiative.status) })}</p>
                   {ops?.due_date && <p>{tr("work.due", { d: day(ops.due_date) })}</p>}
                   {ops?.owner_id && (
@@ -197,7 +197,7 @@ export function HomeWork({
               );
             })()}
             {"goal_id" in p && p.goal_id && goalTitle(p.goal_id) && (
-              <p className="mt-1 text-[11px] text-muted-foreground">
+              <p className="mt-1 text-2xs text-muted-foreground">
                 {tr("work.goal", { t: goalTitle(p.goal_id) ?? "" })}
               </p>
             )}
@@ -224,7 +224,7 @@ export function HomeWork({
             >
               {t.title}
             </Link>
-            <p className="mt-1 text-[11px] text-muted-foreground">
+            <p className="mt-1 text-2xs text-muted-foreground">
               {t.due_date ? day(t.due_date) : tr("work.noDeadline")} · {pr(t.priority)} ·{" "}
               {ws(t.status)}
             </p>
@@ -251,7 +251,7 @@ export function HomeWork({
               <Link to="/app/campaigns" search={{ item: c.id }} className="text-xs font-medium">
                 {c.title}
               </Link>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-2xs text-muted-foreground">
                 {tr("work.starts", { d: day(c.start_date!) })}
               </p>
             </div>

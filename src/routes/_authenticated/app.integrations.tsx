@@ -190,7 +190,7 @@ function Integrations() {
               <StatusChip status={statusOf(c.key, c.status === "implemented")} />
             </div>
             <h3 className="text-sm font-semibold">{nameOf(c)}</h3>
-            <p className="mt-1 text-[10px] text-muted-foreground">{catLabel(c.category)}</p>
+            <p className="mt-1 text-2xs text-muted-foreground">{catLabel(c.category)}</p>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{descOf(c)}</p>
             {c.key in READ_ONLY_METRICS &&
               (connections.data?.installed && o.workspace ? (
@@ -206,7 +206,7 @@ function Integrations() {
                   googleReady={google.data?.google === true}
                 />
               ) : (
-                <div className="mt-4 border-t border-border pt-3 text-[11px] text-muted-foreground">
+                <div className="mt-4 border-t border-border pt-3 text-2xs text-muted-foreground">
                   <p className="font-medium text-foreground">{tx("pages.int.readOnlyWould")}</p>
                   <p className="mt-1">
                     {READ_ONLY_METRICS[c.key as ReadOnlyConnector]
@@ -222,7 +222,7 @@ function Integrations() {
                 </div>
               ))}
             {c.status === "planned" && !(c.key in READ_ONLY_METRICS) && (
-              <p className="mt-4 border-t border-border pt-3 text-[11px] text-muted-foreground">
+              <p className="mt-4 border-t border-border pt-3 text-2xs text-muted-foreground">
                 {tx("pages.int.notAvailable")}
               </p>
             )}

@@ -43,7 +43,7 @@ export function SimulatedNotice({ className }: { className?: string }) {
 export function SimBadge() {
   const { t } = useI18n();
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-warning/50 bg-warning/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-warning">
+    <span className="inline-flex items-center gap-1 rounded-full border border-warning/50 bg-warning/10 px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-warning">
       <FlaskConical className="h-3 w-3" aria-hidden />
       {t("xa.simulated")}
     </span>
@@ -128,7 +128,7 @@ export function IntegrationHub() {
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-4 lg:grid-cols-6">
         {tiles.map(([k, v, warn]) => (
           <div key={k} className="flex min-w-0 flex-col bg-card p-3">
-            <span className="break-words text-[11px] font-medium text-muted-foreground">
+            <span className="break-words text-2xs font-medium text-muted-foreground">
               {t(`xa.tile.${k}` as MessageKey)}
             </span>
             <span
@@ -348,13 +348,13 @@ function ConnectionCard({
         {c.simulated ? (
           <SimBadge />
         ) : (
-          <span className="rounded-full border border-border px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+          <span className="rounded-full border border-border px-2 py-0.5 text-2xs font-medium text-muted-foreground">
             {t("xa.real")}
           </span>
         )}
         <span
           className={cn(
-            "ml-auto rounded-full border px-2 py-0.5 text-[11px] font-medium",
+            "ml-auto rounded-full border px-2 py-0.5 text-2xs font-medium",
             h === "connected"
               ? "border-success/40 text-success"
               : h === "disconnected"
@@ -365,7 +365,7 @@ function ConnectionCard({
           {t(`xa.health.${h}` as MessageKey)}
         </span>
       </div>
-      <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-[11px]">
+      <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-2xs">
         <dt className="text-muted-foreground">{t("xa.category")}</dt>
         <dd>{prov ? t(`xa.cat.${prov.category}` as MessageKey) : "—"}</dd>
         <dt className="text-muted-foreground">{t("xa.account")}</dt>
@@ -394,13 +394,13 @@ function ConnectionCard({
         <dd>{open}</dd>
       </dl>
       <fieldset className="mt-3" disabled={!admin || busy || h === "disconnected"}>
-        <legend className="mb-1 text-[11px] font-medium">{t("xa.permissions")}</legend>
+        <legend className="mb-1 text-2xs font-medium">{t("xa.permissions")}</legend>
         <div className="flex flex-wrap gap-x-4 gap-y-1">
           {LEVELS.map((l) => (
             <label
               key={l}
               className={cn(
-                "flex items-center gap-1.5 text-[11px]",
+                "flex items-center gap-1.5 text-2xs",
                 !supported.has(l) && "text-muted-foreground line-through",
               )}
               title={supported.has(l) ? t(`xa.levelDesc.${l}` as MessageKey) : t("xa.unsupported")}
@@ -417,7 +417,7 @@ function ConnectionCard({
           ))}
         </div>
         {!c.simulated && (
-          <p className="mt-1 text-[10px] text-muted-foreground">{t("xa.realReadOnly")}</p>
+          <p className="mt-1 text-2xs text-muted-foreground">{t("xa.realReadOnly")}</p>
         )}
       </fieldset>
       {c.simulated && h !== "disconnected" && (
@@ -429,10 +429,10 @@ function ConnectionCard({
             </Button>
           )}
           {admin && (
-            <label className="flex items-center gap-1.5 text-[11px]">
+            <label className="flex items-center gap-1.5 text-2xs">
               {t("xa.simulateHealth")}
               <select
-                className="rounded-md border border-border bg-card px-2 py-1 text-[11px]"
+                className="rounded-md border border-border bg-card px-2 py-1 text-2xs"
                 value=""
                 disabled={busy}
                 onChange={(e) => e.target.value && onHealth(e.target.value)}
@@ -500,7 +500,7 @@ function AddSimulated({
       </h3>
       <p className="mt-1 text-xs text-muted-foreground">{t("xa.add.intro")}</p>
       <div className="mt-3 flex flex-wrap items-end gap-4">
-        <label className="text-[11px]">
+        <label className="text-2xs">
           <span className="mb-1 block font-medium">{t("xa.add.provider")}</span>
           <select
             className="rounded-md border border-border bg-card px-2 py-1.5 text-xs"
@@ -517,7 +517,7 @@ function AddSimulated({
             ))}
           </select>
         </label>
-        <label className="text-[11px]">
+        <label className="text-2xs">
           <span className="mb-1 block font-medium">{t("xa.add.scenario")}</span>
           <select
             className="rounded-md border border-border bg-card px-2 py-1.5 text-xs"
@@ -533,10 +533,10 @@ function AddSimulated({
         </label>
       </div>
       <fieldset className="mt-3">
-        <legend className="mb-1 text-[11px] font-medium">{t("xa.permissions")}</legend>
+        <legend className="mb-1 text-2xs font-medium">{t("xa.permissions")}</legend>
         <div className="flex flex-wrap gap-x-4 gap-y-1">
           {LEVELS.filter((l) => p?.levels.includes(l)).map((l) => (
-            <label key={l} className="flex items-center gap-1.5 text-[11px]">
+            <label key={l} className="flex items-center gap-1.5 text-2xs">
               <input
                 type="checkbox"
                 className="h-3.5 w-3.5 accent-primary"

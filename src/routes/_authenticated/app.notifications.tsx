@@ -126,7 +126,7 @@ function Notifications() {
                   {n.detail}
                 </p>
                 {read.includes(n.id) && (
-                  <p className="mt-1 text-[10px] text-muted-foreground">{t("pg.not.read")}</p>
+                  <p className="mt-1 text-2xs text-muted-foreground">{t("pg.not.read")}</p>
                 )}
               </div>
               <div className="flex shrink-0 gap-1">
@@ -153,7 +153,7 @@ function Notifications() {
           {t(filter === "unread" ? "pg.not.upToDate" : "pg.not.noMatch")}
         </p>
       )}
-      <p className="mt-6 text-[10px] text-muted-foreground">{t("pg.not.footer")}</p>
+      <p className="mt-6 text-2xs text-muted-foreground">{t("pg.not.footer")}</p>
     </div>
   );
 }

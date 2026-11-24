@@ -211,14 +211,14 @@ export function AiExplanation({
                   <li key={n} className="break-words">
                     <span
                       className={cn(
-                        "mr-1.5 rounded border px-1 py-0.5 text-[10px]",
+                        "mr-1.5 rounded border px-1 py-0.5 text-2xs",
                         KIND_TONE[st.kind],
                       )}
                     >
                       {t(tk(`sn.k.${st.kind}`))}
                     </span>
                     {st.text}
-                    <span className="block text-[11px] text-muted-foreground">
+                    <span className="block text-2xs text-muted-foreground">
                       {t("sn.basis", { list: st.basis.map((b) => label.get(b) ?? b).join(" · ") })}
                     </span>
                   </li>

@@ -221,7 +221,7 @@ function ReviewCard({ r, when }: { r: SpecialistReviewRow; when: string }) {
         </Badge>
       </div>
       <p className="mt-1">{t("qc.score", { s: r.score, n: r.assessed })}</p>
-      <p className="text-[11px] text-muted-foreground">{t("qc.scoreHow")}</p>
+      <p className="text-2xs text-muted-foreground">{t("qc.scoreHow")}</p>
       {r.independence_warning && <p className="mt-1 text-warning">{t("qc.uncritical")}</p>}
       {r.summary && <p className="mt-1">{r.summary}</p>}
       <ul className="mt-1 grid gap-x-3 gap-y-0.5 sm:grid-cols-2">

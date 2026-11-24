@@ -48,7 +48,7 @@ export function GrowthQuestion({ compact = false }: { compact?: boolean }) {
           className="min-h-16 resize-none border-0 bg-transparent p-1 text-sm shadow-none focus-visible:ring-0"
         />
         <div className="mt-2 flex items-center justify-between gap-2">
-          <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <span className="flex items-center gap-1.5 text-2xs text-muted-foreground">
             <Sparkles className="h-3.5 w-3.5 text-primary" />
             {t("officer.askFooter")}
           </span>
@@ -69,7 +69,7 @@ export function GrowthQuestion({ compact = false }: { compact?: boolean }) {
             key={prompt}
             variant="ghost"
             size="sm"
-            className="h-auto max-w-full whitespace-normal border border-border px-3 py-2 text-left text-[11px] text-muted-foreground"
+            className="h-auto max-w-full whitespace-normal border border-border px-3 py-2 text-left text-2xs text-muted-foreground"
             disabled={!allowed}
             onClick={() => start(prompt)}
           >

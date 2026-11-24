@@ -85,7 +85,7 @@ export function CreditsSection({ orgId }: { orgId: string }) {
           <Panel key={k}>
             <p className="text-xs text-muted-foreground">{t(tk(k))}</p>
             <p className="mt-1 text-2xl font-semibold tabular-nums">{num(v)}</p>
-            <p className="mt-1 text-[11px] text-muted-foreground">{t(tk(note))}</p>
+            <p className="mt-1 text-2xs text-muted-foreground">{t(tk(note))}</p>
           </Panel>
         ))}
       </div>
@@ -190,7 +190,7 @@ export function CreditsSection({ orgId }: { orgId: string }) {
           {t("ogo.cr.mismatch")}
         </p>
       )}
-      <p className="mt-1 text-[11px] text-muted-foreground">{t("ogo.cr.drill")}</p>
+      <p className="mt-1 text-2xs text-muted-foreground">{t("ogo.cr.drill")}</p>
 
       <h3 className="mt-5 text-sm font-medium">{t("ogo.cr.bySpecialist")}</h3>
       {specs.length ? (
@@ -216,7 +216,7 @@ export function CreditsSection({ orgId }: { orgId: string }) {
       ) : (
         <Empty>{t("ogo.cr.noSpecialists")}</Empty>
       )}
-      <p className="mt-2 text-[11px] text-muted-foreground">{t("ogo.cr.notMoney")}</p>
+      <p className="mt-2 text-2xs text-muted-foreground">{t("ogo.cr.notMoney")}</p>
     </Section>
   );
 }

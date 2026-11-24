@@ -68,7 +68,7 @@ function Intelligence() {
                       <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">
                         {f.value}
                       </dd>
-                      <p className="mt-2 text-[10px] text-muted-foreground">
+                      <p className="mt-2 text-2xs text-muted-foreground">
                         {t("performance.i.confirmed", { s: f.source_type })}
                       </p>
                     </div>
@@ -139,7 +139,7 @@ function Intelligence() {
                     </div>
                     <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{f.value}</p>
                     {f.source_ref && (
-                      <p className="mt-3 break-all text-[10px] text-muted-foreground">
+                      <p className="mt-3 break-all text-2xs text-muted-foreground">
                         {t("performance.i.source", { s: f.source_ref })}
                       </p>
                     )}

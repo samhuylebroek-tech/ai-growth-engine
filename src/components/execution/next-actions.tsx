@@ -104,7 +104,7 @@ export function NextActions({
   if (!actions.length && !dups.length && !necks.length) return null;
   return (
     <section aria-label={t("orch.nbaTitle")} className="mb-5 rounded-lg border bg-card p-3 text-sm">
-      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+      <p className="text-2xs font-medium uppercase tracking-wide text-muted-foreground">
         {t("orch.nbaEyebrow")}
       </p>
       <h2 className="flex items-center gap-2 font-semibold">
@@ -152,7 +152,7 @@ export function NextActions({
           ))}
         </div>
       )}
-      <p className="mt-2 text-[11px] text-muted-foreground">{t("orch.nbaNote")}</p>
+      <p className="mt-2 text-2xs text-muted-foreground">{t("orch.nbaNote")}</p>
     </section>
   );
 }

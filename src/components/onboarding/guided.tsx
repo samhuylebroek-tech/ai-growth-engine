@@ -468,7 +468,7 @@ function QuestionField({
       <legend className="flex flex-wrap items-center gap-2 text-base font-medium">
         {label}
         {!q.core && (
-          <span className="rounded-full border border-border px-2 py-0.5 text-[11px] font-normal text-muted-foreground">
+          <span className="rounded-full border border-border px-2 py-0.5 text-2xs font-normal text-muted-foreground">
             {t("ob.optional")}
           </span>
         )}
@@ -635,7 +635,7 @@ export function UnderstandingSummary({
                   <div key={item.source} className="flex flex-wrap items-start gap-2">
                     <span
                       className={cn(
-                        "inline-flex shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                        "inline-flex shrink-0 rounded-full border px-2 py-0.5 text-2xs font-medium",
                         TONE[item.status],
                       )}
                     >

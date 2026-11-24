@@ -1,5 +1,5 @@
 import { campaignHealth } from "@/lib/campaign-health";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -169,6 +169,13 @@ export function ExecutionWorkspace({
   const [search, setSearch] = useState("");
   const [view, setView] = useState("list");
   const [filter, setFilter] = useState(kind === "tasks" ? "mine" : "all");
+  // On phones the filters are one scrolling row; keep the chosen one in view.
+  const filterRow = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    filterRow.current
+      ?.querySelector<HTMLElement>('[aria-pressed="true"]')
+      ?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [filter]);
   const [status, setStatus] = useState("all");
   const [priority, setPriority] = useState("all");
   const [goal, setGoal] = useState("all");
@@ -354,7 +361,12 @@ export function ExecutionWorkspace({
           )
         }
       />
-      <div className="mb-5 flex flex-wrap gap-1">
+      <div
+        role="group"
+        aria-label={tx("work.filterGroup")}
+        ref={filterRow}
+        className="-mx-4 mb-5 flex gap-1 overflow-x-auto px-4 [mask-image:linear-gradient(to_right,transparent,black_12px,black_calc(100%-20px),transparent)] [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:[mask-image:none]"
+      >
         {(kind === "tasks"
           ? [
               "mine",
@@ -380,6 +392,7 @@ export function ExecutionWorkspace({
             key={f}
             variant={filter === f ? "secondary" : "ghost"}
             size="sm"
+            className="shrink-0"
             onClick={() => setFilter(f)}
             aria-pressed={filter === f}
           >
@@ -719,7 +732,7 @@ export function ExecutionWorkspace({
                   .map((d) => (
                     <div
                       key={d}
-                      className="border-b border-r border-border py-2 text-center text-[10px] text-muted-foreground"
+                      className="border-b border-r border-border py-2 text-center text-2xs text-muted-foreground"
                     >
                       {d}
                     </div>
@@ -746,7 +759,7 @@ export function ExecutionWorkspace({
                         <Button
                           variant="ghost"
                           key={x.id}
-                          className="mb-1 h-auto w-full justify-start whitespace-normal break-words p-1 text-left text-[10px] leading-tight"
+                          className="mb-1 h-auto w-full justify-start whitespace-normal break-words p-1 text-left text-2xs leading-tight"
                           onClick={() => open(x)}
                         >
                           {x.title}

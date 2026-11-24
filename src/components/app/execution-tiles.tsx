@@ -91,7 +91,7 @@ export function ExecutionTiles() {
               title={t(`run.tiles.d.${x.key}` as MessageKey)}
               className="flex min-w-0 flex-col bg-card p-3 hover:bg-muted/40"
             >
-              <span className="break-words text-[11px] font-medium text-muted-foreground">
+              <span className="break-words text-2xs font-medium text-muted-foreground">
                 {t(`run.tiles.k.${x.key}` as MessageKey)}
               </span>
               <span className="mt-1 text-xl font-semibold tabular-nums">
@@ -103,14 +103,14 @@ export function ExecutionTiles() {
                   </span>
                 )}
               </span>
-              <span className="mt-auto pt-2 text-[10px] text-muted-foreground">
+              <span className="mt-auto pt-2 text-2xs text-muted-foreground">
                 {t(`run.tiles.p.${x.period}` as MessageKey)}
               </span>
             </Link>
           ))}
         </div>
       )}
-      <p className="mt-2 text-[11px] text-muted-foreground">{t("run.tiles.note")}</p>
+      <p className="mt-2 text-2xs text-muted-foreground">{t("run.tiles.note")}</p>
     </section>
   );
 }

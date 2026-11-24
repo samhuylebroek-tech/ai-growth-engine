@@ -126,7 +126,7 @@ function Stepper({ status }: { status: string }) {
           key={s}
           aria-current={i === at ? "step" : undefined}
           className={cn(
-            "rounded-full border px-1.5 py-0.5 text-[10px]",
+            "rounded-full border px-1.5 py-0.5 text-2xs",
             i < at && "border-primary/30 bg-primary/10 text-primary",
             i === at && "border-primary bg-primary text-primary-foreground",
             i > at && "border-border text-muted-foreground",
@@ -216,7 +216,7 @@ function Card({
       </div>
       <Stepper status={x.status === "paused" ? (x.paused_from ?? "running") : x.status} />
       {parent && (
-        <p className="mt-1 text-[11px] text-muted-foreground">
+        <p className="mt-1 text-2xs text-muted-foreground">
           {t("exp.followUpOf", { t: parent.title })}
         </p>
       )}
@@ -246,12 +246,12 @@ function Card({
           .filter(([, v]) => v)
           .map(([k, v]) => (
             <div key={k} className="min-w-0">
-              <dt className="text-[11px] text-muted-foreground">{t(tk(k))}</dt>
+              <dt className="text-2xs text-muted-foreground">{t(tk(k))}</dt>
               <dd className="break-words">{v}</dd>
             </div>
           ))}
         <div>
-          <dt className="text-[11px] text-muted-foreground">{t("bi.exp.duration")}</dt>
+          <dt className="text-2xs text-muted-foreground">{t("bi.exp.duration")}</dt>
           <dd>
             {t("bi.exp.days", { n: x.duration_days })}
             {x.scheduled_start && x.status === "scheduled"
@@ -262,7 +262,7 @@ function Card({
         </div>
         {x.sample_per_group != null && (
           <div>
-            <dt className="text-[11px] text-muted-foreground">
+            <dt className="text-2xs text-muted-foreground">
               {t("exp.samplePlanned", { n: x.sample_per_group })}
             </dt>
             <dd>
@@ -272,17 +272,17 @@ function Card({
           </div>
         )}
         <div>
-          <dt className="text-[11px] text-muted-foreground">{t("bi.exp.budget")}</dt>
+          <dt className="text-2xs text-muted-foreground">{t("bi.exp.budget")}</dt>
           <dd>{x.budget !== null && x.currency ? fm.money(Number(x.budget), x.currency) : "—"}</dd>
         </div>
       </dl>
       {gaps.length > 0 && (
-        <p className="mt-2 rounded-md border border-warning/40 bg-warning/10 p-2 text-[11px]">
+        <p className="mt-2 rounded-md border border-warning/40 bg-warning/10 p-2 text-2xs">
           {t("exp.gaps", { list: gaps.map((g) => t(tk(`exp.gap.${g}`))).join(", ") })}
         </p>
       )}
       {x.reviewed_by && x.reviewed_by === x.created_by && !CLOSED.includes(x.status) && (
-        <p className="mt-2 text-[11px] text-muted-foreground">{t("exp.reviewedBySelf")}</p>
+        <p className="mt-2 text-2xs text-muted-foreground">{t("exp.reviewedBySelf")}</p>
       )}
       {(obs.length > 0 || ["running", "collecting", "evaluating", "paused"].includes(x.status)) && (
         <Results x={x} obs={obs} ev={ev} />
@@ -338,7 +338,7 @@ function Card({
           ))}
           {actions.includes("schedule") && (
             <span className="flex items-end gap-1">
-              <label className="text-[11px]">
+              <label className="text-2xs">
                 <span className="mb-1 block">{t("exp.startDate")}</span>
                 <Input
                   type="date"
@@ -358,7 +358,7 @@ function Card({
             </span>
           )}
           {x.status === "proposed" && !admin && (
-            <p className="text-[11px] text-muted-foreground">{t("bi.imp.awaitAdmin")}</p>
+            <p className="text-2xs text-muted-foreground">{t("bi.imp.awaitAdmin")}</p>
           )}
           {x.status === "completed" && (
             <Button size="sm" variant="outline" onClick={onFollowUp}>
@@ -369,8 +369,8 @@ function Card({
       )}
       {events.length > 0 && (
         <details className="mt-3">
-          <summary className="cursor-pointer text-[11px] font-medium">{t("exp.hist")}</summary>
-          <ol className="mt-1 space-y-0.5 text-[11px] text-muted-foreground">
+          <summary className="cursor-pointer text-2xs font-medium">{t("exp.hist")}</summary>
+          <ol className="mt-1 space-y-0.5 text-2xs text-muted-foreground">
             {events.map((e) => (
               <li key={e.id}>
                 {fm.date(e.created_at)} ·{" "}
@@ -443,10 +443,10 @@ function Results({
           )}
           {ev.simulated && <p className="mt-1 text-warning">{t("exp.ev.simulated")}</p>}
           <details className="mt-1">
-            <summary className="cursor-pointer text-[11px] text-muted-foreground">
+            <summary className="cursor-pointer text-2xs text-muted-foreground">
               {obs.length}×
             </summary>
-            <ul className="mt-1 space-y-0.5 text-[11px] text-muted-foreground">
+            <ul className="mt-1 space-y-0.5 text-2xs text-muted-foreground">
               {obs.map((r) => (
                 <li key={r.id}>
                   {t("exp.obs.row", {
@@ -519,7 +519,7 @@ function RecordResults({
     onSaved();
   }
   const f = (k: keyof typeof v, label: string) => (
-    <label className="text-[11px]">
+    <label className="text-2xs">
       <span className="mb-1 block font-medium">{label}</span>
       <Input
         inputMode="numeric"
@@ -540,7 +540,7 @@ function RecordResults({
       {f("vc", t("exp.obs.vc"))}
       {f("cn", controlled ? t("exp.obs.cn") : t("exp.obs.cnBefore"))}
       {f("cc", controlled ? t("exp.obs.cc") : t("exp.obs.ccBefore"))}
-      <label className="text-[11px] sm:col-span-2">
+      <label className="text-2xs sm:col-span-2">
         <span className="mb-1 block font-medium">{t("exp.obs.class")}</span>
         <select className={sel} value={cls} onChange={(e) => setCls(e.target.value as typeof cls)}>
           {(["manual", "simulated", "imported"] as const).map((c) => (
@@ -588,7 +588,7 @@ function Complete({
         onSubmit({ outcome, actual_result: result, conclusion });
       }}
     >
-      <label className="text-[11px] sm:col-span-2">
+      <label className="text-2xs sm:col-span-2">
         <span className="mb-1 block font-medium">{t("exp.complete.outcome")}</span>
         <select
           className={sel}
@@ -603,7 +603,7 @@ function Complete({
         </select>
         <span className="mt-1 block text-muted-foreground">{t("exp.complete.only")}</span>
       </label>
-      <label className="text-[11px]">
+      <label className="text-2xs">
         <span className="mb-1 block font-medium">{t("bi.exp.result")} *</span>
         <Textarea
           rows={2}
@@ -613,7 +613,7 @@ function Complete({
           maxLength={1000}
         />
       </label>
-      <label className="text-[11px]">
+      <label className="text-2xs">
         <span className="mb-1 block font-medium">{t("bi.exp.conclusion")} *</span>
         <Textarea
           rows={2}
@@ -648,15 +648,15 @@ function OutcomeView({ x }: { x: ExperimentRow }) {
             {t(tk(`exp.outcome.${x.outcome}`))}
           </Badge>
         ) : (
-          <span className="text-[11px] text-muted-foreground">{t("exp.legacy")}</span>
+          <span className="text-2xs text-muted-foreground">{t("exp.legacy")}</span>
         )}
         <Badge kind={s === "controlled" ? "high" : s === "correlational" ? "medium" : "low"}>
           {t(tk(`bi.strength.${s}`))}
         </Badge>
-        <span className="text-[11px] text-muted-foreground">{t(tk(`bi.strengthHelp.${s}`))}</span>
+        <span className="text-2xs text-muted-foreground">{t(tk(`bi.strengthHelp.${s}`))}</span>
       </p>
       {x.result_data_class === "simulated" && (
-        <p className="mt-1 text-[11px] text-warning">{t("exp.simNotEvidence")}</p>
+        <p className="mt-1 text-2xs text-warning">{t("exp.simNotEvidence")}</p>
       )}
       <p className="mt-1">
         <span className="font-medium">{t("bi.exp.result")}:</span> {x.actual_result}
@@ -665,7 +665,7 @@ function OutcomeView({ x }: { x: ExperimentRow }) {
         <span className="font-medium">{t("bi.exp.conclusion")}:</span> {x.conclusion}
       </p>
       {x.z_score != null && (
-        <p className="mt-1 text-[11px] text-muted-foreground">
+        <p className="mt-1 text-2xs text-muted-foreground">
           {Math.abs(Number(x.z_score)) >= 1.96 && s === "controlled"
             ? t("bi.exp.significant", { z: Number(x.z_score) })
             : t("bi.exp.notSignificant", { z: Number(x.z_score) })}

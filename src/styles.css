@@ -38,6 +38,9 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
   --font-display: "Manrope", sans-serif;
+  /* Smallest step of the type scale (captions, meta lines, chips). Never go below it. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
   --font-sans: "Manrope", sans-serif;
   --color-primary-glow: var(--primary-glow);
   --color-success: var(--success);

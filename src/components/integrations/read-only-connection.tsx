@@ -180,7 +180,7 @@ export function ReadOnlyConnection({
       ? [...trackedKeys].some((k) => k.startsWith(`${key}_`))
       : trackedKeys.has(key);
   return (
-    <div className="mt-4 space-y-3 border-t border-border pt-3 text-[11px] text-muted-foreground">
+    <div className="mt-4 space-y-3 border-t border-border pt-3 text-2xs text-muted-foreground">
       {connection?.account_label && <p>{connection.account_label}</p>}
       <p className="font-medium text-foreground">{tx("pages.int.readOnlyLabel", { name })}</p>
       {linked && (
@@ -206,7 +206,7 @@ export function ReadOnlyConnection({
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-6 px-2 text-[11px]"
+                className="h-6 px-2 text-2xs"
                 disabled={busy}
                 onClick={() => track(m.key, metricLabel(m), m.unit)}
               >
@@ -226,7 +226,7 @@ export function ReadOnlyConnection({
             value={currency}
             maxLength={3}
             onChange={(e) => setCurrency(e.target.value.toUpperCase())}
-            className="h-7 w-16 text-[11px]"
+            className="h-7 w-16 text-2xs"
           />
         </label>
       )}

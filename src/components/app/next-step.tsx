@@ -155,7 +155,7 @@ export function NextStep({ counts }: { counts: NextStepCounts }) {
           </ul>
         </div>
       )}
-      <p className="mt-4 text-[11px] text-muted-foreground">{t("gx.next.basis")}</p>
+      <p className="mt-4 text-2xs text-muted-foreground">{t("gx.next.basis")}</p>
     </section>
   );
 }

@@ -65,7 +65,7 @@ function Agents() {
               </Button>
             )}
             {a.status === "planned" && (
-              <p className="mt-3 text-[11px] text-muted-foreground">{t("reg.notOperational")}</p>
+              <p className="mt-3 text-2xs text-muted-foreground">{t("reg.notOperational")}</p>
             )}
             <div className="mt-3 flex flex-wrap gap-1.5">
               {a.capabilities.map((k) => (

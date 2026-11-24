@@ -315,7 +315,7 @@ function Overview() {
             text={w?.activity.length ? t("home.tryOther") : t("home.noneRecorded")}
           />
         )}
-        <p className="mt-4 text-[10px] text-muted-foreground">{t("home.latest")}</p>
+        <p className="mt-4 text-2xs text-muted-foreground">{t("home.latest")}</p>
       </>
     ),
     results: (
@@ -787,7 +787,7 @@ function Overview() {
                   <h2 className="text-base font-semibold">{t("home.officer")}</h2>
                 </div>
                 <GrowthQuestion />
-                <p className="mt-3 text-[11px] text-muted-foreground">
+                <p className="mt-3 text-2xs text-muted-foreground">
                   {t("home.confirmedFacts", { n: confirmed.length, ws: o.workspace?.name ?? "" })}
                 </p>
               </section>
@@ -810,12 +810,12 @@ function Overview() {
                 </div>
               </section>
               <section className="border-t border-border pt-5">
-                <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                <div className="flex items-center gap-2 text-2xs text-muted-foreground">
                   <RefreshCw className="h-3 w-3" />
                   {work.isFetching ? t("home.syncing") : t("home.every30")}
                 </div>
                 {work.dataUpdatedAt > 0 && (
-                  <p className="mt-2 text-[10px] text-muted-foreground">
+                  <p className="mt-2 text-2xs text-muted-foreground">
                     {t("home.lastChecked", {
                       t: time(new Date(work.dataUpdatedAt).toISOString(), tag),
                     })}
@@ -911,9 +911,9 @@ function ActivityRow({
           </p>
         )}
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          <time className="text-[10px] text-muted-foreground">{time(item.time, tag)}</time>
+          <time className="text-2xs text-muted-foreground">{time(item.time, tag)}</time>
           <StatusChip status={item.status} />
-          <Link to={item.to} className="text-[10px] text-muted-foreground underline">
+          <Link to={item.to} className="text-2xs text-muted-foreground underline">
             {item.status === "pending" && item.kind === "approvals"
               ? t("home.review")
               : t("home.openSource")}
@@ -962,7 +962,7 @@ function Attention({
       />
       <div className="min-w-0 flex-1">
         <p className="break-words text-xs font-medium group-hover:text-primary">{title}</p>
-        <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{detail}</p>
+        <p className="mt-1 text-2xs leading-relaxed text-muted-foreground">{detail}</p>
       </div>
       <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
     </Link>

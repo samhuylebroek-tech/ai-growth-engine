@@ -257,7 +257,7 @@ export function GrowthInitiativePulse({
   return (
     <div className="space-y-2">
       {summary}
-      <p className="text-[10px] text-muted-foreground">{t("goals.p.how")}</p>
+      <p className="text-2xs text-muted-foreground">{t("goals.p.how")}</p>
       {issues.map((issue) => (
         <div key={issue.id} className="rounded-md border border-border p-3">
           <div className="flex flex-wrap items-center gap-2">
@@ -268,7 +268,7 @@ export function GrowthInitiativePulse({
             >
               {t(`goals.p.kind.${issue.kind}`)}
             </Badge>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-2xs text-muted-foreground">
               {t(`goals.status.${issue.status}` as MessageKey)}
             </span>
           </div>
@@ -277,7 +277,7 @@ export function GrowthInitiativePulse({
             {issue.goalTitle} · {reasonText(issue)}
           </p>
           {issue.ownerId && (
-            <p className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
+            <p className="mt-1 flex items-center gap-1 text-2xs text-muted-foreground">
               <UserRound className="h-3 w-3" />
               {issue.ownerId === o.userId
                 ? t("goals.op.assignedYou")
@@ -303,7 +303,7 @@ export function GrowthInitiativePulse({
         </div>
       ))}
       {rankedIssues.length > issues.length && (
-        <p className="text-[10px] text-muted-foreground">
+        <p className="text-2xs text-muted-foreground">
           {t("goals.p.showing", { n: issues.length, total: rankedIssues.length })}
         </p>
       )}

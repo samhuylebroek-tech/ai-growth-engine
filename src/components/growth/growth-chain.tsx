@@ -167,7 +167,7 @@ export function GrowthChain({
                   <>
                     <span
                       className={cn(
-                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px]",
+                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-2xs",
                         s.state === "done"
                           ? "border-success/50 bg-success/10 text-success"
                           : s.state === "in_progress" || s.state === "waiting"

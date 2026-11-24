@@ -120,7 +120,7 @@ function OverviewBody({
         onModel={setModel}
       />
       {v.scopeLabel !== "all" && (
-        <p className="mt-2 text-[11px] text-muted-foreground">{t("bi.scopeNote")}</p>
+        <p className="mt-2 text-2xs text-muted-foreground">{t("bi.scopeNote")}</p>
       )}
       <ExecutiveFigures d={d} v={v} model={model} />
       <GrowthActions actions={v.actions} hidden={v.hiddenActions} />
@@ -312,14 +312,14 @@ export function KpiLabel({ k }: { k: KpiKey }) {
     <details className="min-w-0 max-w-full">
       <summary className="cursor-pointer list-none">
         {t(tk(`bi.kpi.${k}`))}{" "}
-        <span className="text-[10px] text-muted-foreground underline decoration-dotted">
+        <span className="text-2xs text-muted-foreground underline decoration-dotted">
           {t("bi.kdef.show")}
         </span>
       </summary>
-      <p className="mt-1 text-[11px] text-foreground">
+      <p className="mt-1 text-2xs text-foreground">
         {formulaText(d, (x) => t(tk("in" in x ? `bi.input.${x.in}` : `bi.kterm.${x.term}`)))}
       </p>
-      <p className="text-[10px] text-muted-foreground">
+      <p className="text-2xs text-muted-foreground">
         {t(d.better === "higher" ? "bi.kdef.higher" : "bi.kdef.lower")} · {t("bi.kdef.rule")}
       </p>
     </details>
@@ -374,7 +374,7 @@ function Indicators({ v }: { v: View }) {
                         <ClassBadge cls={k.cls} />
                       </span>
                     ) : (
-                      <span className="text-[11px] text-muted-foreground">{missingText(k, t)}</span>
+                      <span className="text-2xs text-muted-foreground">{missingText(k, t)}</span>
                     )}
                   </li>
                 ))}
@@ -383,7 +383,7 @@ function Indicators({ v }: { v: View }) {
           );
         })}
       </div>
-      <p className="mt-2 text-[11px] text-muted-foreground">
+      <p className="mt-2 text-2xs text-muted-foreground">
         {t("bi.kpis.how")}{" "}
         <Link to="/app/performance" className="text-primary hover:underline">
           {t("bi.openPerformance")}
@@ -456,21 +456,21 @@ export function GrowthActions({
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
             <QualityBadge q={a.quality} />
             {a.uncertain && (
-              <span className="text-[11px] text-muted-foreground">{t("ev.indicative")}</span>
+              <span className="text-2xs text-muted-foreground">{t("ev.indicative")}</span>
             )}
             {a.ranksAboveBy && !compact ? (
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-2xs text-muted-foreground">
                 {t("bi.rec.ranksAbove", { f: t(tk(`bi.rec.factor.${a.ranksAboveBy}`)) })}
               </span>
             ) : null}
             {a.alsoSuggested?.length ? (
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-2xs text-muted-foreground">
                 {t("bi.actions.alsoSuggested", { n: a.alsoSuggested.length })}
               </span>
             ) : null}
           </div>
           {!compact && (
-            <p className="mt-1 text-[11px] text-muted-foreground">
+            <p className="mt-1 text-2xs text-muted-foreground">
               {t("bi.actions.why", {
                 v: a.components.value,
                 i: a.components.importance,
@@ -481,7 +481,7 @@ export function GrowthActions({
               })}
             </p>
           )}
-          <p className="mt-1 text-[11px]">
+          <p className="mt-1 text-2xs">
             {t("bi.actions.ifDelayed")} {t(tk(`bi.delay.${a.delay}`))}
           </p>
           {a.blockers.length > 0 && (
@@ -496,7 +496,7 @@ export function GrowthActions({
           <div className="mt-1 flex flex-wrap items-center gap-3">
             <Link
               to={a.to}
-              className="inline-flex min-h-6 items-center text-[11px] text-primary hover:underline"
+              className="inline-flex min-h-6 items-center text-2xs text-primary hover:underline"
             >
               {t("bi.actions.open")}
             </Link>
@@ -505,7 +505,7 @@ export function GrowthActions({
                 <button
                   type="button"
                   disabled={!!busy}
-                  className="inline-flex min-h-6 items-center text-[11px] text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50"
+                  className="inline-flex min-h-6 items-center text-2xs text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50"
                   onClick={() => decide(a, "postponed")}
                 >
                   {t("bi.rec.postpone")}
@@ -513,7 +513,7 @@ export function GrowthActions({
                 <button
                   type="button"
                   disabled={!!busy}
-                  className="inline-flex min-h-6 items-center text-[11px] text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50"
+                  className="inline-flex min-h-6 items-center text-2xs text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50"
                   onClick={() => decide(a, "dismissed")}
                 >
                   {t("bi.rec.dismiss")}
@@ -526,7 +526,7 @@ export function GrowthActions({
     </ol>
   );
   const hiddenList = !compact && hidden.length > 0 && (
-    <details className="mt-3 rounded-lg border border-dashed border-border p-3 text-[11px]">
+    <details className="mt-3 rounded-lg border border-dashed border-border p-3 text-2xs">
       <summary className="cursor-pointer text-muted-foreground">
         {t("bi.rec.hidden", { n: hidden.length })}
       </summary>
@@ -647,7 +647,7 @@ function Comparison({ d, model }: { d: BiData; model: Model }) {
         <div className="space-y-4">
           {groups.map((g) => (
             <div key={g.key} className="rounded-lg border border-border bg-card">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-2 text-[11px]">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-2 text-2xs">
                 <span className="font-medium">
                   {g.objective && !["channel", "execution", "period"].includes(g.objective)
                     ? t("bi.cmp.objective", { o: g.objective.replace("|", " · ") })
@@ -663,7 +663,7 @@ function Comparison({ d, model }: { d: BiData; model: Model }) {
                 </Badge>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[640px] text-[11px]">
+                <table className="w-full min-w-[640px] text-2xs">
                   <thead className="text-left text-muted-foreground">
                     <tr>
                       {[
@@ -735,7 +735,7 @@ function Comparison({ d, model }: { d: BiData; model: Model }) {
           ))}
         </div>
       )}
-      <details className="mt-3 text-[11px] text-muted-foreground">
+      <details className="mt-3 text-2xs text-muted-foreground">
         <summary className="cursor-pointer">{t("bi.cmp.assumptions")}</summary>
         <ul className="mt-1 list-disc space-y-0.5 pl-4">
           {ASSUMPTIONS.map((a) => (
@@ -820,12 +820,12 @@ function Levers({ d }: { d: BiData }) {
               </Badge>
             </div>
             {c.have.length > 0 && (
-              <p className="mt-1 break-words text-[11px] text-muted-foreground">
+              <p className="mt-1 break-words text-2xs text-muted-foreground">
                 {t("bi.lever.have")} {c.have.map(src).join(", ")}
               </p>
             )}
             {c.missing.length > 0 && (
-              <p className="mt-0.5 break-words text-[11px] text-muted-foreground">
+              <p className="mt-0.5 break-words text-2xs text-muted-foreground">
                 {t("bi.lever.missing")} {c.missing.map(src).join(", ")}
               </p>
             )}
@@ -887,14 +887,14 @@ function Units({ d }: { d: BiData }) {
           className="mt-3 flex flex-wrap items-end gap-2"
           aria-label={t("bi.units.add")}
         >
-          <label className="text-[11px]">
+          <label className="text-2xs">
             <span className="mb-1 block font-medium">{t("bi.units.kind")}</span>
             <select className={sel} value={kind} onChange={(e) => setKind(e.target.value)}>
               <option value="brand">{t("bi.unitKind.brand")}</option>
               <option value="unit">{t("bi.unitKind.unit")}</option>
             </select>
           </label>
-          <label className="text-[11px]">
+          <label className="text-2xs">
             <span className="mb-1 block font-medium">{t("bi.units.name")}</span>
             <Input
               value={name}
@@ -903,7 +903,7 @@ function Units({ d }: { d: BiData }) {
               className="h-8 w-48"
             />
           </label>
-          <label className="text-[11px]">
+          <label className="text-2xs">
             <span className="mb-1 block font-medium">{t("bi.units.parent")}</span>
             <select className={sel} value={parent} onChange={(e) => setParent(e.target.value)}>
               <option value="">{t("bi.units.noParent")}</option>

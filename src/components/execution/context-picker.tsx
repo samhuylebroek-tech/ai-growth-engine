@@ -104,7 +104,7 @@ export function ExecutionContextPicker({
                   />
                   <span className="min-w-0 break-words">
                     {r.title}
-                    <span className="mt-1 block text-[10px] text-muted-foreground">
+                    <span className="mt-1 block text-2xs text-muted-foreground">
                       {t(`officer.ctx.kind.${r.kind}` as MessageKey)} · {r.detail}
                     </span>
                   </span>

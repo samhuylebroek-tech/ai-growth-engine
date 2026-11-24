@@ -190,7 +190,7 @@ function FindingCard({ c, governed }: { c: Candidate; governed: boolean }) {
         <QualityBadge q={quality} showReasons />
       </div>
       {c.records.length > 0 && (
-        <div className="mt-1.5 text-[11px] text-muted-foreground">
+        <div className="mt-1.5 text-2xs text-muted-foreground">
           <span className="font-medium text-foreground">{t("ev.findingEvidence")}:</span>
           <ul className="mt-0.5 list-disc pl-4">
             {c.records.map((r, i) => (
@@ -293,7 +293,7 @@ function TeamProposal({ governed }: { governed: boolean }) {
     void qc.invalidateQueries({ queryKey: biKey(o.org?.id, o.workspace?.id) });
   }
   const field = (k: keyof typeof empty, label: string, area = false) => (
-    <label className={cn("text-[11px]", area && "sm:col-span-2")}>
+    <label className={cn("text-2xs", area && "sm:col-span-2")}>
       <span className="mb-1 block font-medium">{label} *</span>
       {area ? (
         <Textarea rows={2} value={v[k]} onChange={set(k)} maxLength={1000} required />
@@ -317,13 +317,13 @@ function TeamProposal({ governed }: { governed: boolean }) {
           <h2 className="text-sm font-semibold">{t("bi.imp.new")}</h2>
           {governed && (
             <fieldset className="mt-3">
-              <legend className="mb-1 text-[11px] font-medium">{t("ev.levelLabel")}</legend>
+              <legend className="mb-1 text-2xs font-medium">{t("ev.levelLabel")}</legend>
               <div className="grid gap-2 sm:grid-cols-3">
                 {(["observation", "formal", "execution"] as const).map((l) => (
                   <label
                     key={l}
                     className={cn(
-                      "cursor-pointer rounded-md border p-2 text-[11px]",
+                      "cursor-pointer rounded-md border p-2 text-2xs",
                       plevel === l ? "border-primary bg-primary/5" : "border-border",
                     )}
                   >
@@ -345,7 +345,7 @@ function TeamProposal({ governed }: { governed: boolean }) {
           )}
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {field("title", t("bi.imp.title"))}
-            <label className="text-[11px]">
+            <label className="text-2xs">
               <span className="mb-1 block font-medium">{t("bi.imp.category")}</span>
               <select
                 className={sel}
@@ -364,7 +364,7 @@ function TeamProposal({ governed }: { governed: boolean }) {
             {field("uncertainty", t("bi.imp.uncertainty"))}
             {field("impact", t("bi.imp.impact"))}
             {field("measure", t("bi.imp.measure"))}
-            <label className="text-[11px]">
+            <label className="text-2xs">
               <span className="mb-1 block font-medium">{t("bi.imp.level")}</span>
               <select
                 className={sel}
@@ -378,7 +378,7 @@ function TeamProposal({ governed }: { governed: boolean }) {
                 ))}
               </select>
             </label>
-            <div className="flex items-end gap-2 text-[11px]">
+            <div className="flex items-end gap-2 text-2xs">
               <label className="flex-1">
                 <span className="mb-1 block font-medium">{t("bi.imp.cost")}</span>
                 <Input inputMode="decimal" value={v.cost} onChange={set("cost")} />
@@ -406,7 +406,7 @@ function TeamProposal({ governed }: { governed: boolean }) {
               </>
             )}
             {governed && plevel === "formal" && (
-              <label className="text-[11px] sm:col-span-2">
+              <label className="text-2xs sm:col-span-2">
                 <span className="mb-1 block font-medium">{t("ev.gapReason")}</span>
                 <Input value={v.gap} onChange={set("gap")} maxLength={500} />
               </label>
@@ -544,12 +544,12 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
           ] as const
         ).map(([k, val]) => (
           <div key={k} className="min-w-0">
-            <dt className="text-[11px] text-muted-foreground">{t(tk(`bi.imp.${k}`))}</dt>
+            <dt className="text-2xs text-muted-foreground">{t(tk(`bi.imp.${k}`))}</dt>
             <dd className="break-words">{val}</dd>
           </div>
         ))}
         <div>
-          <dt className="text-[11px] text-muted-foreground">{t("bi.imp.cost")}</dt>
+          <dt className="text-2xs text-muted-foreground">{t("bi.imp.cost")}</dt>
           <dd>
             {p.est_cost !== null && p.currency
               ? f.money(Number(p.est_cost), p.currency)
@@ -558,11 +558,11 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
           </dd>
         </div>
         <div>
-          <dt className="text-[11px] text-muted-foreground">{t("bi.imp.level")}</dt>
+          <dt className="text-2xs text-muted-foreground">{t("bi.imp.level")}</dt>
           <dd>{t(tk(`bi.level.${p.required_level}`))}</dd>
         </div>
         <div>
-          <dt className="text-[11px] text-muted-foreground">{t("bi.imp.approval")}</dt>
+          <dt className="text-2xs text-muted-foreground">{t("bi.imp.approval")}</dt>
           <dd>
             {p.required_level === "budget" || p.required_level === "publish"
               ? t("bi.imp.approvalExternal")
@@ -581,19 +581,19 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
           .filter(([, val]) => !!val)
           .map(([k, val]) => (
             <div key={k} className="min-w-0">
-              <dt className="text-[11px] text-muted-foreground">{t(tk(`ev.${k}`))}</dt>
+              <dt className="text-2xs text-muted-foreground">{t(tk(`ev.${k}`))}</dt>
               <dd className="break-words">{val}</dd>
             </div>
           ))}
         {evidence && !governed && (
           <div className="sm:col-span-2">
-            <dt className="text-[11px] text-muted-foreground">{t("bi.imp.evidence")}</dt>
+            <dt className="text-2xs text-muted-foreground">{t("bi.imp.evidence")}</dt>
             <dd>{evidence}</dd>
           </div>
         )}
       </dl>
       {governed && p.evidence_gap_reason && (
-        <p className="mt-2 text-[11px] text-muted-foreground">
+        <p className="mt-2 text-2xs text-muted-foreground">
           {t("ev.gapShown", { r: p.evidence_gap_reason })}
         </p>
       )}
@@ -601,26 +601,26 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
         <EvidenceList items={linked} canAdd={member && p.status === "proposed"} p={p} d={d} />
       )}
       {gates.length > 0 && (
-        <ul className="mt-2 space-y-0.5 text-[11px] text-warning" aria-label={t("ev.qTitle")}>
+        <ul className="mt-2 space-y-0.5 text-2xs text-warning" aria-label={t("ev.qTitle")}>
           {gates.map((g) => (
             <li key={g}>• {t(tk(`ev.gate.${g}`))}</li>
           ))}
         </ul>
       )}
       {governed && p.reviewed_at && p.status === "proposed" && (
-        <p className="mt-1 text-[11px] text-muted-foreground">
+        <p className="mt-1 text-2xs text-muted-foreground">
           {t("ev.reviewedAt")} · {f.date(p.reviewed_at)}
           {p.review_note ? ` · ${p.review_note}` : ""}
         </p>
       )}
       {p.decision_note && (
-        <p className="mt-2 text-[11px] text-muted-foreground">
+        <p className="mt-2 text-2xs text-muted-foreground">
           {t("bi.imp.decisionNote")}: {p.decision_note}
         </p>
       )}
       {p.task_id && (
         <p className="mt-2">
-          <Link to="/app/tasks" className="text-[11px] text-primary hover:underline">
+          <Link to="/app/tasks" className="text-2xs text-primary hover:underline">
             {t("bi.imp.openTask")}
           </Link>
         </p>
@@ -630,7 +630,7 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
           <Badge kind={p.outcome === "improved" ? "high" : p.outcome === "worse" ? "low" : "none"}>
             {t(tk(`bi.outcome.${p.outcome}`))}
           </Badge>{" "}
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-2xs text-muted-foreground">
             {p.outcome_note} · {t("bi.imp.notCause")}
           </span>
         </p>
@@ -674,7 +674,7 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
           {p.status === "proposed" && admin && (
             <>
               {governed && level !== "observation" && (
-                <p className="w-full text-[11px] text-muted-foreground">
+                <p className="w-full text-2xs text-muted-foreground">
                   {t("ev.inspect", { n: seen.length })}
                 </p>
               )}
@@ -708,7 +708,7 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
             </>
           )}
           {p.status === "proposed" && !admin && (
-            <p className="text-[11px] text-muted-foreground">{t("bi.imp.awaitAdmin")}</p>
+            <p className="text-2xs text-muted-foreground">{t("bi.imp.awaitAdmin")}</p>
           )}
           {p.status === "approved" && (
             <Button size="sm" disabled={busy} onClick={() => act("convert")}>
@@ -723,7 +723,7 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
           {p.status === "converted" && (
             <>
               {observed && (
-                <p className="w-full text-[11px] text-muted-foreground">
+                <p className="w-full text-2xs text-muted-foreground">
                   {observed.before && observed.after
                     ? `${t("kp.observed", {
                         b: observed.before.value,

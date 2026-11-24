@@ -197,7 +197,7 @@ export function InitiativeOperations({
                 </p>
               )}
               {members.isError && canEdit && (
-                <p role="alert" className="text-[10px] text-destructive">
+                <p role="alert" className="text-2xs text-destructive">
                   {tr("goals.op.membersFailed")}
                 </p>
               )}

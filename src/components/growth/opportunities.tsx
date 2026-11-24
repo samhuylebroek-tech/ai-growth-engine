@@ -465,7 +465,7 @@ function OpportunityCard({
                     <span className="min-w-0 flex-1">
                       {e.statement}
                       {e.class === "fact" && (
-                        <span className="block text-[11px] text-muted-foreground">
+                        <span className="block text-2xs text-muted-foreground">
                           {t("ev.claimed")}
                         </span>
                       )}
