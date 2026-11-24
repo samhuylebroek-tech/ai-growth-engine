@@ -427,7 +427,7 @@ export const bi = defineArea("bi", {
     "bi.units.parent": "Part of",
     "bi.units.noParent": "—",
     "bi.home.eyebrow": "Business growth",
-    "bi.home.title": "Revenue, spend and next best actions",
+    "bi.home.title": "Revenue and spend",
     "bi.home.open": "Open business performance",
     "bi.rev.rules":
       "Revenue is a permanent ledger: entries are never edited or deleted, refunds and corrections are new entries against their sale, a refund can never exceed its sale, a source reference counts once, and estimates are kept apart from actual revenue. Customer references must not be names or e-mail addresses.",
@@ -1091,7 +1091,7 @@ export const bi = defineArea("bi", {
     "bi.units.parent": "Onderdeel van",
     "bi.units.noParent": "—",
     "bi.home.eyebrow": "Bedrijfsgroei",
-    "bi.home.title": "Omzet, uitgaven en beste volgende acties",
+    "bi.home.title": "Omzet en uitgaven",
     "bi.home.open": "Open bedrijfsprestaties",
     "bi.rev.rules":
       "Omzet is een blijvend register: invoer wordt nooit gewijzigd of verwijderd, terugbetalingen en correcties zijn nieuwe regels tegen hun verkoop, een terugbetaling kan nooit hoger zijn dan de verkoop, een bronverwijzing telt één keer en schattingen blijven gescheiden van werkelijke omzet. Klantverwijzingen mogen geen namen of e-mailadressen zijn.",
@@ -1757,7 +1757,7 @@ export const bi = defineArea("bi", {
     "bi.units.parent": "Fait partie de",
     "bi.units.noParent": "—",
     "bi.home.eyebrow": "Croissance de l'entreprise",
-    "bi.home.title": "Revenus, dépenses et prochaines actions",
+    "bi.home.title": "Revenus et dépenses",
     "bi.home.open": "Ouvrir la performance de l'entreprise",
     "bi.rev.rules":
       "Le chiffre d'affaires est un registre permanent : les saisies ne sont jamais modifiées ni supprimées, remboursements et corrections sont de nouvelles lignes liées à leur vente, un remboursement ne peut jamais dépasser la vente, une référence source ne compte qu'une fois et les estimations restent séparées du réel. Les références client ne doivent pas être des noms ni des adresses e-mail.",

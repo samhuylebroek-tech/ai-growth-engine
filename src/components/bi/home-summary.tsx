@@ -1,4 +1,5 @@
-// Home: executive business growth summary and the top next best growth actions, from the shared business view.
+// Home: executive business growth summary (figures) and, inside Home's single next-best-actions list, the top growth
+// actions — both from the shared business view, so the figures and the actions never disagree.
 import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { useI18n } from "@/lib/i18n";
@@ -77,8 +78,6 @@ export function HomeBusinessSummary() {
               to={v.range.to}
             />
           )}
-          <h3 className="mb-2 mt-4 text-xs font-semibold">{t("bi.actions.title")}</h3>
-          <GrowthActions actions={v.actions} compact />
           <Link
             to="/app/business"
             className="mt-3 inline-block text-xs text-primary hover:underline"
@@ -88,5 +87,39 @@ export function HomeBusinessSummary() {
         </>
       )}
     </section>
+  );
+}
+
+/** The top growth improvement actions, shown inside Home's next best actions list (no separate list). */
+export function HomeGrowthActions() {
+  const { t } = useI18n();
+  const q = useBi();
+  const v = useMemo(() => (q.data ? buildView(q.data, NO_FILTERS, "last_touch") : null), [q.data]);
+  if (q.isError && isNotInstalled(q.error)) return null;
+  return (
+    <div aria-label={t("bi.actions.title")} role="group">
+      <h3 className="mb-2 text-xs font-semibold">{t("signals.grow")}</h3>
+      {q.isLoading ? (
+        <p role="status" className="py-3 text-xs text-muted-foreground">
+          {t("bi.loading")}
+        </p>
+      ) : q.isError || !v ? (
+        <p role="alert" className="py-3 text-xs text-destructive">
+          {t("bi.loadFailed")}
+        </p>
+      ) : (
+        <>
+          <GrowthActions actions={v.actions.slice(0, 3)} compact />
+          {v.actions.length > 3 && (
+            <Link
+              to="/app/business"
+              className="mt-3 inline-block text-xs text-primary hover:underline"
+            >
+              {t("signals.growAll", { n: v.actions.length })}
+            </Link>
+          )}
+        </>
+      )}
+    </div>
   );
 }

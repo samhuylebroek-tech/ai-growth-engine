@@ -12,7 +12,7 @@
 - [x] P2 Tasks filters: one scrolling row on phones (36 px), chosen filter kept in view. Results tabs fit at 820 px; overflow arrows elsewhere.
 - [x] P3 One smallest type step `text-2xs` (11 px) replaces 268 ad-hoc 10/11 px sizes (tested with tailwind-merge).
 ## Round 7 — maximum autonomous mission (2026-11-24, staging only)
-- [ ] Home: one next-best-actions list (merge business summary + signals duplicates).
+- [x] Home: one "Next best actions" list — signals to act on first, then the top 3 growth actions; business summary is figures only ("Revenue and spend"). Browser: admin desktop, member phone.
 - [ ] Remaining page redesign sweep: Business profile/knowledge, Situation, Opportunities, Strategies, Campaigns, KPIs, Economics, Reports, Experiments, Organization, Integrations, Approvals, Settings, Owner center, Billing.
 - [ ] Persona re-sweep (5 roles × EN/NL/FR × desktop/tablet/phone) after the redesign.
 - [ ] Full lifecycle run creating new records on staging, end to end.

@@ -59,7 +59,7 @@ import { HomeOpportunities } from "@/components/app/home-opportunities";
 import { BusinessTiles } from "@/components/app/business-tiles";
 import { ExecutionTiles } from "@/components/app/execution-tiles";
 import { ExternalTiles } from "@/components/integrations/external-tiles";
-import { HomeBusinessSummary } from "@/components/bi/home-summary";
+import { HomeBusinessSummary, HomeGrowthActions } from "@/components/bi/home-summary";
 import { useI18n } from "@/lib/i18n";
 import { NextStep } from "@/components/app/next-step";
 import { GrowthJourney } from "@/components/growth/growth-journey";
@@ -740,7 +740,7 @@ function Overview() {
                   </Button>
                 </div>
               )}
-              <GrowthSignals />
+              <GrowthSignals growth={<HomeGrowthActions />} />
               <BusinessCheck />
               <HomeOpportunities />
               {order

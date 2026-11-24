@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, Sparkles, Radar } from "lucide-react";
@@ -42,7 +42,8 @@ export function growthSignalsOptions(
   };
 }
 
-export function GrowthSignals() {
+/** Home's one list of next best actions: signals to act on first, then `growth` (improvement actions) below. */
+export function GrowthSignals({ growth }: { growth?: ReactNode }) {
   const o = useOrg();
   const { t } = useI18n();
   const navigate = useNavigate();
@@ -63,6 +64,7 @@ export function GrowthSignals() {
   return (
     <section aria-label={t("signals.title")}>
       <SectionHeading eyebrow={t("signals.eyebrow")} title={t("signals.title")} />
+      {growth && <h3 className="mb-2 text-xs font-semibold">{t("signals.fix")}</h3>}
       {q.isLoading && (
         <div role="status" aria-label={t("signals.title")} className="space-y-2">
           {[0, 1].map((i) => (
@@ -175,6 +177,7 @@ export function GrowthSignals() {
           {all ? t("signals.less") : t("signals.more", { n: items.length - 4 })}
         </Button>
       )}
+      {growth && <div className="mt-6">{growth}</div>}
     </section>
   );
 }
