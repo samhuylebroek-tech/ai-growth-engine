@@ -80,7 +80,7 @@ export function HomeBusinessSummary() {
           )}
           <Link
             to="/app/business"
-            className="mt-3 inline-block text-xs text-primary hover:underline"
+            className="mt-3 inline-flex min-h-6 items-center text-xs text-primary hover:underline"
           >
             {t("bi.home.open")}
           </Link>
@@ -113,7 +113,7 @@ export function HomeGrowthActions() {
           {v.actions.length > 3 && (
             <Link
               to="/app/business"
-              className="mt-3 inline-block text-xs text-primary hover:underline"
+              className="mt-3 inline-flex min-h-6 items-center text-xs text-primary hover:underline"
             >
               {t("signals.growAll", { n: v.actions.length })}
             </Link>

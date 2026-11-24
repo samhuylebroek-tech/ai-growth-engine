@@ -1,5 +1,6 @@
 // Shared pieces for business performance screens: number formatting, provenance badges, figures and filters.
-import type { ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
+import { ChevronDown } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import type { MessageKey } from "@/lib/i18n/messages";
 import type { BiData, Filters, ScopedMoney } from "@/lib/bi/view";
@@ -230,27 +231,58 @@ export function FilterBar({
   );
 }
 
+/** A results section. `foldable` sections (advanced analysis) start closed behind their heading, keeping long
+ * result pages scannable; the heading stays a real h2 so the page outline is unchanged. */
 export function Section({
   title,
   intro,
   children,
   action,
+  foldable = false,
 }: {
   title: string;
   intro?: string;
   children: ReactNode;
   action?: ReactNode;
+  foldable?: boolean;
 }) {
+  const [open, setOpen] = useState(!foldable);
+  const id = useId();
   return (
     <section className="mt-8">
       <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
         <div className="min-w-0">
-          <h2 className="text-base font-semibold">{title}</h2>
-          {intro && <p className="mt-0.5 max-w-3xl text-xs text-muted-foreground">{intro}</p>}
+          <h2 className="text-base font-semibold">
+            {foldable ? (
+              <button
+                type="button"
+                aria-expanded={open}
+                aria-controls={id}
+                onClick={() => setOpen((v) => !v)}
+                className="flex min-h-11 items-center gap-2 text-left hover:text-primary"
+              >
+                <ChevronDown
+                  aria-hidden
+                  className={cn(
+                    "h-4 w-4 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none",
+                    !open && "-rotate-90",
+                  )}
+                />
+                {title}
+              </button>
+            ) : (
+              title
+            )}
+          </h2>
+          {intro && (
+            <p className={cn("mt-0.5 max-w-3xl text-xs text-muted-foreground", foldable && "pl-6")}>
+              {intro}
+            </p>
+          )}
         </div>
-        {action}
+        {open && action}
       </div>
-      {children}
+      {open && <div id={id}>{children}</div>}
     </section>
   );
 }

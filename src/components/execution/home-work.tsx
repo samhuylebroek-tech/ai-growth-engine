@@ -154,7 +154,7 @@ export function HomeWork({
             <Link
               to={q.data?.projects.some((x) => x.id === p.id) ? "/app/projects" : "/app/campaigns"}
               search={{ item: p.id }}
-              className="text-xs font-medium hover:text-primary"
+              className="inline-flex min-h-6 items-center text-xs font-medium hover:text-primary"
             >
               {p.title} <ArrowUpRight className="inline h-3 w-3" />
             </Link>
@@ -220,7 +220,7 @@ export function HomeWork({
             <Link
               to="/app/tasks"
               search={{ item: t.id }}
-              className="break-words text-xs font-medium hover:text-primary"
+              className="inline-flex min-h-6 items-center break-words text-xs font-medium hover:text-primary"
             >
               {t.title}
             </Link>

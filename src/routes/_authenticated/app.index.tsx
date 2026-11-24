@@ -533,21 +533,24 @@ function Overview() {
       {d && (
         <>
           <div className="mb-7 border-y border-border py-4">
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-xs">
-              <Link to="/app/activity" className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-xs">
+              <Link to="/app/activity" className="flex min-h-6 items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-primary" />
                 <strong className="text-foreground">{w ? w.activeCount : "—"}</strong>{" "}
                 {t("home.aiActive")}
               </Link>
-              <Link to="/app/approvals" className="flex items-center gap-2">
+              <Link to="/app/approvals" className="flex min-h-6 items-center gap-2">
                 <CheckSquare className="h-3.5 w-3.5 text-warning" />
                 <strong>{d.approvalCount}</strong> {t("home.awaiting")}
               </Link>
-              <Link to="/app/profile" className="flex items-center gap-2">
+              <Link to="/app/profile" className="flex min-h-6 items-center gap-2">
                 <Check className="h-3.5 w-3.5 text-primary" />
                 <strong>{confirmed.length}</strong> {t("home.facts")}
               </Link>
-              <Link to="/app/billing" className="text-muted-foreground sm:ml-auto">
+              <Link
+                to="/app/billing"
+                className="flex min-h-6 items-center text-muted-foreground sm:ml-auto"
+              >
                 {d.balance?.toLocaleString(tag) ?? "—"} {t("home.credits")}
               </Link>
             </div>

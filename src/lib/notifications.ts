@@ -1,7 +1,21 @@
 import { readableRunSummary } from "@/lib/command-center";
 import type { Task } from "@/lib/execution";
+export type NoticeKind =
+  | "task_overdue"
+  | "task_today"
+  | "approval"
+  | "run_failed"
+  | "run_done"
+  | "document_failed"
+  | "connection_failed";
+/** `title`/`detail` are English fallbacks; screens translate from `kind`, `subject` (agent or connector key),
+ * `date` and `text` (the run's own readable summary or error), so every language shows the same notice. */
 export type Notice = {
   id: string;
+  kind: NoticeKind;
+  subject?: string;
+  date?: string;
+  text?: string;
   title: string;
   detail: string;
   severity: "urgent" | "attention" | "info";
@@ -39,6 +53,8 @@ export function buildNotifications(
     if (task.due_date <= today)
       notices.push({
         id: `task:${task.id}:${task.due_date}:${task.status}`,
+        kind: task.due_date < today ? "task_overdue" : "task_today",
+        date: task.due_date,
         title: task.title,
         detail: task.due_date < today ? `Overdue · ${task.due_date}` : "Due today",
         severity: task.due_date < today ? "urgent" : "attention",
@@ -50,6 +66,7 @@ export function buildNotifications(
     if (approval.status === "pending")
       notices.push({
         id: `approval:${approval.id}`,
+        kind: "approval",
         title: approval.title,
         detail: "Decision awaiting review",
         severity: "attention",
@@ -60,6 +77,11 @@ export function buildNotifications(
     if (["failed", "succeeded"].includes(run.status))
       notices.push({
         id: `run:${run.id}:${run.status}`,
+        kind: run.status === "failed" ? "run_failed" : "run_done",
+        subject: run.agent_key,
+        ...((run.error ?? readableRunSummary(run.summary))
+          ? { text: (run.error ?? readableRunSummary(run.summary)) as string }
+          : {}),
         title: `${run.agent_key.replace(/_/g, " ")} · ${run.status === "failed" ? "failed" : "completed"}`,
         detail: run.error ?? readableRunSummary(run.summary) ?? "AI assignment",
         severity: run.status === "failed" ? "urgent" : "info",
@@ -70,6 +92,7 @@ export function buildNotifications(
     if (doc.status === "failed")
       notices.push({
         id: `document:${doc.id}:${doc.status}`,
+        kind: "document_failed",
         title: doc.name,
         detail: "Document processing failed",
         severity: "urgent",
@@ -80,6 +103,9 @@ export function buildNotifications(
     if (["error", "failed", "expired"].includes(connection.status))
       notices.push({
         id: `connection:${connection.id}:${connection.status}`,
+        kind: "connection_failed",
+        subject: connection.connector_key,
+        text: connection.status,
         title: connection.connector_key.replace(/_/g, " "),
         detail: `Connection ${connection.status}`,
         severity: "urgent",

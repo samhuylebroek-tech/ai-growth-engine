@@ -548,7 +548,7 @@ export function ExecutionWorkspace({
                   <div className="min-w-0 flex-1">
                     <Button
                       variant="link"
-                      className="h-auto whitespace-normal p-0 text-left text-sm text-foreground"
+                      className="h-auto min-h-6 min-w-6 justify-start whitespace-normal p-0 text-left text-sm text-foreground"
                       onClick={() => open(x)}
                     >
                       {x.title}
@@ -658,7 +658,7 @@ export function ExecutionWorkspace({
                       <article key={x.id} className="rounded-lg border border-border bg-card p-3">
                         <Button
                           variant="link"
-                          className="h-auto whitespace-normal p-0 text-left text-sm text-foreground"
+                          className="h-auto min-h-6 min-w-6 justify-start whitespace-normal p-0 text-left text-sm text-foreground"
                           onClick={() => open(x)}
                         >
                           {x.title}

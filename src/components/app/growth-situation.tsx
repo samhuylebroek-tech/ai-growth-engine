@@ -275,7 +275,7 @@ export function GrowthSituation() {
                 <span className="block text-2xs text-muted-foreground">{t("sa.p.cost")}</span>
                 <Link
                   to={p.action.to}
-                  className="mt-1 inline-block text-xs font-medium text-primary underline-offset-2 hover:underline"
+                  className="mt-1 inline-flex min-h-6 items-center text-xs font-medium text-primary underline-offset-2 hover:underline"
                 >
                   {t(tk(`sa.n.${p.action.code}`))}
                 </Link>
@@ -320,7 +320,7 @@ export function GrowthSituation() {
             {sec.next && (
               <Link
                 to={sec.next.to}
-                className="mt-2 inline-block font-medium text-primary underline-offset-2 hover:underline"
+                className="mt-2 inline-flex min-h-6 items-center font-medium text-primary underline-offset-2 hover:underline"
               >
                 {t("sa.nextLabel")}: {t(tk(`sa.n.${sec.next.code}`))}
               </Link>

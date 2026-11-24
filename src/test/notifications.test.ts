@@ -75,3 +75,29 @@ it("isolates read preferences by user, organization and workspace", () => {
   ];
   expect(new Set(keys).size).toBe(4);
 });
+it("carries the kind, agent and date so each language can word the notice", () => {
+  const result = buildNotifications(
+    {
+      tasks: [task("late", "2026-11-14")],
+      approvals: [],
+      runs: [
+        {
+          id: "r",
+          agent_key: "growth_officer",
+          status: "failed",
+          created_at: "2026-11-15",
+          finished_at: null,
+          summary: null,
+          error: "Provider timeout",
+        },
+      ],
+      documents: [],
+      connections: [],
+    },
+    "2026-11-15",
+  );
+  expect(result.map((r) => [r.kind, r.subject ?? null, r.date ?? null, r.text ?? null])).toEqual([
+    ["task_overdue", null, "2026-11-14", null],
+    ["run_failed", "growth_officer", null, "Provider timeout"],
+  ]);
+});

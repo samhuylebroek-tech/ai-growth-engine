@@ -29,6 +29,7 @@ export const Route = createFileRoute("/_authenticated/app/profile")({
   component: Profile,
 });
 
+const FACT_PAGE = 8;
 const SOURCE_LABEL = {
   user: "account.profile.source.user",
   document: "account.profile.source.document",
@@ -132,6 +133,8 @@ function Profile() {
     }
   }
 
+  // Long knowledge bases open with the first facts; searching or "show all" lists every match.
+  const [allFacts, setAllFacts] = useState(false);
   const visibleFacts =
     q.data?.facts.filter(
       (f) =>
@@ -305,8 +308,11 @@ function Profile() {
       )}
       {visibleFacts.length ? (
         <div className="divide-y divide-border border-y border-border">
-          {visibleFacts.map((f) => (
-            <article key={f.id} className="grid gap-3 py-5 md:grid-cols-[180px_minmax(0,1fr)_auto]">
+          {(allFacts || search ? visibleFacts : visibleFacts.slice(0, FACT_PAGE)).map((f) => (
+            <article
+              key={f.id}
+              className="grid gap-3 py-4 md:grid-cols-[180px_minmax(0,1fr)_auto] md:py-5"
+            >
               <div>
                 <h3 className="text-sm font-semibold">{f.key}</h3>
                 <div className="mt-2">
@@ -397,7 +403,19 @@ function Profile() {
             </article>
           ))}
         </div>
-      ) : !q.isLoading && !q.isError ? (
+      ) : null}
+      {visibleFacts.length > FACT_PAGE && !search && (
+        <Button
+          variant="link"
+          size="sm"
+          className="mt-2 px-0"
+          aria-expanded={allFacts}
+          onClick={() => setAllFacts((v) => !v)}
+        >
+          {allFacts ? t("signals.less") : t("signals.more", { n: visibleFacts.length - FACT_PAGE })}
+        </Button>
+      )}
+      {visibleFacts.length ? null : !q.isLoading && !q.isError ? (
         <EmptyState
           title={
             q.data?.facts.length ? t("account.profile.noMatch") : t("account.profile.foundation")

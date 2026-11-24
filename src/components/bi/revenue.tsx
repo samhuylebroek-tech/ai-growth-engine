@@ -403,7 +403,7 @@ function Ledger({ d }: { d: BiData }) {
                     </span>
                     <button
                       type="button"
-                      className="text-2xs text-primary hover:underline"
+                      className="inline-flex min-h-6 items-center text-2xs text-primary hover:underline"
                       onClick={() => setOpen(open === n.sale.id ? null : n.sale.id)}
                       aria-expanded={open === n.sale.id}
                     >

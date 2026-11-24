@@ -620,7 +620,10 @@ function ProposalCard({ p, d }: { p: ProposalRow; d: BiData }) {
       )}
       {p.task_id && (
         <p className="mt-2">
-          <Link to="/app/tasks" className="text-2xs text-primary hover:underline">
+          <Link
+            to="/app/tasks"
+            className="inline-flex min-h-6 items-center text-2xs text-primary hover:underline"
+          >
             {t("bi.imp.openTask")}
           </Link>
         </p>

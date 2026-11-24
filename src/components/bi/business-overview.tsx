@@ -432,7 +432,9 @@ export function GrowthActions({
     toast.success(t(tk(`bi.rec.done.${decision}`)));
     await qc.invalidateQueries({ queryKey: biKey(o.org?.id, o.workspace.id) });
   }
-  const shown = compact ? actions.slice(0, 3) : actions;
+  // Progressive disclosure: the four highest-ranked actions first, the rest one click away (order unchanged).
+  const [all, setAll] = useState(false);
+  const shown = compact ? actions.slice(0, 3) : all ? actions : actions.slice(0, 4);
   const body = !shown.length ? (
     <p className="text-xs text-muted-foreground">{t("bi.actions.none")}</p>
   ) : (
@@ -523,6 +525,19 @@ export function GrowthActions({
           </div>
         </li>
       ))}
+      {!compact && actions.length > 4 && (
+        <li className="list-none">
+          <Button
+            variant="link"
+            size="sm"
+            className="px-0"
+            aria-expanded={all}
+            onClick={() => setAll((v) => !v)}
+          >
+            {all ? t("signals.less") : t("signals.more", { n: actions.length - 4 })}
+          </Button>
+        </li>
+      )}
     </ol>
   );
   const hiddenList = !compact && hidden.length > 0 && (
@@ -624,7 +639,7 @@ function Comparison({ d, model }: { d: BiData; model: Model }) {
   const label = (id: string, l: string) =>
     id.startsWith("specialist:") ? t(tk(`run.sp.${l}`)) : l;
   return (
-    <Section title={t("bi.cmp.title")} intro={t("bi.cmp.intro")}>
+    <Section title={t("bi.cmp.title")} intro={t("bi.cmp.intro")} foldable>
       <div role="tablist" aria-label={t("bi.cmp.dimension")} className="mb-3 flex flex-wrap gap-1">
         {DIMENSIONS.map((x) => (
           <button
@@ -755,7 +770,10 @@ function Understanding({ v }: { v: View }) {
       title={t("bi.und.title")}
       intro={missing ? t("bi.und.gaps", { n: missing }) : t("bi.und.complete")}
       action={
-        <Link to="/app/profile" className="text-xs text-primary hover:underline">
+        <Link
+          to="/app/profile"
+          className="inline-flex min-h-6 items-center text-xs text-primary hover:underline"
+        >
           {t("bi.und.open")}
         </Link>
       }
@@ -802,7 +820,7 @@ function Levers({ d }: { d: BiData }) {
   );
   const src = (x: string) => t(tk(`bi.lever.src.${x}`));
   return (
-    <Section title={t("bi.lever.title")} intro={t("bi.lever.intro")}>
+    <Section title={t("bi.lever.title")} intro={t("bi.lever.intro")} foldable>
       <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {coverage.map((c) => (
           <li
