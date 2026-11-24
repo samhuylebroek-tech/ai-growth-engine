@@ -30,6 +30,7 @@ use the editor.
 <!-- LOVABLE:END -->
 
 ## Project rules
+- Route-load recovery is eagerly shared by the router default and root boundary; failed module imports require a user-triggered document reload, not a cached-import retry, so recovery remains available when a page chunk is missing.
 - Tenant data is isolated by `org_id` + RLS; app code never uses the service-role client — privileged changes go through SECURITY DEFINER SQL functions with explicit role checks.
 - Platform roles (`platform_roles`) and org roles (`organization_members.role`) are separate tables; never derive one from the other.
 - Every AI call goes through `meteredGenerate` in `src/lib/ai.functions.ts` (entitlement → credits → provider → usage event); never call the gateway directly from elsewhere.

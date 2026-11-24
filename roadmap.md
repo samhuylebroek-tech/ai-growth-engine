@@ -1,4 +1,6 @@
 # AI Growth OS — Task Queue
+## Reported module-load failure (2026-11-24)
+- [x] Shared eager route fallback and document-reload retry for failed page chunks; all route declarations and other loading paths inspected (`docs/ux/MODULE_LOAD_RECOVERY.md`), EN tablet/FR desktop browser recovery passed, 966 tests passed; original remote asset availability and signed-in Growth Officer not independently verified. No database, authentication or production changes.
 ## Round 6 — complete UX/UI workstream, phase A–B (2026-11-23, staging only)
 - [x] Phase A audit: automated sweep of all 34 signed-in pages × desktop/tablet/phone + screenshots; inventory, findings and backlog in `docs/ux/UX_AUDIT.md`.
 - [x] Phase B navigation: 7 destinations in journey order (Home, AI team, Your business, Growth plan, Execution, Results, Organization), max 7 tabs, AI specialists added, URLs unchanged; EN/NL/FR; rules tested.
