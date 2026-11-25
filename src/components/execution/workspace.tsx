@@ -90,6 +90,8 @@ import { MESSAGES, type MessageKey } from "@/lib/i18n/messages";
 import { CampaignCard } from "@/components/execution/campaign-card";
 import { CampaignStart } from "@/components/execution/campaign-start";
 import { CampaignGuidance } from "@/components/execution/campaign-guidance";
+import { CampaignProposal } from "@/components/execution/campaign-proposal";
+import { isProposalNote } from "@/lib/campaign-proposal";
 import {
   CAMPAIGN_FILTERS,
   matchesCampaignFilter,
@@ -1566,6 +1568,7 @@ function WorkDetails({
                   </dd>
                 </div>
               </dl>
+              <CampaignProposal campaignId={item.id} notes={notes} />
               <CampaignGuidance campaignId={item.id} />
             </>
           )}
@@ -2028,7 +2031,7 @@ function WorkDetails({
       {tab === "approvals" && (
         <>
           {notes
-            .filter((n) => n.kind === "approval")
+            .filter((n) => n.kind === "approval" && !isProposalNote(n))
             .map((n) => (
               <p className="border-b border-border py-3 text-sm" key={n.id}>
                 {q.data?.approvals.find((a) => a.id === n.related_id)?.title} ·{" "}
