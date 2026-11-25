@@ -35,7 +35,7 @@ describe("campaign proposal", () => {
   });
   it("identifies only proposal notes", () => {
     const base = {
-      kind: "approval",
+      kind: "proposal",
       title: PROPOSAL_TITLE,
       content_type: "draft",
       body: "",
