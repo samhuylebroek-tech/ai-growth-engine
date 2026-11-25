@@ -34,18 +34,27 @@ import {
 } from "lucide-react";
 
 /**
- * Primary destinations in the order a business grows: start at Home, understand the business, plan, execute, read the
- * results, with the AI team alongside and organization settings last. Each group's items are its contextual tabs; URLs
+ * Primary destinations start with campaigns, then strategy, AI guidance, execution, results and business settings.
+ * Each group's items are its contextual tabs; URLs
  * never change when items move between groups, so saved links stay valid. Keep each group to seven items or fewer.
  */
 export const NAVIGATION = [
   {
-    group: "Home",
+    group: "Campaigns",
     items: [
-      { to: "/app", label: "Home", icon: LayoutDashboard, exact: true },
+      { to: "/app", label: "Campaign overview", icon: Megaphone, exact: true },
+      { to: "/app/campaigns", label: "Campaign workspace", icon: Megaphone },
       { to: "/app/notifications", label: "Notifications", icon: Bell },
-      { to: "/app/approvals", label: "Review & approvals", icon: CheckSquare },
-      { to: "/app/activity", label: "Activity & results", icon: Activity },
+    ],
+  },
+  {
+    group: "Plan",
+    items: [
+      { to: "/app/goals", label: "Goals & budget", icon: Target },
+      { to: "/app/opportunities", label: "Growth opportunities", icon: Lightbulb },
+      { to: "/app/intelligence", label: "Growth intelligence", icon: Compass },
+      { to: "/app/modules", label: "Growth areas", icon: Boxes },
+      { to: "/app/costs", label: "Costs & ROI", icon: Wallet },
     ],
   },
   {
@@ -56,33 +65,14 @@ export const NAVIGATION = [
     ],
   },
   {
-    group: "Business",
-    items: [
-      { to: "/app/profile", label: "Business knowledge", icon: Building2 },
-      { to: "/app/intelligence", label: "Growth intelligence", icon: Compass },
-      { to: "/app/documents", label: "Documents", icon: FileText },
-      { to: "/app/seo", label: "Website check", icon: Search },
-      { to: "/app/competitors", label: "Competitors", icon: Eye },
-    ],
-  },
-  {
-    group: "Plan",
-    items: [
-      { to: "/app/goals", label: "Goals & budget", icon: Target },
-      { to: "/app/opportunities", label: "Growth opportunities", icon: Lightbulb },
-      { to: "/app/modules", label: "Growth areas", icon: Boxes },
-      { to: "/app/experiments", label: "Experiments", icon: FlaskConical },
-    ],
-  },
-  {
     group: "Execution",
     items: [
-      { to: "/app/campaigns", label: "Campaigns", icon: Megaphone },
       { to: "/app/tasks", label: "Tasks", icon: ListChecks },
       { to: "/app/projects", label: "Projects", icon: FolderKanban },
       { to: "/app/content", label: "Content Studio", icon: PenSquare },
-      { to: "/app/pipeline", label: "Sales pipeline", icon: Handshake },
       { to: "/app/actions", label: "External actions", icon: Send },
+      { to: "/app/approvals", label: "Review & approvals", icon: CheckSquare },
+      { to: "/app/activity", label: "Activity & results", icon: Activity },
     ],
   },
   {
@@ -92,9 +82,20 @@ export const NAVIGATION = [
       { to: "/app/performance", label: "Performance", icon: LineChart },
       { to: "/app/revenue", label: "Revenue & attribution", icon: Banknote },
       { to: "/app/economics", label: "Growth economics", icon: Coins },
-      { to: "/app/costs", label: "Costs & ROI", icon: Wallet },
+      { to: "/app/experiments", label: "Experiments", icon: FlaskConical },
       { to: "/app/reports", label: "Business reports", icon: ClipboardList },
       { to: "/app/improvements", label: "Improvements", icon: TrendingUp },
+    ],
+  },
+  {
+    group: "Business",
+    items: [
+      { to: "/app/profile", label: "Business knowledge", icon: Building2 },
+      { to: "/app/documents", label: "Documents", icon: FileText },
+      { to: "/app/seo", label: "Website check", icon: Search },
+      { to: "/app/competitors", label: "Competitors", icon: Eye },
+      { to: "/app/pipeline", label: "Sales pipeline", icon: Handshake },
+      { to: "/app/overview", label: "Business overview", icon: LayoutDashboard },
     ],
   },
   {

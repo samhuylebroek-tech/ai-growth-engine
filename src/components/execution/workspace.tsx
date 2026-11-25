@@ -16,6 +16,7 @@ import {
   Search,
   List,
   Columns3,
+  LayoutGrid,
   CalendarDays,
   ArrowUpRight,
   Check,
@@ -86,6 +87,14 @@ import { BlockedExplanation } from "@/components/execution/blocked-explanation";
 import { limitAware, parseRateLimit } from "@/lib/rate-limit";
 import { useI18n } from "@/lib/i18n";
 import { MESSAGES, type MessageKey } from "@/lib/i18n/messages";
+import { CampaignCard } from "@/components/execution/campaign-card";
+import { CampaignStart } from "@/components/execution/campaign-start";
+import {
+  CAMPAIGN_FILTERS,
+  matchesCampaignFilter,
+  type CampaignFilter,
+  campaignWorkProgress,
+} from "@/lib/campaign-overview";
 
 const label = (s: string) => s.replace(/_/g, " ");
 const due = (item: WorkItem) => ("due_date" in item ? item.due_date : item.end_date);
@@ -167,7 +176,7 @@ export function ExecutionWorkspace({
   const q = useQuery(executionOptions(o.org?.id, o.workspace?.id, o.userId));
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [view, setView] = useState("list");
+  const [view, setView] = useState(kind === "campaigns" ? "cards" : "list");
   const [filter, setFilter] = useState(kind === "tasks" ? "mine" : "all");
   // On phones the filters are one scrolling row; keep the chosen one in view.
   const filterRow = useRef<HTMLDivElement>(null);
@@ -256,6 +265,8 @@ export function ExecutionWorkspace({
       (kind !== "campaigns" || goal === "all" || ("goal_id" in x && x.goal_id === goal)) &&
       (kind !== "campaigns" || channel === "all" || campaignChannels(x).includes(channel)) &&
       (filter === "all" ||
+        (kind === "campaigns" &&
+          matchesCampaignFilter(x.status, filter as CampaignFilter, campaignAtRisk(x))) ||
         (filter === "awaiting" && x.status === "awaiting_approval") ||
         (filter === "at_risk" && campaignAtRisk(x)) ||
         (filter === "unlinked" &&
@@ -356,7 +367,7 @@ export function ExecutionWorkspace({
               size="sm"
             >
               <Plus />
-              {tx(`work.new.${kind}`)}
+              {kind === "campaigns" ? tx("ch.start") : tx(`work.new.${kind}`)}
             </Button>
           )
         }
@@ -378,14 +389,7 @@ export function ExecutionWorkspace({
               ...(exec.data ? ["ai", "approval", "running", "failed", "blocked", "completed"] : []),
             ]
           : kind === "campaigns"
-            ? [
-                "all",
-                ...(lifecycle ? ["awaiting"] : []),
-                "at_risk",
-                "unlinked",
-                "upcoming",
-                "overdue",
-              ]
+            ? CAMPAIGN_FILTERS
             : ["all", "today", "upcoming", "overdue"]
         ).map((f) => (
           <Button
@@ -396,21 +400,23 @@ export function ExecutionWorkspace({
             onClick={() => setFilter(f)}
             aria-pressed={filter === f}
           >
-            {f === "mine"
-              ? tx("work.mine")
-              : f === "team"
-                ? tx("work.teamTasks")
-                : f === "all"
-                  ? tx(`work.all.${kind}`)
-                  : ["ai", "approval", "running", "failed", "blocked", "completed"].includes(f)
-                    ? tx(`run.f.${f}` as MessageKey)
-                    : f === "awaiting"
-                      ? tx("cos.f.awaiting")
-                      : f === "at_risk"
-                        ? tx("cos.f.atRisk")
-                        : f === "unlinked"
-                          ? tx("cos.f.unlinked")
-                          : lbl(f)}
+            {kind === "campaigns"
+              ? tx(`ch.filter.${f}` as MessageKey)
+              : f === "mine"
+                ? tx("work.mine")
+                : f === "team"
+                  ? tx("work.teamTasks")
+                  : f === "all"
+                    ? tx(`work.all.${kind}`)
+                    : ["ai", "approval", "running", "failed", "blocked", "completed"].includes(f)
+                      ? tx(`run.f.${f}` as MessageKey)
+                      : f === "awaiting"
+                        ? tx("cos.f.awaiting")
+                        : f === "at_risk"
+                          ? tx("cos.f.atRisk")
+                          : f === "unlinked"
+                            ? tx("cos.f.unlinked")
+                            : lbl(f)}
           </Button>
         ))}
       </div>
@@ -495,6 +501,7 @@ export function ExecutionWorkspace({
         )}
         <div className="flex">
           {[
+            ...(kind === "campaigns" ? [{ id: "cards", icon: LayoutGrid }] : []),
             { id: "list", icon: List },
             { id: "kanban", icon: Columns3 },
             { id: "calendar", icon: CalendarDays },
@@ -504,8 +511,8 @@ export function ExecutionWorkspace({
               variant={view === v.id ? "secondary" : "ghost"}
               size="icon"
               key={v.id}
-              title={lbl(v.id)}
-              aria-label={tx("work.viewX", { v: lbl(v.id) })}
+              title={v.id === "cards" ? tx("ch.cards") : lbl(v.id)}
+              aria-label={v.id === "cards" ? tx("ch.cards") : tx("work.viewX", { v: lbl(v.id) })}
               aria-pressed={view === v.id}
               onClick={() => setView(v.id)}
             >
@@ -525,6 +532,20 @@ export function ExecutionWorkspace({
         </div>
       ) : (
         <>
+          {view === "cards" && kind === "campaigns" && (
+            <div className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {paged.rows.map((x) => (
+                <CampaignCard
+                  key={x.id}
+                  item={x}
+                  tasks={q.data?.tasks ?? []}
+                  entries={campaignSpend.data}
+                  statusLabel={lbl(x.status)}
+                  onOpen={() => open(x)}
+                />
+              ))}
+            </div>
+          )}
           {view === "list" && (
             <div className="divide-y divide-border border-y border-border">
               {paged.rows.map((x) => (
@@ -596,12 +617,20 @@ export function ExecutionWorkspace({
                   </span>
                   {kind !== "tasks" && (
                     <span className="text-xs text-muted-foreground">
-                      {taskProgress(
-                        q.data?.tasks.filter((t) =>
-                          kind === "projects" ? t.project_id === x.id : t.campaign_id === x.id,
-                        ) ?? [],
-                      )}
-                      %
+                      {kind === "campaigns"
+                        ? (() => {
+                            const progress = campaignWorkProgress(
+                              q.data?.tasks.filter((t) => t.campaign_id === x.id) ?? [],
+                            );
+                            return progress === null
+                              ? tx("ch.noProgress")
+                              : `${tx("ch.progress")}: ${progress}%`;
+                          })()
+                        : `${taskProgress(
+                            q.data?.tasks.filter((t) =>
+                              kind === "projects" ? t.project_id === x.id : t.campaign_id === x.id,
+                            ) ?? [],
+                          )}%`}
                     </span>
                   )}
                   <Button
@@ -616,7 +645,7 @@ export function ExecutionWorkspace({
               ))}
             </div>
           )}
-          {view === "list" && (
+          {(view === "list" || view === "cards") && (
             <div className="my-4 flex items-center justify-between gap-3">
               <p className="text-xs text-muted-foreground">
                 {tx("work.paging", { n: paged.total, p: paged.page, of: paged.pages })}
@@ -850,20 +879,37 @@ export function ExecutionWorkspace({
       <Dialog open={create} onOpenChange={setCreate}>
         <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{tx(`work.new.${kind}`)}</DialogTitle>
+            <DialogTitle>
+              {kind === "campaigns" ? tx("ch.start") : tx(`work.new.${kind}`)}
+            </DialogTitle>
             <DialogDescription>
               {tx("work.savedOnly", { ws: o.workspace?.name ?? "" })}
             </DialogDescription>
           </DialogHeader>
-          {create && (
-            <WorkForm
-              kind={kind}
-              parents={newParent}
-              onSaved={() => {
-                setCreate(false);
-                refresh();
-              }}
+          {create && kind === "campaigns" ? (
+            <CampaignStart
+              renderForm={(objective) => (
+                <WorkForm
+                  kind="campaigns"
+                  initialObjective={objective}
+                  onSaved={() => {
+                    setCreate(false);
+                    refresh();
+                  }}
+                />
+              )}
             />
+          ) : (
+            create && (
+              <WorkForm
+                kind={kind}
+                parents={newParent}
+                onSaved={() => {
+                  setCreate(false);
+                  refresh();
+                }}
+              />
+            )
           )}
         </DialogContent>
       </Dialog>
@@ -907,11 +953,13 @@ export function WorkForm({
   kind,
   item,
   parents = {},
+  initialObjective = "",
   onSaved,
 }: {
   kind: WorkKind;
   item?: WorkItem;
   parents?: { project_id?: string; campaign_id?: string; parent_task_id?: string };
+  initialObjective?: string;
   onSaved: () => void;
 }) {
   const o = useOrg();
@@ -923,7 +971,7 @@ export function WorkForm({
   const [form, setForm] = useState(() => ({
     title: item?.title ?? "",
     description: item?.description ?? "",
-    objective: item && "objective" in item ? item.objective : "",
+    objective: item && "objective" in item ? item.objective : initialObjective,
     status: item?.status ?? STATUSES[kind][0] ?? "",
     priority: item?.priority ?? "medium",
     start_date: item?.start_date ?? "",
@@ -976,6 +1024,7 @@ export function WorkForm({
     },
   });
   const [busy, setBusy] = useState(false);
+  const [advanced, setAdvanced] = useState(false);
   const editable = can(o.workspaceRole, "profile.edit");
   const set = (key: keyof typeof form, value: string) => setForm((f) => ({ ...f, [key]: value }));
   // Proposal 0083: an existing campaign changes status only through its status panel; a new one starts as idea/proposal/draft.
@@ -1140,120 +1189,138 @@ export function WorkForm({
   );
   return (
     <form onSubmit={submit} className="space-y-4">
-      {field("title", tx("work.f.title"))}
-      <label className="block space-y-1 text-xs">
-        {tx("work.f.description")}
-        <Textarea
-          aria-label={tx("work.f.description")}
-          disabled={!editable}
-          value={form.description}
-          onChange={(e) => set("description", e.target.value)}
-          rows={3}
-        />
-      </label>
-      {kind !== "tasks" && field("objective", tx("work.f.objective"))}
-      {lifecycleForm && !item && (
-        <p className="text-xs text-muted-foreground">{tx("cos.newStatus")}</p>
-      )}
-      <div className="grid gap-3 sm:grid-cols-2">
-        {lifecycleForm && item ? (
-          <p className="space-y-1 text-xs">
-            {tx("work.f.status")}
-            <span className="block rounded-md border border-border px-3 py-2">
-              {lbl(item.status)}
-            </span>
-          </p>
-        ) : (
-          select(
-            "status",
-            tx("work.f.status"),
-            (lifecycleForm ? INITIAL_CAMPAIGN_STATUSES : STATUSES[kind]).map((s) => ({
-              value: s,
-              label: lbl(s),
-            })),
-          )
-        )}
-        {select(
-          "priority",
-          tx("work.f.priority"),
-          PRIORITIES.map((s) => ({ value: s, label: lbl(s) })),
-        )}
-        {field("start_date", tx("work.f.start"), "date")}
-        {kind === "tasks"
-          ? field("due_date", tx("work.f.deadline"), "date")
-          : field("end_date", tx("work.f.end"), "date")}
-        {select("owner_id", tx("work.f.owner"), [
-          { value: "", label: tx("work.unassigned") },
-          ...(q.data?.members.map((m) => ({ value: m.user_id, label: m.display_name })) ?? []),
-        ])}
-        {kind === "projects" && field("category", tx("work.f.category"))}
-        {kind === "campaigns" &&
-          select(
-            "category",
-            tx("work.f.campaignType"),
-            ["marketing", "seo", "content", "social", "advertising", "email", "sales"].map((c) => ({
-              value: c,
-              label: lbl(c),
-            })),
-          )}
-        {kind === "tasks" && (
-          <>
-            {select("project_id", tx("work.f.project"), [
-              { value: "", label: tx("work.f.noProject") },
-              ...(q.data?.projects.map((p) => ({ value: p.id, label: p.title })) ?? []),
-            ])}
-            {select("campaign_id", tx("work.f.campaign"), [
-              { value: "", label: tx("work.f.noCampaign") },
-              ...(q.data?.campaigns.map((p) => ({ value: p.id, label: p.title })) ?? []),
-            ])}
-            {select("parent_task_id", tx("work.f.parent"), [
-              { value: "", label: tx("work.f.noParent") },
-              ...(q.data?.tasks
-                .filter((t) => t.id !== item?.id)
-                .map((p) => ({ value: p.id, label: p.title })) ?? []),
-            ])}
-            {field("labels", tx("work.f.labels"))}
-            {select("agent_key", "AI specialist", [
-              { value: "", label: "No AI assignment" },
-              { value: "growth_officer", label: "Growth Officer · research only" },
-            ])}
-            {select("recurrence", tx("work.f.repeat"), [
-              { value: "none", label: tx("work.f.noRepeat") },
-              { value: "weekly", label: tx("work.f.weekly") },
-              { value: "monthly", label: tx("work.f.monthly") },
-            ])}
-          </>
-        )}
-        {kind === "campaigns" && (
-          <>
-            {field("audience", tx("work.f.audience"))}
-            {field("budget_eur", tx("work.f.budget"), "number")}
-            {field("channels", tx("work.f.channels"))}
-            {!item &&
-              activeGoals.length > 0 &&
-              select("goal_id", tx("work.f.goal"), [
-                { value: "", label: tx("work.f.noGoal") },
-                ...activeGoals.map((g) => ({ value: g.id, label: g.title })),
-              ])}
-            {!!units.data?.length &&
-              select("unit_id", tx("work.f.brand"), [
-                { value: "", label: tx("work.f.brandWhole") },
-                ...units.data.map((u) => ({ value: u.id, label: u.name })),
-              ])}
-          </>
-        )}
-      </div>
+      {field("title", kind === "campaigns" ? tx("ch.name") : tx("work.f.title"))}
       {kind === "campaigns" && (
+        <>
+          {field("objective", tx("ch.objective"))}
+          {field("budget_eur", tx("work.f.budget"), "number")}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-expanded={advanced}
+            onClick={() => setAdvanced((v) => !v)}
+          >
+            {tx("ch.advanced")}
+          </Button>
+        </>
+      )}
+      <div hidden={kind === "campaigns" && !advanced} className="space-y-4">
         <label className="block space-y-1 text-xs">
-          {tx("work.f.results")}
+          {tx("work.f.description")}
           <Textarea
-            aria-label={tx("work.f.results")}
+            aria-label={tx("work.f.description")}
             disabled={!editable}
-            value={form.results}
-            onChange={(e) => set("results", e.target.value)}
+            value={form.description}
+            onChange={(e) => set("description", e.target.value)}
+            rows={3}
           />
         </label>
-      )}
+        {kind === "projects" && field("objective", tx("work.f.objective"))}
+        {lifecycleForm && !item && (
+          <p className="text-xs text-muted-foreground">{tx("cos.newStatus")}</p>
+        )}
+        <div className="grid gap-3 sm:grid-cols-2">
+          {lifecycleForm && item ? (
+            <p className="space-y-1 text-xs">
+              {tx("work.f.status")}
+              <span className="block rounded-md border border-border px-3 py-2">
+                {lbl(item.status)}
+              </span>
+            </p>
+          ) : (
+            select(
+              "status",
+              tx("work.f.status"),
+              (lifecycleForm ? INITIAL_CAMPAIGN_STATUSES : STATUSES[kind]).map((s) => ({
+                value: s,
+                label: lbl(s),
+              })),
+            )
+          )}
+          {select(
+            "priority",
+            tx("work.f.priority"),
+            PRIORITIES.map((s) => ({ value: s, label: lbl(s) })),
+          )}
+          {field("start_date", tx("work.f.start"), "date")}
+          {kind === "tasks"
+            ? field("due_date", tx("work.f.deadline"), "date")
+            : field("end_date", tx("work.f.end"), "date")}
+          {select("owner_id", tx("work.f.owner"), [
+            { value: "", label: tx("work.unassigned") },
+            ...(q.data?.members.map((m) => ({ value: m.user_id, label: m.display_name })) ?? []),
+          ])}
+          {kind === "projects" && field("category", tx("work.f.category"))}
+          {kind === "campaigns" &&
+            select(
+              "category",
+              tx("work.f.campaignType"),
+              ["marketing", "seo", "content", "social", "advertising", "email", "sales"].map(
+                (c) => ({
+                  value: c,
+                  label: lbl(c),
+                }),
+              ),
+            )}
+          {kind === "tasks" && (
+            <>
+              {select("project_id", tx("work.f.project"), [
+                { value: "", label: tx("work.f.noProject") },
+                ...(q.data?.projects.map((p) => ({ value: p.id, label: p.title })) ?? []),
+              ])}
+              {select("campaign_id", tx("work.f.campaign"), [
+                { value: "", label: tx("work.f.noCampaign") },
+                ...(q.data?.campaigns.map((p) => ({ value: p.id, label: p.title })) ?? []),
+              ])}
+              {select("parent_task_id", tx("work.f.parent"), [
+                { value: "", label: tx("work.f.noParent") },
+                ...(q.data?.tasks
+                  .filter((t) => t.id !== item?.id)
+                  .map((p) => ({ value: p.id, label: p.title })) ?? []),
+              ])}
+              {field("labels", tx("work.f.labels"))}
+              {select("agent_key", "AI specialist", [
+                { value: "", label: "No AI assignment" },
+                { value: "growth_officer", label: "Growth Officer · research only" },
+              ])}
+              {select("recurrence", tx("work.f.repeat"), [
+                { value: "none", label: tx("work.f.noRepeat") },
+                { value: "weekly", label: tx("work.f.weekly") },
+                { value: "monthly", label: tx("work.f.monthly") },
+              ])}
+            </>
+          )}
+          {kind === "campaigns" && (
+            <>
+              {field("audience", tx("work.f.audience"))}
+              {field("channels", tx("work.f.channels"))}
+              {!item &&
+                activeGoals.length > 0 &&
+                select("goal_id", tx("work.f.goal"), [
+                  { value: "", label: tx("work.f.noGoal") },
+                  ...activeGoals.map((g) => ({ value: g.id, label: g.title })),
+                ])}
+              {!!units.data?.length &&
+                select("unit_id", tx("work.f.brand"), [
+                  { value: "", label: tx("work.f.brandWhole") },
+                  ...units.data.map((u) => ({ value: u.id, label: u.name })),
+                ])}
+            </>
+          )}
+        </div>
+        {kind === "campaigns" && (
+          <label className="block space-y-1 text-xs">
+            {tx("work.f.results")}
+            <Textarea
+              aria-label={tx("work.f.results")}
+              disabled={!editable}
+              value={form.results}
+              onChange={(e) => set("results", e.target.value)}
+            />
+          </label>
+        )}
+      </div>
       {editable && (
         <Button type="submit" disabled={busy || q.isError}>
           {busy ? tx("work.saving") : item ? tx("work.saveChanges") : tx(`work.create.${kind}`)}
@@ -1460,28 +1527,54 @@ function WorkDetails({
             />
           )}
           {kind === "campaigns" && "budget_eur" in item && (
-            <CampaignStrategy key={`${item.id}:${item.updated_at}`} campaign={item} />
+            <details className="border-t border-border py-4">
+              <summary className="cursor-pointer text-sm font-semibold">
+                {tx("ch.strategy")}
+              </summary>
+              <div className="pt-4">
+                <CampaignStrategy key={`${item.id}:${item.updated_at}`} campaign={item} />
+              </div>
+            </details>
           )}
           {kind === "campaigns" && "budget_eur" in item && (
-            <CampaignSpend
-              campaignId={item.id}
-              budgetEur={Number(item.budget_eur)}
-              dates={{ start_date: item.start_date, end_date: item.end_date }}
-            />
+            <details className="border-t border-border py-4">
+              <summary className="cursor-pointer text-sm font-semibold">{tx("ch.money")}</summary>
+              <div className="pt-4">
+                <CampaignSpend
+                  campaignId={item.id}
+                  budgetEur={Number(item.budget_eur)}
+                  dates={{ start_date: item.start_date, end_date: item.end_date }}
+                />
+              </div>
+            </details>
           )}
           {kind === "campaigns" && "budget_eur" in item && (
-            <CampaignAiTeam campaignId={item.id} tasks={q.data?.tasks ?? []} />
+            <details className="border-t border-border py-4">
+              <summary className="cursor-pointer text-sm font-semibold">
+                {tx("ch.specialists")}
+              </summary>
+              <div className="space-y-5 pt-4">
+                <CampaignAiTeam campaignId={item.id} tasks={q.data?.tasks ?? []} />
+                <CampaignIntelPanel
+                  campaign={item}
+                  tasks={q.data?.tasks ?? []}
+                  campaigns={(q.data?.campaigns ?? []).filter(
+                    (c): c is typeof item => "budget_eur" in c,
+                  )}
+                />
+              </div>
+            </details>
           )}
-          {kind === "campaigns" && "budget_eur" in item && (
-            <CampaignIntelPanel
-              campaign={item}
-              tasks={q.data?.tasks ?? []}
-              campaigns={(q.data?.campaigns ?? []).filter(
-                (c): c is typeof item => "budget_eur" in c,
-              )}
-            />
+          {kind === "campaigns" ? (
+            <details className="border-t border-border py-4">
+              <summary className="cursor-pointer text-sm font-semibold">{tx("ch.edit")}</summary>
+              <div className="pt-4">
+                <WorkForm item={item} kind={kind} onSaved={() => refresh()} />
+              </div>
+            </details>
+          ) : (
+            <WorkForm item={item} kind={kind} onSaved={() => refresh()} />
           )}
-          <WorkForm item={item} kind={kind} onSaved={() => refresh()} />
           {kind === "tasks" && "agent_key" in item && item.agent_key && editable && (
             <Button variant="outline" onClick={runAgent}>
               <Sparkles />
@@ -1520,10 +1613,13 @@ function WorkDetails({
       {tab === "tasks" && (
         <>
           <p className="text-xs text-muted-foreground">
-            {tx(kind === "tasks" ? "work.progressSub" : "work.progressTasks", {
-              n: tasks.length,
-              p: taskProgress(tasks),
-            })}
+            {kind === "campaigns" && campaignWorkProgress(tasks) === null
+              ? tx("ch.noProgress")
+              : tx(kind === "tasks" ? "work.progressSub" : "work.progressTasks", {
+                  n: tasks.length,
+                  p:
+                    kind === "campaigns" ? (campaignWorkProgress(tasks) ?? 0) : taskProgress(tasks),
+                })}
           </p>
           {tasks.map((t) => (
             <div

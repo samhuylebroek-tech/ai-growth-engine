@@ -1,11 +1,14 @@
 # AI Growth OS — Task Queue
 ## Campaign-first A–Z product correction (24 November 2026)
-- [ ] 1–3 Audit/dependencies, campaign-first navigation and start overview; preserve every existing destination.
-- [ ] 4 Guided campaign creation and contextual Growth Officer, explicit proposal review and costs.
+- [x] 1–3 Entry-page/navigation implementation: campaigns first, 33 menu destinations retained (including the old command center at /app/overview), shared campaign cards with status/objective/budget/recorded KPI and task progress; unknown ledger stays unknown and currencies/test spending stay separate. Route/locale/helper tests passed; authenticated browser validation remains below.
+- [x] 4a Guided start: choose an objective (including custom text), enter a manual draft or hand off a scoped editable question to the Growth Officer; no automatic inference, approval, spending or credit use. Creation/edit fields and campaign measurement/spending/specialist details progressively disclose. Interaction tests passed; authenticated save/read-back and AI proposal review NOT RUN.
+- [ ] 4b Complete structured campaign proposal/review flow, existing-campaign overlap checks and contextual AI follow-ups. Existing Growth Officer handoff only; no new AI calls made.
 - [ ] 5–6 Strategy/goals/opportunities; plain-language tasks, execution, budgets and approvals.
 - [ ] Explicit test-record classification and scoped exclusion across UI/AI/reporting without deleting history (staging-only reviewed schema needed).
 - [ ] 7–8 Results/financials; business, organization/settings and integrations.
-- [ ] 9–10 NL/EN/FR, accessibility, desktop/tablet/phone and role-based end-to-end verification; no paid AI calls for deterministic checks.
+- [ ] 9–10 Authenticated desktop/tablet/phone and five-persona end-to-end verification: isolated staging app passed identity/key guards and started; /app redirects correctly to sign-in without runtime errors/overflow at 1280/820/390. Existing QA credentials under /tmp were lost on sandbox restart; sign-in/save/read-back NOT RUN. No passwords/MFA rotated or auth records changed. NL/EN/FR key completeness + route/helper/component tests passed; no paid AI calls.
+- [x] Existing CI lint error in the staging credit-grant utility fixed by replacing an explicit any with the ledger-row type; utility NOT EXECUTED and grants/authentication untouched.
+- [x] Entry-round verification: 975/975 tests across 123 files, focused checks 53/53; full ESLint zero errors (58 existing warnings); current platform build OK. Details and NOT RUN journeys in docs/ux/CAMPAIGN_FIRST_ROUND.md.
 ## Reported module-load failure (2026-11-24)
 - [x] Shared eager route fallback and document-reload retry for failed page chunks; all route declarations and other loading paths inspected (`docs/ux/MODULE_LOAD_RECOVERY.md`), EN tablet/FR desktop browser recovery passed, 966 tests passed; original remote asset availability and signed-in Growth Officer not independently verified. No database, authentication or production changes.
 ## Round 6 — complete UX/UI workstream, phase A–B (2026-11-23, staging only)

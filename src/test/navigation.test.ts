@@ -6,12 +6,12 @@ import { FALLBACK_GROUP, NAVIGATION } from "@/lib/navigation";
 describe("navigation", () => {
   it("orders destinations along the growth journey", () => {
     expect(NAVIGATION.map((g) => g.group)).toEqual([
-      "Home",
-      "AI team",
-      "Business",
+      "Campaigns",
       "Plan",
+      "AI team",
       "Execution",
       "Results",
+      "Business",
       "Organization",
     ]);
   });
@@ -30,9 +30,12 @@ describe("navigation", () => {
     expect(team?.items.map((i) => i.to)).toEqual(["/app/growth-officer", "/app/agents"]);
   });
 
-  it("keeps approvals on Home, where pending decisions are announced", () => {
-    const home = NAVIGATION.find((g) => g.group === "Home");
-    expect(home?.items.map((i) => i.to)).toContain("/app/approvals");
+  it("keeps approvals with execution and makes campaigns the first destination", () => {
+    const execution = NAVIGATION.find((g) => g.group === "Execution");
+    expect(execution?.items.map((i) => i.to)).toContain("/app/approvals");
+    expect(NAVIGATION[0].items[0].to).toBe("/app");
+    expect(NAVIGATION[0].items.map((i) => i.to)).toContain("/app/campaigns");
+    expect(NAVIGATION.flatMap((g) => g.items.map((i) => i.to))).toContain("/app/overview");
   });
 
   it("falls back to an existing destination", () => {

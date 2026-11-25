@@ -71,5 +71,5 @@ else {
 const { data: led } = await sb.from("credit_ledger").select("delta").eq("org_id", org!.id);
 console.log(
   "balance",
-  (led ?? []).reduce((s, r: any) => s + r.delta, 0),
+  (led ?? []).reduce((s, r: { delta: number }) => s + r.delta, 0),
 );

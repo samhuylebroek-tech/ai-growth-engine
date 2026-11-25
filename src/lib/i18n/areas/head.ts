@@ -3,6 +3,9 @@ import { defineArea } from "../define";
 // Browser tab titles and page descriptions, per route. Keys start with "head.".
 export const head = defineArea("head", {
   en: {
+    "head.campaignHome.t": "Campaign overview",
+    "head.campaignHome.d":
+      "Your campaigns, recorded budgets and results, with a guided start for your next campaign.",
     "head.home.t": "AI Growth Engine",
     "head.home.d":
       "Your business growth workspace: confirmed knowledge, evidence-aware AI strategy and actions you control.",
@@ -104,6 +107,9 @@ export const head = defineArea("head", {
       "Simple plans for businesses, agencies and enterprises. Start with a 14-day free trial.",
   },
   nl: {
+    "head.campaignHome.t": "Campagneoverzicht",
+    "head.campaignHome.d":
+      "Je campagnes, vastgelegde budgetten en resultaten, met een begeleide start voor je volgende campagne.",
     "head.home.t": "AI Growth Engine",
     "head.home.d":
       "Je werkruimte voor bedrijfsgroei: bevestigde kennis, AI-strategie die bewijs respecteert en acties die jij beheert.",
@@ -206,6 +212,9 @@ export const head = defineArea("head", {
       "Eenvoudige abonnementen voor bedrijven, bureaus en ondernemingen. Start met 14 dagen gratis proberen.",
   },
   fr: {
+    "head.campaignHome.t": "Vue d’ensemble des campagnes",
+    "head.campaignHome.d":
+      "Vos campagnes, budgets et résultats enregistrés, avec un démarrage guidé pour votre prochaine campagne.",
     "head.home.t": "AI Growth Engine",
     "head.home.d":
       "Votre espace de croissance : connaissances confirmées, stratégie IA fondée sur des preuves et actions que vous contrôlez.",

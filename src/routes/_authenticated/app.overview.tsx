@@ -1,0 +1,999 @@
+import { executionOptions, executionSummary } from "@/lib/execution";
+import { HomeWork } from "@/components/execution/home-work";
+import { localHead } from "@/lib/page-head";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState, type ReactNode } from "react";
+import {
+  ArrowUpRight,
+  ArrowUp,
+  ArrowDown,
+  CheckSquare,
+  FileText,
+  Target,
+  Plug,
+  Check,
+  SlidersHorizontal,
+  Sparkles,
+  RefreshCw,
+  Activity as ActivityIcon,
+  Clock,
+  ChevronDown,
+  CircleAlert,
+  Plus,
+} from "lucide-react";
+import { useOrg } from "@/lib/org-context";
+import { can } from "@/lib/permissions";
+import { PageHeader, StatusChip } from "@/components/app/status";
+import { GrowthQuestion } from "@/components/app/growth-question";
+import { CollapsibleSection, SectionHeading } from "@/components/app/section-heading";
+import { AiMarkdown } from "@/components/ai/ai-markdown";
+import { plainPreview } from "@/lib/text-preview";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { growthSummaryOptions } from "@/lib/growth-summary";
+import {
+  commandCenterOptions,
+  homePreferenceKey,
+  prioritizeApprovals,
+  readableRunSummary,
+  type Activity,
+  type ActivityKind,
+} from "@/lib/command-center";
+import { AGENTS } from "@/lib/registry/agents";
+import { cn } from "@/lib/utils";
+import { PrimaryGrowthFocus } from "@/components/app/primary-growth-focus";
+import { GrowthInitiativePulse } from "@/components/app/growth-initiative-pulse";
+import { HomePerformance, HomeBudget, PerformanceAttention } from "@/components/app/home-insights";
+import { GrowthSignals } from "@/components/app/growth-signals";
+import { BusinessCheck } from "@/components/app/business-check";
+import { HomeOpportunities } from "@/components/app/home-opportunities";
+import { BusinessTiles } from "@/components/app/business-tiles";
+import { ExecutionTiles } from "@/components/app/execution-tiles";
+import { ExternalTiles } from "@/components/integrations/external-tiles";
+import { HomeBusinessSummary, HomeGrowthActions } from "@/components/bi/home-summary";
+import { useI18n } from "@/lib/i18n";
+import { NextStep } from "@/components/app/next-step";
+import { GrowthJourney } from "@/components/growth/growth-journey";
+import { HowItWorks, useGuide } from "@/components/app/how-it-works";
+import { HelpCircle, BarChart3 } from "lucide-react";
+
+export const Route = createFileRoute("/_authenticated/app/overview")({
+  head: () => localHead("command"),
+  component: Overview,
+});
+const SECTIONS = [
+  "performance",
+  "budget",
+  "activity",
+  "results",
+  "opportunities",
+  "upcoming",
+] as const;
+type Section = (typeof SECTIONS)[number];
+/** Sections that fold; they start folded so the first screen stays on attention, the goal and active work. */
+const FOLDABLE: readonly Section[] = ["activity", "results", "opportunities", "upcoming"];
+const name = (key: string) =>
+  AGENTS.find((a) => a.key === key)?.name ??
+  key.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
+/** Fallback details from the shared activity rules, shown in the chosen language. */
+const FALLBACK = {
+  "AI assignment": "home.fb.ai",
+  "Business document": "home.fb.document",
+  "Recommendation for review": "home.fb.recommendation",
+} as const;
+const fallback = (detail: string, t: (k: (typeof FALLBACK)[keyof typeof FALLBACK]) => string) =>
+  detail in FALLBACK ? t(FALLBACK[detail as keyof typeof FALLBACK]) : detail;
+const time = (value: string, tag?: string) =>
+  new Date(value).toLocaleString(tag, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+function Overview() {
+  const o = useOrg();
+  const qc = useQueryClient();
+  const { t, tag } = useI18n();
+  const q = useQuery(growthSummaryOptions(o.org?.id, o.workspace?.id, o.role));
+  const work = useQuery(commandCenterOptions(o.org?.id, o.workspace?.id, o.userId));
+  const execution = useQuery(executionOptions(o.org?.id, o.workspace?.id, o.userId));
+  const es = execution.data
+    ? executionSummary(
+        execution.data.tasks,
+        execution.data.projects,
+        execution.data.campaigns,
+        o.userId,
+      )
+    : null;
+  const [order, setOrder] = useState<Section[]>([...SECTIONS]);
+  const [hidden, setHidden] = useState<Section[]>([]);
+  const [compact, setCompact] = useState(false);
+  const [numbers, setNumbers] = useState(true);
+  const [details, setDetails] = useState(false);
+  const [expanded, setExpanded] = useState<Section[]>([]);
+  const [guide, setGuide] = useGuide(o.userId);
+  const [filter, setFilter] = useState<ActivityKind | "all">("all");
+  const [status, setStatus] = useState("all");
+  const [limit, setLimit] = useState(8);
+  const [selected, setSelected] = useState<Activity | null>(null);
+  const [ready, setReady] = useState(false);
+  const [initiativeAttentionCount, setInitiativeAttentionCount] = useState(0);
+  const [performanceAttentionCount, setPerformanceAttentionCount] = useState(0);
+  const prefKey =
+    o.org && o.workspace ? homePreferenceKey(o.userId, o.org.id, o.workspace.id) : null;
+  useEffect(() => {
+    if (!prefKey) return;
+    try {
+      const p = JSON.parse(localStorage.getItem(prefKey) ?? "null");
+      if (p) {
+        const saved: Section[] = Array.isArray(p.order)
+          ? p.order.filter(
+              (s: unknown): s is Section =>
+                typeof s === "string" && SECTIONS.includes(s as Section),
+            )
+          : [];
+        setOrder([...new Set([...saved, ...SECTIONS])]);
+        setHidden(
+          Array.isArray(p.hidden) ? p.hidden.filter((s: Section) => SECTIONS.includes(s)) : [],
+        );
+        setCompact(p.compact === true);
+        setNumbers(p.numbers !== false);
+        setDetails(p.details === true);
+        setExpanded(
+          Array.isArray(p.expanded)
+            ? p.expanded.filter((s: unknown): s is Section => FOLDABLE.includes(s as Section))
+            : [],
+        );
+      }
+    } catch {
+      /* Invalid display preferences are ignored. */
+    }
+    setReady(true);
+  }, [prefKey]);
+  useEffect(() => {
+    if (ready && prefKey)
+      localStorage.setItem(
+        prefKey,
+        JSON.stringify({ order, hidden, compact, numbers, details, expanded }),
+      );
+  }, [ready, prefKey, order, hidden, compact, numbers, details, expanded]);
+  const d = q.data;
+  const w = work.data;
+  const confirmed = d?.facts.filter((f) => f.verified) ?? [];
+  const unconfirmed = (d?.facts.length ?? 0) - confirmed.length;
+  const approvals = prioritizeApprovals(d?.approvals ?? []);
+  const failedDocs = d?.documents.filter((doc) => doc.status === "failed") ?? [];
+  const failedRuns = w?.runs.filter((r) => r.status === "failed") ?? [];
+  const brokenSources =
+    w?.connections.filter((c) =>
+      ["failed", "error", "expired", "insufficient_scope"].includes(c.status),
+    ) ?? [];
+  const editable = can(o.workspaceRole, "profile.edit");
+  const canConfirm = can(o.workspaceRole, "profile.confirm");
+  const decide = can(o.workspaceRole, "approvals.decide");
+  const ai = can(o.workspaceRole, "ai.use");
+  const foundation = canConfirm && !!d && !d.profile?.onboarding_completed_at;
+  const attention =
+    new Set([...(es?.overdue ?? []), ...(es?.review ?? [])].map((t) => t.id)).size +
+    (d?.approvalCount ?? 0) +
+    failedDocs.length +
+    failedRuns.length +
+    brokenSources.length +
+    (unconfirmed ? 1 : 0) +
+    (foundation ? 1 : 0) +
+    initiativeAttentionCount +
+    performanceAttentionCount;
+  const feed =
+    w?.activity.filter(
+      (a) =>
+        (filter === "all" || a.kind === filter) &&
+        (status === "all" ||
+          (status === "attention"
+            ? ["failed", "pending"].includes(a.status)
+            : status === "running"
+              ? ["running", "processing"].includes(a.status)
+              : ["succeeded", "ready", "approved"].includes(a.status))),
+    ) ?? [];
+  function move(section: Section, direction: number) {
+    const next = [...order];
+    const from = next.indexOf(section);
+    const to = from + direction;
+    const current = next[from];
+    const target = next[to];
+    if (!current || !target) return;
+    next[from] = target;
+    next[to] = current;
+    setOrder(next);
+  }
+  function refresh() {
+    qc.invalidateQueries({ queryKey: ["execution"] });
+    qc.invalidateQueries({ queryKey: ["overview"] });
+    qc.invalidateQueries({ queryKey: ["command-center"] });
+    qc.invalidateQueries({ queryKey: ["command-center-approved-plans"] });
+    qc.invalidateQueries({ queryKey: ["command-center-approved-initiatives"] });
+    qc.invalidateQueries({ queryKey: ["command-center-initiative-ops"] });
+    qc.invalidateQueries({ queryKey: ["business-tiles"] });
+  }
+  const sectionHead: Partial<Record<Section, { eyebrow: string; action?: ReactNode }>> = {
+    activity: {
+      eyebrow: t("home.a.eyebrow"),
+      action: (
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/app/activity">
+            {t("home.history")} <ArrowUpRight />
+          </Link>
+        </Button>
+      ),
+    },
+    results: {
+      eyebrow: t("home.r.eyebrow"),
+      action: (
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/app/growth-officer">
+            {t("home.conversations")} <ArrowUpRight />
+          </Link>
+        </Button>
+      ),
+    },
+    opportunities: {
+      eyebrow: t("home.o.eyebrow"),
+      action: (
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/app/intelligence">
+            {t("home.intelligence")} <ArrowUpRight />
+          </Link>
+        </Button>
+      ),
+    },
+    upcoming: { eyebrow: t("home.u.eyebrow") },
+  };
+  const sectionContent: Record<Section, ReactNode> = {
+    activity: (
+      <>
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap gap-1">
+            {(["all", "ai", "documents", "approvals"] as const).map((f) => (
+              <Button
+                key={f}
+                size="sm"
+                variant={filter === f ? "secondary" : "ghost"}
+                aria-pressed={filter === f}
+                className="h-8 text-xs"
+                onClick={() => {
+                  setFilter(f);
+                  setLimit(8);
+                }}
+              >
+                {t(`home.f.${f}`)}
+              </Button>
+            ))}
+          </div>
+          <select
+            aria-label={t("home.streamStatus")}
+            value={status}
+            onChange={(e) => {
+              setStatus(e.target.value);
+              setLimit(8);
+            }}
+            className="min-w-0 rounded-md border border-border bg-background px-2 text-xs sm:ml-auto"
+          >
+            <option value="all">{t("home.allStatuses")}</option>
+            <option value="running">{t("home.inProgress")}</option>
+            <option value="completed">{t("home.completed")}</option>
+            <option value="attention">{t("home.needsReview")}</option>
+          </select>
+        </div>
+        {feed.length ? (
+          <div>
+            {feed.slice(0, limit).map((a) => (
+              <ActivityRow key={a.id} item={a} compact={compact} open={() => setSelected(a)} />
+            ))}
+            {feed.length > limit && (
+              <Button
+                variant="ghost"
+                className="mt-3 w-full text-xs"
+                onClick={() => setLimit((l) => l + 12)}
+              >
+                {t("home.showMore")} <ChevronDown />
+              </Button>
+            )}
+          </div>
+        ) : (
+          <Quiet
+            icon={<ActivityIcon />}
+            title={w?.activity.length ? t("home.noMatch") : t("home.quiet")}
+            text={w?.activity.length ? t("home.tryOther") : t("home.noneRecorded")}
+          />
+        )}
+        <p className="mt-4 text-2xs text-muted-foreground">{t("home.latest")}</p>
+      </>
+    ),
+    results: (
+      <>
+        {w?.runs
+          .filter((r) => r.status === "succeeded")
+          .slice(0, 4)
+          .map((r) => (
+            <ActivityRow
+              key={r.id}
+              item={{
+                id: r.id,
+                entityId: r.id,
+                kind: "ai",
+                title: name(r.agent_key),
+                detail: readableRunSummary(r.summary) ?? t("home.completedAssignment"),
+                status: r.status,
+                time: r.finished_at ?? r.created_at,
+                to: "/app/activity",
+              }}
+              compact={compact}
+              open={() =>
+                setSelected({
+                  id: r.id,
+                  entityId: r.id,
+                  kind: "ai",
+                  title: name(r.agent_key),
+                  detail: readableRunSummary(r.summary) ?? t("home.noSummary"),
+                  status: r.status,
+                  time: r.finished_at ?? r.created_at,
+                  to: "/app/activity",
+                })
+              }
+            />
+          ))}
+        {!w?.runs.some((r) => r.status === "succeeded") && (
+          <Quiet icon={<FileText />} title={t("home.noResults")} text={t("home.noResultsBody")} />
+        )}
+      </>
+    ),
+    opportunities: (
+      <>
+        {approvals
+          .filter((a) => a.capability_key === "strategy.recommend")
+          .slice(0, 2)
+          .map((a) => (
+            <div key={a.id} className="border-b border-border py-4">
+              <p className="text-sm font-medium">{a.title}</p>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                {a.reasoning ?? t("home.noReasoning")}
+              </p>
+              {a.expected_impact && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {t("home.impact", { v: a.expected_impact })}
+                </p>
+              )}
+              <Button variant="link" size="sm" className="mt-2 px-0" asChild>
+                <Link to="/app/approvals">
+                  {t("home.reviewRec")} <ArrowUpRight />
+                </Link>
+              </Button>
+            </div>
+          ))}
+        {!approvals.some((a) => a.capability_key === "strategy.recommend") && (
+          <Quiet
+            icon={<Target />}
+            title={t("home.noRecs")}
+            text={
+              confirmed.length
+                ? t("home.factsAvailable", { n: confirmed.length })
+                : t("home.confirmKnowledge")
+            }
+          />
+        )}
+        <div className="mt-4">
+          {ai ? (
+            <GrowthQuestion compact />
+          ) : (
+            <Button variant="link" asChild>
+              <Link to="/app/profile">
+                {t("home.explore")} <ArrowUpRight />
+              </Link>
+            </Button>
+          )}
+        </div>
+      </>
+    ),
+    upcoming: <HomeWork section="upcoming" />,
+    performance: <HomePerformance />,
+    budget: <HomeBudget />,
+  };
+  return (
+    <>
+      <PageHeader
+        eyebrow={t("home.eyebrow")}
+        title={t("home.title")}
+        description={
+          <>
+            {o.workspace?.name} <span className="mx-1">/</span> {o.org?.name}
+          </>
+        }
+        actions={
+          <>
+            {guide === false && (
+              <Button variant="ghost" size="sm" onClick={() => setGuide(true)}>
+                <HelpCircle />
+                {t("gx.guide.open")}
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={refresh}
+              disabled={q.isFetching || work.isFetching}
+              aria-label={t("home.refresh")}
+              title={t("home.refreshTitle")}
+            >
+              <RefreshCw
+                className={cn(
+                  (q.isFetching || work.isFetching) && "animate-spin motion-reduce:animate-none",
+                )}
+              />
+            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t("home.customize")}
+                  title={t("home.customize")}
+                >
+                  <SlidersHorizontal />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-72">
+                <p className="mb-4 text-sm font-semibold">{t("home.view")}</p>
+                <label className="mb-4 flex items-center gap-2 text-xs">
+                  <Checkbox checked={compact} onCheckedChange={(v) => setCompact(v === true)} />
+                  {t("home.compact")}
+                </label>
+                <label className="mb-4 flex items-center gap-2 text-xs">
+                  <Checkbox checked={numbers} onCheckedChange={(v) => setNumbers(v === true)} />
+                  {t("home.tiles.show")}
+                </label>
+                <div className="divide-y divide-border">
+                  {order.map((s, i) => (
+                    <div key={s} className="flex items-center gap-2 py-2">
+                      <Checkbox
+                        aria-label={t("home.show", { s: t(`home.sec.${s}`) })}
+                        checked={!hidden.includes(s)}
+                        onCheckedChange={(v) =>
+                          setHidden((h) => (v ? h.filter((x) => x !== s) : [...h, s]))
+                        }
+                      />
+                      <span className="flex-1 text-xs">{t(`home.sec.${s}`)}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        disabled={i === 0}
+                        aria-label={t("home.up", { s: t(`home.sec.${s}`) })}
+                        onClick={() => move(s, -1)}
+                      >
+                        <ArrowUp className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        disabled={i === order.length - 1}
+                        aria-label={t("home.down", { s: t(`home.sec.${s}`) })}
+                        onClick={() => move(s, 1)}
+                      >
+                        <ArrowDown className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="mt-3 px-0"
+                  onClick={() => {
+                    setHidden([]);
+                    setOrder([...SECTIONS]);
+                    setCompact(false);
+                    setNumbers(true);
+                    setDetails(false);
+                    setExpanded([]);
+                  }}
+                >
+                  {t("home.reset")}
+                </Button>
+              </PopoverContent>
+            </Popover>
+          </>
+        }
+      />
+      {q.isLoading && (
+        <p role="status" className="py-8 text-sm text-muted-foreground">
+          {t("home.loading")}
+        </p>
+      )}
+      {q.isError && (
+        <div
+          role="alert"
+          className="mb-6 flex flex-wrap items-center gap-3 border-l-2 border-destructive pl-4 text-sm"
+        >
+          {t("home.loadError")}
+          <Button variant="outline" size="sm" onClick={() => q.refetch()}>
+            {t("home.retry")}
+          </Button>
+        </div>
+      )}
+      {d && (
+        <>
+          <div className="mb-7 border-y border-border py-4">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-xs">
+              <Link to="/app/activity" className="flex min-h-6 items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-primary" />
+                <strong className="text-foreground">{w ? w.activeCount : "—"}</strong>{" "}
+                {t("home.aiActive")}
+              </Link>
+              <Link to="/app/approvals" className="flex min-h-6 items-center gap-2">
+                <CheckSquare className="h-3.5 w-3.5 text-warning" />
+                <strong>{d.approvalCount}</strong> {t("home.awaiting")}
+              </Link>
+              <Link to="/app/profile" className="flex min-h-6 items-center gap-2">
+                <Check className="h-3.5 w-3.5 text-primary" />
+                <strong>{confirmed.length}</strong> {t("home.facts")}
+              </Link>
+              <Link
+                to="/app/billing"
+                className="flex min-h-6 items-center text-muted-foreground sm:ml-auto"
+              >
+                {d.balance?.toLocaleString(tag) ?? "—"} {t("home.credits")}
+              </Link>
+            </div>
+          </div>
+          <NextStep
+            counts={{
+              onboardingDone: !!d.profile?.onboarding_completed_at,
+              confirmedFacts: confirmed.length,
+              unconfirmedFacts: unconfirmed,
+              pendingApprovals: d.approvalCount,
+              highRiskApprovals: approvals.filter((a) => a.risk === "high").length,
+              overdueTasks: es?.overdue.length ?? 0,
+            }}
+          />
+          <HowItWorks userId={o.userId} open={guide} onOpenChange={setGuide} />
+          <div className="my-6">
+            <GrowthJourney compact />
+          </div>
+          {numbers && <HomeBusinessSummary />}
+          {numbers && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="mb-6"
+              aria-expanded={details}
+              onClick={() => setDetails((v) => !v)}
+            >
+              <BarChart3 />
+              {details ? t("gx.more.hide") : t("gx.more.show")}
+            </Button>
+          )}
+          {numbers && details && (
+            <>
+              <BusinessTiles />
+              <ExecutionTiles />
+              <ExternalTiles />
+            </>
+          )}
+          <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1.7fr)_minmax(260px,1fr)]">
+            <div className="min-w-0 space-y-8">
+              <section className="border-l-2 border-primary pl-4">
+                <SectionHeading
+                  eyebrow={
+                    attention ? t("home.attentionCount", { n: attention }) : t("home.noFollowUp")
+                  }
+                  title={t("home.attention")}
+                />
+                <HomeWork section="attention" />
+                <GrowthInitiativePulse onCountChange={setInitiativeAttentionCount} />
+                <PerformanceAttention onCountChange={setPerformanceAttentionCount} />
+                {!!failedRuns.length && (
+                  <Attention
+                    title={t("home.failedRuns", { n: failedRuns.length })}
+                    detail={t("home.failedRunsBody")}
+                    to="/app/activity"
+                    important
+                  />
+                )}
+                {!!failedDocs.length && (
+                  <Attention
+                    title={t("home.failedDocs", { n: failedDocs.length })}
+                    detail={t("home.failedDocsBody")}
+                    to="/app/documents"
+                    important
+                  />
+                )}
+                {!!brokenSources.length && (
+                  <Attention
+                    title={t("home.brokenSources", { n: brokenSources.length })}
+                    detail={t("home.brokenSourcesBody")}
+                    to="/app/integrations"
+                    important
+                  />
+                )}
+                {approvals.slice(0, 3).map((a) => (
+                  <Attention
+                    key={a.id}
+                    title={a.title}
+                    detail={`${a.risk === "high" ? t("home.important") : t("home.followUp")} · ${decide ? t("home.decide") : t("home.awaitAdmin")}`}
+                    to="/app/approvals"
+                    important={a.risk === "high"}
+                  />
+                ))}
+                {!!unconfirmed && (
+                  <Attention
+                    title={t("home.claims", { n: unconfirmed })}
+                    detail={canConfirm ? t("home.claimsEdit") : t("home.claimsView")}
+                    to="/app/profile"
+                  />
+                )}
+                {foundation && (
+                  <Attention
+                    title={t("home.foundation")}
+                    detail={t("home.foundationBody")}
+                    to="/app/onboarding"
+                  />
+                )}
+                {!attention && (
+                  <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground">
+                    <Check className="h-4 w-4 text-success" />
+                    {t("home.nothing")}
+                  </div>
+                )}
+                {d.approvalCount > 3 && (
+                  <Button variant="link" size="sm" className="mt-2 px-0" asChild>
+                    <Link to="/app/approvals">
+                      {t("home.seeAll", { n: d.approvalCount })} <ArrowUpRight />
+                    </Link>
+                  </Button>
+                )}
+              </section>
+              <PrimaryGrowthFocus />
+              <section>
+                <SectionHeading title={t("home.priorities")} />
+                <HomeWork section="priorities" />
+              </section>
+              <section>
+                <SectionHeading
+                  eyebrow={t("home.underway")}
+                  title={t("home.activeWork")}
+                  action={
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to="/app/activity">
+                        {t("home.allWork")} <ArrowUpRight />
+                      </Link>
+                    </Button>
+                  }
+                />
+                <HomeWork section="active" />
+                {w?.active.length ? (
+                  w.active.slice(0, 5).map((r) => (
+                    <ActivityRow
+                      key={r.id}
+                      item={{
+                        id: r.id,
+                        entityId: r.id,
+                        kind: "ai",
+                        title: name(r.agent_key),
+                        detail:
+                          readableRunSummary(r.summary) ??
+                          t("home.specialist", { n: name(r.agent_key) }),
+                        status: r.status,
+                        time: r.created_at,
+                        to: "/app/activity",
+                      }}
+                      compact={compact}
+                      open={() =>
+                        setSelected({
+                          id: r.id,
+                          entityId: r.id,
+                          kind: "ai",
+                          title: name(r.agent_key),
+                          detail: readableRunSummary(r.summary) ?? t("home.noNext"),
+                          status: r.status,
+                          time: r.created_at,
+                          to: "/app/activity",
+                        })
+                      }
+                    />
+                  ))
+                ) : (
+                  <Quiet
+                    icon={<Sparkles />}
+                    title={
+                      work.isLoading
+                        ? t("home.checkingActive")
+                        : work.isError
+                          ? t("home.activeUnavailable")
+                          : t("home.noAssignments")
+                    }
+                    text={t("home.newAppear")}
+                  />
+                )}
+                {(w?.activeCount ?? 0) > 5 && (
+                  <Button variant="link" size="sm" asChild>
+                    <Link to="/app/activity">
+                      {t("home.viewAll", { n: w?.activeCount ?? 0 })} <ArrowUpRight />
+                    </Link>
+                  </Button>
+                )}
+              </section>
+              {work.isError && (
+                <div
+                  role="alert"
+                  className="flex flex-wrap items-center gap-3 text-sm text-destructive"
+                >
+                  {t("home.activityFailed")}
+                  <Button variant="outline" size="sm" onClick={() => work.refetch()}>
+                    {t("home.retryActivity")}
+                  </Button>
+                </div>
+              )}
+              <GrowthSignals growth={<HomeGrowthActions />} />
+              <BusinessCheck />
+              <HomeOpportunities />
+              {order
+                .filter((s) => !hidden.includes(s))
+                .map((s) => {
+                  const body =
+                    work.isLoading && ["activity", "results"].includes(s) ? (
+                      <p role="status" className="text-sm text-muted-foreground">
+                        {t("home.loadingSec", { s: t(`home.sec.${s}`).toLowerCase() })}
+                      </p>
+                    ) : work.isError && ["activity", "results"].includes(s) ? (
+                      <p className="text-sm text-muted-foreground">
+                        {t("home.secUnavailable", { s: t(`home.sec.${s}`) })}
+                      </p>
+                    ) : (
+                      sectionContent[s]
+                    );
+                  const head = sectionHead[s];
+                  return head ? (
+                    <CollapsibleSection
+                      key={s}
+                      id={`home-section-${s}`}
+                      eyebrow={head.eyebrow}
+                      title={t(`home.sec.${s}`)}
+                      action={head.action}
+                      open={expanded.includes(s)}
+                      onOpenChange={(v) =>
+                        setExpanded((e) => (v ? [...e, s] : e.filter((x) => x !== s)))
+                      }
+                    >
+                      {body}
+                    </CollapsibleSection>
+                  ) : (
+                    <section key={s} className="min-w-0 border-t border-border pt-7">
+                      {body}
+                    </section>
+                  );
+                })}
+            </div>
+            <aside className="min-w-0 space-y-7 border-t border-border pt-7 xl:sticky xl:top-6 xl:border-l xl:border-t-0 xl:pl-7 xl:pt-0">
+              <section>
+                <div className="mb-4 flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  <h2 className="text-base font-semibold">{t("home.officer")}</h2>
+                </div>
+                <GrowthQuestion />
+                <p className="mt-3 text-2xs text-muted-foreground">
+                  {t("home.confirmedFacts", { n: confirmed.length, ws: o.workspace?.name ?? "" })}
+                </p>
+              </section>
+              <section className="border-t border-border pt-6">
+                <SectionHeading title={t("home.quick")} />
+                <div className="space-y-1">
+                  {ai && (
+                    <Quick to="/app/growth-officer" icon={<Plus />} label={t("home.q.newAi")} />
+                  )}
+                  {canConfirm && (
+                    <Quick to="/app/onboarding" icon={<Target />} label={t("home.q.research")} />
+                  )}
+                  {can(o.workspaceRole, "documents.upload") && (
+                    <Quick to="/app/documents" icon={<FileText />} label={t("home.q.doc")} />
+                  )}
+                  {can(o.role, "members.invite") && (
+                    <Quick to="/app/settings" icon={<Plus />} label={t("home.q.invite")} />
+                  )}
+                  <Quick to="/app/integrations" icon={<Plug />} label={t("home.q.sources")} />
+                </div>
+              </section>
+              <section className="border-t border-border pt-5">
+                <div className="flex items-center gap-2 text-2xs text-muted-foreground">
+                  <RefreshCw className="h-3 w-3" />
+                  {work.isFetching ? t("home.syncing") : t("home.every30")}
+                </div>
+                {work.dataUpdatedAt > 0 && (
+                  <p className="mt-2 text-2xs text-muted-foreground">
+                    {t("home.lastChecked", {
+                      t: time(new Date(work.dataUpdatedAt).toISOString(), tag),
+                    })}
+                  </p>
+                )}
+              </section>
+            </aside>
+          </div>
+        </>
+      )}
+      <Dialog
+        open={!!selected}
+        onOpenChange={(v) => {
+          if (!v) setSelected(null);
+        }}
+      >
+        <DialogContent className="max-h-[85dvh] overflow-y-auto sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>
+              {selected &&
+                (selected.kind === "ai" ? name(selected.title.replace(/ /g, "_")) : selected.title)}
+            </DialogTitle>
+            <DialogDescription>
+              {selected && `${t(`home.kind.${selected.kind}`)} · ${time(selected.time, tag)}`}
+            </DialogDescription>
+          </DialogHeader>
+          {selected && (
+            <>
+              <div>
+                <StatusChip status={selected.status} />
+              </div>
+              {selected.kind === "ai" ? (
+                <div className="prose-chat min-w-0 break-words text-sm leading-relaxed">
+                  <AiMarkdown content={fallback(selected.detail, t)} legend={false} />
+                </div>
+              ) : (
+                <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                  {fallback(selected.detail, t)}
+                </p>
+              )}
+              <Button variant="outline" asChild>
+                <Link
+                  to={selected.to}
+                  search={selected.kind === "ai" ? { run: selected.entityId } : {}}
+                >
+                  {selected.kind === "ai"
+                    ? t("home.openFull")
+                    : selected.kind === "documents"
+                      ? t("home.openDoc")
+                      : t("home.openApprovals")}{" "}
+                  <ArrowUpRight />
+                </Link>
+              </Button>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+function ActivityRow({
+  item,
+  compact,
+  open,
+}: {
+  item: Activity;
+  compact: boolean;
+  open: () => void;
+}) {
+  const { t, tag } = useI18n();
+  const Icon = item.kind === "ai" ? Sparkles : item.kind === "documents" ? FileText : CheckSquare;
+  return (
+    <div
+      className={cn(
+        "flex min-w-0 items-start gap-3 border-b border-border",
+        compact ? "py-2" : "py-4",
+      )}
+    >
+      <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-secondary">
+        <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <Button
+          variant="link"
+          className="h-auto max-w-full justify-start whitespace-normal p-0 text-left text-xs font-semibold text-foreground"
+          onClick={open}
+        >
+          {item.kind === "ai" ? name(item.title.replace(/ /g, "_")) : item.title}
+        </Button>
+        {!compact && (
+          <p className="mt-1 line-clamp-2 break-words text-xs leading-relaxed text-muted-foreground">
+            {plainPreview(fallback(item.detail, t))}
+          </p>
+        )}
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <time className="text-2xs text-muted-foreground">{time(item.time, tag)}</time>
+          <StatusChip status={item.status} />
+          <Link to={item.to} className="text-2xs text-muted-foreground underline">
+            {item.status === "pending" && item.kind === "approvals"
+              ? t("home.review")
+              : t("home.openSource")}
+          </Link>
+        </div>
+      </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7 shrink-0"
+        aria-label={t("home.open", { t: item.title })}
+        onClick={open}
+      >
+        <ArrowUpRight className="h-3.5 w-3.5" />
+      </Button>
+    </div>
+  );
+}
+type Destination =
+  | "/app/profile"
+  | "/app/onboarding"
+  | "/app/documents"
+  | "/app/approvals"
+  | "/app/activity"
+  | "/app/integrations"
+  | "/app/growth-officer"
+  | "/app/settings";
+function Attention({
+  title,
+  detail,
+  to,
+  important = false,
+}: {
+  title: string;
+  detail: string;
+  to: Destination;
+  important?: boolean;
+}) {
+  return (
+    <Link to={to} className="group flex items-start gap-3 border-b border-border py-3">
+      <CircleAlert
+        className={cn(
+          "mt-0.5 h-4 w-4 shrink-0",
+          important ? "text-warning" : "text-muted-foreground",
+        )}
+      />
+      <div className="min-w-0 flex-1">
+        <p className="break-words text-xs font-medium group-hover:text-primary">{title}</p>
+        <p className="mt-1 text-2xs leading-relaxed text-muted-foreground">{detail}</p>
+      </div>
+      <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+    </Link>
+  );
+}
+function Quiet({ icon, title, text }: { icon: ReactNode; title: string; text: string }) {
+  return (
+    <div className="flex items-start gap-3 py-4">
+      <span className="mt-0.5 shrink-0 text-muted-foreground [&_svg]:h-4 [&_svg]:w-4">{icon}</span>
+      <div>
+        <p className="text-xs font-medium">{title}</p>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{text}</p>
+      </div>
+    </div>
+  );
+}
+function Quick({ to, icon, label }: { to: Destination; icon: ReactNode; label: string }) {
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="h-auto min-h-9 w-full justify-start whitespace-normal px-0 text-xs text-muted-foreground"
+      asChild
+    >
+      <Link to={to}>
+        {icon}
+        {label}
+      </Link>
+    </Button>
+  );
+}
