@@ -28,18 +28,21 @@ function safeRedirect(r: unknown): string {
 }
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (
+    s: Record<string, unknown>,
+  ): { redirect?: string | undefined; mode?: "signup" | "signin" | undefined } => ({
     redirect: typeof s["redirect"] === "string" ? s["redirect"] : undefined,
+    ...(s["mode"] === "signup" ? { mode: "signup" as const } : {}),
   }),
   head: () => ({ meta: [...localHead("signin").meta] }),
   component: AuthPage,
 });
 
 function AuthPage() {
-  const { redirect } = Route.useSearch();
+  const { redirect, mode: entryMode } = Route.useSearch();
   const navigate = useNavigate();
   const { t: tx } = useI18n();
-  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">(entryMode ?? "signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");

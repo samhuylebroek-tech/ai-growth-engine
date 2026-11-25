@@ -5,6 +5,7 @@ import { Check, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { LanguagePicker } from "@/components/app/language-picker";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({ meta: [...localHead("pricing").meta] }),
@@ -24,31 +25,53 @@ function Pricing() {
         supabase.from("plans").select("*").order("tier"),
         supabase.from("plan_entitlements").select("*"),
       ]);
+      if (p.error) throw p.error;
+      if (e.error) throw e.error;
       return { plans: (p.data ?? []).filter((x) => x.key !== "trial"), ents: e.data ?? [] };
     },
   });
   return (
     <div className="min-h-screen bg-background">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-5 py-6">
+        <Link
+          to="/"
+          className="flex min-w-0 items-center gap-2 font-display text-sm font-bold sm:text-lg"
+        >
           <Zap className="h-5 w-5 text-primary" /> AI Growth Engine
         </Link>
         <div className="flex items-center gap-2">
           <LanguagePicker />
-          <Link
-            to="/auth"
-            search={{ redirect: undefined }}
-            className="rounded-full border border-border px-4 py-2 text-sm hover:bg-secondary"
-          >
-            {tx("pages.pub.signIn")}
-          </Link>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/auth" search={{ redirect: undefined }}>
+              {tx("pages.pub.signIn")}
+            </Link>
+          </Button>
         </div>
       </nav>
       <header className="mx-auto max-w-3xl px-6 pb-12 pt-12 text-center">
         <h1 className="text-4xl font-extrabold md:text-5xl">{tx("pages.pr.title")}</h1>
         <p className="mt-4 text-muted-foreground">{tx("pages.pr.sub")}</p>
         <p className="mt-3 text-sm text-warning">{tx("pages.pr.indicative")}</p>
+        <p className="mt-5 text-sm leading-relaxed text-muted-foreground">{tx("site.pricing.d")}</p>
       </header>
+      {q.isPending && (
+        <p role="status" className="mx-auto max-w-6xl px-6 pb-10 text-sm text-muted-foreground">
+          {tx("site.plans.loading")}
+        </p>
+      )}
+      {q.isError && (
+        <div role="alert" className="mx-auto max-w-6xl px-6 pb-10">
+          <p className="text-sm text-destructive">{tx("site.plans.failed")}</p>
+          <Button variant="outline" className="mt-3" onClick={() => q.refetch()}>
+            {tx("work.retry")}
+          </Button>
+        </div>
+      )}
+      {!q.isPending && !q.isError && !q.data?.plans.length && (
+        <p role="status" className="mx-auto max-w-6xl px-6 pb-10 text-sm text-muted-foreground">
+          {tx("site.plans.empty")}
+        </p>
+      )}
       <div className="mx-auto grid max-w-6xl gap-4 px-6 pb-24 md:grid-cols-3 lg:grid-cols-5">
         {q.data?.plans.map((p) => (
           <div
@@ -86,13 +109,11 @@ function Pricing() {
                   </li>
                 ))}
             </ul>
-            <Link
-              to="/auth"
-              search={{ redirect: undefined }}
-              className="mt-6 rounded-md bg-secondary px-4 py-2 text-center text-sm font-medium hover:bg-primary hover:text-primary-foreground"
-            >
-              {tx("pages.pr.start")}
-            </Link>
+            <Button variant="secondary" className="mt-6 h-auto min-h-11 whitespace-normal" asChild>
+              <Link to="/auth" search={{ redirect: undefined, mode: "signup" }}>
+                {tx("pages.pr.start")}
+              </Link>
+            </Button>
           </div>
         ))}
       </div>

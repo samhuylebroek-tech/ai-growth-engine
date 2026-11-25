@@ -8,7 +8,7 @@ export const head = defineArea("head", {
       "Your campaigns, recorded budgets and results, with a guided start for your next campaign.",
     "head.home.t": "AI Growth Engine",
     "head.home.d":
-      "Your business growth workspace: confirmed knowledge, evidence-aware AI strategy and actions you control.",
+      "Your AI growth team for visibility, enquiries and sales. Prepare campaigns, review proposals and understand recorded results while staying in control.",
     "head.costs.t": "Costs & ROI",
     "head.costs.d":
       "AI credits per goal, plan, initiative, campaign, project, task and specialist, kept separate from marketing budgets and revenue.",
@@ -112,7 +112,7 @@ export const head = defineArea("head", {
       "Je campagnes, vastgelegde budgetten en resultaten, met een begeleide start voor je volgende campagne.",
     "head.home.t": "AI Growth Engine",
     "head.home.d":
-      "Je werkruimte voor bedrijfsgroei: bevestigde kennis, AI-strategie die bewijs respecteert en acties die jij beheert.",
+      "Je AI-groeiteam voor zichtbaarheid, aanvragen en verkoop. Bereid campagnes voor, beoordeel voorstellen en begrijp vastgelegde resultaten terwijl jij de controle houdt.",
     "head.costs.t": "Kosten & rendement",
     "head.costs.d":
       "AI-credits per doel, plan, initiatief, campagne, project, taak en specialist, apart van marketingbudgetten en omzet.",
@@ -217,7 +217,7 @@ export const head = defineArea("head", {
       "Vos campagnes, budgets et résultats enregistrés, avec un démarrage guidé pour votre prochaine campagne.",
     "head.home.t": "AI Growth Engine",
     "head.home.d":
-      "Votre espace de croissance : connaissances confirmées, stratégie IA fondée sur des preuves et actions que vous contrôlez.",
+      "Votre équipe IA pour la visibilité, les demandes et les ventes. Préparez des campagnes, examinez les propositions et comprenez les résultats enregistrés en gardant le contrôle.",
     "head.costs.t": "Coûts et ROI",
     "head.costs.d":
       "Crédits IA par objectif, plan, initiative, campagne, projet, tâche et spécialiste, séparés des budgets marketing et du chiffre d'affaires.",

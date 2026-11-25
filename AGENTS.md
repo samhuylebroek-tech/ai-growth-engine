@@ -30,7 +30,7 @@ use the editor.
 <!-- LOVABLE:END -->
 
 ## Project rules
-- Campaign home and the existing campaign workspace share ExecutionWorkspace; the prior command center stays at /app/overview. Campaign cards reuse spendSummary and explicit unknown states, so moving the entry page never duplicates accounting or removes operational features.
+- Campaign home/workspace share ExecutionWorkspace; command center stays at /app/overview. Cards reuse spendSummary/unknown states. Public demos are labelled illustrations; question-bound session references use the existing scoped AI reader, avoiding duplicate accounting or stale context.
 - Route-load recovery is eagerly shared by the router default and root boundary; failed module imports require a user-triggered document reload, not a cached-import retry, so recovery remains available when a page chunk is missing.
 - Tenant data is isolated by `org_id` + RLS; app code never uses the service-role client — privileged changes go through SECURITY DEFINER SQL functions with explicit role checks.
 - Platform roles (`platform_roles`) and org roles (`organization_members.role`) are separate tables; never derive one from the other.

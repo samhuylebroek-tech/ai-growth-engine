@@ -89,6 +89,7 @@ import { useI18n } from "@/lib/i18n";
 import { MESSAGES, type MessageKey } from "@/lib/i18n/messages";
 import { CampaignCard } from "@/components/execution/campaign-card";
 import { CampaignStart } from "@/components/execution/campaign-start";
+import { CampaignGuidance } from "@/components/execution/campaign-guidance";
 import {
   CAMPAIGN_FILTERS,
   matchesCampaignFilter,
@@ -372,6 +373,11 @@ export function ExecutionWorkspace({
           )
         }
       />
+      {kind === "campaigns" && (
+        <div className="mb-6">
+          <CampaignGuidance />
+        </div>
+      )}
       <div
         role="group"
         aria-label={tx("work.filterGroup")}
@@ -1465,7 +1471,7 @@ function WorkDetails({
     );
     navigate({ to: "/app/growth-officer" });
   }
-  const tabs = [
+  const normalTabs = [
     "overview",
     "tasks",
     ...(kind === "projects" ? ["milestones"] : []),
@@ -1476,20 +1482,53 @@ function WorkDetails({
     ...(kind === "campaigns" ? ["content", "approvals"] : []),
     "history",
   ];
+  const tabs =
+    kind === "campaigns"
+      ? ["overview", "plan", "content", "budget", "tasks", "results", "approvals"]
+      : normalTabs;
+  const tabLabel = (value: string) =>
+    kind === "campaigns" && ["plan", "content", "budget", "tasks", "results"].includes(value)
+      ? tx(`ch.tab.${value}` as MessageKey)
+      : value === "ai"
+        ? tx("run.tab")
+        : value === "replan"
+          ? tx("rp.tab")
+          : lbl(value);
   return (
     <>
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-1" role="group" aria-label={tx("work.kind.campaigns")}>
         {tabs.map((t) => (
           <Button
             key={t}
             size="sm"
             variant={tab === t ? "secondary" : "ghost"}
+            aria-pressed={tab === t}
             onClick={() => setTab(t)}
           >
-            {t === "ai" ? tx("run.tab") : t === "replan" ? tx("rp.tab") : lbl(t)}
+            {tabLabel(t)}
           </Button>
         ))}
       </div>
+      {kind === "campaigns" && (
+        <details className="border-b border-border py-3">
+          <summary className="cursor-pointer text-sm text-muted-foreground">
+            {tx("ch.tab.advanced")}
+          </summary>
+          <div className="mt-3 flex flex-wrap gap-1">
+            {["team", "comments", "files", "history"].map((value) => (
+              <Button
+                key={value}
+                variant={tab === value ? "secondary" : "ghost"}
+                size="sm"
+                aria-pressed={tab === value}
+                onClick={() => setTab(value)}
+              >
+                {lbl(value)}
+              </Button>
+            ))}
+          </div>
+        </details>
+      )}
       {kind === "tasks" && <TaskOrigin taskId={item.id} />}
       {kind === "tasks" && q.data && onOpenTask && (
         <BlockedExplanation
@@ -1508,6 +1547,28 @@ function WorkDetails({
       )}
       {tab === "overview" && (
         <>
+          {kind === "campaigns" && "budget_eur" in item && (
+            <>
+              <p className="text-base leading-relaxed">
+                {item.objective.trim() || tx("ch.noObjective")}
+              </p>
+              <dl className="grid gap-4 text-sm sm:grid-cols-2">
+                <div>
+                  <dt className="text-xs text-muted-foreground">{tx("ch.audience")}</dt>
+                  <dd className="mt-1 break-words">
+                    {item.audience.trim() || tx("ch.noAudience")}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-muted-foreground">{tx("ch.channels")}</dt>
+                  <dd className="mt-1 break-words">
+                    {item.channels.join(" · ") || tx("ch.noChannels")}
+                  </dd>
+                </div>
+              </dl>
+              <CampaignGuidance campaignId={item.id} />
+            </>
+          )}
           {kind === "campaigns" && (
             <CampaignHealthLine
               item={item}
@@ -1525,45 +1586,6 @@ function WorkDetails({
                 (id ? tx("work.teammate") : tx("work.unassigned"))
               }
             />
-          )}
-          {kind === "campaigns" && "budget_eur" in item && (
-            <details className="border-t border-border py-4">
-              <summary className="cursor-pointer text-sm font-semibold">
-                {tx("ch.strategy")}
-              </summary>
-              <div className="pt-4">
-                <CampaignStrategy key={`${item.id}:${item.updated_at}`} campaign={item} />
-              </div>
-            </details>
-          )}
-          {kind === "campaigns" && "budget_eur" in item && (
-            <details className="border-t border-border py-4">
-              <summary className="cursor-pointer text-sm font-semibold">{tx("ch.money")}</summary>
-              <div className="pt-4">
-                <CampaignSpend
-                  campaignId={item.id}
-                  budgetEur={Number(item.budget_eur)}
-                  dates={{ start_date: item.start_date, end_date: item.end_date }}
-                />
-              </div>
-            </details>
-          )}
-          {kind === "campaigns" && "budget_eur" in item && (
-            <details className="border-t border-border py-4">
-              <summary className="cursor-pointer text-sm font-semibold">
-                {tx("ch.specialists")}
-              </summary>
-              <div className="space-y-5 pt-4">
-                <CampaignAiTeam campaignId={item.id} tasks={q.data?.tasks ?? []} />
-                <CampaignIntelPanel
-                  campaign={item}
-                  tasks={q.data?.tasks ?? []}
-                  campaigns={(q.data?.campaigns ?? []).filter(
-                    (c): c is typeof item => "budget_eur" in c,
-                  )}
-                />
-              </div>
-            </details>
           )}
           {kind === "campaigns" ? (
             <details className="border-t border-border py-4">
@@ -1601,6 +1623,31 @@ function WorkDetails({
                 {tx("work.createNext")}
               </Button>
             )}
+        </>
+      )}
+      {kind === "campaigns" && "budget_eur" in item && tab === "plan" && (
+        <>
+          {item.description.trim() && (
+            <p className="whitespace-pre-wrap text-sm leading-relaxed">{item.description}</p>
+          )}
+          <CampaignStrategy key={`${item.id}:${item.updated_at}`} campaign={item} />
+        </>
+      )}
+      {kind === "campaigns" && "budget_eur" in item && tab === "budget" && (
+        <CampaignSpend
+          campaignId={item.id}
+          budgetEur={Number(item.budget_eur)}
+          dates={{ start_date: item.start_date, end_date: item.end_date }}
+        />
+      )}
+      {kind === "campaigns" && "budget_eur" in item && tab === "results" && (
+        <>
+          <CampaignGuidance campaignId={item.id} />
+          <CampaignIntelPanel
+            campaign={item}
+            tasks={q.data?.tasks ?? []}
+            campaigns={(q.data?.campaigns ?? []).filter((c): c is typeof item => "budget_eur" in c)}
+          />
         </>
       )}
       {tab === "replan" && kind === "tasks" && <TaskReplan taskId={item.id} />}
@@ -1745,6 +1792,9 @@ function WorkDetails({
       )}
       {tab === "team" && (
         <>
+          {kind === "campaigns" && (
+            <CampaignAiTeam campaignId={item.id} tasks={q.data?.tasks ?? []} />
+          )}
           <p className="text-xs text-muted-foreground">
             {tx("work.responsible", {
               n:

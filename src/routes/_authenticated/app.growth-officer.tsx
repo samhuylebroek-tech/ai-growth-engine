@@ -34,7 +34,7 @@ import { cn } from "@/lib/utils";
 import { PlanReview } from "@/components/execution/plan-review";
 import { ExecutionContextPicker } from "@/components/execution/context-picker";
 import type { ExecutionRef } from "@/lib/execution-context";
-import { consumeGrowthDraft, growthDraftKey } from "@/lib/growth-draft";
+import { consumeGrowthDraft, consumeGrowthContext, growthDraftKey } from "@/lib/growth-draft";
 
 export const Route = createFileRoute("/_authenticated/app/growth-officer")({
   head: () => localHead("officer"),
@@ -77,7 +77,9 @@ function GrowthOfficer() {
     const key = growthDraftKey(o.org.id, o.workspace.id);
     if (restoredDraft.current === key) return;
     restoredDraft.current = key;
-    setText(consumeGrowthDraft(sessionStorage, o.org.id, o.workspace.id));
+    const question = consumeGrowthDraft(sessionStorage, o.org.id, o.workspace.id);
+    setText(question);
+    setExecutionContext(consumeGrowthContext(sessionStorage, o.org.id, o.workspace.id, question));
   }, [o.org?.id, o.workspace?.id]);
   const convs = useQuery({
     queryKey: ["convs", o.org?.id, o.workspace?.id],

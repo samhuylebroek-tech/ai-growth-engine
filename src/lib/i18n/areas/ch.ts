@@ -2,6 +2,25 @@ import { defineArea } from "../define";
 
 export const ch = defineArea("ch", {
   en: {
+    "ch.audience": "Audience",
+    "ch.channels": "Channels",
+    "ch.noAudience": "Audience not recorded",
+    "ch.noChannels": "Channels not selected",
+    "ch.tab.plan": "Plan",
+    "ch.tab.budget": "Budget",
+    "ch.tab.results": "Results & improvements",
+    "ch.tab.content": "Content & channels",
+    "ch.tab.tasks": "Work",
+    "ch.tab.advanced": "Team, files & history",
+    "ch.guide.campaign": "How can we improve this campaign?",
+    "ch.guide.overview": "Which campaign needs attention first?",
+    "ch.guide.cost": "Prepares an editable question. AI work starts only after you send it.",
+    "ch.guide.denied":
+      "Your access is read-only; starting AI work requires a business member’s access.",
+    "ch.guide.campaignPrompt":
+      "Review the explicitly selected campaign using its current records and verified business context. What should we improve next, and why? Start with one practical recommendation, cite the recorded evidence, identify missing information and uncertainty, and explain how to measure progress. Do not approve, publish, send, spend or execute external actions.",
+    "ch.guide.overviewPrompt":
+      "Which campaign in this business deserves attention first? Use current recorded campaigns, work, budgets and verified business facts. Recommend one next action, explain its evidence and missing inputs, and distinguish a proposal from execution. Do not approve or execute anything.",
     "ch.start": "Start a new campaign",
     "ch.question": "What do you want this campaign to achieve?",
     "ch.custom": "Another business goal",
@@ -54,6 +73,25 @@ export const ch = defineArea("ch", {
     "ch.filter.at_risk": "Needs attention",
   },
   nl: {
+    "ch.audience": "Doelgroep",
+    "ch.channels": "Kanalen",
+    "ch.noAudience": "Doelgroep niet vastgelegd",
+    "ch.noChannels": "Kanalen niet gekozen",
+    "ch.tab.plan": "Plan",
+    "ch.tab.budget": "Budget",
+    "ch.tab.results": "Resultaten & verbeteringen",
+    "ch.tab.content": "Content & kanalen",
+    "ch.tab.tasks": "Werk",
+    "ch.tab.advanced": "Team, bestanden & geschiedenis",
+    "ch.guide.campaign": "Hoe verbeteren we deze campagne?",
+    "ch.guide.overview": "Welke campagne verdient eerst aandacht?",
+    "ch.guide.cost": "Bereidt een bewerkbare vraag voor. AI-werk start pas nadat je die verstuurt.",
+    "ch.guide.denied":
+      "Je toegang is alleen-lezen; AI-werk starten vereist toegang als bedrijfslid.",
+    "ch.guide.campaignPrompt":
+      "Beoordeel de expliciet geselecteerde campagne aan de hand van haar huidige gegevens en bevestigde bedrijfscontext. Wat verbeteren we als volgende stap, en waarom? Begin met één praktische aanbeveling, verwijs naar het vastgelegde bewijs, benoem ontbrekende informatie en onzekerheid en leg uit hoe we voortgang meten. Keur niets goed, publiceer niets, verstuur niets, geef niets uit en voer geen externe acties uit.",
+    "ch.guide.overviewPrompt":
+      "Welke campagne van dit bedrijf verdient eerst aandacht? Gebruik de huidige vastgelegde campagnes, het werk, budgetten en bevestigde bedrijfsfeiten. Adviseer één volgende actie, leg het bewijs en de ontbrekende informatie uit en onderscheid een voorstel van uitvoering. Keur niets goed en voer niets uit.",
     "ch.start": "Nieuwe campagne starten",
     "ch.question": "Wat wil je met deze campagne bereiken?",
     "ch.custom": "Een ander bedrijfsdoel",
@@ -106,6 +144,25 @@ export const ch = defineArea("ch", {
     "ch.filter.at_risk": "Vraagt aandacht",
   },
   fr: {
+    "ch.audience": "Audience",
+    "ch.channels": "Canaux",
+    "ch.noAudience": "Audience non enregistrée",
+    "ch.noChannels": "Canaux non sélectionnés",
+    "ch.tab.plan": "Plan",
+    "ch.tab.budget": "Budget",
+    "ch.tab.results": "Résultats et améliorations",
+    "ch.tab.content": "Contenu et canaux",
+    "ch.tab.tasks": "Travail",
+    "ch.tab.advanced": "Équipe, fichiers et historique",
+    "ch.guide.campaign": "Comment améliorer cette campagne ?",
+    "ch.guide.overview": "Quelle campagne mérite notre attention ?",
+    "ch.guide.cost": "Prépare une question modifiable. Le travail IA commence après son envoi.",
+    "ch.guide.denied":
+      "Votre accès est en lecture seule ; lancer un travail IA exige les droits d’un membre.",
+    "ch.guide.campaignPrompt":
+      "Examine la campagne explicitement sélectionnée à partir de ses données actuelles et du contexte métier vérifié. Que faut-il améliorer ensuite, et pourquoi ? Commence par une recommandation pratique, cite les preuves enregistrées, précise les données manquantes et l’incertitude, et explique la mesure du progrès. Ne valide rien, ne publie rien, n’envoie rien, ne dépense rien et n’exécute aucune action externe.",
+    "ch.guide.overviewPrompt":
+      "Quelle campagne de cette entreprise mérite notre attention en premier ? Utilise campagnes, travail, budgets enregistrés et faits vérifiés. Propose une prochaine action, explique les preuves et les informations manquantes, et distingue proposition et exécution. Ne valide ni n’exécute rien.",
     "ch.start": "Démarrer une nouvelle campagne",
     "ch.question": "Que voulez-vous accomplir avec cette campagne ?",
     "ch.custom": "Un autre objectif d’entreprise",

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useI18n } from "@/lib/i18n";
 import { useOrg } from "@/lib/org-context";
-import { growthDraftKey } from "@/lib/growth-draft";
+import { growthDraftKey, storeGrowthContext } from "@/lib/growth-draft";
 import { can } from "@/lib/permissions";
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/app/field";
@@ -33,6 +33,7 @@ export function CampaignStart({ renderForm }: { renderForm: (objective: string) 
       : t(`ch.intent.${intent}` as `ch.intent.${Exclude<(typeof INTENTS)[number], "custom">}`);
   function ask() {
     if (!o.org || !o.workspace || !can(o.workspaceRole, "ai.use")) return;
+    storeGrowthContext(sessionStorage, o.org.id, o.workspace.id, [], "");
     sessionStorage.setItem(
       growthDraftKey(o.org.id, o.workspace.id),
       t("ch.prompt", { objective: objective || t("ch.custom") }),

@@ -65,6 +65,20 @@ export function CampaignCard({
       <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
         {item.objective.trim() || t("ch.noObjective")}
       </p>
+      <dl className="mt-4 space-y-2 text-sm">
+        <div>
+          <dt className="text-xs text-muted-foreground">{t("ch.audience")}</dt>
+          <dd className="mt-1 line-clamp-2 break-words">
+            {item.audience.trim() || t("ch.noAudience")}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs text-muted-foreground">{t("ch.channels")}</dt>
+          <dd className="mt-1 break-words">
+            {item.channels.length ? item.channels.join(" · ") : t("ch.noChannels")}
+          </dd>
+        </div>
+      </dl>
       <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
         <div>
           <dt className="text-xs text-muted-foreground">{t("ch.budget")}</dt>
