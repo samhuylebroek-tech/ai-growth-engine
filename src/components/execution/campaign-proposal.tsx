@@ -56,7 +56,7 @@ export function CampaignProposal({
             workspace_id: o.workspace.id,
             entity_type: "campaigns",
             entity_id: campaignId,
-            kind: "approval",
+            kind: "proposal",
             content_type: "draft",
             title: PROPOSAL_TITLE,
             body,
@@ -65,8 +65,9 @@ export function CampaignProposal({
       if (r.error) throw r.error;
       await qc.invalidateQueries({ queryKey: ["execution"] });
       return true;
-    } catch {
-      toast.error(t("ch.cp.failed"));
+    } catch (e) {
+      const m = e instanceof Error ? e.message : String((e as { message?: string })?.message ?? "");
+      toast.error(t(m.includes("proposal_decision_denied") ? "ch.cp.needsAdmin" : "ch.cp.failed"));
       return false;
     } finally {
       setBusy(false);

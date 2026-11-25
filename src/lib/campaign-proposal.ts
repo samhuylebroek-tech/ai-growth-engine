@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-/** A campaign proposal is stored as one typed execution note on the campaign (kind "approval", content_type "draft",
+/** A campaign proposal is stored as one typed execution note on the campaign (kind "proposal", content_type "draft",
  * title PROPOSAL_TITLE) so it reuses the existing parent-scoped, RLS-protected note structure without a new table. */
 export const PROPOSAL_TITLE = "campaign-proposal";
 export const PROPOSAL_MAX = 20000;
@@ -26,7 +26,7 @@ type NoteLike = {
 };
 
 export function isProposalNote(n: NoteLike): boolean {
-  return n.kind === "approval" && n.title === PROPOSAL_TITLE && n.content_type === "draft";
+  return n.kind === "proposal" && n.title === PROPOSAL_TITLE;
 }
 
 export function parseProposal(body: string): Proposal | null {

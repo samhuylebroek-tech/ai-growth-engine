@@ -42,7 +42,7 @@ describe("campaign proposal", () => {
       entity_id: "c",
     };
     expect(isProposalNote(base)).toBe(true);
-    expect(isProposalNote({ ...base, content_type: "file" })).toBe(false);
+    expect(isProposalNote({ ...base, kind: "approval" })).toBe(false);
     expect(isProposalNote({ ...base, kind: "comment" })).toBe(false);
   });
 });
