@@ -66,7 +66,7 @@ export function CampaignProposal({
       await qc.invalidateQueries({ queryKey: ["execution"] });
       return true;
     } catch {
-      toast.error(t("cp.failed"));
+      toast.error(t("ch.cp.failed"));
       return false;
     } finally {
       setBusy(false);
@@ -77,18 +77,18 @@ export function CampaignProposal({
     try {
       p = saveDraft(text);
     } catch {
-      toast.error(t("cp.empty"));
+      toast.error(t("ch.cp.empty"));
       return;
     }
     if (await persist(serialize(p))) {
       setEditing(false);
-      toast.success(t("cp.saved"));
+      toast.success(t("ch.cp.saved"));
     }
   }
   async function decideNow(approve: boolean) {
     if (!proposal || !o.userId) return;
     if (await persist(serialize(decide(proposal, approve, o.userId, new Date()))))
-      toast.success(t(approve ? "cp.approvedToast" : "cp.rejectedToast"));
+      toast.success(t(approve ? "ch.cp.approvedToast" : "ch.cp.rejectedToast"));
   }
 
   return (
@@ -99,35 +99,35 @@ export function CampaignProposal({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h4 id={`cp-${campaignId}`} className="flex items-center gap-2 font-semibold">
           <FileText className="size-4" />
-          {t("cp.title")}
+          {t("ch.cp.title")}
         </h4>
         {proposal && (
           <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
-            {t(`cp.status.${proposal.status}`)}
+            {t(`ch.cp.status.${proposal.status}`)}
           </span>
         )}
       </div>
-      <p className="text-sm text-muted-foreground">{t("cp.separation")}</p>
+      <p className="text-sm text-muted-foreground">{t("ch.cp.separation")}</p>
       {editing ? (
         <>
           <Textarea
-            aria-label={t("cp.title")}
+            aria-label={t("ch.cp.title")}
             value={text}
             maxLength={PROPOSAL_MAX}
             rows={12}
             onChange={(e) => setText(e.target.value)}
-            placeholder={t("cp.placeholder")}
+            placeholder={t("ch.cp.placeholder")}
           />
           <div className="flex flex-wrap gap-2">
             <Button disabled={busy || !text.trim()} onClick={save}>
-              {t("cp.saveDraft")}
+              {t("ch.cp.saveDraft")}
             </Button>
             <Button variant="ghost" disabled={busy} onClick={() => setEditing(false)}>
-              {t("cp.cancel")}
+              {t("ch.cp.cancel")}
             </Button>
           </div>
           {proposal && proposal.status !== "draft" && (
-            <p className="text-xs text-muted-foreground">{t("cp.reopens")}</p>
+            <p className="text-xs text-muted-foreground">{t("ch.cp.reopens")}</p>
           )}
         </>
       ) : proposal ? (
@@ -135,7 +135,7 @@ export function CampaignProposal({
           <AiMarkdown content={proposal.text} summary />
           {proposal.decidedAt && (
             <p className="text-xs text-muted-foreground">
-              {t("cp.decidedAt", { d: new Date(proposal.decidedAt).toLocaleString() })}
+              {t("ch.cp.decidedAt", { d: new Date(proposal.decidedAt).toLocaleString() })}
             </p>
           )}
           <div className="flex flex-wrap gap-2">
@@ -143,11 +143,11 @@ export function CampaignProposal({
               <>
                 <Button disabled={busy} onClick={() => decideNow(true)}>
                   <Check />
-                  {t("cp.approve")}
+                  {t("ch.cp.approve")}
                 </Button>
                 <Button variant="outline" disabled={busy} onClick={() => decideNow(false)}>
                   <X />
-                  {t("cp.reject")}
+                  {t("ch.cp.reject")}
                 </Button>
               </>
             )}
@@ -161,21 +161,21 @@ export function CampaignProposal({
                 }}
               >
                 <Pencil />
-                {t("cp.modify")}
+                {t("ch.cp.modify")}
               </Button>
             )}
           </div>
           {proposal.status === "draft" && !canDecide && (
-            <p className="text-xs text-muted-foreground">{t("cp.needsAdmin")}</p>
+            <p className="text-xs text-muted-foreground">{t("ch.cp.needsAdmin")}</p>
           )}
         </>
       ) : (
         <>
-          <p className="text-sm">{t("cp.none")}</p>
+          <p className="text-sm">{t("ch.cp.none")}</p>
           {canEdit && (
             <Button variant="outline" onClick={() => setEditing(true)}>
               <Pencil />
-              {t("cp.add")}
+              {t("ch.cp.add")}
             </Button>
           )}
         </>
