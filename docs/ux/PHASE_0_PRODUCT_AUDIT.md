@@ -1,0 +1,175 @@
+# Phase 0 — Product audit, UX architecture and transformation blueprint
+
+Read-only phase. No code, schema, data, AI credits or production touched. Builds on `UX_AUDIT.md` (34-page browser sweep,
+measured) and `PRODUCT_TRANSFORMATION_BLUEPRINT.md`; this document re-checks the source rather than repeating them.
+
+## 0. What was actually verified (25 Nov 2026)
+
+| Check                                       | Result                                                                             | How                                        |
+| ------------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------ |
+| Branch                                      | `product/operating-system-experience-blueprint`                                    | `git branch`                               |
+| Local HEAD                                  | `42ed58f`                                                                          | `git log`                                  |
+| GitHub HEAD                                 | `42ed58f`, Synchronized                                                            | `scripts/ci/github-status.ts` (public API) |
+| PR #1 → main                                | open, not merged                                                                   | same                                       |
+| CI                                          | success: dependency audit, build, ESLint, secret scan, unit tests                  | same                                       |
+| ESLint `scripts/staging/owner-mfa-grant.ts` | 0 problems (fixed earlier, confirmed now)                                          | `bunx eslint`                              |
+| Staging project identity                    | NOT RUN this phase (no DB connection opened, to save credits)                      | —                                          |
+| Production untouched                        | No write tool was used in this phase; earlier history not independently re-audited | —                                          |
+| Browser behaviour                           | NOT RUN this phase; figures below cite the earlier measured sweep                  | `UX_AUDIT.md`                              |
+| User tests                                  | Never performed. Nothing here is user-validated.                                   | —                                          |
+
+## 1. Product inventory (source-derived)
+
+- Public routes (4): `/`, `/pricing`, `/auth`, `/reset-password`; plus `/invite/$token`, `/admin` (owner center).
+- Signed-in routes: 38 under `/app` (incl. `/app/overview`, `/app/performance/$metricId`, `/app/integrations/google`).
+- Navigation: 7 journey groups, ≤7 tabs each, guarded by `src/test/navigation.test.ts`.
+- Languages: EN / NL / FR. Roles: org owner/admin/member/viewer + workspace assignment; platform roles separate.
+- Registries: agents, capabilities, connectors, extensions (`src/lib/registry/`).
+- Data model: ~110 public tables (Drizzle migrations + `docs/proposals/`), grouped:
+  - Tenancy: organizations, workspaces, members, invitations, business_units.
+  - Knowledge: business_profiles, business_facts, fact_conflict_events, documents, evidence_items/events, writing_profiles.
+  - Planning: growth_goals, growth_strategies, growth_plan_versions/decisions, growth_initiatives(+operations), growth_opportunities, org_* equivalents.
+  - Execution: campaigns(+status/budget/spend/limits), projects, tasks, task_runs, execution_* (cycles, notes, settings, stops, conversions), approvals, external_actions.
+  - AI: conversations, messages, agent_runs, single_ai_requests, coordinated_analyses, specialist_*, ai_call_receipts, ai_credit_reservations, ai_usage_events, credit_ledger.
+  - Results/finance: metric_definitions/baselines/targets, performance_measurements, revenue_events, attribution_touchpoints, business_cost_*, campaign_spend_entries, exchange_rates, crm_contacts/deals, experiments, recommendation_learnings.
+  - Integrations: connector_connections/credentials/import_runs, simulated_provider_records.
+
+Capability status: **existing** = campaigns, goals, strategies, tasks, approvals, Growth Officer, specialists, coordinated
+analyses, KPIs, revenue ledger, economics rollups, SEO check, competitors, CRM, onboarding, multi-business reporting,
+rate limits, credit accounting. **Partial** = campaign proposal/review flow (handoff only), content production, results
+attribution (manual data only), integrations (Google OAuth scaffold; everything else simulated). **Proposed only** = real
+ad/email/social execution, automatic campaign proposals, learning loop that changes recommendations.
+
+## 2. Current-state architecture map
+
+```text
+Business knowledge ──► Growth Officer / specialists (metered, quoted context)
+        │                         │ (proposals → approvals)
+        ▼                         ▼
+Goals ─► Strategies ─► Initiatives ─► Campaigns ─► Projects ─► Tasks ─► Task runs
+        │                               │  budget/spend/limits
+        ▼                               ▼
+KPIs/targets ◄── measurements    Revenue ledger / costs / AI credits ─► Economics, Reports
+```
+
+Two parallel planning ladders exist (goal→strategy→initiative and campaign→project→task); campaigns are the user-facing
+centre since `73db78e`, but strategies and initiatives still have their own pages and vocabulary.
+
+## 3. UX problem register (prioritised)
+
+Sev: B = usability blocker, S = structural, W = workflow, V = visual, O = optional. Effort S/M/L.
+
+| #   | Problem                                                                                               | Where                          | Impact                                | Sev | Root cause                                 | Solution                                                                                                            | Dep.                           | Effort | Risk          | Validate                       |
+| --- | ----------------------------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------- | --- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ------------------------------ | ------ | ------------- | ------------------------------ |
+| 1   | No guided "objective → AI campaign proposal → approve" flow; user must hop to Growth Officer and back | Campaign start, Growth Officer | Core promise not delivered end-to-end | B   | Proposal flow only partial                 | Single campaign-proposal step reusing `meteredGenerate` + approvals; result lands in campaign draft                 | AI schema for proposal         | M      | Med (credits) | E2E staging + vitest on parser |
+| 2   | Five overlapping results pages (Business, KPIs, Revenue, Economics, Costs) + Reports                  | Results group                  | Owner cannot tell "is it working?"    | B   | Built per data source                      | One Results page per campaign/business: enquiries → customers → sales → spend → return; others become advanced tabs | shared rollup (`spendSummary`) | M      | Low           | Browser + rollup tests         |
+| 3   | Dual planning vocabulary (goal/strategy/initiative/project/task) visible to owners                    | Plan + Execution               | Confusion, extra navigation           | S   | Data model exposed in UI                   | Present campaign as unit; strategy = "plan" tab; initiatives/projects advanced only. No DB change                   | #1                             | M      | Med (links)   | Step-count per journey         |
+| 4   | Home still long (~9.6k px phone) with duplicate next-actions                                          | `/app/overview`, `/app`        | Attention diluted                     | W   | Many sections                              | One next step + attention + active campaigns; rest collapsed                                                        | —                              | S      | Low           | Height sweep                   |
+| 5   | Results show "Not configured" almost everywhere because no real integrations                          | Results, Integrations          | Product looks empty                   | S   | No live connectors (by policy)             | Clear manual-entry path per campaign; honest empty states with one action                                           | Approval for real connectors   | M      | Low           | Browser                        |
+| 6   | QA/test records visible in normal UI (QA goals, profile text)                                         | Goals, Profile                 | Credibility                           | W   | Seed/test data in staging tenant           | Mark test data class; filter in readers (no deletion)                                                               | data classification            | M      | Med           | SQL + UI                       |
+| 7   | 13 task filters on phone; Results tabs overflow on tablet                                             | Tasks, Results                 | Mobile friction                       | V   | Dense controls                             | Filter sheet; tab scroll                                                                                            | —                              | S      | Low           | Viewport sweep                 |
+| 8   | Specialists page asks user to choose specialists                                                      | `/app/agents`                  | User coordinates the AI               | W   | Coordinated analysis is explicit by design | Growth Officer chooses specialists by default; manual choice advanced                                               | #1                             | M      | Med (cost)    | Credit ledger check            |
+| 9   | Public promise vs product: channels "advertising/email" mostly not executable                         | `/`                            | Expectation gap                       | W   | Integrations pending                       | Keep the "requires connection + approval" labels; add "available now" vs "coming" per channel                       | —                              | S      | Low           | Copy review                    |
+| 10  | Small text (≤12 px) in labels, badges                                                                 | Multiple                       | Readability (WCAG)                    | V   | Token sizes                                | Raise minimum token                                                                                                 | —                              | S      | Low           | Sweep                          |
+
+## 4. Personas (condensed)
+
+| Persona                | Wants                  | AI should                               | Must decide                | Never needs to understand                 | Hardest screens now          |
+| ---------------------- | ---------------------- | --------------------------------------- | -------------------------- | ----------------------------------------- | ---------------------------- |
+| First-time owner       | Know what to do first  | Read site/answers, propose 1st campaign | Objective, budget, approve | Initiatives, task runs, credits internals | Goals, Strategies            |
+| No marketing knowledge | Customers, not jargon  | Choose channels/audience                | Approve/decline            | Channel mechanics                         | Agents, Experiments          |
+| Leads/sales seeker     | Enquiries & deals      | Link campaigns to pipeline              | Budget ceiling             | Attribution model                         | Revenue, Economics           |
+| Marketing manager      | Plan & content control | Draft content, schedule                 | Edits, approvals           | Accounting tables                         | Content (partial)            |
+| Growth manager         | Experiments, KPIs, ROI | Analyses, hypotheses                    | Prioritisation             | — (needs advanced)                        | Fine as-is                   |
+| Multi-business owner   | Compare businesses     | Org synthesis                           | Allocation                 | Per-workspace rights plumbing             | Organization                 |
+| Read-only stakeholder  | Status & results       | Summaries                               | Nothing                    | Everything editable                       | Edit controls shown disabled |
+
+## 5. Target journeys (step targets)
+
+- A First visit: site → signup (1 click, done) → onboarding questions → summary confirm → first proposed campaign. Target ≤ 6 screens, AI proposes the opportunity.
+- B First campaign: objective → AI proposal (audience, channels, content outline, budget) → edit → approve → work list → results. Target 3 decisions, 1 approval.
+- C Existing business: open app → campaign cards with attention badge → campaign results tab → "improve" (Growth Officer with campaign context). Target 3 clicks.
+- D AI-led growth: question → Growth Officer coordinates specialists → one answer + "turn into campaign". Target 1 approval; cost shown before sending.
+- E Finance: campaign budget → spend → AI credits → enquiries/customers/sales → return, one panel; missing data labelled, never estimated as fact.
+- F Multi-campaign: card filters, budget allocation per goal (exists), comparison table. Target 1 page.
+
+Failure modes for all: missing data (show "not configured"), insufficient credits (refuse before reserving), rate limit, viewer role.
+
+## 6. Target information architecture
+
+```text
+Home (next step, attention)
+Campaigns (cards → campaign: Overview · Plan · Content · Budget · Work · Results · Approvals | advanced)
+Growth Officer (incl. specialists, analyses)
+Results (one view; KPIs/Revenue/Economics/Reports as tabs)
+Business (knowledge, documents, website, competitors)
+Organization & settings (team, integrations, billing, businesses)
+```
+
+Strategies, initiatives, projects, experiments, opportunities remain at their URLs but move under Plan/advanced.
+
+## 7. Growth Officer interaction model
+
+One entry point; it reads verified facts + campaign refs (existing scoped reader), decides whether specialists are
+needed, shows cost before sending, returns one labelled answer with "create campaign/proposal" actions that go through
+approvals. No recursion, no auto-execution (existing rules kept).
+
+## 8. Design system direction
+
+Keep existing tokens (premium calm). Rules: one primary action per screen; cards for campaigns with status, budget used,
+next step; status set = Draft · Waiting for approval · Active · Paused · Completed (map all modules to it); empty state =
+reason + one action; error = what happened + retry; loading = skeleton with page title; min text 14 px, targets 24 px;
+progressive disclosure via "More details" sections, preferences remembered per user/workspace (pattern exists on Home).
+
+## 9. Technical assessment
+
+- Supports the target: campaigns, approvals, metered AI, scoped context, rollups, roles/RLS. No DB restructure required.
+- Presentation-caused: #2, #3, #4, #7, #10. Architecture-caused: #1 (proposal schema), #5 (integrations), #6 (data class).
+- Possible data change: a `campaign_proposals` record (or reuse approvals payload) for #1; test-data flag for #6 — both
+  staging proposals first, forward-only.
+- Risks: route links (keep URLs), credit cost of default specialist coordination, RLS on any new table.
+
+## 10. Roadmap
+
+| Phase                        | Scope                                                        | Reuse                      | Rebuild           | Data            | Accept                           | Effort |
+| ---------------------------- | ------------------------------------------------------------ | -------------------------- | ----------------- | --------------- | -------------------------------- | ------ |
+| 1 Foundation/nav             | Target IA, status vocabulary                                 | navigation manifest        | nav groups        | none            | nav test, ≤6 groups              | S      |
+| 2 Site/onboarding            | channel availability labels, onboarding → summary → proposal | experience.tsx, onboarding | handoff           | none            | Journey A ≤6 screens             | S      |
+| 3 Campaigns                  | AI proposal step                                             | campaign-start, guidance   | proposal review   | proposal record | Journey B 3 decisions            | M      |
+| 4 Growth Officer/AI team     | default coordination                                         | coordinated analyses       | agents page       | none            | 1 answer, cost upfront           | M      |
+| 5 Strategy/BI                | plan tab = strategy                                          | strategies                 | —                 | none            | no separate visit needed         | S      |
+| 6 Execution/approvals/budget | work list without task jargon                                | tasks, approvals           | campaign work tab | none            | owner follows without tasks page | M      |
+| 7 Results/finance            | unified results                                              | spendSummary, bi           | results page      | none            | Journey E one panel              | M      |
+| 8 Organization               | comparison, settings consolidation                           | org lib                    | —                 | none            | Journey F one page               | S      |
+| 9 Responsive/a11y/i18n       | sweep 3 viewports × 3 languages                              | sweep scripts              | —                 | —               | 0 overflow, 0 unnamed fields     | S      |
+| 10 E2E                       | Journeys A–F on staging, signed in                           | Playwright                 | —                 | —               | all PASS + user test             | M      |
+
+## 11. Acceptance criteria (measurable)
+
+Owner finds active campaigns in 0 clicks after sign-in; starts a campaign with ≤3 required inputs; sees objective and
+budget on the card; approves with cost and effect shown; follows work without opening Tasks; answers "did it work?" on
+one Results view; sees one next improvement. Automated tests are necessary, not proof of usability — a moderated test
+with ≥3 non-technical owners is required before claiming success.
+
+## 12. Regression and validation plan
+
+Per phase: vitest (navigation, rollups, guards), `tests/sql/rls_isolation.sql` after any schema change, signed-in staging
+browser sweep EN/NL/FR × 1280/822/390, credit-ledger check for any AI step, GitHub status check.
+
+## 13. Dependencies
+
+#1 → #3, #8. Staging QA credentials (lost at sandbox restart) block signed-in E2E. Real integrations need separate approval.
+
+## 14. Credit-efficient execution
+
+One phase per round, smallest high-impact first; reuse components; no competing designs; no paid AI calls except one
+controlled E2E per AI flow.
+
+## Top 3 to implement first
+
+1. **#1 Campaign proposal flow** — it is the product's core promise and currently breaks into two screens.
+2. **#2 Unified Results** — without it an owner cannot see whether the product earns its cost.
+3. **#3 Hide planning vocabulary** — removes most navigation and confusion at near-zero risk (presentation only).
+
+First end-to-end workflow to redesign and validate: **Journey B (first campaign)**, from objective to approved proposal
+and first result view.
