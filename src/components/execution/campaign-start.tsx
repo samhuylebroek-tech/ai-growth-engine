@@ -18,6 +18,7 @@ const INTENTS = [
   "returning",
   "launch",
   "improve",
+  "discover",
   "custom",
 ] as const;
 export function CampaignStart({ renderForm }: { renderForm: (objective: string) => ReactNode }) {

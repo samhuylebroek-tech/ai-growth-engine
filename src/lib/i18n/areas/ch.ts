@@ -31,6 +31,7 @@ export const ch = defineArea("ch", {
     "ch.intent.returning": "More returning customers",
     "ch.intent.launch": "Launch a product or service",
     "ch.intent.improve": "Improve an existing campaign",
+    "ch.intent.discover": "Help me discover what would grow my business",
     "ch.continue": "Continue",
     "ch.back": "Change the objective",
     "ch.manual": "Create the draft yourself",
@@ -38,7 +39,7 @@ export const ch = defineArea("ch", {
     "ch.aiCost":
       "Opens an editable question. AI credits are used only when you send it; no campaign is started or money spent.",
     "ch.prompt":
-      "Help me prepare a campaign to achieve: {objective}. Use this business’s verified information, goals, existing campaigns and recorded budget. Check for overlap, ask only for essential missing information, and propose an audience, channels, budget, KPI, measurement method and an actionable plan. Begin with your conclusion and recommended action. Identify estimates and missing information. Prepare a proposal for my review, not an approved campaign. Do not spend, publish, contact anyone or start external actions.",
+      "Help me prepare a campaign to achieve: {objective}. Use this business’s verified information, goals, existing campaigns and recorded budget. Check for overlap, ask only for essential missing information, and explain the opportunity you see and why it matters, then propose: objective, target audience, offer, core message, channels (and why they fit), content and advertising needs, which specialist does what, activities and deliverables, timeline, budget, expected external costs, AI-credit costs, KPIs, risks, dependencies and what needs my approval. Note that approving the plan does not authorise ad spend, publishing or sending. Begin with your conclusion and recommended action. Identify estimates and missing information. Prepare a proposal for my review, not an approved campaign. Do not spend, publish, contact anyone or start external actions.",
     "ch.name": "Campaign name",
     "ch.advanced": "Planning and advanced settings",
     "ch.edit": "Edit campaign details",
@@ -102,6 +103,7 @@ export const ch = defineArea("ch", {
     "ch.intent.returning": "Meer terugkerende klanten",
     "ch.intent.launch": "Een product of dienst lanceren",
     "ch.intent.improve": "Een bestaande campagne verbeteren",
+    "ch.intent.discover": "Help me ontdekken wat mijn bedrijf laat groeien",
     "ch.continue": "Verder",
     "ch.back": "Doelstelling wijzigen",
     "ch.manual": "Zelf het concept aanmaken",
@@ -109,7 +111,7 @@ export const ch = defineArea("ch", {
     "ch.aiCost":
       "Opent een bewerkbare vraag. Pas wanneer je die verstuurt, gebruik je AI-credits; er start geen campagne en er wordt geen geld uitgegeven.",
     "ch.prompt":
-      "Help me een campagne voor te bereiden om dit te bereiken: {objective}. Gebruik de bevestigde bedrijfsinformatie, doelen, bestaande campagnes en het vastgelegde budget van dit bedrijf. Controleer overlap, vraag alleen noodzakelijke ontbrekende informatie en stel een doelgroep, kanalen, budget, KPI, meetmethode en uitvoerbaar plan voor. Begin met je conclusie en aanbevolen actie. Benoem schattingen en ontbrekende informatie. Bereid een voorstel voor mijn beoordeling voor, geen goedgekeurde campagne. Geef niets uit, publiceer niets, contacteer niemand en start geen externe acties.",
+      "Help me een campagne voor te bereiden om dit te bereiken: {objective}. Gebruik de bevestigde bedrijfsinformatie, doelen, bestaande campagnes en het vastgelegde budget van dit bedrijf. Controleer overlap, vraag alleen noodzakelijke ontbrekende informatie en leg uit welke kans je ziet en waarom die telt, en stel dan voor: doel, doelgroep, aanbod, kernboodschap, kanalen (en waarom die passen), benodigde content en advertenties, welke specialist wat doet, activiteiten en resultaten, planning, budget, verwachte externe kosten, AI-creditkosten, KPI's, risico's, afhankelijkheden en wat mijn goedkeuring nodig heeft. Vermeld dat goedkeuring van het plan geen advertentie-uitgaven, publicatie of verzending toestaat. Begin met je conclusie en aanbevolen actie. Benoem schattingen en ontbrekende informatie. Bereid een voorstel voor mijn beoordeling voor, geen goedgekeurde campagne. Geef niets uit, publiceer niets, contacteer niemand en start geen externe acties.",
     "ch.name": "Campagnenaam",
     "ch.advanced": "Planning en uitgebreide instellingen",
     "ch.edit": "Campagnegegevens aanpassen",
@@ -173,6 +175,7 @@ export const ch = defineArea("ch", {
     "ch.intent.returning": "Plus de clients fidèles",
     "ch.intent.launch": "Lancer un produit ou un service",
     "ch.intent.improve": "Améliorer une campagne existante",
+    "ch.intent.discover": "Aide-moi à découvrir ce qui ferait croître mon entreprise",
     "ch.continue": "Continuer",
     "ch.back": "Modifier l’objectif",
     "ch.manual": "Créer le brouillon vous-même",
@@ -180,7 +183,7 @@ export const ch = defineArea("ch", {
     "ch.aiCost":
       "Ouvre une question modifiable. Les crédits IA sont utilisés uniquement quand vous l’envoyez ; aucune campagne ne démarre et rien n’est dépensé.",
     "ch.prompt":
-      "Aide-moi à préparer une campagne pour atteindre : {objective}. Utilise les informations vérifiées, les objectifs, les campagnes existantes et le budget enregistré de cette entreprise. Vérifie les doublons, demande uniquement les informations essentielles manquantes et propose une audience, des canaux, un budget, un KPI, une méthode de mesure et un plan réalisable. Commence par ta conclusion et l’action recommandée. Signale les estimations et informations manquantes. Prépare une proposition pour mon examen, pas une campagne approuvée. Ne dépense rien, ne publie rien, ne contacte personne et ne lance aucune action externe.",
+      "Aide-moi à préparer une campagne pour atteindre : {objective}. Utilise les informations vérifiées, les objectifs, les campagnes existantes et le budget enregistré de cette entreprise. Vérifie les doublons, demande uniquement les informations essentielles manquantes et explique l’opportunité que tu vois et pourquoi elle compte, puis propose : objectif, audience, offre, message clé, canaux (et pourquoi ils conviennent), besoins en contenu et publicité, rôle de chaque spécialiste, activités et livrables, calendrier, budget, coûts externes prévus, coûts en crédits IA, KPI, risques, dépendances et ce qui nécessite mon approbation. Précise que l’approbation du plan n’autorise ni dépense publicitaire, ni publication, ni envoi. Commence par ta conclusion et l’action recommandée. Signale les estimations et informations manquantes. Prépare une proposition pour mon examen, pas une campagne approuvée. Ne dépense rien, ne publie rien, ne contacte personne et ne lance aucune action externe.",
     "ch.name": "Nom de la campagne",
     "ch.advanced": "Planification et paramètres avancés",
     "ch.edit": "Modifier les détails de la campagne",
