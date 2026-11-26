@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useBlocker } from "@tanstack/react-router";
+import { collectPages, pageSlice } from "@/lib/pagination";
+import { createDraftWriter } from "@/lib/draft-writer";
 import { PageHeader } from "@/components/app/status";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Save, History, GitCompare, RotateCcw, Check, X, PenLine } from "lucide-react";
@@ -12,6 +15,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { DraftPanel } from "@/components/content/draft-panel";
 import { ReviewPanel } from "@/components/content/review-panel";
 import { RepurposePanel } from "@/components/content/repurpose-panel";
@@ -25,7 +36,10 @@ const csLabel = (tx: (k: MessageKey) => string, prefix: string, s: string) =>
 
 const sel = "h-9 rounded-md border border-input bg-background px-2 text-sm";
 
-export function ContentStudio() {
+export function ContentStudio({
+  initialCampaign,
+  initialAsset,
+}: { initialCampaign?: string | undefined; initialAsset?: string | undefined } = {}) {
   const { workspace, org, workspaceRole, loading, userId } = useOrg();
   const { t: tx } = useI18n();
   if (loading) return <p className="p-6 text-muted-foreground">{tx("marketing.cs.loading")}</p>;
@@ -33,11 +47,13 @@ export function ContentStudio() {
     return <p className="p-6 text-muted-foreground">{tx("marketing.cs.chooseWs")}</p>;
   return (
     <Studio
-      key={workspace.id}
+      key={`${org.id}/${workspace.id}`}
       orgId={org.id}
       wsId={workspace.id}
       role={workspaceRole}
       userId={userId}
+      initialCampaign={initialCampaign}
+      initialAsset={initialAsset}
     />
   );
 }
@@ -47,40 +63,82 @@ function Studio({
   wsId,
   role,
   userId,
+  initialCampaign,
+  initialAsset,
 }: {
   orgId: string;
   wsId: string;
   role: ReturnType<typeof useOrg>["workspaceRole"];
   userId: string;
+  initialCampaign?: string | undefined;
+  initialAsset?: string | undefined;
 }) {
   const [tab, setTab] = useState("library");
   const { t: tx, tag } = useI18n();
   const canEdit = hasRole(role, "member");
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(initialAsset ?? null);
+  const [dirty, setDirty] = useState(false);
+  const blocker = useBlocker({
+    shouldBlockFn: () => dirty,
+    enableBeforeUnload: () => dirty,
+    withResolver: true,
+  });
+  const openAsset = (id: string) => {
+    if (dirty) return void toast.info(tx("marketing.care.keepDraft"));
+    setSelected(id);
+  };
   const qc = useQueryClient();
   const assets = useQuery({
     queryKey: ["content-assets", wsId],
     queryFn: async () => {
-      const r = await supabase
-        .from("content_assets")
-        .select("id,title,channel,status,planned_date,updated_at,campaign_id")
-        .eq("workspace_id", wsId)
-        .order("updated_at", { ascending: false })
-        .limit(100);
-      if (r.error) throw r.error;
-      return r.data;
+      const watermark = new Date().toISOString();
+      const rows = await collectPages(async (cursor, size) => {
+        let q = supabase
+          .from("content_assets")
+          .select("id,title,channel,status,planned_date,updated_at,campaign_id")
+          .eq("org_id", orgId)
+          .eq("workspace_id", wsId)
+          .lte("created_at", watermark)
+          .order("id")
+          .limit(size);
+        if (cursor) q = q.gt("id", cursor);
+        return await q;
+      });
+      return rows.sort((a, b) => b.updated_at.localeCompare(a.updated_at));
     },
   });
+  const [creating, setCreating] = useState(false);
+  const [search, setSearch] = useState("");
+  const [libraryPage, setLibraryPage] = useState(1);
   const create = async () => {
-    const r = await supabase
-      .from("content_assets")
-      .insert({ org_id: orgId, workspace_id: wsId, title: tx("marketing.cs.untitled") })
-      .select("id")
-      .single();
-    if (r.error) return void toast.error(tx("marketing.cs.createFailed"));
-    await qc.invalidateQueries({ queryKey: ["content-assets", wsId] });
-    setSelected(r.data.id);
+    if (creating || !canEdit || dirty) return;
+    setCreating(true);
+    try {
+      const r = await supabase
+        .from("content_assets")
+        .insert({
+          org_id: orgId,
+          workspace_id: wsId,
+          title: tx("marketing.cs.untitled"),
+          campaign_id: initialCampaign ?? null,
+        })
+        .select("id")
+        .single();
+      if (r.error) return void toast.error(tx("marketing.cs.createFailed"));
+      await qc.invalidateQueries({ queryKey: ["content-assets", wsId] });
+      setSelected(r.data.id);
+    } catch {
+      toast.error(tx("marketing.cs.createFailed"));
+    } finally {
+      setCreating(false);
+    }
   };
+  const visibleAssets = (assets.data ?? []).filter(
+    (a) =>
+      (!initialCampaign || a.campaign_id === initialCampaign) &&
+      a.title.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()),
+  );
+  const library = pageSlice(visibleAssets, libraryPage);
   return (
     <div className="space-y-6">
       <PageHeader
@@ -88,14 +146,20 @@ function Studio({
         description={tx("marketing.cs.intro")}
         actions={
           canEdit && (
-            <Button onClick={create}>
+            <Button onClick={create} disabled={creating || dirty}>
               <Plus className="mr-1 h-4 w-4" />
               {tx("marketing.cs.new")}
             </Button>
           )
         }
       />
-      <Tabs value={tab} onValueChange={setTab}>
+      <Tabs
+        value={tab}
+        onValueChange={(next) => {
+          if (dirty) return void toast.info(tx("marketing.care.keepDraft"));
+          setTab(next);
+        }}
+      >
         <TabsList>
           <TabsTrigger value="library">{tx("marketing.cs.tab.library")}</TabsTrigger>
           <TabsTrigger value="calendar">{tx("marketing.cs.tab.calendar")}</TabsTrigger>
@@ -103,37 +167,78 @@ function Studio({
         </TabsList>
         <TabsContent value="library" className="grid gap-4 lg:grid-cols-[280px_1fr]">
           <aside className="space-y-1 rounded-lg border bg-card p-2">
+            <Input
+              type="search"
+              aria-label={tx("marketing.care.searchContent")}
+              placeholder={tx("marketing.care.searchContent")}
+              maxLength={100}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setLibraryPage(1);
+              }}
+            />
             {assets.isError && (
               <p className="p-2 text-sm text-destructive">
                 {tx("marketing.cs.loadFailed")}{" "}
-                <button className="underline" onClick={() => assets.refetch()}>
+                <Button variant="link" size="sm" onClick={() => void assets.refetch()}>
                   {tx("marketing.cs.retry")}
-                </button>
+                </Button>
               </p>
             )}
-            {assets.data?.length === 0 && (
+            {assets.data && visibleAssets.length === 0 && (
               <p className="p-3 text-sm text-muted-foreground">
                 {tx("marketing.cs.none")}{" "}
                 {canEdit ? tx("marketing.cs.createFirst") : tx("marketing.cs.askMember")}
               </p>
             )}
-            {assets.data?.map((a) => (
-              <button
+            {library.rows.map((a) => (
+              <Button
+                variant="ghost"
                 key={a.id}
-                onClick={() => setSelected(a.id)}
-                className={`w-full rounded-md px-3 py-2 text-left text-sm hover:bg-accent ${selected === a.id ? "bg-accent" : ""}`}
+                onClick={() => openAsset(a.id)}
+                className={`h-auto w-full flex-col items-start whitespace-normal rounded-md px-3 py-2 text-left text-sm hover:bg-accent ${selected === a.id ? "bg-accent" : ""}`}
               >
-                <div className="truncate font-medium">{a.title}</div>
+                <div className="w-full truncate font-medium" title={a.title}>
+                  {a.title}
+                </div>
                 <div className="text-xs text-muted-foreground">
                   {csLabel(tx, "ch", a.channel)} · {csLabel(tx, "st", a.status)}
                   {a.planned_date
                     ? ` · ${new Date(`${a.planned_date}T12:00:00`).toLocaleDateString(tag)}`
                     : ""}
                 </div>
-              </button>
+              </Button>
             ))}
+            {library.pages > 1 && (
+              <div className="flex items-center justify-between gap-2 border-t border-border pt-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={library.page === 1}
+                  aria-label={tx("lead.previousPages")}
+                  onClick={() => setLibraryPage(library.page - 1)}
+                >
+                  ←
+                </Button>
+                <span className="text-xs tabular-nums text-muted-foreground">
+                  {library.page} / {library.pages}
+                </span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={library.page === library.pages}
+                  aria-label={tx("lead.nextPages")}
+                  onClick={() => setLibraryPage(library.page + 1)}
+                >
+                  →
+                </Button>
+              </div>
+            )}
           </aside>
-          {selected ? (
+          {selected &&
+          (!initialCampaign ||
+            assets.data?.some((a) => a.id === selected && a.campaign_id === initialCampaign)) ? (
             <Editor
               key={selected}
               id={selected}
@@ -142,6 +247,7 @@ function Studio({
               canEdit={canEdit}
               canDecide={hasRole(role, "admin")}
               userId={userId}
+              onDirty={setDirty}
             />
           ) : (
             <div className="grid place-items-center rounded-lg border border-dashed p-10 text-sm text-muted-foreground">
@@ -151,7 +257,10 @@ function Studio({
         </TabsContent>
         <TabsContent value="calendar">
           <EditorialCalendar
-            assets={assets.data ?? []}
+            assets={
+              assets.data?.filter((a) => !initialCampaign || a.campaign_id === initialCampaign) ??
+              []
+            }
             onOpen={(id) => {
               setSelected(id);
               setTab("library");
@@ -162,6 +271,27 @@ function Studio({
           <Profiles orgId={orgId} wsId={wsId} canEdit={canEdit} />
         </TabsContent>
       </Tabs>
+      <Dialog
+        open={blocker.status === "blocked"}
+        onOpenChange={(open) => {
+          if (!open) blocker.reset?.();
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{tx("marketing.cs.notSaved")}</DialogTitle>
+            <DialogDescription>{tx("marketing.care.keepDraft")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => blocker.reset?.()}>
+              {tx("marketing.cs.cancel")}
+            </Button>
+            <Button variant="outline" onClick={() => blocker.proceed?.()}>
+              {tx("marketing.care.leave")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -173,6 +303,7 @@ function Editor({
   canEdit,
   canDecide,
   userId,
+  onDirty,
 }: {
   id: string;
   wsId: string;
@@ -180,6 +311,7 @@ function Editor({
   canEdit: boolean;
   canDecide: boolean;
   userId: string;
+  onDirty: (dirty: boolean) => void;
 }) {
   const qc = useQueryClient();
   const { t: tx, tag } = useI18n();
@@ -187,34 +319,67 @@ function Editor({
     queryKey: ["content-asset", id],
     queryFn: async () => {
       const [a, v, d, c, p] = await Promise.all([
-        supabase.from("content_assets").select("*").eq("id", id).eq("workspace_id", wsId).single(),
         supabase
-          .from("content_versions")
+          .from("content_assets")
           .select("*")
-          .eq("asset_id", id)
+          .eq("id", id)
+          .eq("org_id", orgId)
           .eq("workspace_id", wsId)
-          .order("version_no", { ascending: false })
-          .limit(100),
-        supabase
-          .from("content_version_decisions")
-          .select("version_id,decision,note,decided_at")
-          .eq("workspace_id", wsId),
-        supabase
-          .from("campaigns")
-          .select("id,title")
-          .eq("workspace_id", wsId)
-          .order("created_at", { ascending: false })
-          .limit(100),
-        supabase.from("writing_profiles").select("id,name").eq("workspace_id", wsId).order("name"),
+          .single(),
+        collectPages(async (cursor, size) => {
+          let q = supabase
+            .from("content_versions")
+            .select("*")
+            .eq("asset_id", id)
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .order("id")
+            .limit(size);
+          if (cursor) q = q.gt("id", cursor);
+          return await q;
+        }),
+        collectPages(async (cursor, size) => {
+          let q = supabase
+            .from("content_version_decisions")
+            .select("id,version_id,decision,note,decided_at")
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .order("id")
+            .limit(size);
+          if (cursor) q = q.gt("id", cursor);
+          return await q;
+        }),
+        collectPages(async (cursor, size) => {
+          let q = supabase
+            .from("campaigns")
+            .select("id,title")
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .order("id")
+            .limit(size);
+          if (cursor) q = q.gt("id", cursor);
+          return await q;
+        }),
+        collectPages(async (cursor, size) => {
+          let q = supabase
+            .from("writing_profiles")
+            .select("id,name")
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .order("id")
+            .limit(size);
+          if (cursor) q = q.gt("id", cursor);
+          return await q;
+        }),
       ]);
-      const err = a.error ?? v.error ?? d.error ?? c.error ?? p.error;
+      const err = a.error;
       if (err || !a.data) throw err ?? new Error("missing");
       return {
         asset: a.data,
-        versions: v.data,
-        decisions: d.data,
-        campaigns: c.data,
-        profiles: p.data,
+        versions: v.sort((a, b) => b.version_no - a.version_no),
+        decisions: d,
+        campaigns: c.sort((a, b) => a.title.localeCompare(b.title)),
+        profiles: p.sort((a, b) => a.name.localeCompare(b.name)),
       };
     },
   });
@@ -227,13 +392,23 @@ function Editor({
     writing_profile_id: string;
   } | null>(null);
   const [saveState, setSaveState] = useState<"saved" | "pending" | "error">("saved");
+  useEffect(() => {
+    onDirty(saveState !== "saved");
+  }, [saveState, onDirty]);
   const [compare, setCompare] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const loaded = useRef(false);
+  const persistedAt = useRef<string | null>(null);
+  const [actionBusy, setActionBusy] = useState(false);
+  const actionLock = useRef(false);
+  const writer = useRef<ReturnType<typeof createDraftWriter<NonNullable<typeof form>>> | null>(
+    null,
+  );
   useEffect(() => {
     if (data.data && !loaded.current) {
       const a = data.data.asset;
       loaded.current = true;
+      persistedAt.current = a.updated_at;
       setForm({
         title: a.title,
         draft_body: a.draft_body,
@@ -244,65 +419,108 @@ function Editor({
       });
     }
   }, [data.data]);
-  // Autosave the working draft 800ms after the last edit.
+  // Serialize saves and compare the last acknowledged revision; no stale request can overwrite a newer save.
   useEffect(() => {
     if (!form || !loaded.current || !canEdit || saveState !== "pending") return;
-    const t = setTimeout(async () => {
+    let active = true;
+    writer.current ??= createDraftWriter(async (draft: NonNullable<typeof form>) => {
+      const expected = persistedAt.current;
+      if (!expected) throw new Error("content_revision_missing");
       const r = await supabase
         .from("content_assets")
         .update({
-          title: form.title.trim() || tx("marketing.cs.untitled"),
-          draft_body: form.draft_body,
-          channel: form.channel,
-          planned_date: form.planned_date || null,
-          campaign_id: form.campaign_id || null,
-          writing_profile_id: form.writing_profile_id || null,
+          title: draft.title.trim() || tx("marketing.cs.untitled"),
+          draft_body: draft.draft_body,
+          channel: draft.channel,
+          planned_date: draft.planned_date || null,
+          campaign_id: draft.campaign_id || null,
+          writing_profile_id: draft.writing_profile_id || null,
         })
         .eq("id", id)
-        .eq("workspace_id", wsId);
-      setSaveState(r.error ? "error" : "saved");
-      if (!r.error) qc.invalidateQueries({ queryKey: ["content-assets", wsId] });
+        .eq("org_id", orgId)
+        .eq("workspace_id", wsId)
+        .eq("updated_at", expected)
+        .select("updated_at")
+        .single();
+      if (r.error || !r.data) throw new Error("content_save_unconfirmed");
+      persistedAt.current = r.data.updated_at;
+    });
+    const timer = setTimeout(async () => {
+      try {
+        await writer.current?.(form);
+        if (active) setSaveState("saved");
+        void qc.invalidateQueries({ queryKey: ["content-assets", wsId] });
+      } catch {
+        if (active) setSaveState("error");
+      }
     }, 800);
-    return () => clearTimeout(t);
-  }, [form, saveState, canEdit, id, wsId, qc, tx]);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [form, saveState, canEdit, id, orgId, wsId, qc, tx]);
   const set = (k: keyof NonNullable<typeof form>, v: string) => {
+    onDirty(true);
     setForm((f) => f && { ...f, [k]: v });
     setSaveState("pending");
   };
   const refresh = () => qc.invalidateQueries({ queryKey: ["content-asset", id] });
   const saveVersion = async (restore?: string) => {
-    if (saveState === "pending") return void toast.info(tx("marketing.cs.autosaving"));
-    const r = await supabase.rpc("save_content_version", {
-      _asset: id,
-      _note: note,
-      ...(restore ? { _restore_from: restore } : {}),
-    });
-    if (r.error)
-      return void toast.error(
-        r.error.message.includes("empty")
-          ? tx("marketing.cs.writeFirst")
-          : tx("marketing.cs.versionFailed"),
-      );
-    setNote("");
-    toast.success(restore ? tx("marketing.cs.restored") : tx("marketing.cs.versionSaved"));
-    if (restore) {
-      loaded.current = false;
-      setForm(null);
+    if (actionLock.current || saveState !== "saved")
+      return void toast.info(tx("marketing.cs.notSaved"));
+    actionLock.current = true;
+    setActionBusy(true);
+    try {
+      const r = await supabase.rpc("save_content_version", {
+        _asset: id,
+        _note: note,
+        ...(restore ? { _restore_from: restore } : {}),
+      });
+      if (r.error)
+        return void toast.error(
+          r.error.message.includes("empty")
+            ? tx("marketing.cs.writeFirst")
+            : tx("marketing.cs.versionFailed"),
+        );
+      setNote("");
+      toast.success(restore ? tx("marketing.cs.restored") : tx("marketing.cs.versionSaved"));
+      if (restore) {
+        loaded.current = false;
+        setForm(null);
+      }
+      await refresh();
+    } catch {
+      toast.error(tx("marketing.cs.versionFailed"));
+    } finally {
+      actionLock.current = false;
+      setActionBusy(false);
     }
-    await refresh();
   };
   const decide = async (vid: string, decision: "approved" | "rejected") => {
-    const r = await supabase.rpc("decide_content_version", { _version: vid, _decision: decision });
-    if (r.error)
-      return void toast.error(
-        r.error.message.includes("duplicate")
-          ? tx("marketing.cs.alreadyDecided")
-          : tx("marketing.cs.decideFailed"),
+    if (actionLock.current) return;
+    actionLock.current = true;
+    setActionBusy(true);
+    try {
+      const r = await supabase.rpc("decide_content_version", {
+        _version: vid,
+        _decision: decision,
+      });
+      if (r.error)
+        return void toast.error(
+          r.error.message.includes("duplicate")
+            ? tx("marketing.cs.alreadyDecided")
+            : tx("marketing.cs.decideFailed"),
+        );
+      toast.success(
+        decision === "approved" ? tx("marketing.cs.approvedOk") : tx("marketing.cs.rejectedOk"),
       );
-    toast.success(
-      decision === "approved" ? tx("marketing.cs.approvedOk") : tx("marketing.cs.rejectedOk"),
-    );
-    refresh();
+      await refresh();
+    } catch {
+      toast.error(tx("marketing.cs.decideFailed"));
+    } finally {
+      actionLock.current = false;
+      setActionBusy(false);
+    }
   };
   const versions = data.data?.versions ?? [];
   const decisions = data.data?.decisions ?? [];
@@ -315,9 +533,9 @@ function Editor({
     return (
       <p className="text-sm text-destructive">
         {tx("marketing.cs.loadOne")}{" "}
-        <button className="underline" onClick={() => data.refetch()}>
+        <Button variant="link" size="sm" onClick={() => void data.refetch()}>
           {tx("marketing.cs.retry")}
-        </button>
+        </Button>
       </p>
     );
   if (!form || !data.data)
@@ -328,7 +546,7 @@ function Editor({
   return (
     <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
       <section className="space-y-3 rounded-lg border bg-card p-4">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Input
             aria-label={tx("marketing.cs.title")}
             value={form.title}
@@ -344,6 +562,14 @@ function Editor({
                 : tx("marketing.cs.draftSaved")}
           </span>
         </div>
+        {saveState === "error" && (
+          <div role="alert" className="space-y-2">
+            <p className="text-sm text-destructive">{tx("marketing.care.contentUnconfirmed")}</p>
+            <Button size="sm" variant="outline" onClick={() => setSaveState("pending")}>
+              {tx("marketing.cs.retry")}
+            </Button>
+          </div>
+        )}
         <div className="flex flex-wrap gap-2">
           <select
             aria-label={tx("marketing.cs.channel")}
@@ -449,7 +675,9 @@ function Editor({
             />
             <Button
               onClick={() => saveVersion()}
-              disabled={!draftChanged || !form.draft_body.trim()}
+              disabled={
+                actionBusy || saveState !== "saved" || !draftChanged || !form.draft_body.trim()
+              }
             >
               <Save className="mr-1 h-4 w-4" />
               {tx("marketing.cs.saveVersion")}
@@ -517,18 +745,33 @@ function Editor({
                   {tx("marketing.cs.compare")}
                 </Button>
                 {canEdit && (
-                  <Button size="sm" variant="ghost" onClick={() => saveVersion(v.id)}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={actionBusy || saveState !== "saved"}
+                    onClick={() => saveVersion(v.id)}
+                  >
                     <RotateCcw className="mr-1 h-3 w-3" />
                     {tx("marketing.cs.restore")}
                   </Button>
                 )}
                 {canDecide && !d && (
                   <>
-                    <Button size="sm" variant="ghost" onClick={() => decide(v.id, "approved")}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={actionBusy}
+                      onClick={() => decide(v.id, "approved")}
+                    >
                       <Check className="mr-1 h-3 w-3" />
                       {tx("marketing.cs.approve")}
                     </Button>
-                    <Button size="sm" variant="ghost" onClick={() => decide(v.id, "rejected")}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={actionBusy}
+                      onClick={() => decide(v.id, "rejected")}
+                    >
                       <X className="mr-1 h-3 w-3" />
                       {tx("marketing.cs.reject")}
                     </Button>
@@ -550,13 +793,18 @@ function Profiles({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEd
   const list = useQuery({
     queryKey: ["writing-profiles", wsId],
     queryFn: async () => {
-      const r = await supabase
-        .from("writing_profiles")
-        .select("*")
-        .eq("workspace_id", wsId)
-        .order("name");
-      if (r.error) throw r.error;
-      return r.data;
+      const rows = await collectPages(async (cursor, size) => {
+        let q = supabase
+          .from("writing_profiles")
+          .select("*")
+          .eq("org_id", orgId)
+          .eq("workspace_id", wsId)
+          .order("id")
+          .limit(size);
+        if (cursor) q = q.gt("id", cursor);
+        return await q;
+      });
+      return rows.sort((a, b) => a.name.localeCompare(b.name));
     },
   });
   const empty = {

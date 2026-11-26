@@ -1,0 +1,1 @@
+- Integration hub summaries collect complete caller-scoped keysets and reject failed pages; historical task references are fetched in bounded scoped batches so truncation cannot hide approvals or their source work.

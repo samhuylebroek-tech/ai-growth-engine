@@ -1,0 +1,1 @@
+- Customer care prepares caller-scoped internal tasks from refetched sales with stable request IDs and complete input fingerprints; this prevents retry duplicates without claiming contact, consent or customer outcomes.

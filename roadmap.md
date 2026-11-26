@@ -1,4 +1,12 @@
 # AI Growth OS — Task Queue
+## Break the implementation bottleneck (26 November 2026)
+- [x] Authorized branch and staging identity verified; fresh 1,068-test baseline passes; saved HEAD 86009ec synchronized with all five CI checks passing.
+- [x] Migration/access investigation complete: staging connection and marker work, but the mandatory migration tool and auth-session CLI have no staging target. Existing scripts cannot override platform restrictions; no schema/auth changes attempted. Concrete requirements in docs/ux/IMPLEMENTATION_BOTTLENECK.md.
+- [x] Customer-care implementation: explicit internal retention/reactivation/follow-up tasks from caller-refetched sales, stable retry request/input fingerprints, owner assignment, scoped read-back and task history. Mocked boundary/interaction tests pass; authenticated staging writes NOT RUN.
+- [x] Campaigns open original Content Studio pieces and exact version decisions; edited drafts never inherit approval. Studio reads complete scoped collections, searches/pages the library, serializes revision-checked saves, blocks unconfirmed version creation and warns before navigation.
+- [x] Integration history now traverses complete scoped keysets, including all referenced finished tasks; failed actions recover controls. Final 1,101 tests / 141 files pass; 57 staging SQL suites pass and roll back; lint zero errors / 58 existing warnings; platform build OK.
+- [x] Credit evidence recorded: 58.01 completed-request credits since the 26 November 15:05 mandate, current request 15.60 so far, workspace balance snapshot 27.21; in-flight/final costs distinguished. Latest-commit sync/CI checked after saving, not inferred from earlier CI.
+- [ ] Operational lead intake and authenticated product-wide E2E remain blocked on staging-scoped migration and test-session facilities. Wider page-by-page UX and complete orchestration/optimization are still unfinished; external providers/actions and production require separate authorization.
 ## Integration verification (26 November 2026)
 - [x] Verify authorized branch and 7f992e8: synchronized; all five GitHub CI checks pass. Fresh baseline: 1,056 tests pass; ESLint zero errors, 58 existing warnings.
 - [x] Improve connected enquiry recovery, inbox triage and enquiry → exact CRM contact → sale continuity; confirmed/cancelled loss decisions; preserve unsaved contact/sale inputs after transport failures. 1,068 tests pass; zero lint errors / 58 existing warnings; platform build OK. Mocked interaction tests are not authenticated E2E.

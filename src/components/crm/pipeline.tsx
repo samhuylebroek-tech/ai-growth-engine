@@ -1,4 +1,5 @@
 import { CrmGuidance } from "@/components/crm/guidance";
+import { CustomerCare } from "@/components/crm/customer-care";
 import { collectPages } from "@/lib/pagination";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -125,7 +126,9 @@ function Board({
     },
   });
   const refresh = () => qc.invalidateQueries({ queryKey: ["pipeline", orgId, wsId] });
-  const [tab, setTab] = useState<"deals" | "contacts">(initialContact ? "contacts" : "deals");
+  const [tab, setTab] = useState<"deals" | "contacts" | "care">(
+    initialContact ? "contacts" : "deals",
+  );
   const [contactScope, setContactScope] = useState(initialContact);
   const [loss, setLoss] = useState<{ id: string; title: string } | null>(null);
   const [lossReason, setLossReason] = useState("");
@@ -342,7 +345,18 @@ function Board({
         >
           {tx("marketing.crm.contactsTab", { n: contacts.length })}
         </Button>
-        {canEdit && (
+        <Button
+          variant={tab === "care" ? "default" : "outline"}
+          size="sm"
+          aria-pressed={tab === "care"}
+          onClick={() => {
+            setTab("care");
+            setCreating(false);
+          }}
+        >
+          {tx("marketing.care.title")}
+        </Button>
+        {canEdit && tab !== "care" && (
           <Button
             className="ml-auto"
             variant="outline"
@@ -354,28 +368,39 @@ function Board({
           </Button>
         )}
       </div>
-      <div className="flex flex-wrap items-end gap-4">
-        <Field label={tx("lead.searchCrm")} className="w-full sm:max-w-sm">
-          <Input
-            type="search"
-            maxLength={100}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </Field>
-        {tab === "deals" && (
-          <Field label={tx("lead.showDeals")}>
-            <select className={sel} value={filter} onChange={(e) => setFilter(e.target.value)}>
-              <option value="open">{tx("lead.openDeals")}</option>
-              <option value="all">{tx("lead.allDeals")}</option>
-              <option value="won">{stageLabel("won")}</option>
-              <option value="lost">{stageLabel("lost")}</option>
-            </select>
+      {tab !== "care" && (
+        <div className="flex flex-wrap items-end gap-4">
+          <Field label={tx("lead.searchCrm")} className="w-full sm:max-w-sm">
+            <Input
+              type="search"
+              maxLength={100}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </Field>
-        )}
-      </div>
+          {tab === "deals" && (
+            <Field label={tx("lead.showDeals")}>
+              <select className={sel} value={filter} onChange={(e) => setFilter(e.target.value)}>
+                <option value="open">{tx("lead.openDeals")}</option>
+                <option value="all">{tx("lead.allDeals")}</option>
+                <option value="won">{stageLabel("won")}</option>
+                <option value="lost">{stageLabel("lost")}</option>
+              </select>
+            </Field>
+          )}
+        </div>
+      )}
 
-      {tab === "deals" ? (
+      {tab === "care" ? (
+        <CustomerCare
+          orgId={orgId}
+          wsId={wsId}
+          canEdit={canEdit}
+          deals={deals}
+          contacts={contacts}
+          contactScope={contactScope}
+        />
+      ) : tab === "deals" ? (
         <>
           {canEdit && creating && (
             <form

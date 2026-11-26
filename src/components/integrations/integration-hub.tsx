@@ -70,6 +70,7 @@ export function IntegrationHub() {
     fn: () => PromiseLike<{ error: unknown } | { ok: boolean; error?: string }>,
     done: string,
   ) {
+    if (busy) return;
     setBusy(id);
     try {
       const r = await fn();
@@ -84,6 +85,8 @@ export function IntegrationHub() {
       if (err) toast.error(t("xa.failed", { e: String(err) }));
       else toast.success(done);
       refresh();
+    } catch {
+      toast.error(t("xa.loadFailed"));
     } finally {
       setBusy(null);
     }
@@ -195,7 +198,7 @@ export function IntegrationHub() {
                 () =>
                   sync({
                     data: {
-                      workspaceId: o.workspace!.id,
+                      workspaceId: o.workspace?.id ?? "",
                       connector: c.connector_key,
                       request: crypto.randomUUID(),
                     },
@@ -220,7 +223,7 @@ export function IntegrationHub() {
               "new",
               () =>
                 growthDb.rpc("connect_simulated_integration", {
-                  _workspace: o.workspace!.id,
+                  _workspace: o.workspace?.id ?? "",
                   _provider: p,
                   _levels: lv,
                   _scenario: sc,

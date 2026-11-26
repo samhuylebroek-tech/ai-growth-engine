@@ -3,6 +3,36 @@ import { defineArea } from "../define";
 // Interface texts for the "marketing" area. Keys start with "marketing.".
 export const marketing = defineArea("marketing", {
   en: {
+    "marketing.care.searchContent": "Search content",
+    "marketing.care.keepDraft":
+      "This draft is not confirmed saved. Stay to retry or wait for saving. If you leave, unsaved text can be lost and a pending save may still finish.",
+    "marketing.care.leave": "Leave page",
+    "marketing.care.openStudio": "Open campaign content",
+    "marketing.care.noCampaignContent": "No Content Studio pieces linked to this campaign yet.",
+    "marketing.care.contentUnconfirmed":
+      "Saving could not be confirmed. Your text is still here; no version can be saved until the draft is confirmed. Another editor may have changed this piece.",
+    "marketing.care.title": "Customer care",
+    "marketing.care.retention": "Retention & referrals",
+    "marketing.care.reactivation": "Reactivation",
+    "marketing.care.followup": "Sales follow-up",
+    "marketing.care.evidence":
+      "Based on recorded sales, not inferred customer intent. A completed task records your team’s work, not a sent message or customer outcome.",
+    "marketing.care.saved": "Internal task prepared and assigned to you.",
+    "marketing.care.unavailable":
+      "Customer work could not be read. Preparation is unavailable until the records can be checked.",
+    "marketing.care.empty": "No recorded sales in this category.",
+    "marketing.care.openFirst":
+      "An internal task is already open. Review it before preparing more work.",
+    "marketing.care.prepare": "Prepare internal task",
+    "marketing.care.brief": "Action brief and checks before contacting",
+    "marketing.care.unconfirmed":
+      "Preparation could not be confirmed. Retry the same draft; do not create another request.",
+    "marketing.care.state.prepared": "Prepared",
+    "marketing.care.state.in_progress": "In progress",
+    "marketing.care.state.review": "Awaiting review",
+    "marketing.care.state.overdue": "Overdue",
+    "marketing.care.state.recorded_done": "Marked done by team",
+    "marketing.care.state.cancelled": "Cancelled",
     "marketing.crm.currency": "Currency",
     "marketing.crm.followup": "Prepare sales follow-up",
     "marketing.crm.retention": "Prepare retention & referrals",
@@ -427,6 +457,37 @@ export const marketing = defineArea("marketing", {
     "marketing.cs.unplanned": "Not yet planned ({n})",
   },
   nl: {
+    "marketing.care.searchContent": "Content zoeken",
+    "marketing.care.keepDraft":
+      "Dit concept is niet bevestigd opgeslagen. Blijf om opnieuw te proberen of op opslaan te wachten. Bij vertrek kan tekst verloren gaan en kan een lopende opslag nog afronden.",
+    "marketing.care.leave": "Pagina verlaten",
+    "marketing.care.openStudio": "Campagnecontent openen",
+    "marketing.care.noCampaignContent":
+      "Nog geen Content Studio-stukken aan deze campagne gekoppeld.",
+    "marketing.care.contentUnconfirmed":
+      "Opslaan kon niet bevestigd worden. Je tekst staat hier nog; een versie opslaan kan pas wanneer het concept bevestigd is. Een andere redacteur kan dit stuk gewijzigd hebben.",
+    "marketing.care.title": "Klantenzorg",
+    "marketing.care.retention": "Klantbehoud & aanbevelingen",
+    "marketing.care.reactivation": "Heractivatie",
+    "marketing.care.followup": "Verkoopopvolging",
+    "marketing.care.evidence":
+      "Gebaseerd op vastgelegde verkoop, niet op veronderstelde klantintentie. Een afgeronde taak registreert teamwerk, geen verzonden bericht of klantresultaat.",
+    "marketing.care.saved": "Interne taak voorbereid en aan jou toegewezen.",
+    "marketing.care.unavailable":
+      "Klantwerk kon niet gelezen worden. Voorbereiden is pas beschikbaar wanneer de gegevens gecontroleerd kunnen worden.",
+    "marketing.care.empty": "Geen vastgelegde verkoop in deze categorie.",
+    "marketing.care.openFirst":
+      "Er staat al een interne taak open. Beoordeel die voordat je meer werk voorbereidt.",
+    "marketing.care.prepare": "Interne taak voorbereiden",
+    "marketing.care.brief": "Actiebriefing en controles vóór contact",
+    "marketing.care.unconfirmed":
+      "Voorbereiding kon niet bevestigd worden. Probeer hetzelfde concept opnieuw; maak geen nieuwe aanvraag.",
+    "marketing.care.state.prepared": "Voorbereid",
+    "marketing.care.state.in_progress": "In uitvoering",
+    "marketing.care.state.review": "Wacht op beoordeling",
+    "marketing.care.state.overdue": "Te laat",
+    "marketing.care.state.recorded_done": "Door team als klaar gemarkeerd",
+    "marketing.care.state.cancelled": "Geannuleerd",
     "marketing.crm.currency": "Valuta",
     "marketing.crm.followup": "Verkoopopvolging voorbereiden",
     "marketing.crm.retention": "Klantbehoud & referrals voorbereiden",
@@ -855,6 +916,37 @@ export const marketing = defineArea("marketing", {
     "marketing.cs.unplanned": "Nog niet gepland ({n})",
   },
   fr: {
+    "marketing.care.searchContent": "Rechercher du contenu",
+    "marketing.care.keepDraft":
+      "Ce brouillon n’est pas confirmé enregistré. Restez pour réessayer ou attendre. En partant, le texte non enregistré peut être perdu et un enregistrement en cours peut encore aboutir.",
+    "marketing.care.leave": "Quitter la page",
+    "marketing.care.openStudio": "Ouvrir le contenu de campagne",
+    "marketing.care.noCampaignContent":
+      "Aucun contenu du Studio lié à cette campagne pour le moment.",
+    "marketing.care.contentUnconfirmed":
+      "L’enregistrement ne peut pas être confirmé. Votre texte est conservé ici ; aucune version ne peut être créée avant confirmation. Un autre rédacteur a peut-être modifié ce contenu.",
+    "marketing.care.title": "Suivi des clients",
+    "marketing.care.retention": "Fidélisation & recommandations",
+    "marketing.care.reactivation": "Réactivation",
+    "marketing.care.followup": "Suivi commercial",
+    "marketing.care.evidence":
+      "Basé sur les ventes enregistrées, pas sur une intention supposée. Une tâche terminée enregistre le travail de l’équipe, pas un message envoyé ni un résultat client.",
+    "marketing.care.saved": "Tâche interne préparée et attribuée à vous.",
+    "marketing.care.unavailable":
+      "Le travail client ne peut pas être lu. La préparation attend la vérification des données.",
+    "marketing.care.empty": "Aucune vente enregistrée dans cette catégorie.",
+    "marketing.care.openFirst":
+      "Une tâche interne est déjà ouverte. Examinez-la avant de préparer plus de travail.",
+    "marketing.care.prepare": "Préparer une tâche interne",
+    "marketing.care.brief": "Brief d’action et vérifications avant contact",
+    "marketing.care.unconfirmed":
+      "La préparation ne peut pas être confirmée. Réessayez le même brouillon sans créer une autre demande.",
+    "marketing.care.state.prepared": "Préparée",
+    "marketing.care.state.in_progress": "En cours",
+    "marketing.care.state.review": "À examiner",
+    "marketing.care.state.overdue": "En retard",
+    "marketing.care.state.recorded_done": "Marquée terminée par l’équipe",
+    "marketing.care.state.cancelled": "Annulée",
     "marketing.crm.currency": "Devise",
     "marketing.crm.followup": "Préparer le suivi commercial",
     "marketing.crm.retention": "Préparer fidélisation et recommandations",

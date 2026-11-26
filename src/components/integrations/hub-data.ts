@@ -1,4 +1,5 @@
 // Caller-RLS reads for the Integration Hub, external actions and their Home tiles. One shared query per workspace.
+import { collectPages } from "@/lib/pagination";
 import { supabase } from "@/integrations/supabase/client";
 import { growthDb, retryUnlessNotInstalled, type ExternalActionRow } from "@/lib/pending-schema";
 import type { HealthConnection } from "@/lib/integration-health";
@@ -20,7 +21,6 @@ export type HubData = {
   paused: boolean;
   mode: number;
 };
-const LIMIT = 500;
 
 export const hubKey = (orgId?: string, wsId?: string) => ["integration-hub", orgId, wsId] as const;
 export function hubOptions(orgId: string | undefined, wsId: string | undefined) {
@@ -31,83 +31,120 @@ export function hubOptions(orgId: string | undefined, wsId: string | undefined) 
     retry: retryUnlessNotInstalled,
     queryFn: async (): Promise<HubData> => {
       if (!orgId || !wsId) throw new Error("Choose a workspace");
+      const watermark = new Date().toISOString();
       const [conns, acts, tasks, profiles, goals, plans, settings] = await Promise.all([
-        growthDb
-          .from("connector_connections")
-          .select(
-            "id,connector_key,status,granted_levels,last_sync_at,last_error,expires_at,simulated,account_label,scopes,connected_by,connected_at,last_checked_at",
-          )
-          .eq("org_id", orgId)
-          .eq("workspace_id", wsId)
-          .limit(200),
-        growthDb
-          .from("external_actions")
-          .select("*", { count: "exact" })
-          .eq("org_id", orgId)
-          .eq("workspace_id", wsId)
-          .order("created_at", { ascending: false })
-          .limit(LIMIT),
-        supabase
-          .from("tasks")
-          .select("id,title")
-          .eq("org_id", orgId)
-          .eq("workspace_id", wsId)
-          .neq("status", "done")
-          .limit(2000),
-        growthDb
-          .from("task_execution_profiles")
-          .select("task_id,specialist_key")
-          .eq("org_id", orgId)
-          .eq("workspace_id", wsId)
-          .limit(2000),
-        supabase
-          .from("growth_goals")
-          .select("id,title")
-          .eq("org_id", orgId)
-          .eq("workspace_id", wsId)
-          .limit(500),
-        growthDb
-          .from("growth_plan_versions")
-          .select("id,title,version")
-          .eq("org_id", orgId)
-          .eq("workspace_id", wsId)
-          .limit(500),
+        collectPages(async (cursor, size) => {
+          let q = growthDb
+            .from("connector_connections")
+            .select(
+              "id,connector_key,status,granted_levels,last_sync_at,last_error,expires_at,simulated,account_label,scopes,connected_by,connected_at,last_checked_at",
+            )
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .order("id")
+            .limit(size);
+          if (cursor) q = q.gt("id", cursor);
+          return await q;
+        }),
+        collectPages(async (cursor, size) => {
+          let q = growthDb
+            .from("external_actions")
+            .select("*")
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .lte("created_at", watermark)
+            .order("id")
+            .limit(size);
+          if (cursor) q = q.gt("id", cursor);
+          return await q;
+        }),
+        collectPages(async (cursor, size) => {
+          let q = supabase
+            .from("tasks")
+            .select("id,title")
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .neq("status", "done")
+            .lte("created_at", watermark)
+            .order("id")
+            .limit(size);
+          if (cursor) q = q.gt("id", cursor);
+          return await q;
+        }),
+        collectPages(async (cursor, size) => {
+          let q = growthDb
+            .from("task_execution_profiles")
+            .select("task_id,specialist_key")
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .order("task_id")
+            .limit(size);
+          if (cursor) q = q.gt("task_id", cursor);
+          const r = await q;
+          return { data: r.data?.map((p) => ({ ...p, id: p.task_id })) ?? null, error: r.error };
+        }),
+        collectPages(async (cursor, size) => {
+          let q = supabase
+            .from("growth_goals")
+            .select("id,title")
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .order("id")
+            .limit(size);
+          if (cursor) q = q.gt("id", cursor);
+          return await q;
+        }),
+        collectPages(async (cursor, size) => {
+          let q = growthDb
+            .from("growth_plan_versions")
+            .select("id,title,version")
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .order("id")
+            .limit(size);
+          if (cursor) q = q.gt("id", cursor);
+          return await q;
+        }),
         growthDb
           .from("execution_settings")
           .select("paused,mode")
+          .eq("org_id", orgId)
           .eq("workspace_id", wsId)
           .maybeSingle(),
       ]);
-      // Fail closed: a partial read would hide problems or approvals.
-      for (const r of [conns, acts, tasks, profiles, goals, plans, settings])
-        if (r.error) throw r.error;
-      if ((acts.count ?? 0) > LIMIT) throw new Error("too_many");
-      const spec = new Map((profiles.data ?? []).map((p) => [p.task_id, p.specialist_key]));
+      if (settings.error) throw settings.error;
+      const spec = new Map(profiles.map((p) => [p.task_id, p.specialist_key]));
       const taskMap = new Map(
-        (tasks.data ?? []).map((t) => [
-          t.id,
-          { id: t.id, title: t.title, specialist: spec.get(t.id) ?? null },
-        ]),
+        tasks.map((t) => [t.id, { id: t.id, title: t.title, specialist: spec.get(t.id) ?? null }]),
       );
-      const actions = (acts.data ?? []) as ExternalActionRow[];
-      // Actions may point at finished tasks; fetch those titles too so history stays readable.
+      const actions = acts.sort(
+        (a, b) => b.created_at.localeCompare(a.created_at) || a.id.localeCompare(b.id),
+      ) as ExternalActionRow[];
+      // Historical actions can reference done tasks: read all missing titles in bounded, scoped batches.
       const missing = [...new Set(actions.map((a) => a.task_id).filter((id) => !taskMap.has(id)))];
-      if (missing.length) {
-        const more = await supabase
-          .from("tasks")
-          .select("id,title")
-          .in("id", missing.slice(0, 200));
-        if (more.error) throw more.error;
-        for (const t of more.data ?? [])
+      for (let i = 0; i < missing.length; i += 100) {
+        const more = await collectPages(async (cursor, size) => {
+          let q = supabase
+            .from("tasks")
+            .select("id,title")
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .in("id", missing.slice(i, i + 100))
+            .order("id")
+            .limit(size);
+          if (cursor) q = q.gt("id", cursor);
+          return await q;
+        });
+        for (const t of more)
           taskMap.set(t.id, { id: t.id, title: t.title, specialist: spec.get(t.id) ?? null });
       }
       return {
-        connections: (conns.data ?? []) as HubConnection[],
+        connections: conns as HubConnection[],
         actions,
         tasks: taskMap,
-        goals: new Map((goals.data ?? []).map((g) => [g.id, g.title])),
+        goals: new Map(goals.map((g) => [g.id, g.title])),
         plans: new Map(
-          (plans.data ?? []).map((p) => [
+          plans.map((p) => [
             p.id,
             `${p.title.length > 60 ? `${p.title.slice(0, 57)}…` : p.title} · v${p.version}`,
           ]),

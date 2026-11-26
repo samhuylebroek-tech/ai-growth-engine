@@ -1,4 +1,5 @@
 import { campaignHealth } from "@/lib/campaign-health";
+import { CampaignContent } from "@/components/execution/campaign-content";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -1916,6 +1917,7 @@ function WorkDetails({
       )}
       {tab === "content" && (
         <>
+          {kind === "campaigns" && <CampaignContent campaignId={item.id} />}
           {notes
             .filter((n) => n.kind === "asset" && n.content_type === "draft")
             .map((n) => (
