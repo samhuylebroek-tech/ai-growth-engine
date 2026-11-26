@@ -1,7 +1,13 @@
 import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Pipeline } from "@/components/crm/pipeline";
-const db = vi.hoisted(() => ({ insert: vi.fn(), invalidate: vi.fn() }));
+const db = vi.hoisted(() => ({
+  insert: vi.fn(),
+  invalidate: vi.fn(),
+  update: vi.fn(),
+  eq: vi.fn(),
+  single: vi.fn(),
+}));
 vi.mock("@/components/crm/guidance", () => ({ CrmGuidance: () => null }));
 vi.mock("@/lib/org-context", () => ({
   useOrg: () => ({
@@ -60,14 +66,107 @@ vi.mock("@tanstack/react-query", () => ({
   }),
 }));
 vi.mock("@/integrations/supabase/client", () => ({
-  supabase: { from: () => ({ insert: db.insert }) },
+  supabase: { from: () => ({ insert: db.insert, update: db.update }) },
 }));
 describe("CRM workflows (mocked caller data, not authenticated E2E)", () => {
   beforeEach(() => {
     db.insert.mockReset().mockResolvedValue({ error: null });
     db.invalidate.mockReset().mockResolvedValue(undefined);
+    const query = { eq: db.eq, select: () => query, single: db.single };
+    db.eq.mockReset().mockReturnValue(query);
+    db.update.mockReset().mockReturnValue(query);
+    db.single.mockReset().mockResolvedValue({ data: { id: "deal-a" }, error: null });
   });
   afterEach(cleanup);
+  it("keeps a refused loss decision open with its reason and does not claim a saved change", async () => {
+    db.single.mockResolvedValueOnce({ data: null, error: { message: "denied" } });
+    render(<Pipeline />);
+    fireEvent.click(screen.getByRole("button", { name: "Lost" }));
+    fireEvent.change(screen.getByLabelText("Why was this deal lost? (optional)"), {
+      target: { value: "Budget" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Record decision" }));
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Record decision" })).toBeEnabled(),
+    );
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByLabelText("Why was this deal lost? (optional)")).toHaveValue("Budget");
+    expect(db.invalidate).not.toHaveBeenCalled();
+  });
+  it("preserves an unsaved contact and restores controls after a transport failure", async () => {
+    db.insert.mockRejectedValueOnce(new Error("offline"));
+    render(<Pipeline />);
+    fireEvent.click(screen.getByRole("button", { name: /Contacts/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Add contact" }));
+    fireEvent.change(screen.getByLabelText("Contact name"), { target: { value: "Retry person" } });
+    const save = screen.getAllByRole("button", { name: "Add contact" }).at(-1);
+    if (!save) throw new Error("contact save action missing");
+    fireEvent.click(save);
+    await waitFor(() => expect(db.insert).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(save).toBeEnabled());
+    expect(screen.getByLabelText("Contact name")).toHaveValue("Retry person");
+    expect(db.invalidate).not.toHaveBeenCalled();
+  });
+  it("preserves an unsaved sale and restores controls after a transport failure", async () => {
+    db.insert.mockRejectedValueOnce(new Error("offline"));
+    render(<Pipeline initialContact="contact-a" />);
+    fireEvent.click(screen.getByRole("button", { name: "Add deal" }));
+    fireEvent.change(screen.getByLabelText("Deal name"), { target: { value: "Retry sale" } });
+    const save = screen.getAllByRole("button", { name: "Add deal" }).at(-1);
+    if (!save) throw new Error("sale save action missing");
+    fireEvent.click(save);
+    await waitFor(() => expect(db.insert).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(save).toBeEnabled());
+    expect(screen.getByLabelText("Deal name")).toHaveValue("Retry sale");
+    expect(db.invalidate).not.toHaveBeenCalled();
+  });
+  it("does not mark a sale lost when the user cancels the loss decision", () => {
+    render(<Pipeline />);
+    fireEvent.click(screen.getByRole("button", { name: "Lost" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(db.update).not.toHaveBeenCalled();
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+  it("records the confirmed loss reason under the exact organization and business", async () => {
+    render(<Pipeline />);
+    fireEvent.click(screen.getByRole("button", { name: "Lost" }));
+    fireEvent.change(screen.getByLabelText("Why was this deal lost? (optional)"), {
+      target: { value: "Timing" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Record decision" }));
+    await waitFor(() => expect(db.single).toHaveBeenCalledTimes(1));
+    expect(db.update).toHaveBeenCalledWith({ stage: "lost", lost_reason: "Timing" });
+    expect(db.eq).toHaveBeenCalledWith("id", "deal-a");
+    expect(db.eq).toHaveBeenCalledWith("org_id", "org-a");
+    expect(db.eq).toHaveBeenCalledWith("workspace_id", "ws-a");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  });
+  it("opens the exact enquiry contact and starts a sale with that contact selected", async () => {
+    render(<Pipeline initialContact="contact-a" />);
+    fireEvent.click(screen.getByRole("button", { name: "Add deal" }));
+    expect(screen.getByLabelText("Contact")).toHaveValue("contact-a");
+    fireEvent.change(screen.getByLabelText("Deal name"), {
+      target: { value: "Follow-up proposal" },
+    });
+    const save = screen.getAllByRole("button", { name: "Add deal" }).at(-1);
+    if (!save) throw new Error("sale save action missing");
+    fireEvent.click(save);
+    await waitFor(() => expect(db.insert).toHaveBeenCalledTimes(1));
+    expect(db.insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        contact_id: "contact-a",
+        org_id: "org-a",
+        workspace_id: "ws-a",
+        title: "Follow-up proposal",
+      }),
+    );
+  });
+  it("does not fall back to another customer when a scoped contact is unavailable", () => {
+    render(<Pipeline initialContact="unavailable-contact" />);
+    expect(screen.queryByText("Élodie")).toBeNull();
+    expect(screen.getByText("This customer is unavailable in this business.")).toBeInTheDocument();
+    expect(db.insert).not.toHaveBeenCalled();
+  });
   it("shows open sales first and reveals won sales only when requested", () => {
     render(<Pipeline />);
     expect(screen.getByText("Design proposal")).toBeInTheDocument();

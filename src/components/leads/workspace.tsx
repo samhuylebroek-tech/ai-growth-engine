@@ -12,9 +12,12 @@ import { hasRole } from "@/lib/permissions";
 import { useI18n } from "@/lib/i18n";
 import { LOCALES, LOCALE_NAME, type Locale } from "@/lib/i18n/messages";
 import { collectPages } from "@/lib/pagination";
+import { pipelineMatches } from "@/lib/pipeline";
 import { browserEnvironment } from "@/lib/environment";
 import {
   leadFormConfigSchema,
+  LEAD_TRIAGE,
+  leadTriage,
   type LeadDatabase,
   type LeadFormRow,
   type LeadSubmissionRow,
@@ -60,6 +63,8 @@ function Inbox({
   const qc = useQueryClient();
   const [configure, setConfigure] = useState(false),
     [selected, setSelected] = useState<LeadFormRow | undefined>();
+  const [search, setSearch] = useState("");
+  const [stage, setStage] = useState("all");
   const staging = browserEnvironment(import.meta.env["VITE_APP_ENVIRONMENT"]) === "staging";
   const key = ["lead-inbox", orgId, workspaceId];
   const result = useQuery({
@@ -130,6 +135,13 @@ function Inbox({
       qc.invalidateQueries({ queryKey: ["execution"] }),
     ]);
   }
+  const inbox = result.data;
+  const visible =
+    inbox?.submissions.filter(
+      (s) =>
+        pipelineMatches([s.name, s.email, s.phone, s.message], search) &&
+        (stage === "all" || leadTriage(s.id, inbox.decisions, inbox.followups) === stage),
+    ) ?? [];
   return (
     <div className="space-y-8">
       <PageHeader
@@ -239,14 +251,44 @@ function Inbox({
             </section>
             <section className="space-y-4">
               <h2 className="text-lg font-semibold">{t("lead.inbox")}</h2>
+              {result.data.submissions.length > 0 && (
+                <div className="flex flex-wrap items-end gap-4">
+                  <Field label={t("lead.searchInbox")} className="w-full sm:max-w-sm">
+                    <Input
+                      type="search"
+                      maxLength={100}
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                    />
+                  </Field>
+                  <Field label={t("lead.triage")}>
+                    <select
+                      className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                      value={stage}
+                      onChange={(e) => setStage(e.target.value)}
+                    >
+                      <option value="all">{t("lead.allEnquiries")}</option>
+                      {LEAD_TRIAGE.map((value) => (
+                        <option key={value} value={value}>
+                          {t(`lead.${value}`)}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                </div>
+              )}
               {!result.data.submissions.length ? (
                 <EmptyState
                   icon={<ClipboardList />}
                   title={t("lead.empty")}
                   text={t("lead.emptyText")}
                 />
+              ) : visible.length === 0 ? (
+                <p role="status" className="text-sm text-muted-foreground">
+                  {t("lead.noEnquiriesMatch")}
+                </p>
               ) : (
-                result.data.submissions.map((s) => {
+                visible.map((s) => {
                   const decision = result.data.decisions
                     .filter((d) => d.submission_id === s.id)
                     .sort(
@@ -526,10 +568,21 @@ function LeadItem({
           </p>
         </div>
         <Badge variant="outline">
-          {decision ? t(`lead.${decision.decision}`) : t("lead.pending")}
+          {decision?.decision === "not_fit"
+            ? t("lead.not_fit")
+            : decision
+              ? followup
+                ? t("lead.ready")
+                : t("lead.qualified")
+              : t("lead.pending")}
         </Badge>
       </div>
       <div className="flex flex-wrap items-center gap-2">
+        <Button variant="outline" asChild>
+          <Link to="/app/pipeline" search={{ contact: s.contact_id }}>
+            {t("lead.contact")}
+          </Link>
+        </Button>
         <CrmGuidance kind="crm_contacts" id={s.contact_id} />
         {followup && (
           <Button variant="outline" asChild>

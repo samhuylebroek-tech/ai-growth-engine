@@ -111,6 +111,21 @@ export type LeadFollowupRow = {
   created_by: string;
   created_at: string;
 };
+export const LEAD_TRIAGE = ["pending", "qualified", "ready", "not_fit"] as const;
+export type LeadTriage = (typeof LEAD_TRIAGE)[number];
+/** Latest human decision wins; a recorded follow-up proves preparation, never execution. */
+export function leadTriage(
+  submissionId: string,
+  decisions: readonly Pick<LeadDecisionRow, "submission_id" | "decision" | "id" | "created_at">[],
+  followups: readonly Pick<LeadFollowupRow, "submission_id">[],
+): LeadTriage {
+  const latest = decisions
+    .filter((d) => d.submission_id === submissionId)
+    .sort((a, b) => b.created_at.localeCompare(a.created_at) || b.id.localeCompare(a.id))[0];
+  if (!latest) return "pending";
+  if (latest.decision === "not_fit") return "not_fit";
+  return followups.some((f) => f.submission_id === submissionId) ? "ready" : "qualified";
+}
 type Table<R> = { Row: R; Insert: Partial<R>; Update: Partial<R>; Relationships: [] };
 /** Additive proposal types, not a claim that the connected database has this schema. */
 export type LeadDatabase = Omit<Database, "public"> & {

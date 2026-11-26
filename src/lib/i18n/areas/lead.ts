@@ -1,6 +1,12 @@
 import { defineArea } from "../define";
 export const lead = defineArea("lead", {
   en: {
+    "lead.searchInbox": "Search enquiries",
+    "lead.triage": "Follow-up status",
+    "lead.allEnquiries": "All enquiries",
+    "lead.noEnquiriesMatch": "No enquiries match these filters.",
+    "lead.contactUnavailable": "This customer is unavailable in this business.",
+    "lead.allCustomers": "Show all customers & sales",
     "lead.searchCrm": "Search customers or sales",
     "lead.showDeals": "Sales to show",
     "lead.allDeals": "All sales",
@@ -92,6 +98,12 @@ export const lead = defineArea("lead", {
     "lead.head.form.d": "Send an enquiry through a business's consent-based contact form.",
   },
   nl: {
+    "lead.searchInbox": "Aanvragen zoeken",
+    "lead.triage": "Opvolgstatus",
+    "lead.allEnquiries": "Alle aanvragen",
+    "lead.noEnquiriesMatch": "Geen aanvragen passen bij deze filters.",
+    "lead.contactUnavailable": "Deze klant is niet beschikbaar in dit bedrijf.",
+    "lead.allCustomers": "Alle klanten & verkoop tonen",
     "lead.searchCrm": "Klanten of verkoop zoeken",
     "lead.showDeals": "Verkoop tonen",
     "lead.allDeals": "Alle verkoop",
@@ -185,6 +197,12 @@ export const lead = defineArea("lead", {
     "lead.head.form.d": "Verzend een aanvraag via een contactformulier met toestemming.",
   },
   fr: {
+    "lead.searchInbox": "Rechercher des demandes",
+    "lead.triage": "État du suivi",
+    "lead.allEnquiries": "Toutes les demandes",
+    "lead.noEnquiriesMatch": "Aucune demande ne correspond à ces filtres.",
+    "lead.contactUnavailable": "Ce client n'est pas disponible dans cette entreprise.",
+    "lead.allCustomers": "Afficher tous les clients & ventes",
     "lead.searchCrm": "Rechercher clients ou ventes",
     "lead.showDeals": "Ventes à afficher",
     "lead.allDeals": "Toutes les ventes",

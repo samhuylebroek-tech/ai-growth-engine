@@ -23,6 +23,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const sel =
   "h-9 w-full min-w-0 max-w-full rounded-md border border-input bg-background px-2 text-sm sm:w-auto sm:max-w-56";
@@ -33,7 +42,7 @@ const money = (n: number, tag?: string, currency = "EUR") =>
     maximumFractionDigits: 0,
   }).format(n);
 
-export function Pipeline() {
+export function Pipeline({ initialContact }: { initialContact?: string | undefined } = {}) {
   const { workspace, org, workspaceRole, loading } = useOrg();
   const { t: tx } = useI18n();
   if (loading) return <p className="p-6 text-muted-foreground">{tx("marketing.crm.loading")}</p>;
@@ -45,11 +54,22 @@ export function Pipeline() {
       orgId={org.id}
       wsId={workspace.id}
       canEdit={hasRole(workspaceRole, "member")}
+      initialContact={initialContact}
     />
   );
 }
 
-function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit: boolean }) {
+function Board({
+  orgId,
+  wsId,
+  canEdit,
+  initialContact,
+}: {
+  orgId: string;
+  wsId: string;
+  canEdit: boolean;
+  initialContact?: string | undefined;
+}) {
   const qc = useQueryClient();
   const { t: tx, tag } = useI18n();
   const stageLabel = (s: string) =>
@@ -105,7 +125,10 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
     },
   });
   const refresh = () => qc.invalidateQueries({ queryKey: ["pipeline", orgId, wsId] });
-  const [tab, setTab] = useState<"deals" | "contacts">("deals");
+  const [tab, setTab] = useState<"deals" | "contacts">(initialContact ? "contacts" : "deals");
+  const [contactScope, setContactScope] = useState(initialContact);
+  const [loss, setLoss] = useState<{ id: string; title: string } | null>(null);
+  const [lossReason, setLossReason] = useState("");
   const [creating, setCreating] = useState(false);
   const [busy, setBusy] = useState(false);
   const [search, setSearch] = useState("");
@@ -121,7 +144,7 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
   });
 
   const addContact = async () => {
-    if (busy) return;
+    if (busy || !canEdit) return;
     const valid = z
       .object({
         name: z.string().trim().min(1).max(200),
@@ -133,19 +156,24 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
       .safeParse({ ...c, email: c.email.trim().toLowerCase() });
     if (!valid.success) return void toast.error(tx("lead.invalid"));
     setBusy(true);
-    const r = await supabase.from("crm_contacts").insert({
-      org_id: orgId,
-      workspace_id: wsId,
-      ...valid.data,
-    });
-    setBusy(false);
-    if (r.error) return void toast.error(tx("marketing.crm.contactFailed"));
-    setCreating(false);
-    setC({ name: "", company: "", email: "", phone: "", source: "" });
-    await refresh();
+    try {
+      const r = await supabase.from("crm_contacts").insert({
+        org_id: orgId,
+        workspace_id: wsId,
+        ...valid.data,
+      });
+      if (r.error) throw new Error("contact refused");
+      setCreating(false);
+      setC({ name: "", company: "", email: "", phone: "", source: "" });
+      await refresh();
+    } catch {
+      toast.error(tx("marketing.crm.contactFailed"));
+    } finally {
+      setBusy(false);
+    }
   };
   const addDeal = async () => {
-    if (busy) return;
+    if (busy || !canEdit) return;
     if (!d.title.trim() || d.title.trim().length > 200)
       return void toast.error(tx("marketing.crm.nameDeal"));
     const value = d.value.trim() === "" ? 0 : Number(d.value);
@@ -153,59 +181,93 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
       return void toast.error(tx("marketing.crm.validValue"));
     if (!/^[A-Z]{3}$/.test(d.currency)) return void toast.error(tx("marketing.crm.validValue"));
     setBusy(true);
-    const r = await supabase.from("crm_deals").insert({
-      org_id: orgId,
-      workspace_id: wsId,
-      title: d.title.trim(),
-      contact_id: d.contact || null,
-      goal_id: d.goal || null,
-      value,
-      currency: d.currency,
-      expected_close: d.close || null,
-    });
-    setBusy(false);
-    if (r.error) return void toast.error(tx("marketing.crm.dealFailed"));
-    setCreating(false);
-    setD({ title: "", contact: "", value: "", close: "", goal: "", currency: "EUR" });
-    await refresh();
+    try {
+      const r = await supabase.from("crm_deals").insert({
+        org_id: orgId,
+        workspace_id: wsId,
+        title: d.title.trim(),
+        contact_id: d.contact || null,
+        goal_id: d.goal || null,
+        value,
+        currency: d.currency,
+        expected_close: d.close || null,
+      });
+      if (r.error) throw new Error("deal refused");
+      setCreating(false);
+      setD({ title: "", contact: "", value: "", close: "", goal: "", currency: "EUR" });
+      await refresh();
+    } catch {
+      toast.error(tx("marketing.crm.dealFailed"));
+    } finally {
+      setBusy(false);
+    }
   };
-  const setStage = async (id: string, stage: string) => {
-    let lost_reason = "";
-    if (stage === "lost")
-      lost_reason = (window.prompt(tx("marketing.crm.lostWhy")) ?? "").slice(0, 500);
-    const r = await supabase
-      .from("crm_deals")
-      .update({ stage, lost_reason })
-      .eq("id", id)
-      .eq("org_id", orgId)
-      .eq("workspace_id", wsId);
-    if (r.error) toast.error(tx("marketing.crm.updateFailed"));
-    await refresh();
+  const setStage = async (id: string, stage: string, lost_reason = "") => {
+    if (busy || !canEdit) return;
+    setBusy(true);
+    try {
+      const r = await supabase
+        .from("crm_deals")
+        .update({ stage, lost_reason: lost_reason.trim().slice(0, 500) })
+        .eq("id", id)
+        .eq("org_id", orgId)
+        .eq("workspace_id", wsId)
+        .select("id")
+        .single();
+      if (r.error || !r.data) throw new Error("update refused");
+      setLoss(null);
+      setLossReason("");
+      await refresh();
+    } catch {
+      toast.error(tx("marketing.crm.updateFailed"));
+    } finally {
+      setBusy(false);
+    }
   };
   const archiveContact = async (id: string) => {
-    const r = await supabase
-      .from("crm_contacts")
-      .update({ status: "archived" })
-      .eq("id", id)
-      .eq("org_id", orgId)
-      .eq("workspace_id", wsId);
-    if (r.error) toast.error(tx("marketing.crm.archiveFailed"));
-    await refresh();
+    if (busy || !canEdit) return;
+    setBusy(true);
+    try {
+      const r = await supabase
+        .from("crm_contacts")
+        .update({ status: "archived" })
+        .eq("id", id)
+        .eq("org_id", orgId)
+        .eq("workspace_id", wsId)
+        .select("id")
+        .single();
+      if (r.error || !r.data) throw new Error("archive refused");
+      await refresh();
+    } catch {
+      toast.error(tx("marketing.crm.archiveFailed"));
+    } finally {
+      setBusy(false);
+    }
   };
 
   if (data.isLoading)
     return <p className="p-6 text-muted-foreground">{tx("marketing.crm.loadingPipe")}</p>;
   if (data.error || !data.data)
-    return <p className="p-6 text-destructive">{tx("marketing.crm.loadFailed")}</p>;
+    return (
+      <div role="alert" className="space-y-4 p-6">
+        <p className="text-destructive">{tx("marketing.crm.loadFailed")}</p>
+        <Button variant="outline" onClick={() => void refresh()}>
+          {tx("lead.retry")}
+        </Button>
+      </div>
+    );
   const { contacts, deals, goals } = data.data;
   const s = pipelineSummary(deals.map((d) => ({ stage: d.stage, value: 0 })));
   const currencies = pipelineCurrencies(deals);
   const contactName = (id: string | null) => contacts.find((x) => x.id === id)?.name;
-  const visibleContacts = contacts.filter((c) =>
-    pipelineMatches([c.name, c.company, c.email, c.phone, c.source], search),
+  const visibleContacts = contacts.filter(
+    (c) =>
+      (!contactScope || c.id === contactScope) &&
+      pipelineMatches([c.name, c.company, c.email, c.phone, c.source], search),
   );
   const visibleDeals = deals.filter(
     (d) =>
+      (!contactScope || d.contact_id === contactScope) &&
       pipelineMatches([d.title, contactName(d.contact_id) ?? null], search) &&
       (filter === "all" ||
         (filter === "open" ? d.stage !== "won" && d.stage !== "lost" : d.stage === filter)),
@@ -249,6 +311,14 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
         ))}
       </div>
       <p className="text-xs text-muted-foreground">{tx("marketing.crm.guideNote")}</p>
+      {contactScope && (
+        <div className="flex flex-wrap items-center gap-3 border-l-2 border-primary pl-4">
+          <p className="text-sm">{contactName(contactScope) ?? tx("lead.contactUnavailable")}</p>
+          <Button variant="ghost" size="sm" onClick={() => setContactScope(undefined)}>
+            {tx("lead.allCustomers")}
+          </Button>
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-2">
         <Button
           variant={tab === "deals" ? "default" : "outline"}
@@ -432,6 +502,7 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
                                   variant="outline"
                                   className="h-7 px-2 text-xs"
                                   onClick={() => setStage(x.id, n)}
+                                  disabled={busy}
                                 >
                                   → {stageLabel(n)}
                                 </Button>
@@ -443,6 +514,7 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
                                     variant="outline"
                                     className="h-7 px-2 text-xs"
                                     onClick={() => setStage(x.id, "won")}
+                                    disabled={busy}
                                   >
                                     {tx("marketing.crm.won")}
                                   </Button>
@@ -450,7 +522,11 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
                                     size="sm"
                                     variant="ghost"
                                     className="h-7 px-2 text-xs"
-                                    onClick={() => setStage(x.id, "lost")}
+                                    disabled={busy}
+                                    onClick={() => {
+                                      setLoss({ id: x.id, title: x.title });
+                                      setLossReason("");
+                                    }}
                                   >
                                     {tx("marketing.crm.lostBtn")}
                                   </Button>
@@ -461,6 +537,7 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
                                   variant="ghost"
                                   className="h-7 px-2 text-xs"
                                   onClick={() => setStage(x.id, "negotiation")}
+                                  disabled={busy}
                                 >
                                   {tx("marketing.crm.reopen")}
                                 </Button>
@@ -567,6 +644,28 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
                         {tx("marketing.crm.openDealsBadge", { n: open })}
                       </Badge>
                       {canEdit && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={busy}
+                          onClick={() => {
+                            setD({
+                              title: "",
+                              contact: x.id,
+                              value: "",
+                              close: "",
+                              goal: "",
+                              currency: "EUR",
+                            });
+                            setTab("deals");
+                            setCreating(true);
+                          }}
+                        >
+                          <Plus />
+                          {tx("marketing.crm.addDeal")}
+                        </Button>
+                      )}
+                      {canEdit && (
                         <Button size="sm" variant="ghost" onClick={() => archiveContact(x.id)}>
                           {tx("marketing.crm.archive")}
                         </Button>
@@ -579,6 +678,43 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
           )}
         </>
       )}
+      <Dialog
+        open={loss !== null}
+        onOpenChange={(open) => {
+          if (!open && !busy) setLoss(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{tx("marketing.crm.lostBtn")}</DialogTitle>
+            <DialogDescription className="break-words">{loss?.title}</DialogDescription>
+          </DialogHeader>
+          <form
+            className="space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (loss) void setStage(loss.id, "lost", lossReason);
+            }}
+          >
+            <Field label={tx("marketing.crm.lostWhy")}>
+              <Textarea
+                maxLength={500}
+                value={lossReason}
+                onChange={(e) => setLossReason(e.target.value)}
+                disabled={busy}
+              />
+            </Field>
+            <DialogFooter>
+              <Button type="button" variant="outline" disabled={busy} onClick={() => setLoss(null)}>
+                {tx("marketing.cs.cancel")}
+              </Button>
+              <Button type="submit" disabled={busy}>
+                {tx("lead.record")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

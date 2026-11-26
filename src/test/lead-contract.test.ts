@@ -5,6 +5,7 @@ import {
   leadFormConfigSchema,
   leadRuntimeAllowed,
   leadError,
+  leadTriage,
 } from "@/lib/lead-contract";
 import { STAGING_REF, STAGING_URL, PRODUCTION_REF } from "@/lib/environment";
 const consent = "I consent to being contacted about this enquiry. This is not marketing consent.";
@@ -27,6 +28,50 @@ const submission = {
   locale: "en",
 };
 describe("lead contract", () => {
+  it("keeps unqualified enquiries pending even when a follow-up record exists", () => {
+    expect(leadTriage("lead-a", [], [{ submission_id: "lead-a" }])).toBe("pending");
+  });
+  it("classifies a qualified enquiry with a follow-up as prepared, not executed", () => {
+    const decisions = [
+      {
+        id: "a",
+        submission_id: "lead-a",
+        created_at: "2026-11-26T12:00:00Z",
+        decision: "qualified" as const,
+      },
+    ];
+    expect(leadTriage("lead-a", decisions, [])).toBe("qualified");
+    expect(leadTriage("lead-a", decisions, [{ submission_id: "lead-a" }])).toBe("ready");
+    expect(leadTriage("lead-b", decisions, [])).toBe("pending");
+  });
+  it("uses the latest human decision instead of an obsolete qualification or another enquiry", () => {
+    expect(
+      leadTriage(
+        "lead-a",
+        [
+          {
+            id: "a",
+            submission_id: "lead-a",
+            created_at: "2026-11-26T12:00:00Z",
+            decision: "qualified",
+          },
+          {
+            id: "b",
+            submission_id: "lead-a",
+            created_at: "2026-11-26T13:00:00Z",
+            decision: "not_fit",
+          },
+          {
+            id: "c",
+            submission_id: "lead-b",
+            created_at: "2026-11-26T14:00:00Z",
+            decision: "qualified",
+          },
+        ],
+        [{ submission_id: "lead-a" }],
+      ),
+    ).toBe("not_fit");
+  });
   it("requires consent rather than accepting a missing or false value", () => {
     expect(leadSubmitSchema.safeParse({ ...submission, consent: false }).success).toBe(false);
     expect(leadSubmitSchema.safeParse({ ...submission, consent: undefined }).success).toBe(false);

@@ -71,7 +71,24 @@ function Enquiry({ form }: { form: PublicLeadForm }) {
   });
   const [attribution, setAttribution] = useState({ source: "", medium: "", campaign: "" });
   const started = useRef(false);
+  const opening = useRef(false);
   const request = useRef<{ fingerprint: string; id: string } | null>(null);
+  async function startSession() {
+    if (opening.current || busy) return;
+    opening.current = true;
+    setSession(null);
+    setReady(false);
+    setError(null);
+    try {
+      const result = await open({ data: { formKey: form.key } });
+      if (result.ok) setSession(result.sessionId);
+      else setError(result.error);
+    } catch {
+      setError("unavailable");
+    } finally {
+      opening.current = false;
+    }
+  }
   useEffect(() => {
     if (started.current) return;
     started.current = true;
@@ -209,6 +226,16 @@ function Enquiry({ form }: { form: PublicLeadForm }) {
           <p role="alert" className="text-sm text-destructive">
             {t(error === "unavailable" && session ? "lead.unconfirmed" : `lead.${error}`)}
           </p>
+        )}
+        {error && (!session || error === "expired") && (
+          <Button
+            variant="outline"
+            type="button"
+            className="w-full"
+            onClick={() => void startSession()}
+          >
+            {t("lead.retry")}
+          </Button>
         )}
         <Button className="w-full" type="submit" disabled={busy || !session || !ready}>
           {busy || (!session && !error) ? <Loader2 className="animate-spin" /> : <Send />}

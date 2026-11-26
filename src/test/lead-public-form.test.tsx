@@ -45,6 +45,41 @@ describe("public form interactions (mocked transport, not persistence E2E)", () 
     actions.send.mockReset().mockResolvedValue({ ok: true });
   });
   afterEach(cleanup);
+  it("can recover a refused session without losing typed enquiry details", async () => {
+    actions.open
+      .mockResolvedValueOnce({ ok: false, error: "unavailable" })
+      .mockResolvedValueOnce({ ok: true, sessionId: session });
+    render(<PublicForm form={form} />);
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument(),
+    );
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Ann" } });
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    await waitFor(() => expect(actions.open).toHaveBeenCalledTimes(2));
+    expect(screen.getByLabelText("Name")).toHaveValue("Ann");
+    expect(actions.send).not.toHaveBeenCalled();
+  });
+  it("renews only an explicitly expired session before retrying the enquiry", async () => {
+    const renewed = "b0000000-0000-0000-0000-000000000003";
+    actions.send.mockResolvedValueOnce({ ok: false, error: "expired" });
+    render(<PublicForm form={form} />);
+    await fill();
+    fireEvent.click(screen.getByRole("button", { name: "Send enquiry" }));
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument(),
+    );
+    actions.open.mockResolvedValueOnce({ ok: true, sessionId: renewed });
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    await waitFor(
+      () => expect(screen.getByRole("button", { name: "Send enquiry" })).toBeEnabled(),
+      { timeout: 4000 },
+    );
+    expect(screen.getByLabelText("Email")).toHaveValue("ann@example.test");
+    fireEvent.click(screen.getByRole("button", { name: "Send enquiry" }));
+    await waitFor(() => expect(actions.send).toHaveBeenCalledTimes(2));
+    expect(actions.send.mock.calls[1]?.[0]?.data.sessionId).toBe(renewed);
+    await waitFor(() => expect(screen.getByRole("status")).toBeInTheDocument());
+  }, 10000);
   it("submits exact consent, business capability and a stable request identity, without an account", async () => {
     render(<PublicForm form={form} />);
     await fill();

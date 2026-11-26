@@ -1,4 +1,11 @@
 # AI Growth OS — Task Queue
+## Integration verification (26 November 2026)
+- [x] Verify authorized branch and 7f992e8: synchronized; all five GitHub CI checks pass. Fresh baseline: 1,056 tests pass; ESLint zero errors, 58 existing warnings.
+- [x] Improve connected enquiry recovery, inbox triage and enquiry → exact CRM contact → sale continuity; confirmed/cancelled loss decisions; preserve unsaved contact/sale inputs after transport failures. 1,068 tests pass; zero lint errors / 58 existing warnings; platform build OK. Mocked interaction tests are not authenticated E2E.
+- [x] Public browser verification: nine EN/NL/FR × desktop/tablet/phone staging checks; unavailable form/retry, metadata and exact-contact sign-in gate; no overflow/runtime errors. No successful submission claimed.
+- [ ] Staging lead persistence remains blocked: migration tool schema inspected, no staging target; shell schema writes prohibited. Verified staging marker; 57 existing migration hashes match repository prefix (58 files), proposal 0093 absent, no lead tables. 57 existing SQL suites pass and roll back; new lead suite NOT RUN.
+- [ ] Authenticated staging journeys require an authorized existing session; staging QA credentials absent and auth-session help has no staging-target option. Do not mint a production session or weaken authentication. Onboarding, campaign approval/execution/review, lead delivery/CRM/follow-up, retention and performance E2E remain NOT RUN.
+- [ ] Remaining integrated product programme and actual provider activation remain incomplete; production and external writes stay out of scope.
 ## Execution correction 2 (26 November 2026)
 - [x] Connected lead intake source: public multilingual form, configuration, atomic persistence/CRM proposal, qualification and internal follow-up. NOT operational: proposal 0093 is not applied because the available migration tool targets the unauthorized production backend. New SQL suite is pending, not passed.
 - [x] Four primary domains with all prior contextual destinations retained; CRM search/open-sales filters, disclosed labeled creation forms, enquiry handoffs; mobile drawer keyboard isolation/focus and accessible tab arrows.
