@@ -579,3 +579,9 @@ MFA, SSO/SCIM, account deletion, agency client orgs, growth modules (SEO, social
 - [x] Command Center warnings: what happened, why it matters, what to do, if nothing is done (all 37 warning types, EN/NL/FR) + new blocked-work warning
 - [x] Rate limiting on staging (0090): AI, uploads, website checks, connections, failed-attempt pause; EN/NL/FR messages; browser-verified AI + upload
 - [x] Zod 4 — upgraded 2026-11-22
+
+## AI Growth Engine 2.0 execution (26 Nov 2026)
+- [x] Verified branch, staging identity and 1,001-test baseline (all green).
+- [x] Stream B: approved campaign proposal becomes internal campaign tasks, once per approved version.
+- [ ] Signed-in staging browser check of stream B (blocked: no staging QA credentials in this sandbox).
+- [ ] Streams C-F remain open for following rounds.

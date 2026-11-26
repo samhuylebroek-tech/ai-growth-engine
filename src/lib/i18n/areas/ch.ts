@@ -38,6 +38,13 @@ export const ch = defineArea("ch", {
       "Paste the Growth Officer’s proposal or write your own: opportunity, audience, offer, message, channels, work, timeline, budget, costs, KPIs, risks.",
     "ch.cp.saveDraft": "Save as draft",
     "ch.cp.cancel": "Cancel",
+    "ch.cp.tasksTitle": "Turn the approved plan into tasks",
+    "ch.cp.tasksHint":
+      "{n} activities found. Tasks are internal work only; nothing is published, sent or spent.",
+    "ch.cp.tasksCreate": "Create {n} tasks",
+    "ch.cp.tasksDone": "Tasks created from this approved plan.",
+    "ch.cp.tasksNone":
+      "No list of activities found in the plan. Add bullet points to create tasks.",
     "ch.cp.reopens": "Saving changes returns the proposal to draft for a new decision.",
     "ch.cp.decidedAt": "Decided {d}",
     "ch.cp.approve": "Approve proposal",
@@ -134,6 +141,13 @@ export const ch = defineArea("ch", {
       "Plak het voorstel van de Growth Officer of schrijf het zelf: kans, doelgroep, aanbod, boodschap, kanalen, werk, planning, budget, kosten, KPI's, risico's.",
     "ch.cp.saveDraft": "Opslaan als concept",
     "ch.cp.cancel": "Annuleren",
+    "ch.cp.tasksTitle": "Zet het goedgekeurde plan om in taken",
+    "ch.cp.tasksHint":
+      "{n} activiteiten gevonden. Taken zijn alleen intern werk; er wordt niets gepubliceerd, verzonden of uitgegeven.",
+    "ch.cp.tasksCreate": "Maak {n} taken",
+    "ch.cp.tasksDone": "Taken aangemaakt uit dit goedgekeurde plan.",
+    "ch.cp.tasksNone":
+      "Geen lijst met activiteiten in het plan gevonden. Voeg opsommingstekens toe om taken te maken.",
     "ch.cp.reopens":
       "Wijzigingen opslaan zet het voorstel terug op concept voor een nieuwe beslissing.",
     "ch.cp.decidedAt": "Beslist op {d}",
@@ -231,6 +245,13 @@ export const ch = defineArea("ch", {
       "Collez la proposition du Growth Officer ou rédigez-la : opportunité, audience, offre, message, canaux, travail, calendrier, budget, coûts, KPI, risques.",
     "ch.cp.saveDraft": "Enregistrer comme brouillon",
     "ch.cp.cancel": "Annuler",
+    "ch.cp.tasksTitle": "Transformer le plan approuvé en tâches",
+    "ch.cp.tasksHint":
+      "{n} activités trouvées. Les tâches restent internes ; rien n'est publié, envoyé ni dépensé.",
+    "ch.cp.tasksCreate": "Créer {n} tâches",
+    "ch.cp.tasksDone": "Tâches créées à partir de ce plan approuvé.",
+    "ch.cp.tasksNone":
+      "Aucune liste d'activités trouvée dans le plan. Ajoutez des puces pour créer des tâches.",
     "ch.cp.reopens":
       "Enregistrer des modifications remet la proposition en brouillon pour une nouvelle décision.",
     "ch.cp.decidedAt": "Décidé le {d}",

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, FileText, Pencil, X } from "lucide-react";
+import { Check, FileText, ListChecks, Pencil, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { AiMarkdown } from "@/components/ai/ai-markdown";
@@ -13,6 +13,8 @@ import {
   decide,
   isProposalNote,
   parseProposal,
+  proposalTaskLabel,
+  proposalTasks,
   PROPOSAL_MAX,
   PROPOSAL_TITLE,
   saveDraft,
@@ -39,6 +41,42 @@ export function CampaignProposal({
   const [busy, setBusy] = useState(false);
   const canEdit = can(o.workspaceRole, "profile.edit");
   const canDecide = can(o.workspaceRole, "approvals.decide");
+  const approved = proposal?.status === "approved" && note ? note : null;
+  const items = approved && proposal ? proposalTasks(proposal.text) : [];
+  const label = approved ? proposalTaskLabel(approved.id) : "";
+  const made = useQuery({
+    queryKey: ["execution", "proposal-tasks", o.workspace?.id, label],
+    enabled: !!label && !!o.workspace,
+    queryFn: async () => {
+      const r = await supabase
+        .from("tasks")
+        .select("id", { count: "exact", head: true })
+        .eq("workspace_id", o.workspace!.id)
+        .contains("labels", [label]);
+      if (r.error) throw r.error;
+      return r.count ?? 0;
+    },
+  });
+
+  async function createTasks() {
+    if (!approved || !o.org || !o.workspace || !o.userId || made.data !== 0) return;
+    setBusy(true);
+    const r = await supabase.from("tasks").insert(
+      items.map((title) => ({
+        org_id: o.org!.id,
+        workspace_id: o.workspace!.id,
+        campaign_id: campaignId,
+        title,
+        description: "",
+        labels: ["campaign-proposal", label],
+        created_by: o.userId!,
+      })),
+    );
+    setBusy(false);
+    if (r.error) return void toast.error(t("ch.cp.failed"));
+    toast.success(t("ch.cp.tasksDone"));
+    await qc.invalidateQueries({ queryKey: ["execution"] });
+  }
 
   async function persist(body: string) {
     if (!o.org || !o.workspace || !o.userId) return;
@@ -166,6 +204,34 @@ export function CampaignProposal({
               </Button>
             )}
           </div>
+          {approved && canEdit && made.data === 0 && (
+            <div className="space-y-2 rounded-md bg-muted p-3">
+              <p className="flex items-center gap-2 text-sm font-medium">
+                <ListChecks className="size-4" />
+                {t("ch.cp.tasksTitle")}
+              </p>
+              {items.length ? (
+                <>
+                  <p className="text-xs text-muted-foreground">
+                    {t("ch.cp.tasksHint", { n: items.length })}
+                  </p>
+                  <ul className="list-disc pl-5 text-sm">
+                    {items.map((i) => (
+                      <li key={i}>{i}</li>
+                    ))}
+                  </ul>
+                  <Button disabled={busy} onClick={createTasks}>
+                    {t("ch.cp.tasksCreate", { n: items.length })}
+                  </Button>
+                </>
+              ) : (
+                <p className="text-xs text-muted-foreground">{t("ch.cp.tasksNone")}</p>
+              )}
+            </div>
+          )}
+          {approved && !!made.data && (
+            <p className="text-xs text-muted-foreground">{t("ch.cp.tasksDone")}</p>
+          )}
           {proposal.status === "draft" && !canDecide && (
             <p className="text-xs text-muted-foreground">{t("ch.cp.needsAdmin")}</p>
           )}

@@ -67,3 +67,42 @@ export function decide(
 export function serialize(p: Proposal): string {
   return JSON.stringify(p);
 }
+
+export const PROPOSAL_TASK_MAX = 12;
+const ACTIVITY_HEADING =
+  /^#{1,6}\s*.*(activit|actions?|taken|tâches|tasks|planning|plan d'action)/i;
+const HEADING = /^#{1,6}\s/;
+const ITEM = /^\s*(?:[-*•]|\d+[.)])\s+(?:\[[ x]\]\s+)?(.+)$/;
+
+/** Extracts task titles from an approved plan: list items under an activities heading, else every list item.
+ * Pure and deterministic (no AI, no credits); duplicates removed, capped at PROPOSAL_TASK_MAX. */
+export function proposalTasks(text: string): string[] {
+  const lines = text.split(/\r?\n/);
+  const collect = (onlyActivities: boolean) => {
+    const out: string[] = [];
+    let inside = !onlyActivities;
+    for (const line of lines) {
+      if (HEADING.test(line)) {
+        if (onlyActivities) inside = ACTIVITY_HEADING.test(line);
+        continue;
+      }
+      const m = inside ? ITEM.exec(line) : null;
+      if (!m?.[1]) continue;
+      const title = m[1]
+        .replace(/\*\*|__|`/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 200);
+      if (title.length >= 3 && !out.some((o) => o.toLowerCase() === title.toLowerCase()))
+        out.push(title);
+    }
+    return out;
+  };
+  const found = collect(true);
+  return (found.length ? found : collect(false)).slice(0, PROPOSAL_TASK_MAX);
+}
+
+/** Label linking tasks to the exact approved proposal note, used to prevent creating them twice. */
+export function proposalTaskLabel(noteId: string): string {
+  return `proposal:${noteId}`;
+}
