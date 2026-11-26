@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { pipelineSummary, pipelineCurrencies, nextStage } from "@/lib/pipeline";
+import { pipelineSummary, pipelineCurrencies, nextStage, pipelineMatches } from "@/lib/pipeline";
 describe("pipeline", () => {
+  it("finds customers by name, company or source without accents or case affecting matching", () => {
+    expect(pipelineMatches(["Élodie", "Studio", "lead-form:website"], "elodie")).toBe(true);
+    expect(pipelineMatches(["Élodie", "Studio", "lead-form:website"], "WEBSITE")).toBe(true);
+    expect(pipelineMatches([null, "Studio"], "unrelated")).toBe(false);
+  });
   it("never combines sales values from different currencies", () => {
     const result = pipelineCurrencies([
       { stage: "lead", value: 100, currency: "EUR" },

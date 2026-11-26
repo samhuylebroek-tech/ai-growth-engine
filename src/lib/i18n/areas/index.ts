@@ -50,6 +50,7 @@ import { evd } from "./evd";
 import { ph } from "./ph";
 import { ch } from "./ch";
 import { site } from "./site";
+import { lead } from "./lead";
 
 /** Every screen area; each keeps its own texts so areas can be translated independently. */
 export const AREAS = [
@@ -105,6 +106,7 @@ export const AREAS = [
   ph,
   ch,
   site,
+  lead,
 ] as const;
 export const AREA_EN = {
   ...account.en,
@@ -159,6 +161,7 @@ export const AREA_EN = {
   ...ph.en,
   ...ch.en,
   ...site.en,
+  ...lead.en,
 };
 export const AREA_NL = {
   ...account.nl,
@@ -213,6 +216,7 @@ export const AREA_NL = {
   ...ph.nl,
   ...ch.nl,
   ...site.nl,
+  ...lead.nl,
 };
 export const AREA_FR = {
   ...account.fr,
@@ -267,4 +271,5 @@ export const AREA_FR = {
   ...ph.fr,
   ...ch.fr,
   ...site.fr,
+  ...lead.fr,
 };

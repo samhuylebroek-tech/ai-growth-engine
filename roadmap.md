@@ -1,4 +1,12 @@
 # AI Growth OS — Task Queue
+## Execution correction 2 (26 November 2026)
+- [x] Connected lead intake source: public multilingual form, configuration, atomic persistence/CRM proposal, qualification and internal follow-up. NOT operational: proposal 0093 is not applied because the available migration tool targets the unauthorized production backend. New SQL suite is pending, not passed.
+- [x] Four primary domains with all prior contextual destinations retained; CRM search/open-sales filters, disclosed labeled creation forms, enquiry handoffs; mobile drawer keyboard isolation/focus and accessible tab arrows.
+- [ ] Apply and validate proposal 0093 through an authorized staging-targeted migration tool, then real public submission → CRM → qualification → follow-up read-back. No lead intake completion claim.
+- [ ] Authenticated campaign/CRM/product-wide UX verification requires existing safe staging sign-in access; credentials unavailable, no auth bypass or changes.
+- [ ] Remaining full product programme (broader page-by-page UX, retention, orchestration, optimization) is not finished; live integrations/email/publishing/spend remain unauthorized.
+- [x] Current verification: 1,056 tests / 134 files pass; lint 0 errors / 58 existing warnings; platform build OK; 57 existing staging SQL suites pass with rollback; 9 public language/device checks pass. Proposal 0093 and authenticated E2E are NOT RUN. Evidence: docs/ux/EXECUTION_CORRECTION_2_VALIDATION.md.
+- [x] Verify 3acf535: clean authorized feature branch, GitHub synchronized; CI unit/build/audit/secret checks pass, ESLint fails on six formatting errors. Fresh baseline 1,032 tests passes.
 ## Continuation mandate (26 November 2026)
 - [x] Lead intake step 1: pure validation (consent, honeypot, 3 s fill time, normalised email, per-day idempotency key) in src/lib/lead-intake.ts, 6 tests.
 - [ ] Lead intake step 2: staging schema (form keys → workspace, insert-only intake, rate limit) + public /api/public/lead route + CRM contact creation.

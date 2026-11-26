@@ -69,6 +69,8 @@ describe("security boundaries in app code", () => {
     const allowed = [
       "lib/ai.functions.ts",
       "lib/integrations.functions.ts",
+      // Reviewed publishable-key RPC transport, guarded to the authorized staging runtime; no provider calls.
+      "lib/lead.functions.ts",
       "lib/seo.functions.ts",
       "server.ts",
     ];

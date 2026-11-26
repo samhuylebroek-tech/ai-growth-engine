@@ -16,6 +16,7 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as EnquireFormKeyRouteImport } from './routes/enquire.$formKey'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppActionsRouteImport } from './routes/_authenticated/app.actions'
 import { Route as AuthenticatedAppActivityRouteImport } from './routes/_authenticated/app.activity'
@@ -35,6 +36,7 @@ import { Route as AuthenticatedAppGrowthOfficerRouteImport } from './routes/_aut
 import { Route as AuthenticatedAppImprovementsRouteImport } from './routes/_authenticated/app.improvements'
 import { Route as AuthenticatedAppIntegrationsRouteImport } from './routes/_authenticated/app.integrations'
 import { Route as AuthenticatedAppIntelligenceRouteImport } from './routes/_authenticated/app.intelligence'
+import { Route as AuthenticatedAppLeadsRouteImport } from './routes/_authenticated/app.leads'
 import { Route as AuthenticatedAppModulesRouteImport } from './routes/_authenticated/app.modules'
 import { Route as AuthenticatedAppNotificationsRouteImport } from './routes/_authenticated/app.notifications'
 import { Route as AuthenticatedAppOnboardingRouteImport } from './routes/_authenticated/app.onboarding'
@@ -87,6 +89,11 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/app',
   path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const EnquireFormKeyRoute = EnquireFormKeyRouteImport.update({
+  id: '/enquire/$formKey',
+  path: '/enquire/$formKey',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
@@ -195,6 +202,11 @@ const AuthenticatedAppIntelligenceRoute =
     path: '/intelligence',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppLeadsRoute = AuthenticatedAppLeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppModulesRoute = AuthenticatedAppModulesRouteImport.update({
   id: '/modules',
   path: '/modules',
@@ -305,6 +317,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/enquire/$formKey': typeof EnquireFormKeyRoute
   '/app/actions': typeof AuthenticatedAppActionsRoute
   '/app/activity': typeof AuthenticatedAppActivityRoute
   '/app/agents': typeof AuthenticatedAppAgentsRoute
@@ -323,6 +336,7 @@ export interface FileRoutesByFullPath {
   '/app/improvements': typeof AuthenticatedAppImprovementsRoute
   '/app/integrations': typeof AuthenticatedAppIntegrationsRoute
   '/app/intelligence': typeof AuthenticatedAppIntelligenceRoute
+  '/app/leads': typeof AuthenticatedAppLeadsRoute
   '/app/modules': typeof AuthenticatedAppModulesRoute
   '/app/notifications': typeof AuthenticatedAppNotificationsRoute
   '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
@@ -349,6 +363,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/enquire/$formKey': typeof EnquireFormKeyRoute
   '/app/actions': typeof AuthenticatedAppActionsRoute
   '/app/activity': typeof AuthenticatedAppActivityRoute
   '/app/agents': typeof AuthenticatedAppAgentsRoute
@@ -367,6 +382,7 @@ export interface FileRoutesByTo {
   '/app/improvements': typeof AuthenticatedAppImprovementsRoute
   '/app/integrations': typeof AuthenticatedAppIntegrationsRoute
   '/app/intelligence': typeof AuthenticatedAppIntelligenceRoute
+  '/app/leads': typeof AuthenticatedAppLeadsRoute
   '/app/modules': typeof AuthenticatedAppModulesRoute
   '/app/notifications': typeof AuthenticatedAppNotificationsRoute
   '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
@@ -396,6 +412,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/enquire/$formKey': typeof EnquireFormKeyRoute
   '/_authenticated/app/actions': typeof AuthenticatedAppActionsRoute
   '/_authenticated/app/activity': typeof AuthenticatedAppActivityRoute
   '/_authenticated/app/agents': typeof AuthenticatedAppAgentsRoute
@@ -414,6 +431,7 @@ export interface FileRoutesById {
   '/_authenticated/app/improvements': typeof AuthenticatedAppImprovementsRoute
   '/_authenticated/app/integrations': typeof AuthenticatedAppIntegrationsRoute
   '/_authenticated/app/intelligence': typeof AuthenticatedAppIntelligenceRoute
+  '/_authenticated/app/leads': typeof AuthenticatedAppLeadsRoute
   '/_authenticated/app/modules': typeof AuthenticatedAppModulesRoute
   '/_authenticated/app/notifications': typeof AuthenticatedAppNotificationsRoute
   '/_authenticated/app/onboarding': typeof AuthenticatedAppOnboardingRoute
@@ -443,6 +461,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin'
     | '/app'
+    | '/enquire/$formKey'
     | '/app/actions'
     | '/app/activity'
     | '/app/agents'
@@ -461,6 +480,7 @@ export interface FileRouteTypes {
     | '/app/improvements'
     | '/app/integrations'
     | '/app/intelligence'
+    | '/app/leads'
     | '/app/modules'
     | '/app/notifications'
     | '/app/onboarding'
@@ -487,6 +507,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/reset-password'
     | '/admin'
+    | '/enquire/$formKey'
     | '/app/actions'
     | '/app/activity'
     | '/app/agents'
@@ -505,6 +526,7 @@ export interface FileRouteTypes {
     | '/app/improvements'
     | '/app/integrations'
     | '/app/intelligence'
+    | '/app/leads'
     | '/app/modules'
     | '/app/notifications'
     | '/app/onboarding'
@@ -533,6 +555,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/admin'
     | '/_authenticated/app'
+    | '/enquire/$formKey'
     | '/_authenticated/app/actions'
     | '/_authenticated/app/activity'
     | '/_authenticated/app/agents'
@@ -551,6 +574,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/improvements'
     | '/_authenticated/app/integrations'
     | '/_authenticated/app/intelligence'
+    | '/_authenticated/app/leads'
     | '/_authenticated/app/modules'
     | '/_authenticated/app/notifications'
     | '/_authenticated/app/onboarding'
@@ -578,6 +602,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   PricingRoute: typeof PricingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  EnquireFormKeyRoute: typeof EnquireFormKeyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -630,6 +655,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app'
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/enquire/$formKey': {
+      id: '/enquire/$formKey'
+      path: '/enquire/$formKey'
+      fullPath: '/enquire/$formKey'
+      preLoaderRoute: typeof EnquireFormKeyRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/': {
       id: '/_authenticated/app/'
@@ -762,6 +794,13 @@ declare module '@tanstack/react-router' {
       path: '/intelligence'
       fullPath: '/app/intelligence'
       preLoaderRoute: typeof AuthenticatedAppIntelligenceRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/leads': {
+      id: '/_authenticated/app/leads'
+      path: '/leads'
+      fullPath: '/app/leads'
+      preLoaderRoute: typeof AuthenticatedAppLeadsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/modules': {
@@ -912,6 +951,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppImprovementsRoute: typeof AuthenticatedAppImprovementsRoute
   AuthenticatedAppIntegrationsRoute: typeof AuthenticatedAppIntegrationsRoute
   AuthenticatedAppIntelligenceRoute: typeof AuthenticatedAppIntelligenceRoute
+  AuthenticatedAppLeadsRoute: typeof AuthenticatedAppLeadsRoute
   AuthenticatedAppModulesRoute: typeof AuthenticatedAppModulesRoute
   AuthenticatedAppNotificationsRoute: typeof AuthenticatedAppNotificationsRoute
   AuthenticatedAppOnboardingRoute: typeof AuthenticatedAppOnboardingRoute
@@ -951,6 +991,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppImprovementsRoute: AuthenticatedAppImprovementsRoute,
   AuthenticatedAppIntegrationsRoute: AuthenticatedAppIntegrationsRoute,
   AuthenticatedAppIntelligenceRoute: AuthenticatedAppIntelligenceRoute,
+  AuthenticatedAppLeadsRoute: AuthenticatedAppLeadsRoute,
   AuthenticatedAppModulesRoute: AuthenticatedAppModulesRoute,
   AuthenticatedAppNotificationsRoute: AuthenticatedAppNotificationsRoute,
   AuthenticatedAppOnboardingRoute: AuthenticatedAppOnboardingRoute,
@@ -997,6 +1038,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   PricingRoute: PricingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  EnquireFormKeyRoute: EnquireFormKeyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

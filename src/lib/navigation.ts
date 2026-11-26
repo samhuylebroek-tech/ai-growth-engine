@@ -32,19 +32,28 @@ import {
   ListChecks,
   Wallet,
 } from "lucide-react";
+import type { MessageKey } from "@/lib/i18n/messages";
 
 /**
- * Primary destinations start with campaigns, then strategy, AI guidance, execution, results and business settings.
+ * Four business domains own contextual page groups. Settings remain separately discoverable.
  * Each group's items are its contextual tabs; URLs
  * never change when items move between groups, so saved links stay valid. Keep each group to seven items or fewer.
  */
 export const NAVIGATION = [
   {
+    group: "Overview",
+    items: [
+      { to: "/app/overview", label: "Business overview", icon: LayoutDashboard },
+      { to: "/app/growth-officer", label: "Growth Officer", icon: Sparkles },
+      { to: "/app/agents", label: "AI specialists", icon: Bot },
+      { to: "/app/notifications", label: "Notifications", icon: Bell },
+    ],
+  },
+  {
     group: "Campaigns",
     items: [
       { to: "/app", label: "Campaign overview", icon: Megaphone, exact: true },
       { to: "/app/campaigns", label: "Campaign workspace", icon: Megaphone },
-      { to: "/app/notifications", label: "Notifications", icon: Bell },
     ],
   },
   {
@@ -54,14 +63,6 @@ export const NAVIGATION = [
       { to: "/app/opportunities", label: "Growth opportunities", icon: Lightbulb },
       { to: "/app/intelligence", label: "Growth intelligence", icon: Compass },
       { to: "/app/modules", label: "Growth areas", icon: Boxes },
-      { to: "/app/costs", label: "Costs & ROI", icon: Wallet },
-    ],
-  },
-  {
-    group: "AI team",
-    items: [
-      { to: "/app/growth-officer", label: "Growth Officer", icon: Sparkles },
-      { to: "/app/agents", label: "AI specialists", icon: Bot },
     ],
   },
   {
@@ -80,11 +81,24 @@ export const NAVIGATION = [
     items: [
       { to: "/app/business", label: "Business performance", icon: BarChart3 },
       { to: "/app/performance", label: "Performance", icon: LineChart },
-      { to: "/app/revenue", label: "Revenue & attribution", icon: Banknote },
-      { to: "/app/economics", label: "Growth economics", icon: Coins },
       { to: "/app/experiments", label: "Experiments", icon: FlaskConical },
       { to: "/app/reports", label: "Business reports", icon: ClipboardList },
       { to: "/app/improvements", label: "Improvements", icon: TrendingUp },
+    ],
+  },
+  {
+    group: "Finance",
+    items: [
+      { to: "/app/economics", label: "Growth economics", icon: Coins },
+      { to: "/app/revenue", label: "Revenue & attribution", icon: Banknote },
+      { to: "/app/costs", label: "Costs & ROI", icon: Wallet },
+    ],
+  },
+  {
+    group: "Leads",
+    items: [
+      { to: "/app/leads", label: "Enquiries & follow-up", icon: Handshake },
+      { to: "/app/pipeline", label: "Sales pipeline", icon: Handshake },
     ],
   },
   {
@@ -94,8 +108,6 @@ export const NAVIGATION = [
       { to: "/app/documents", label: "Documents", icon: FileText },
       { to: "/app/seo", label: "Website check", icon: Search },
       { to: "/app/competitors", label: "Competitors", icon: Eye },
-      { to: "/app/pipeline", label: "Sales pipeline", icon: Handshake },
-      { to: "/app/overview", label: "Business overview", icon: LayoutDashboard },
     ],
   },
   {
@@ -112,7 +124,27 @@ export const NAVIGATION = [
 /** Where pages outside the menu (onboarding, detail pages without a parent) belong. */
 export const FALLBACK_GROUP = "Business";
 
-export const primaryNavigation = NAVIGATION.map((group) => ({
-  ...group.items[0],
-  group: group.group,
-}));
+export const primaryNavigation = [
+  {
+    domain: "overview",
+    to: "/app/overview",
+    icon: LayoutDashboard,
+    groups: ["Overview", "Plan", "Business"],
+  },
+  { domain: "campaigns", to: "/app", icon: Megaphone, groups: ["Campaigns", "Execution"] },
+  { domain: "leads", to: "/app/leads", icon: Handshake, groups: ["Leads"] },
+  { domain: "impact", to: "/app/business", icon: BarChart3, groups: ["Results", "Finance"] },
+] as const;
+
+export function navigationDomain(group: string | undefined) {
+  return primaryNavigation.find((domain) => domain.groups.some((name) => name === group));
+}
+
+export function navigationGroupKey(group: string): MessageKey {
+  if (group === "Overview" || group === "Finance" || group === "Leads")
+    return `lead.group.${group}`;
+  return `nav.group.${group}` as MessageKey;
+}
+export function navigationPageKey(path: string): MessageKey {
+  return path === "/app/leads" ? "lead.nav" : (`nav.${path}` as MessageKey);
+}

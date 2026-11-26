@@ -8,7 +8,10 @@ import { z } from "zod";
 export const MIN_FILL_MS = 3000;
 
 export const leadIntakeSchema = z.object({
-  formKey: z.string().trim().regex(/^[a-z0-9-]{8,64}$/),
+  formKey: z
+    .string()
+    .trim()
+    .regex(/^[a-z0-9-]{8,64}$/),
   name: z.string().trim().min(1).max(120),
   email: z.string().trim().toLowerCase().email().max(255),
   phone: z.string().trim().max(40).optional(),
@@ -21,11 +24,12 @@ export const leadIntakeSchema = z.object({
 export type LeadIntake = z.infer<typeof leadIntakeSchema>;
 
 export type IntakeVerdict =
-  | { ok: true; lead: LeadIntake }
-  | { ok: false; reason: "invalid" | "consent" | "spam" };
+  { ok: true; lead: LeadIntake } | { ok: false; reason: "invalid" | "consent" | "spam" };
 
 export function checkLeadIntake(input: unknown, now: number): IntakeVerdict {
-  const raw = (input ?? {}) as Record<string, unknown>;
+  if (!input || typeof input !== "object" || Array.isArray(input))
+    return { ok: false, reason: "invalid" };
+  const raw = input as Record<string, unknown>;
   if (typeof raw["website"] === "string" && raw["website"].length > 0)
     return { ok: false, reason: "spam" };
   if (raw["consent"] !== true) return { ok: false, reason: "consent" };

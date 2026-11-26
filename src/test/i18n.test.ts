@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { LOCALES, MESSAGES, resolveLocale, translate } from "@/lib/i18n/messages";
-import { NAVIGATION } from "@/lib/navigation";
+import { NAVIGATION, navigationGroupKey, navigationPageKey } from "@/lib/navigation";
 import { AREAS } from "@/lib/i18n/areas";
 
 describe("interface languages", () => {
@@ -18,8 +18,8 @@ describe("interface languages", () => {
   });
   it("translates every navigation destination and group", () => {
     for (const g of NAVIGATION) {
-      expect(MESSAGES.nl).toHaveProperty(`nav.group.${g.group}`);
-      for (const it of g.items) expect(MESSAGES.nl).toHaveProperty(`nav.${it.to}`);
+      expect(MESSAGES.nl).toHaveProperty(navigationGroupKey(g.group));
+      for (const it of g.items) expect(MESSAGES.nl).toHaveProperty(navigationPageKey(it.to));
     }
   });
   it("uses a stored choice, then the browser language, else English", () => {

@@ -1,6 +1,9 @@
 import { CrmGuidance } from "@/components/crm/guidance";
 import { collectPages } from "@/lib/pagination";
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { z } from "zod";
+import { Field } from "@/components/app/field";
 import { PageHeader } from "@/components/app/status";
 import { useI18n } from "@/lib/i18n";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -9,7 +12,14 @@ import { toast } from "sonner";
 import { useOrg } from "@/lib/org-context";
 import { hasRole } from "@/lib/permissions";
 import { supabase } from "@/integrations/supabase/client";
-import { STAGES, pipelineSummary, pipelineCurrencies, nextStage, type Stage } from "@/lib/pipeline";
+import {
+  STAGES,
+  pipelineSummary,
+  pipelineCurrencies,
+  nextStage,
+  pipelineMatches,
+  type Stage,
+} from "@/lib/pipeline";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -96,6 +106,10 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
   });
   const refresh = () => qc.invalidateQueries({ queryKey: ["pipeline", orgId, wsId] });
   const [tab, setTab] = useState<"deals" | "contacts">("deals");
+  const [creating, setCreating] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("open");
   const [c, setC] = useState({ name: "", company: "", email: "", phone: "", source: "" });
   const [d, setD] = useState({
     title: "",
@@ -107,26 +121,38 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
   });
 
   const addContact = async () => {
-    if (!c.name.trim()) return void toast.error(tx("marketing.crm.nameContact"));
+    if (busy) return;
+    const valid = z
+      .object({
+        name: z.string().trim().min(1).max(200),
+        company: z.string().trim().max(200),
+        email: z.union([z.email().max(255), z.literal("")]),
+        phone: z.string().trim().max(60),
+        source: z.string().trim().max(80),
+      })
+      .safeParse({ ...c, email: c.email.trim().toLowerCase() });
+    if (!valid.success) return void toast.error(tx("lead.invalid"));
+    setBusy(true);
     const r = await supabase.from("crm_contacts").insert({
       org_id: orgId,
       workspace_id: wsId,
-      name: c.name.trim(),
-      company: c.company.trim(),
-      email: c.email.trim(),
-      phone: c.phone.trim(),
-      source: c.source.trim(),
+      ...valid.data,
     });
+    setBusy(false);
     if (r.error) return void toast.error(tx("marketing.crm.contactFailed"));
+    setCreating(false);
     setC({ name: "", company: "", email: "", phone: "", source: "" });
     await refresh();
   };
   const addDeal = async () => {
-    if (!d.title.trim()) return void toast.error(tx("marketing.crm.nameDeal"));
+    if (busy) return;
+    if (!d.title.trim() || d.title.trim().length > 200)
+      return void toast.error(tx("marketing.crm.nameDeal"));
     const value = d.value.trim() === "" ? 0 : Number(d.value);
     if (!Number.isFinite(value) || value < 0)
       return void toast.error(tx("marketing.crm.validValue"));
     if (!/^[A-Z]{3}$/.test(d.currency)) return void toast.error(tx("marketing.crm.validValue"));
+    setBusy(true);
     const r = await supabase.from("crm_deals").insert({
       org_id: orgId,
       workspace_id: wsId,
@@ -137,7 +163,9 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
       currency: d.currency,
       expected_close: d.close || null,
     });
+    setBusy(false);
     if (r.error) return void toast.error(tx("marketing.crm.dealFailed"));
+    setCreating(false);
     setD({ title: "", contact: "", value: "", close: "", goal: "", currency: "EUR" });
     await refresh();
   };
@@ -173,10 +201,27 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
   const s = pipelineSummary(deals.map((d) => ({ stage: d.stage, value: 0 })));
   const currencies = pipelineCurrencies(deals);
   const contactName = (id: string | null) => contacts.find((x) => x.id === id)?.name;
+  const visibleContacts = contacts.filter((c) =>
+    pipelineMatches([c.name, c.company, c.email, c.phone, c.source], search),
+  );
+  const visibleDeals = deals.filter(
+    (d) =>
+      pipelineMatches([d.title, contactName(d.contact_id) ?? null], search) &&
+      (filter === "all" ||
+        (filter === "open" ? d.stage !== "won" && d.stage !== "lost" : d.stage === filter)),
+  );
 
   return (
     <div className="space-y-6">
-      <PageHeader title={tx("marketing.crm.title")} description={tx("marketing.crm.intro")} />
+      <PageHeader
+        title={tx("marketing.crm.title")}
+        description={tx("marketing.crm.intro")}
+        actions={
+          <Button variant="outline" asChild>
+            <Link to="/app/leads">{tx("lead.title")}</Link>
+          </Button>
+        }
+      />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {[
           [
@@ -204,94 +249,144 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
         ))}
       </div>
       <p className="text-xs text-muted-foreground">{tx("marketing.crm.guideNote")}</p>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Button
           variant={tab === "deals" ? "default" : "outline"}
           size="sm"
-          onClick={() => setTab("deals")}
+          aria-pressed={tab === "deals"}
+          onClick={() => {
+            setTab("deals");
+            setCreating(false);
+          }}
         >
           {tx("marketing.crm.dealsTab")}
         </Button>
         <Button
           variant={tab === "contacts" ? "default" : "outline"}
           size="sm"
-          onClick={() => setTab("contacts")}
+          aria-pressed={tab === "contacts"}
+          onClick={() => {
+            setTab("contacts");
+            setCreating(false);
+          }}
         >
           {tx("marketing.crm.contactsTab", { n: contacts.length })}
         </Button>
+        {canEdit && (
+          <Button
+            className="ml-auto"
+            variant="outline"
+            onClick={() => setCreating((v) => !v)}
+            aria-expanded={creating}
+          >
+            <Plus />
+            {tab === "deals" ? tx("marketing.crm.addDeal") : tx("marketing.crm.addContact")}
+          </Button>
+        )}
+      </div>
+      <div className="flex flex-wrap items-end gap-4">
+        <Field label={tx("lead.searchCrm")} className="w-full sm:max-w-sm">
+          <Input
+            type="search"
+            maxLength={100}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </Field>
+        {tab === "deals" && (
+          <Field label={tx("lead.showDeals")}>
+            <select className={sel} value={filter} onChange={(e) => setFilter(e.target.value)}>
+              <option value="open">{tx("lead.openDeals")}</option>
+              <option value="all">{tx("lead.allDeals")}</option>
+              <option value="won">{stageLabel("won")}</option>
+              <option value="lost">{stageLabel("lost")}</option>
+            </select>
+          </Field>
+        )}
       </div>
 
       {tab === "deals" ? (
         <>
-          {canEdit && (
-            <div className="flex flex-wrap items-end gap-2 rounded-lg border bg-card p-3">
-              <Input
-                aria-label={tx("marketing.crm.dealName")}
-                placeholder={tx("marketing.crm.dealName")}
-                className="w-full sm:w-56"
-                value={d.title}
-                onChange={(e) => setD({ ...d, title: e.target.value })}
-              />
-              <select
-                aria-label={tx("marketing.crm.contact")}
-                className={sel}
-                value={d.contact}
-                onChange={(e) => setD({ ...d, contact: e.target.value })}
-              >
-                <option value="">{tx("marketing.crm.noContact")}</option>
-                {contacts.map((x) => (
-                  <option key={x.id} value={x.id}>
-                    {x.name}
-                  </option>
-                ))}
-              </select>
-              <Input
-                aria-label={tx("marketing.crm.value")}
-                placeholder={tx("marketing.crm.value")}
-                inputMode="decimal"
-                className="w-32"
-                value={d.value}
-                onChange={(e) => setD({ ...d, value: e.target.value })}
-              />
-              <label className="grid gap-1 text-xs">
-                {tx("marketing.crm.currency")}
+          {canEdit && creating && (
+            <form
+              className="grid gap-4 border-y border-border py-5 sm:grid-cols-2 lg:grid-cols-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void addDeal();
+              }}
+            >
+              <Field label={tx("marketing.crm.dealName")}>
                 <Input
-                  className="w-24"
-                  aria-label={tx("marketing.crm.currency")}
+                  required
+                  maxLength={200}
+                  value={d.title}
+                  onChange={(e) => setD({ ...d, title: e.target.value })}
+                />
+              </Field>
+              <Field label={tx("marketing.crm.contact")}>
+                <select
+                  className={sel}
+                  value={d.contact}
+                  onChange={(e) => setD({ ...d, contact: e.target.value })}
+                >
+                  <option value="">{tx("marketing.crm.noContact")}</option>
+                  {contacts.map((x) => (
+                    <option key={x.id} value={x.id}>
+                      {x.name}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label={tx("marketing.crm.value")}>
+                <Input
+                  inputMode="decimal"
+                  value={d.value}
+                  onChange={(e) => setD({ ...d, value: e.target.value })}
+                />
+              </Field>
+              <Field label={tx("marketing.crm.currency")}>
+                <Input
+                  required
                   maxLength={3}
                   value={d.currency}
                   onChange={(e) => setD({ ...d, currency: e.target.value.toUpperCase() })}
                 />
-              </label>
-              <Input
-                aria-label={tx("marketing.crm.expectedClose")}
-                type="date"
-                className="w-40"
-                value={d.close}
-                onChange={(e) => setD({ ...d, close: e.target.value })}
-              />
-              <select
-                aria-label={tx("marketing.crm.goal")}
-                className={sel}
-                value={d.goal}
-                onChange={(e) => setD({ ...d, goal: e.target.value })}
-              >
-                <option value="">{tx("marketing.crm.noGoal")}</option>
-                {goals.map((x) => (
-                  <option key={x.id} value={x.id}>
-                    {x.title}
-                  </option>
-                ))}
-              </select>
-              <Button size="sm" onClick={addDeal}>
-                <Plus className="mr-1 h-4 w-4" />
+              </Field>
+              <Field label={tx("marketing.crm.expectedClose")}>
+                <Input
+                  type="date"
+                  value={d.close}
+                  onChange={(e) => setD({ ...d, close: e.target.value })}
+                />
+              </Field>
+              <Field label={tx("marketing.crm.goal")}>
+                <select
+                  className={sel}
+                  value={d.goal}
+                  onChange={(e) => setD({ ...d, goal: e.target.value })}
+                >
+                  <option value="">{tx("marketing.crm.noGoal")}</option>
+                  {goals.map((x) => (
+                    <option key={x.id} value={x.id}>
+                      {x.title}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Button disabled={busy} type="submit">
+                <Plus />
                 {tx("marketing.crm.addDeal")}
               </Button>
-            </div>
+            </form>
+          )}
+          {!visibleDeals.length && (search || filter !== "all") && (
+            <p role="status" className="text-sm text-muted-foreground">
+              {tx("lead.noMatches")}
+            </p>
           )}
           <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
             {STAGES.map((stage) => {
-              const list = deals.filter((x) => x.stage === stage);
+              const list = visibleDeals.filter((x) => x.stage === stage);
               return (
                 <section key={stage} className="min-w-0 rounded-lg border bg-muted/40 p-2">
                   <h2 className="mb-2 flex items-center justify-between text-sm font-medium">
@@ -383,55 +478,69 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
         </>
       ) : (
         <>
-          {canEdit && (
-            <div className="flex flex-wrap items-end gap-2 rounded-lg border bg-card p-3">
-              <Input
-                aria-label={tx("marketing.crm.contactName")}
-                placeholder={tx("marketing.crm.name")}
-                className="w-full sm:w-44"
-                value={c.name}
-                onChange={(e) => setC({ ...c, name: e.target.value })}
-              />
-              <Input
-                aria-label={tx("marketing.crm.company")}
-                placeholder={tx("marketing.crm.company")}
-                className="w-full sm:w-44"
-                value={c.company}
-                onChange={(e) => setC({ ...c, company: e.target.value })}
-              />
-              <Input
-                aria-label={tx("marketing.crm.email")}
-                placeholder={tx("marketing.crm.email")}
-                type="email"
-                className="w-full sm:w-52"
-                value={c.email}
-                onChange={(e) => setC({ ...c, email: e.target.value })}
-              />
-              <Input
-                aria-label={tx("marketing.crm.phone")}
-                placeholder={tx("marketing.crm.phone")}
-                className="w-full sm:w-36"
-                value={c.phone}
-                onChange={(e) => setC({ ...c, phone: e.target.value })}
-              />
-              <Input
-                aria-label={tx("marketing.crm.source")}
-                placeholder={tx("marketing.crm.sourcePh")}
-                className="w-full sm:w-44"
-                value={c.source}
-                onChange={(e) => setC({ ...c, source: e.target.value })}
-              />
-              <Button size="sm" onClick={addContact}>
-                <Plus className="mr-1 h-4 w-4" />
+          {canEdit && creating && (
+            <form
+              className="grid gap-4 border-y border-border py-5 sm:grid-cols-2 lg:grid-cols-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void addContact();
+              }}
+            >
+              <Field label={tx("marketing.crm.contactName")}>
+                <Input
+                  required
+                  maxLength={200}
+                  autoComplete="name"
+                  value={c.name}
+                  onChange={(e) => setC({ ...c, name: e.target.value })}
+                />
+              </Field>
+              <Field label={tx("marketing.crm.company")}>
+                <Input
+                  maxLength={200}
+                  autoComplete="organization"
+                  value={c.company}
+                  onChange={(e) => setC({ ...c, company: e.target.value })}
+                />
+              </Field>
+              <Field label={tx("marketing.crm.email")}>
+                <Input
+                  type="email"
+                  maxLength={255}
+                  autoComplete="email"
+                  value={c.email}
+                  onChange={(e) => setC({ ...c, email: e.target.value })}
+                />
+              </Field>
+              <Field label={tx("marketing.crm.phone")}>
+                <Input
+                  type="tel"
+                  maxLength={60}
+                  autoComplete="tel"
+                  value={c.phone}
+                  onChange={(e) => setC({ ...c, phone: e.target.value })}
+                />
+              </Field>
+              <Field label={tx("marketing.crm.source")}>
+                <Input
+                  maxLength={80}
+                  value={c.source}
+                  onChange={(e) => setC({ ...c, source: e.target.value })}
+                />
+              </Field>
+              <Button disabled={busy} type="submit">
+                <Plus />
                 {tx("marketing.crm.addContact")}
               </Button>
-            </div>
+            </form>
           )}
-          {contacts.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{tx("marketing.crm.noContacts")}</p>
+          {visibleContacts.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {search ? tx("lead.noMatches") : tx("marketing.crm.noContacts")}
+            </p>
           ) : (
             <ul className="divide-y rounded-lg border bg-card">
-              {contacts.map((x) => {
+              {visibleContacts.map((x) => {
                 const open = deals.filter(
                   (y) => y.contact_id === x.id && y.stage !== "won" && y.stage !== "lost",
                 ).length;

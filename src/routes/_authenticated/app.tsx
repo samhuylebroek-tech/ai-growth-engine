@@ -22,7 +22,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { FALLBACK_GROUP, NAVIGATION, primaryNavigation } from "@/lib/navigation";
+import {
+  FALLBACK_GROUP,
+  NAVIGATION,
+  primaryNavigation,
+  navigationDomain,
+  navigationGroupKey,
+  navigationPageKey,
+} from "@/lib/navigation";
 import {
   CommandDialog,
   CommandInput,
@@ -55,8 +62,8 @@ function Shell() {
     `pages.sh.kind.${k}` in MESSAGES.en
       ? t(`pages.sh.kind.${k}` as MessageKey)
       : k.replaceAll("_", " ");
-  const navLabel = (to: string) => t(`nav.${to}` as MessageKey);
-  const groupLabel = (g: string) => t(`nav.group.${g}` as MessageKey);
+  const navLabel = (to: string) => t(navigationPageKey(to));
+  const groupLabel = (g: string) => t(navigationGroupKey(g));
   const staging = browserEnvironment(import.meta.env["VITE_APP_ENVIRONMENT"]) === "staging";
   const o = useOrg();
   const qc = useQueryClient();
@@ -68,7 +75,49 @@ function Shell() {
     NAVIGATION.find((g) => g.items.some((it) => isAt(it.to))) ??
     NAVIGATION.find((g) => g.group === FALLBACK_GROUP);
   const current = group?.items.find((it) => isAt(it.to));
+  const domain = navigationDomain(group?.group);
+  const contextualGroups = NAVIGATION.filter((g) =>
+    domain?.groups.some((name) => name === g.group),
+  );
   const [open, setOpen] = useState(false);
+  const [desktop, setDesktop] = useState(false);
+  const drawerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const media = matchMedia("(min-width: 1024px)");
+    const update = () => setDesktop(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  useEffect(() => {
+    if (!open || desktop) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const drawer = drawerRef.current;
+    if (!drawer) return;
+    const targets = () =>
+      Array.from(
+        drawer.querySelectorAll<HTMLElement>("a[href],button:not([disabled]),select,input"),
+      ).filter((node) => node.getClientRects().length > 0);
+    targets()[0]?.focus();
+    const trap = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const nodes = targets();
+      const first = nodes[0],
+        last = nodes.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
+    drawer.addEventListener("keydown", trap);
+    return () => {
+      drawer.removeEventListener("keydown", trap);
+      previous?.focus();
+    };
+  }, [open, desktop]);
   const tabsRef = useRef<HTMLElement>(null);
   // Keep the current tab visible when a destination has more tabs than fit (phones, tablets).
   useEffect(() => {
@@ -196,6 +245,8 @@ function Shell() {
         {t("shell.skip")}
       </a>
       <aside
+        ref={drawerRef}
+        inert={!open && !desktop}
         aria-label={t("pages.sh.mainNav")}
         className={cn(
           "fixed inset-y-0 left-0 z-40 flex w-[224px] shrink-0 flex-col border-r border-border bg-surface transition-transform lg:sticky lg:top-0 lg:h-dvh lg:translate-x-0",
@@ -210,7 +261,7 @@ function Shell() {
             <span className="text-sm font-bold leading-tight">
               Growth Engine
               <span className="block text-2xs font-medium text-muted-foreground">
-                BUSINESS OPERATING SYSTEM
+                AI Growth Engine
               </span>
             </span>
           </Link>
@@ -238,19 +289,58 @@ function Shell() {
                 asChild
                 className={cn(
                   "h-auto min-h-9 w-full justify-start gap-3 whitespace-normal px-3 py-2 text-left text-sm text-muted-foreground",
-                  group?.group === it.group && "bg-card font-semibold text-foreground shadow-sm",
+                  domain?.domain === it.domain && "bg-card font-semibold text-foreground shadow-sm",
                 )}
               >
-                <Link to={it.to} onClick={() => setOpen(false)}>
-                  <it.icon className={cn(group?.group === it.group && "text-primary")} />
-                  {groupLabel(it.group)}
+                <Link
+                  to={it.to}
+                  onClick={() => setOpen(false)}
+                  aria-current={domain?.domain === it.domain ? "location" : undefined}
+                >
+                  <it.icon className={cn(domain?.domain === it.domain && "text-primary")} />
+                  {t(`lead.domain.${it.domain}`)}
                 </Link>
               </Button>
             ))}
           </div>
+          {contextualGroups.length > 1 && (
+            <div className="mt-5 border-t border-border pt-4">
+              <p className="mb-2 px-3 text-xs text-muted-foreground">{t("lead.domain.context")}</p>
+              {contextualGroups.map((g) => (
+                <Button
+                  key={g.group}
+                  variant="ghost"
+                  asChild
+                  className={cn(
+                    "h-auto min-h-11 w-full justify-start whitespace-normal text-left text-xs",
+                    group?.group === g.group && "bg-muted font-semibold",
+                  )}
+                >
+                  <Link to={g.items[0].to} onClick={() => setOpen(false)}>
+                    {groupLabel(g.group)}
+                  </Link>
+                </Button>
+              ))}
+            </div>
+          )}
+          <div className="mt-5 border-t border-border pt-3">
+            <Button
+              variant="ghost"
+              asChild
+              className="h-auto min-h-11 w-full justify-start whitespace-normal text-left text-xs"
+            >
+              <Link to="/app/organization" onClick={() => setOpen(false)}>
+                <Building2 />
+                {t("lead.domain.settings")}
+              </Link>
+            </Button>
+          </div>
           <Button
             variant="ghost"
-            onClick={() => setSearch(true)}
+            onClick={() => {
+              setOpen(false);
+              setSearch(true);
+            }}
             className="mt-6 w-full justify-start gap-3 px-3 text-muted-foreground"
           >
             <Search />
@@ -398,7 +488,7 @@ function Shell() {
           ))}
         </CommandList>
       </CommandDialog>
-      <main id="main-content" className="min-w-0 flex-1">
+      <main id="main-content" inert={open && !desktop} className="min-w-0 flex-1">
         <header className="flex h-16 items-center gap-1 border-b border-border px-3 sm:gap-3 md:px-8">
           <Button
             variant="ghost"
@@ -463,11 +553,11 @@ function Shell() {
             </nav>
             {(["left", "right"] as const).map((side) =>
               tabEdges[side] ? (
-                <button
+                <Button
                   key={side}
                   type="button"
-                  tabIndex={-1}
-                  aria-hidden
+                  variant="ghost"
+                  aria-label={side === "left" ? t("lead.previousPages") : t("lead.nextPages")}
                   onClick={() => scrollTabs(side === "left" ? -1 : 1)}
                   className={cn(
                     "absolute inset-y-0 hidden w-9 items-center justify-center bg-background text-muted-foreground hover:text-foreground sm:flex",
@@ -481,7 +571,7 @@ function Shell() {
                   ) : (
                     <ChevronRight className="h-4 w-4" />
                   )}
-                </button>
+                </Button>
               ) : null,
             )}
           </div>
