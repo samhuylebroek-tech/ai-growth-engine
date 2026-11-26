@@ -58,7 +58,7 @@ Each row separates implemented source from the still-disconnected business outco
 | Real provider reads/writes | NOT RUN | Requires configured authorized connection; live writes are outside this delivery. |
 | Production rollout / paid AI / outreach | EXCLUDED | Requires separate authorization; no claims of execution, growth or production deployment. |
 
-Platform compilation, changed-source formatting/lint and GitHub synchronization/CI are checked after the final edits and recorded in the delivery response; previously green CI is not evidence for uncommitted work.
+Platform compilation: PASS (latest build OK at 09:09:11 UTC). Changed-source formatting and ESLint: PASS. Post-format campaign regressions: 22/22 PASS. Code saved as `879b562763f4b03b50ddf02b7671a6829ab67a82`; the read-only GitHub check immediately after commit returned **Not synchronized**, with no CI run for that commit yet. The platform sends commits after the turn; previous green CI does not validate this code. The documentation update is committed separately and its final synchronization status is checked again before the closing response.
 
 ## Next connected delivery
 
