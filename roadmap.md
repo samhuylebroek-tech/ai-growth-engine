@@ -1,4 +1,10 @@
 # AI Growth OS — Task Queue
+## Integrated product gap discovery (26 November 2026)
+- [x] Review all 26 requested capability areas against existing implementation and tests; source review and live validation separated in docs/ux/PRODUCT_COMPLETENESS_GAPS.md.
+- [x] Reliable campaign measurement windows, provenance, dated cost comparisons, scoped experiment evidence and prioritized contextual Growth Officer handoffs; no duplicate model, paid AI or external action.
+- [x] Full regression: 1,001 tests / 126 files; signed-out staging EN/NL/FR desktop/tablet/phone checks pass with no overflow/page errors. Synthetic component tests are not authenticated E2E evidence.
+- [ ] Authenticated campaign results → Growth Officer → persisted output: blocked by missing temporary staging test credentials; no reset/MFA change/paid call authorized.
+- [ ] Save evidence, commit changes and check GitHub synchronization/CI.
 ## Master product transformation (25 November 2026)
 - [x] Public website implemented: concrete positioning, four channel areas, interactive illustrative five-step campaign journey, specialist work, approvals, use cases, pricing/credits and five FAQs; EN/NL/FR. Existing image reused; no production publication, fabricated metrics or guaranteed sales.
 - [x] Campaign presentation implemented: audience/channels on cards, scoped question-bound Growth Officer references, overview/plan/content/budget/work/results/approvals with team/files/history behind advanced disclosure. Existing finance/lifecycle and operational capabilities retained. Component/reference tests passed; authenticated browser validation NOT RUN.

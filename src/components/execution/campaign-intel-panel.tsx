@@ -3,6 +3,7 @@
 // the platform changes.
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
@@ -27,6 +28,7 @@ import {
 } from "@/lib/campaign-intel";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { CampaignGuidance } from "@/components/execution/campaign-guidance";
 
 type CampaignRow = Database["public"]["Tables"]["campaigns"]["Row"];
 type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
@@ -64,6 +66,7 @@ export function CampaignIntelPanel({
   const bi = useQuery(biOptions(o.org?.id, o.workspace?.id));
   const spend = useQuery(campaignSpendOptions(o.org?.id, o.workspace?.id));
   const [busy, setBusy] = useState<string | null>(null);
+  const [allAdvice, setAllAdvice] = useState(false);
   const member = can(o.workspaceRole, "profile.edit");
   if (bi.error || (spend.error && !isNotInstalled(spend.error)))
     return <p className="text-xs text-destructive">{t("ci.failed")}</p>;
@@ -107,7 +110,7 @@ export function CampaignIntelPanel({
     })),
     measurements: bi.data.measurements,
     attributed,
-    experiments: [],
+    experiments: bi.data.experiments,
     others: campaigns.map((c) => ({
       id: c.id,
       title: c.title,
@@ -137,7 +140,10 @@ export function CampaignIntelPanel({
             : f.source === "metric" || f.source === "spend_ledger"
               ? "entered"
               : "recorded") as NarrativeFinding["reliability"],
-        text: `${t(tk(`ci.f.${k}`))}: ${show(f)}`.slice(0, 240),
+        text: `${t(tk(`ci.f.${k}`))}: ${show(f)}${f.periods?.length ? `; ${f.periods.map((p) => `${p.start}–${p.end}`).join(", ")}` : ""}`.slice(
+          0,
+          240,
+        ),
       };
     }),
     ...intel.problems.map((p, n) => ({
@@ -146,6 +152,18 @@ export function CampaignIntelPanel({
       code: p,
       reliability: "rule" as const,
       text: t(tk(`ci.p.${p}`), { list: intel.overlaps.join(", ") }).slice(0, 240),
+    })),
+    ...intel.experimentEvidence.map((e) => ({
+      id: `campaign.experiment.${e.id}`,
+      section: "campaign",
+      code: "experiment",
+      reliability:
+        e.evidence === "simulated"
+          ? ("simulated" as const)
+          : e.evidence === "controlled" || e.evidence === "correlational"
+            ? ("entered" as const)
+            : ("rule" as const),
+      text: `${e.title}: ${t(tk(`ci.exp.${e.evidence}`))}`.slice(0, 240),
     })),
     ...(intel.simulated
       ? [
@@ -202,10 +220,7 @@ export function CampaignIntelPanel({
   };
 
   return (
-    <section
-      aria-label={t("ci.title")}
-      className="space-y-3 rounded-md border border-border bg-card p-3 text-xs"
-    >
+    <section aria-label={t("ci.title")} className="space-y-4 text-xs">
       <div>
         <h3 className="text-sm font-semibold">{t("ci.title")}</h3>
         <p className="text-muted-foreground">{t("ci.intro")}</p>
@@ -227,6 +242,13 @@ export function CampaignIntelPanel({
                   {show(f)}
                 </dd>
                 <dd className="text-2xs text-muted-foreground">{t(tk(`ci.s.${f.source}`))}</dd>
+                {f.periods && f.periods.length > 0 && (
+                  <dd className="mt-1 break-words text-2xs text-muted-foreground">
+                    {t("ci.period", {
+                      period: f.periods.map((p) => `${p.start} – ${p.end}`).join(", "),
+                    })}
+                  </dd>
+                )}
               </div>
             );
           })}
@@ -250,6 +272,71 @@ export function CampaignIntelPanel({
           </p>
         )}
       </div>
+      <details className="border-y border-border py-3">
+        <summary className="min-h-6 cursor-pointer font-medium">
+          {t("ci.measurementEvidence")}
+        </summary>
+        <div className="mt-3 divide-y divide-border">
+          {intel.measurementEvidence
+            .filter((m) => m.missing !== "no_metric")
+            .map((m) => (
+              <div key={m.key} className="space-y-1 py-3">
+                <p className="font-medium">{m.label ?? m.key}</p>
+                {m.missing && (
+                  <p className="text-muted-foreground">
+                    {t("ci.missing", { r: t(tk(`ci.m.${m.missing}`)) })}
+                  </p>
+                )}
+                {m.kinds.map((kind) => (
+                  <p key={kind} className="text-muted-foreground">
+                    {t(tk(`ci.kind.${kind}`))}
+                  </p>
+                ))}
+                {m.periods.length > 0 && (
+                  <p className="break-words text-muted-foreground">
+                    {t("ci.period", {
+                      period: m.periods.map((p) => `${p.start} – ${p.end}`).join(", "),
+                    })}
+                  </p>
+                )}
+                {m.updatedAt && (
+                  <p className="text-muted-foreground">
+                    {t("ci.updated", {
+                      date: new Date(m.updatedAt).toLocaleDateString(tag, { timeZone: "UTC" }),
+                    })}
+                  </p>
+                )}
+                {m.metricId && (
+                  <Button asChild variant="link" size="sm" className="h-auto min-h-6 p-0">
+                    <Link to="/app/performance/$metricId" params={{ metricId: m.metricId }}>
+                      {t("ci.openMetric")}
+                    </Link>
+                  </Button>
+                )}
+              </div>
+            ))}
+          <p className="py-3 leading-relaxed text-muted-foreground">{t("ci.attributionNote")}</p>
+        </div>
+      </details>
+      <details className="border-b border-border pb-3">
+        <summary className="min-h-6 cursor-pointer font-medium">
+          {t("ci.experiments")} ({intel.experimentEvidence.length})
+        </summary>
+        <div className="mt-3 space-y-3">
+          {intel.experimentEvidence.length === 0 && (
+            <p className="text-muted-foreground">{t("ci.noExperiments")}</p>
+          )}
+          {intel.experimentEvidence.map((e) => (
+            <div key={e.id}>
+              <p className="break-words font-medium">{e.title}</p>
+              <p className="text-muted-foreground">{t(tk(`ci.exp.${e.evidence}`))}</p>
+            </div>
+          ))}
+          <Button asChild variant="link" size="sm" className="h-auto min-h-6 p-0">
+            <Link to="/app/experiments">{t("ci.openExperiments")}</Link>
+          </Button>
+        </div>
+      </details>
       <div>
         <p className="font-medium">{t("ci.problems")}</p>
         {intel.problems.length === 0 ? (
@@ -273,7 +360,7 @@ export function CampaignIntelPanel({
       {intel.advice.length > 0 && (
         <div className="space-y-2">
           <p className="font-medium">{t("ci.advice")}</p>
-          {intel.advice.map((a) => {
+          {(allAdvice ? intel.advice : intel.advice.slice(0, 3)).map((a) => {
             const kpi = a.kpi ? intel.figures[a.kpi] : null;
             return (
               <div key={a.kind} className="space-y-0.5 rounded-md border border-border p-2">
@@ -300,6 +387,7 @@ export function CampaignIntelPanel({
                   · {t("ci.risk", { r: t(tk(`rp.risk.${a.risk}`)) })}
                 </p>
                 <p className="text-muted-foreground">{t("ci.approval")}</p>
+                <CampaignGuidance campaignId={campaign.id} advice={a} />
                 {member &&
                   (exists(a) ? (
                     <p className="text-muted-foreground">{t("ci.taskExists")}</p>
@@ -316,6 +404,16 @@ export function CampaignIntelPanel({
               </div>
             );
           })}
+          {intel.advice.length > 3 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-expanded={allAdvice}
+              onClick={() => setAllAdvice((value) => !value)}
+            >
+              {t(allAdvice ? "ci.lessAdvice" : "ci.moreAdvice", { n: intel.advice.length - 3 })}
+            </Button>
+          )}
         </div>
       )}
     </section>

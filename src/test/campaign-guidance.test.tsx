@@ -13,7 +13,9 @@ const o = vi.hoisted(() => ({
 vi.mock("@/lib/org-context", () => ({ useOrg: () => o }));
 vi.mock("@tanstack/react-router", () => ({ useNavigate: () => o.navigate }));
 vi.mock("@/lib/i18n", () => ({
-  useI18n: () => ({ t: (key: MessageKey) => translate("nl", key) }),
+  useI18n: () => ({
+    t: (key: MessageKey, vars?: Record<string, string | number>) => translate("nl", key, vars),
+  }),
 }));
 const id = "a0000000-0000-4000-8000-000000000001";
 describe("Contextual campaign guidance interactions (not signed-in browser validation)", () => {
@@ -41,5 +43,27 @@ describe("Contextual campaign guidance interactions (not signed-in browser valid
     fireEvent.click(screen.getByRole("button"));
     expect(sessionStorage.length).toBe(0);
     expect(o.navigate).not.toHaveBeenCalled();
+  });
+  it("binds a specific improvement to the selected campaign and keeps the handoff scoped", () => {
+    render(
+      <CampaignGuidance
+        campaignId={id}
+        advice={{
+          kind: "improve_conversion",
+          problem: "low_conversion",
+          specialist: "cro",
+          kpi: "conversion_rate",
+          risk: "medium",
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button"));
+    const draft = consumeGrowthDraft(sessionStorage, "org-a", "business-a");
+    expect(draft).toContain(translate("nl", "ci.a.improve_conversion"));
+    expect(consumeGrowthContext(sessionStorage, "org-a", "business-b", draft)).toEqual([]);
+    expect(consumeGrowthContext(sessionStorage, "org-a", "business-a", draft)).toEqual([
+      { kind: "campaigns", id },
+    ]);
+    expect(o.navigate).toHaveBeenCalledOnce();
   });
 });

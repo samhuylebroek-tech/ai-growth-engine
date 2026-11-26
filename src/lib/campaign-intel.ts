@@ -4,7 +4,12 @@
 // reason, never zero. Problems and advice follow fixed, documented rules, cost no credits and change nothing.
 import { campaignHealth, type HealthWarning } from "@/lib/campaign-health";
 import type { SpendSummary } from "@/lib/campaign-spend";
-import { effectiveMeasurements, isActual, type Measurement } from "@/lib/performance";
+import {
+  effectiveMeasurements,
+  isActual,
+  summarizeMetric,
+  type Measurement,
+} from "@/lib/performance";
 
 export type CampaignInput = {
   id: string;
@@ -36,7 +41,14 @@ export type IntelInput = {
   measurements: readonly Measurement[];
   /** Net revenue attributed to this campaign (actual sales only), or null when attribution is unavailable. */
   attributed: readonly Attributed[] | null;
-  experiments: readonly { status: string; evidence_strength: string | null }[];
+  experiments: readonly {
+    id: string;
+    title: string;
+    campaign_id?: string | null;
+    status: string;
+    evidence_strength: string | null;
+    result_data_class?: string | null;
+  }[];
   /** EUR spend entries (spend and corrections) of this campaign with their dates, for cost trends. */
   spendRows?: readonly { occurred_on: string; amount: number }[];
   others: readonly Pick<
@@ -54,6 +66,19 @@ export type Figure = {
   source: Source;
   actual: boolean;
   missing?: MissingReason;
+  periods?: readonly Period[];
+};
+export type Period = { start: string; end: string };
+export type MetricEvidence = {
+  key: string;
+  metricId: string | null;
+  label: string | null;
+  value: number | null;
+  missing?: MissingReason;
+  periods: Period[];
+  kinds: string[];
+  updatedAt: string | null;
+  observations: { period: Period; value: number }[];
 };
 export type FigureKey =
   | "budget"
@@ -81,7 +106,12 @@ export type MissingReason =
   | "no_attribution"
   | "no_revenue"
   | "no_dates"
-  | "no_tasks";
+  | "no_tasks"
+  | "ambiguous_metric"
+  | "overlapping_periods"
+  | "period_mismatch"
+  | "no_dated_spend"
+  | "invalid_result";
 export type Problem =
   | "budget_near"
   | "budget_over"
@@ -131,6 +161,13 @@ export type Intel = {
     committed: number;
     warnings: SpendSummary["simulatedWarnings"];
   } | null;
+  measurementEvidence: MetricEvidence[];
+  experimentEvidence: {
+    id: string;
+    title: string;
+    evidence:
+      "pending" | "simulated" | "controlled" | "correlational" | "inconclusive" | "unclassified";
+  }[];
 };
 
 /** Rule thresholds, named so the screen and tests can explain them. */
@@ -156,25 +193,93 @@ const overlapsDates = (
   (a.start_date ?? "0000") <= (b.end_date ?? "9999") &&
   (b.start_date ?? "0000") <= (a.end_date ?? "9999");
 
-/** Sum of measured (actual) values in force for the campaign's metrics with this key; null when not measured. */
-function measured(
-  key: string,
-  i: IntelInput,
-): { value: number | null; missing?: MissingReason; byPeriod: Map<string, number> } {
-  const ids = new Set(
-    i.metrics
-      .filter((m) => !m.archived && m.campaign_id === i.campaign.id && m.key === key)
-      .map((m) => m.id),
+/** One counting definition per key. Distinct definitions may describe the same people; never silently add them. */
+function measured(key: string, i: IntelInput): MetricEvidence {
+  const defs = i.metrics.filter(
+    (m) => !m.archived && m.campaign_id === i.campaign.id && m.key === key,
   );
-  if (!ids.size) return { value: null, missing: "no_metric", byPeriod: new Map() };
-  const rows = effectiveMeasurements(i.measurements.filter((m) => ids.has(m.metric_id))).filter(
-    (m) => isActual(String(m.kind)),
+  const def = defs.length === 1 ? defs[0] : undefined;
+  const empty: MetricEvidence = {
+    key,
+    metricId: def?.id ?? null,
+    label: def?.label ?? null,
+    value: null,
+    periods: [],
+    kinds: [],
+    updatedAt: null,
+    observations: [],
+  };
+  if (!defs.length) return { ...empty, missing: "no_metric" };
+  if (!def) return { ...empty, missing: "ambiguous_metric" };
+  const live = effectiveMeasurements(i.measurements.filter((m) => m.metric_id === def.id));
+  const actuals = live.filter((m) => isActual(m.kind) && m.period_start <= i.today);
+  if (!actuals.length) return { ...empty, missing: "no_actuals" };
+  const periods = [
+    ...new Map(
+      actuals.map((m) => [
+        `${m.period_start}|${m.period_end}`,
+        { start: m.period_start, end: m.period_end },
+      ]),
+    ).values(),
+  ].sort((a, b) => a.start.localeCompare(b.start) || a.end.localeCompare(b.end));
+  if (
+    periods.some(
+      (p) =>
+        !Number.isFinite(Date.parse(p.start)) ||
+        !Number.isFinite(Date.parse(p.end)) ||
+        p.end < p.start,
+    )
+  )
+    return { ...empty, missing: "invalid_result" };
+  if (periods.some((p, n) => n > 0 && p.start <= (periods[n - 1]?.end ?? "")))
+    return { ...empty, periods, missing: "overlapping_periods" };
+  // The shared measurement reader picks verified > imported > entered for the exact period,
+  // after correction history has been removed. Multiple evidence versions are not extra results.
+  const observations = periods.map((period) => {
+    const rows = live.filter((m) => m.period_start === period.start && m.period_end === period.end);
+    const actual = summarizeMetric({ id: def.id, direction: "increase" }, rows).actual;
+    return {
+      period,
+      value: actual?.value ?? NaN,
+      kind: actual?.kind ?? "",
+      updatedAt:
+        rows
+          .filter((m) => m.kind === actual?.kind)
+          .map((m) => m.created_at)
+          .sort()
+          .at(-1) ?? null,
+    };
+  });
+  if (observations.some((o) => !Number.isFinite(o.value) || o.value < 0))
+    return { ...empty, periods, missing: "invalid_result" };
+  return {
+    ...empty,
+    value: observations.reduce((n, o) => n + o.value, 0),
+    periods,
+    kinds: [...new Set(observations.map((o) => o.kind))],
+    updatedAt:
+      observations
+        .flatMap((o) => (o.updatedAt ? [o.updatedAt] : []))
+        .sort()
+        .at(-1) ?? null,
+    observations: observations.map(({ period, value }) => ({ period, value })),
+  };
+}
+
+const samePeriods = (a: MetricEvidence, b: MetricEvidence) =>
+  a.periods.length === b.periods.length &&
+  a.periods.every((p, n) => p.start === b.periods[n]?.start && p.end === b.periods[n]?.end);
+
+/** The caller supplies only actual EUR expenditure, classified by the canonical spend reader. */
+function spendInPeriods(i: IntelInput, periods: readonly Period[]): number | null {
+  if (!i.spend || !i.spendRows || !periods.length) return null;
+  const rows = i.spendRows.filter(
+    (s) =>
+      s.occurred_on <= i.today &&
+      periods.some((p) => s.occurred_on >= p.start && s.occurred_on <= p.end),
   );
-  if (!rows.length) return { value: null, missing: "no_actuals", byPeriod: new Map() };
-  const byPeriod = new Map<string, number>();
-  for (const m of rows)
-    byPeriod.set(m.period_start, (byPeriod.get(m.period_start) ?? 0) + Number(m.value));
-  return { value: rows.reduce((n, m) => n + Number(m.value), 0), byPeriod };
+  if (!rows.length || rows.some((r) => !Number.isFinite(r.amount))) return null;
+  return r2(rows.reduce((n, s) => n + s.amount, 0));
 }
 
 export function campaignIntel(i: IntelInput): Intel {
@@ -197,7 +302,7 @@ export function campaignIntel(i: IntelInput): Intel {
   const clicks = measured("clicks", i);
   const conv = measured("conversions", i);
   const custom = measured("new_customers", i);
-  const acq = conv.value !== null ? conv : custom;
+  const acq = conv.missing === "no_metric" ? custom : conv;
   const eurRevenue = i.attributed?.find((a) => a.currency === "EUR") ?? null;
   const ratio = (
     num: number | null,
@@ -212,19 +317,32 @@ export function campaignIntel(i: IntelInput): Intel {
   };
   const spendMissing: MissingReason = !i.spend ? "no_ledger" : "no_spend";
   const spentKnown = spentEur !== null && spentEur > 0 ? spentEur : null;
-  const cpl = ratio(spentKnown, leads.value, spendMissing, leads.missing);
-  const cpa = ratio(spentKnown, acq.value, spendMissing, acq.missing);
+  const periodCost = (m: MetricEvidence) => {
+    if (m.value === null)
+      return { value: null, missing: m.missing ?? ("no_actuals" as MissingReason) };
+    const cost = spendInPeriods(i, m.periods);
+    return ratio(
+      cost !== null && cost > 0 ? cost : null,
+      m.value,
+      !i.spend ? "no_ledger" : !i.spendRows ? "no_dated_spend" : "no_spend",
+      m.missing,
+    );
+  };
+  const cpl = periodCost(leads);
+  const cpa = periodCost(acq);
   const cr =
     conv.value !== null && clicks.value !== null && clicks.value > 0
-      ? { value: Math.round((conv.value / clicks.value) * 10000) / 10000 }
+      ? samePeriods(conv, clicks)
+        ? { value: Math.round((conv.value / clicks.value) * 10000) / 10000 }
+        : { value: null, missing: "period_mismatch" as MissingReason }
       : { value: null, missing: (conv.missing ?? clicks.missing ?? "zero_base") as MissingReason };
   const revMissing: MissingReason = i.attributed === null ? "no_attribution" : "no_revenue";
   const roas = eurRevenue
     ? ratio(eurRevenue.amount, spentKnown, revMissing, spendMissing)
     : { value: null, missing: revMissing };
   const roi =
-    roas.value !== null && spentKnown
-      ? { value: r2((eurRevenue!.amount - spentKnown) / spentKnown) }
+    roas.value !== null && spentKnown && eurRevenue
+      ? { value: r2((eurRevenue.amount - spentKnown) / spentKnown) }
       : { value: null, missing: roas.missing };
   const duration =
     c.start_date && c.end_date
@@ -264,46 +382,36 @@ export function campaignIntel(i: IntelInput): Intel {
         ? { missing: (i.spend ? "no_budget" : "no_ledger") as MissingReason }
         : {}),
     }),
-    leads: fig(
-      "leads",
-      leads.value,
-      "metric",
-      true,
-      leads.missing ? { missing: leads.missing } : {},
-    ),
-    clicks: fig(
-      "clicks",
-      clicks.value,
-      "metric",
-      true,
-      clicks.missing ? { missing: clicks.missing } : {},
-    ),
-    conversions: fig(
-      "conversions",
-      acq.value,
-      "metric",
-      true,
-      acq.missing ? { missing: acq.missing } : {},
-    ),
+    leads: fig("leads", leads.value, "metric", true, {
+      periods: leads.periods,
+      ...(leads.missing ? { missing: leads.missing } : {}),
+    }),
+    clicks: fig("clicks", clicks.value, "metric", true, {
+      periods: clicks.periods,
+      ...(clicks.missing ? { missing: clicks.missing } : {}),
+    }),
+    conversions: fig("conversions", acq.value, "metric", true, {
+      periods: acq.periods,
+      ...(acq.missing ? { missing: acq.missing } : {}),
+    }),
     revenue: fig("revenue", eurRevenue?.amount ?? null, "attribution", true, {
       currency: "EUR",
       ...(eurRevenue ? {} : { missing: revMissing }),
     }),
     cpl: fig("cpl", cpl.value, "computed", true, {
       currency: "EUR",
+      periods: leads.periods,
       ...(cpl.missing ? { missing: cpl.missing } : {}),
     }),
     cpa: fig("cpa", cpa.value, "computed", true, {
       currency: "EUR",
+      periods: acq.periods,
       ...(cpa.missing ? { missing: cpa.missing } : {}),
     }),
-    conversion_rate: fig(
-      "conversion_rate",
-      cr.value,
-      "computed",
-      true,
-      cr.missing ? { missing: cr.missing } : {},
-    ),
+    conversion_rate: fig("conversion_rate", cr.value, "computed", true, {
+      periods: conv.periods,
+      ...(cr.missing ? { missing: cr.missing } : {}),
+    }),
     roas: fig("roas", roas.value, "computed", true, roas.missing ? { missing: roas.missing } : {}),
     roi: fig("roi", roi.value, "computed", true, roi.missing ? { missing: roi.missing } : {}),
     duration: fig(
@@ -349,18 +457,25 @@ export function campaignIntel(i: IntelInput): Intel {
   if (leads.value === 0 && late) problems.push("no_leads");
   // Rising cost: cost per lead of the latest measured period against the one before, with spend from the ledger
   // dated in each period. Only when both periods have leads and spend.
-  if (i.spend && leads.byPeriod.size >= 2) {
-    const periods = [...leads.byPeriod.keys()].sort();
-    const [prev, last] = periods.slice(-2) as [string, string];
-    const spentIn = (from: string, to: string | null) =>
-      (i.spendRows ?? [])
-        .filter((s) => s.occurred_on >= from && (to === null || s.occurred_on < to))
-        .reduce((n, s) => n + s.amount, 0);
-    const a = spentIn(prev, last),
-      b = spentIn(last, null);
-    const la = leads.byPeriod.get(prev)!,
-      lb = leads.byPeriod.get(last)!;
-    if (a > 0 && b > 0 && la > 0 && lb > 0 && b / lb > (a / la) * (1 + RULES.risingCost))
+  const [previous, latest] = leads.observations.slice(-2);
+  if (
+    previous &&
+    latest &&
+    latest.period.end < i.today &&
+    Date.parse(previous.period.end) - Date.parse(previous.period.start) ===
+      Date.parse(latest.period.end) - Date.parse(latest.period.start)
+  ) {
+    const a = spendInPeriods(i, [previous.period]);
+    const b = spendInPeriods(i, [latest.period]);
+    if (
+      a !== null &&
+      b !== null &&
+      a > 0 &&
+      b > 0 &&
+      previous.value > 0 &&
+      latest.value > 0 &&
+      b / latest.value > (a / previous.value) * (1 + RULES.risingCost)
+    )
       problems.push("rising_cost");
   }
   if (!c.audience.trim()) problems.push("no_audience");
@@ -493,5 +608,34 @@ export function campaignIntel(i: IntelInput): Intel {
           warnings: i.spend.simulatedWarnings,
         }
       : null;
-  return { figures, problems, advice, overlaps, estimatesExcluded, health, simulated };
+  return {
+    figures,
+    problems,
+    advice,
+    overlaps,
+    estimatesExcluded,
+    health,
+    simulated,
+    measurementEvidence: [leads, clicks, conv, custom],
+    // Use database-recorded evidence strength, never a second significance calculation.
+    // Legacy/unclassified and simulated results must not become proof of improvement.
+    experimentEvidence: i.experiments
+      .filter((e) => e.campaign_id === c.id)
+      .map((e) => ({
+        id: e.id,
+        title: e.title,
+        evidence:
+          e.result_data_class === "simulated"
+            ? "simulated"
+            : e.status !== "completed"
+              ? "pending"
+              : !["manual", "imported"].includes(e.result_data_class ?? "")
+                ? "unclassified"
+                : e.evidence_strength === "controlled"
+                  ? "controlled"
+                  : e.evidence_strength === "correlational"
+                    ? "correlational"
+                    : "inconclusive",
+      })),
+  };
 }

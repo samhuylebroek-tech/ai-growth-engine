@@ -77,6 +77,8 @@ export type BiData = {
   experiments: {
     id: string;
     title: string;
+    campaign_id?: string | null;
+    result_data_class?: string | null;
     status: string;
     evidence_strength: string | null;
     variant_value: number | null;
