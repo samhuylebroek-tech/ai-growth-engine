@@ -16,6 +16,7 @@ import {
   Sparkles,
   X,
   Check,
+  Download,
 } from "lucide-react";
 import { useOrg } from "@/lib/org-context";
 import { useI18n } from "@/lib/i18n";
@@ -30,7 +31,9 @@ import {
   defaultTaskType,
   runActions,
   reviewOutput,
-  taskOutputSchema,
+  recordedTaskOutput,
+  taskOutputMarkdown,
+  executionRole,
   RUN_ESTIMATE,
   type TaskSpecialist,
   type TaskType,
@@ -43,9 +46,6 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-const roleOf = (r: string | null): "viewer" | "member" | "admin" =>
-  r === "owner" || r === "admin" ? "admin" : r === "member" ? "member" : "viewer";
-
 /** One task's AI work: specialist assignment, run controls, approval, results, costs and history. */
 export function TaskAIWork({
   task,
@@ -57,12 +57,29 @@ export function TaskAIWork({
   const o = useOrg();
   const { t, tag } = useI18n();
   const qc = useQueryClient();
-  const role = roleOf(o.workspaceRole);
+  const role = executionRole(o.workspaceRole);
   const q = useQuery(taskExecutionOptions(o.org?.id, o.workspace?.id, role !== "viewer"));
   const execute = useServerFn(executeTaskRun);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
   const pendingKey = useRef<string | null>(null);
+  const latestForReview = runsByTask(q.data?.runs ?? []).get(task.id)?.latest;
+  const acceptance = useQuery({
+    queryKey: ["specialist-result-decision", o.org?.id, o.workspace?.id, latestForReview?.id],
+    enabled: !!o.org && !!o.workspace && latestForReview?.status === "succeeded",
+    queryFn: async () => {
+      if (!o.org || !o.workspace || !latestForReview) throw new Error("Choose a business");
+      const r = await growthDb
+        .from("specialist_result_decisions")
+        .select("decision")
+        .eq("org_id", o.org.id)
+        .eq("workspace_id", o.workspace.id)
+        .eq("task_run_id", latestForReview.id)
+        .maybeSingle();
+      if (r.error) throw r.error;
+      return r.data;
+    },
+  });
   const profile = q.data?.profiles.find((p) => p.task_id === task.id);
   const suggestion = suggestSpecialist(task.title, task.description);
   const [spec, setSpec] = useState<TaskSpecialist>(
@@ -111,6 +128,12 @@ export function TaskAIWork({
     taskType: profile?.task_type ?? null,
     taskStatus: task.status,
     blocked,
+    resultAccepted:
+      acceptance.data?.decision === "accepted" &&
+      !!recordedTaskOutput(latest?.output)?.deliverables.length,
+    resultNeedsRework: ["needs_rework", "rejected", "accepted_with_corrections"].includes(
+      acceptance.data?.decision ?? "",
+    ),
   });
   const types = TASK_SPECIALISTS[spec].types;
   const capLeft = s.monthly_credit_cap - q.data.monthUsed;
@@ -139,7 +162,8 @@ export function TaskAIWork({
     }
   };
   async function startRun(runId: string) {
-    const r = await execute({ data: { orgId: o.org!.id, workspaceId: o.workspace!.id, runId } });
+    if (!o.org || !o.workspace) throw new Error(t("run.failedAction"));
+    const r = await execute({ data: { orgId: o.org.id, workspaceId: o.workspace.id, runId } });
     if (!r.ok) throw new Error(explain(r.error));
     toast[r.data.status === "succeeded" ? "success" : "error"](
       t(`run.done.${r.data.status}` as MessageKey, { n: r.data.credits ?? 0 }),
@@ -170,6 +194,8 @@ export function TaskAIWork({
     }
   }
   const button = (a: RunAction) => {
+    const runId = latest?.id;
+    if (!runId && a !== "run" && a !== "retry") return null;
     const common = { size: "sm" as const, disabled: busy };
     switch (a) {
       case "run":
@@ -189,7 +215,7 @@ export function TaskAIWork({
               if (busy) return;
               setBusy(true);
               try {
-                await startRun(latest!.id);
+                await startRun(runId ?? "");
               } catch (e) {
                 toast.error(e instanceof Error ? e.message : t("run.failedAction"));
               } finally {
@@ -212,7 +238,7 @@ export function TaskAIWork({
               act(
                 () =>
                   growthDb.rpc("decide_task_run", {
-                    _run: latest!.id,
+                    _run: runId ?? "",
                     _decision: "approved",
                     _note: note,
                   }),
@@ -236,7 +262,7 @@ export function TaskAIWork({
                 : act(
                     () =>
                       growthDb.rpc("decide_task_run", {
-                        _run: latest!.id,
+                        _run: runId ?? "",
                         _decision: "rejected",
                         _note: note,
                       }),
@@ -255,7 +281,7 @@ export function TaskAIWork({
             {...common}
             variant="outline"
             onClick={() =>
-              act(() => growthDb.rpc("control_task_run", { _run: latest!.id, _action: "pause" }))
+              act(() => growthDb.rpc("control_task_run", { _run: runId ?? "", _action: "pause" }))
             }
           >
             <Pause />
@@ -269,7 +295,7 @@ export function TaskAIWork({
             {...common}
             variant="outline"
             onClick={() =>
-              act(() => growthDb.rpc("control_task_run", { _run: latest!.id, _action: "resume" }))
+              act(() => growthDb.rpc("control_task_run", { _run: runId ?? "", _action: "resume" }))
             }
           >
             <Play />
@@ -283,7 +309,7 @@ export function TaskAIWork({
             {...common}
             variant="ghost"
             onClick={() =>
-              act(() => growthDb.rpc("control_task_run", { _run: latest!.id, _action: "cancel" }))
+              act(() => growthDb.rpc("control_task_run", { _run: runId ?? "", _action: "cancel" }))
             }
           >
             <X />
@@ -296,15 +322,16 @@ export function TaskAIWork({
             key={a}
             {...common}
             onClick={() =>
-              act(
-                async () =>
-                  supabase
-                    .from("tasks")
-                    .update({ status: "done" })
-                    .eq("id", task.id)
-                    .eq("workspace_id", o.workspace!.id),
-                t("run.accepted"),
-              )
+              act(async () => {
+                if (!o.org || !o.workspace || acceptance.data?.decision !== "accepted")
+                  throw new Error(t("ch.work.unavailable"));
+                return supabase
+                  .from("tasks")
+                  .update({ status: "done" })
+                  .eq("id", task.id)
+                  .eq("org_id", o.org.id)
+                  .eq("workspace_id", o.workspace.id);
+              }, t("run.accepted"))
             }
           >
             <Check />
@@ -331,20 +358,22 @@ export function TaskAIWork({
             {t(`run.sp.${profile.specialist_key}` as MessageKey)} ·{" "}
             {t(`run.type.${profile.task_type}` as MessageKey)}
             {profile.requires_approval ? ` · ${t("run.needsApproval")}` : ""}
-            {(SPECIALIST_INTEGRATIONS[profile.specialist_key as TaskSpecialist]?.prepares.length ??
-              0) > 0 && (
-              <>
-                {" "}
-                ·{" "}
-                <Link
-                  to="/app/actions"
-                  search={{ task: task.id }}
-                  className="text-primary hover:underline"
-                >
-                  {t("xa.prepareFromTask")}
-                </Link>
-              </>
-            )}
+            {acceptance.data?.decision === "accepted" &&
+              !!recordedTaskOutput(latest?.output)?.deliverables.length &&
+              (SPECIALIST_INTEGRATIONS[profile.specialist_key as TaskSpecialist]?.prepares.length ??
+                0) > 0 && (
+                <>
+                  {" "}
+                  ·{" "}
+                  <Link
+                    to="/app/actions"
+                    search={{ task: task.id }}
+                    className="text-primary hover:underline"
+                  >
+                    {t("xa.prepareFromTask")}
+                  </Link>
+                </>
+              )}
           </p>
         ) : (
           <p className="text-xs text-muted-foreground">
@@ -466,6 +495,11 @@ export function TaskAIWork({
               className="min-h-16 text-sm"
             />
           )}
+          {acceptance.isError && (
+            <p role="alert" className="text-xs text-destructive">
+              {t("ch.work.unavailable")}
+            </p>
+          )}
           {actions.length > 0 && <div className="flex flex-wrap gap-2">{actions.map(button)}</div>}
         </section>
       )}
@@ -514,22 +548,8 @@ export function TaskAIWork({
 
 function RunResult({ run }: { run: TaskRunRow }) {
   const { t } = useI18n();
-  const parsed = taskOutputSchema.safeParse(run.output);
   const raw = run.output as { markdown?: string } | null;
-  // A recovered result (saved but not parsed before a timeout) may still be the specialist's JSON.
-  const recovered =
-    !parsed.success && raw?.markdown
-      ? (() => {
-          try {
-            return taskOutputSchema.safeParse(
-              JSON.parse(raw.markdown.replace(/^```(?:json)?\s*/, "").replace(/\s*```$/, "")),
-            );
-          } catch {
-            return null;
-          }
-        })()
-      : null;
-  const o = parsed.success ? parsed.data : recovered?.success ? recovered.data : null;
+  const o = recordedTaskOutput(run.output);
   const review = reviewOutput(o);
   return (
     <section className="space-y-3 rounded-lg border p-3" aria-label={t("run.result")}>
@@ -538,6 +558,26 @@ function RunResult({ run }: { run: TaskRunRow }) {
         <Badge variant="secondary" className="font-normal">
           {t(`run.sp.${run.specialist_key}` as MessageKey)}
         </Badge>
+        {o && (
+          <Button
+            variant="outline"
+            size="sm"
+            aria-label={t("officer.downloadAnalysis")}
+            onClick={() => {
+              const url = URL.createObjectURL(
+                new Blob([taskOutputMarkdown(o)], { type: "text/markdown;charset=utf-8" }),
+              );
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = `task-result-${run.id}.md`;
+              link.click();
+              URL.revokeObjectURL(url);
+            }}
+          >
+            <Download />
+            {t("officer.downloadAnalysis")}
+          </Button>
+        )}
       </div>
       <div className="rounded-md bg-muted/40 p-2 text-xs">
         <p className="font-medium">{t("run.reviewTitle")}</p>

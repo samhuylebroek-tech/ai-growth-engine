@@ -1,6 +1,17 @@
 import { describe, it, expect } from "vitest";
-import { pipelineSummary, nextStage } from "@/lib/pipeline";
+import { pipelineSummary, pipelineCurrencies, nextStage } from "@/lib/pipeline";
 describe("pipeline", () => {
+  it("never combines sales values from different currencies", () => {
+    const result = pipelineCurrencies([
+      { stage: "lead", value: 100, currency: "EUR" },
+      { stage: "proposal", value: 50, currency: "USD" },
+      { stage: "won", value: 300, currency: "USD" },
+    ]);
+    expect(result.map(({ currency, open, won }) => ({ currency, open, won }))).toEqual([
+      { currency: "EUR", open: 100, won: 0 },
+      { currency: "USD", open: 50, won: 300 },
+    ]);
+  });
   it("sums open and won value and win rate from closed deals only", () => {
     const s = pipelineSummary([
       { stage: "lead", value: 100 },

@@ -53,18 +53,21 @@ export function SpecialistQC({ run }: { run: TaskRunRow }) {
     queryKey: key,
     enabled: !!o.org && !!o.workspace,
     queryFn: async (): Promise<Qc> => {
+      if (!o.org || !o.workspace) throw new Error("Choose a business");
       const [r, d, req] = await Promise.all([
         growthDb
           .from("specialist_reviews")
           .select("*")
-          .eq("workspace_id", o.workspace!.id)
+          .eq("org_id", o.org.id)
+          .eq("workspace_id", o.workspace.id)
           .eq("task_run_id", run.id)
           .order("created_at", { ascending: false })
           .limit(10),
         growthDb
           .from("specialist_result_decisions")
           .select("*")
-          .eq("workspace_id", o.workspace!.id)
+          .eq("org_id", o.org.id)
+          .eq("workspace_id", o.workspace.id)
           .eq("task_run_id", run.id)
           .maybeSingle(),
         growthDb.rpc("specialist_review_required", { _run: run.id }),
@@ -94,7 +97,20 @@ export function SpecialistQC({ run }: { run: TaskRunRow }) {
       hour: "2-digit",
       minute: "2-digit",
     }).format(new Date(iso));
-  if (!q.data?.installed) return null;
+  if (q.isError)
+    return (
+      <p role="alert" className="text-sm text-destructive">
+        {t("ch.work.unavailable")}
+      </p>
+    );
+  if (q.isPending)
+    return (
+      <p role="status" className="text-xs text-muted-foreground">
+        {t("ch.work.loading")}
+      </p>
+    );
+  if (!q.data?.installed)
+    return <p className="text-xs text-muted-foreground">{t("ch.work.unavailable")}</p>;
   const d = q.data;
   const figures = figuresToVerify(JSON.stringify(run.output ?? ""));
   const latest = d.reviews[0] ?? null;
@@ -186,7 +202,11 @@ export function SpecialistQC({ run }: { run: TaskRunRow }) {
           runId={run.id}
           required={d.required}
           latest={latest}
-          onDone={() => void qc.invalidateQueries({ queryKey: key })}
+          onDone={() => {
+            void qc.invalidateQueries({ queryKey: key });
+            void qc.invalidateQueries({ queryKey: ["specialist-result-decision"] });
+            void qc.invalidateQueries({ queryKey: ["campaign-work"] });
+          }}
         />
       ) : (
         <p className="text-muted-foreground">{t("qc.editorOnly")}</p>
@@ -291,18 +311,26 @@ function Decide({
     (decision === "accepted" || decision === "accepted_with_corrections") && required && !latest;
   const unreliable = decision === "accepted" && latest?.verdict === "unreliable";
   const save = async () => {
+    if (busy || blocked || unreliable) return;
     setBusy(true);
-    const r = await growthDb.rpc("decide_specialist_result", {
-      _run: runId,
-      _decision: decision,
-      _note: note,
-      _corrections: corr,
-    });
-    setBusy(false);
-    if (r.error) return void toast.error(r.error.message);
-    toast.success(t("qc.saved"));
-    onDone();
+    try {
+      const r = await growthDb.rpc("decide_specialist_result", {
+        _run: runId,
+        _decision: decision,
+        _note: note,
+        _corrections: corr,
+      });
+      if (r.error) throw r.error;
+      toast.success(t("qc.saved"));
+      onDone();
+    } catch {
+      toast.error(t("ch.work.failed"));
+      onDone();
+    } finally {
+      setBusy(false);
+    }
   };
+
   return (
     <div className="space-y-2 border-t border-border pt-2">
       <p className="font-medium">{t("qc.decide")}</p>

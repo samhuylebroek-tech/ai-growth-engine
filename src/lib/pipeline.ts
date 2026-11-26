@@ -39,5 +39,22 @@ export function pipelineSummary(deals: Deal[]) {
 }
 export function nextStage(stage: string): Stage | null {
   const i = STAGES.indexOf(stage as Stage);
-  return i >= 0 && i < 3 ? STAGES[i + 1]! : null;
+  return i >= 0 && i < 3 ? (STAGES[i + 1] ?? null) : null;
+}
+
+/** Monetary totals have one currency each; no implicit EUR conversion. */
+export function pipelineCurrencies(deals: readonly (Deal & { currency: string })[]) {
+  const grouped = new Map<string, Deal[]>();
+  for (const deal of deals) {
+    const currency = deal.currency.trim().toUpperCase();
+    const entries = grouped.get(currency) ?? [];
+    entries.push(deal);
+    grouped.set(currency, entries);
+  }
+  return [...grouped]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([currency, rows]) => ({
+      currency,
+      ...pipelineSummary(rows),
+    }));
 }

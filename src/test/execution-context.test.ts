@@ -19,13 +19,43 @@ function client({ allowed = true, denied = false, status = "approved" } = {}) {
       { id: otherId, org_id: "org-a", workspace_id: "ws-b", title: "other-workspace-secret" },
     ],
     approvals: [{ id, org_id: "org-a", workspace_id: "ws-a", status, title: "Decision" }],
+    crm_contacts: [
+      {
+        id,
+        org_id: "org-a",
+        workspace_id: "ws-a",
+        name: "Customer",
+        company: "Example",
+        email: "private@example.test",
+        phone: "private-phone",
+      },
+    ],
+    crm_deals: [
+      {
+        id,
+        org_id: "org-a",
+        workspace_id: "ws-a",
+        title: "Selected deal",
+        stage: "won",
+        value: 100,
+        currency: "USD",
+      },
+    ],
   };
   return {
     rpc: async () => ({ data: allowed, error: null }),
     from(table: string) {
       let selected = rows[table] ?? [];
+      let projection = "*";
       const q = {
-        select() {
+        select(fields = "*") {
+          projection = fields;
+          return q;
+        },
+        order() {
+          return q;
+        },
+        limit() {
           return q;
         },
         eq(k: string, v: unknown) {
@@ -37,7 +67,13 @@ function client({ allowed = true, denied = false, status = "approved" } = {}) {
           return q;
         },
         maybeSingle: async () => ({
-          data: selected[0] ?? null,
+          data: selected[0]
+            ? Object.fromEntries(
+                Object.entries(selected[0]).filter(
+                  ([key]) => projection === "*" || projection.split(",").includes(key),
+                ),
+              )
+            : null,
           error: denied && table !== "workspaces" ? new Error("denied") : null,
         }),
       };
@@ -46,6 +82,19 @@ function client({ allowed = true, denied = false, status = "approved" } = {}) {
   } as unknown as SupabaseClient<Database>;
 }
 describe("explicit operational AI context", () => {
+  it("includes selected CRM information without disclosing contact email or phone", async () => {
+    const result = await selectedExecutionContext(client(), scope, [{ kind: "crm_contacts", id }]);
+    expect(result.sources).toEqual([`crm_contacts:${id}`]);
+    expect(result.text).toContain("Customer");
+    expect(result.text).not.toContain("private@example.test");
+    expect(result.text).not.toContain("private-phone");
+  });
+  it("retains the currency and won-deal state without treating it as received revenue", async () => {
+    const result = await selectedExecutionContext(client(), scope, [{ kind: "crm_deals", id }]);
+    expect(result.text).toContain('"currency":"USD"');
+    expect(result.text).toContain('"stage":"won"');
+    expect(result.text).toContain("not verified business facts");
+  });
   it("injects nothing by default", async () => {
     expect(await selectedExecutionContext(client(), scope, [])).toEqual({ text: "", sources: [] });
   });

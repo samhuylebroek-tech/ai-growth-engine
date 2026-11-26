@@ -1,4 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { prepareCampaignWork } from "@/lib/campaign-work.functions";
+import { campaignAssignment, campaignWorkIdentity } from "@/lib/campaign-work";
+import { CampaignWork } from "@/components/execution/campaign-work";
+import type { MessageKey } from "@/lib/i18n/messages";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Check, FileText, ListChecks, Pencil, X } from "lucide-react";
@@ -20,19 +25,25 @@ import {
   saveDraft,
   serialize,
 } from "@/lib/campaign-proposal";
-import type { Note } from "@/lib/execution";
+import type { Note, Task } from "@/lib/execution";
 
 /** Review a campaign's proposal inside the campaign: save as draft, modify, approve or reject.
  * Approving the plan never authorises ad spend, publishing, sending or other external actions. */
 export function CampaignProposal({
   campaignId,
   notes,
+  tasks,
+  blocked,
 }: {
   campaignId: string;
   notes: readonly Note[];
+  tasks: readonly Task[];
+  blocked: ReadonlySet<string>;
 }) {
   const o = useOrg();
   const qc = useQueryClient();
+  const prepare = useServerFn(prepareCampaignWork);
+  const inFlight = useRef(false);
   const { t } = useI18n();
   const note = notes.find((n) => n.entity_id === campaignId && isProposalNote(n));
   const proposal = note ? parseProposal(note.body) : null;
@@ -43,39 +54,60 @@ export function CampaignProposal({
   const canDecide = can(o.workspaceRole, "approvals.decide");
   const approved = proposal?.status === "approved" && note ? note : null;
   const items = approved && proposal ? proposalTasks(proposal.text) : [];
-  const label = approved ? proposalTaskLabel(approved.id) : "";
-  const made = useQuery({
-    queryKey: ["execution", "proposal-tasks", o.workspace?.id, label],
-    enabled: !!label && !!o.workspace,
+  const label = note ? proposalTaskLabel(note.id) : "";
+  const version = useQuery({
+    queryKey: ["campaign-proposal-version", approved?.id, proposal?.text],
+    enabled: !!approved && !!proposal,
     queryFn: async () => {
-      const r = await supabase
-        .from("tasks")
-        .select("id", { count: "exact", head: true })
-        .eq("workspace_id", o.workspace!.id)
-        .contains("labels", [label]);
-      if (r.error) throw r.error;
-      return r.count ?? 0;
+      if (!approved || !proposal) throw new Error("No approved proposal");
+      return campaignWorkIdentity(approved.id, proposal.text, items);
     },
   });
+  const proposalWork = tasks.filter((task) => task.labels.includes(label));
+  const legacy = proposalWork.some(
+    (task) => !task.labels.some((l) => l.startsWith("proposal-version:")),
+  );
+  const currentWork = proposalWork.filter((task) =>
+    task.labels.includes(version.data?.label ?? ""),
+  );
 
   async function createTasks() {
-    if (!approved || !o.org || !o.workspace || !o.userId || made.data !== 0) return;
+    if (!approved || !o.org || !o.workspace || !canEdit || inFlight.current) return;
+    inFlight.current = true;
     setBusy(true);
-    const r = await supabase.from("tasks").insert(
-      items.map((title) => ({
-        org_id: o.org!.id,
-        workspace_id: o.workspace!.id,
-        campaign_id: campaignId,
-        title,
-        description: "",
-        labels: ["campaign-proposal", label],
-        created_by: o.userId!,
-      })),
-    );
-    setBusy(false);
-    if (r.error) return void toast.error(t("ch.cp.failed"));
-    toast.success(t("ch.cp.tasksDone"));
-    await qc.invalidateQueries({ queryKey: ["execution"] });
+    try {
+      const r = await prepare({
+        data: {
+          orgId: o.org.id,
+          workspaceId: o.workspace.id,
+          campaignId,
+          noteId: approved.id,
+          expectedBody: approved.body,
+        },
+      });
+      toast[r.assignmentPending ? "warning" : "success"](
+        t(r.assignmentPending ? "ch.work.assignmentPending" : "ch.cp.tasksDone"),
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+      toast.error(
+        t(
+          message.includes("campaign_work_changed")
+            ? "ch.work.changed"
+            : message.includes("campaign_work_legacy")
+              ? "ch.work.legacy"
+              : "ch.work.failed",
+        ),
+      );
+    } finally {
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["execution"] }),
+        qc.invalidateQueries({ queryKey: ["campaign-work"] }),
+        qc.invalidateQueries({ queryKey: ["task-execution"] }),
+      ]);
+      setBusy(false);
+      inFlight.current = false;
+    }
   }
 
   async function persist(body: string) {
@@ -89,6 +121,8 @@ export function CampaignProposal({
             .eq("id", note.id)
             .eq("org_id", o.org.id)
             .eq("workspace_id", o.workspace.id)
+            .eq("body", note.body)
+            .select("id")
         : await supabase.from("execution_notes").insert({
             org_id: o.org.id,
             workspace_id: o.workspace.id,
@@ -101,11 +135,20 @@ export function CampaignProposal({
             created_by: o.userId,
           });
       if (r.error) throw r.error;
+      if (note && (!r.data || r.data.length !== 1)) throw new Error("campaign_work_changed");
       await qc.invalidateQueries({ queryKey: ["execution"] });
       return true;
     } catch (e) {
       const m = e instanceof Error ? e.message : String((e as { message?: string })?.message ?? "");
-      toast.error(t(m.includes("proposal_decision_denied") ? "ch.cp.needsAdmin" : "ch.cp.failed"));
+      toast.error(
+        t(
+          m.includes("campaign_work_changed")
+            ? "ch.work.changed"
+            : m.includes("proposal_decision_denied")
+              ? "ch.cp.needsAdmin"
+              : "ch.cp.failed",
+        ),
+      );
       return false;
     } finally {
       setBusy(false);
@@ -204,7 +247,7 @@ export function CampaignProposal({
               </Button>
             )}
           </div>
-          {approved && canEdit && made.data === 0 && (
+          {approved && canEdit && !legacy && currentWork.length === 0 && (
             <div className="space-y-2 rounded-md bg-muted p-3">
               <p className="flex items-center gap-2 text-sm font-medium">
                 <ListChecks className="size-4" />
@@ -217,10 +260,16 @@ export function CampaignProposal({
                   </p>
                   <ul className="list-disc pl-5 text-sm">
                     {items.map((i) => (
-                      <li key={i}>{i}</li>
+                      <li key={i}>
+                        {i}
+                        <span className="text-xs text-muted-foreground">
+                          {" "}
+                          · {t(`run.sp.${campaignAssignment(i).specialist}` as MessageKey)}
+                        </span>
+                      </li>
                     ))}
                   </ul>
-                  <Button disabled={busy} onClick={createTasks}>
+                  <Button disabled={busy || !version.data} onClick={createTasks}>
                     {t("ch.cp.tasksCreate", { n: items.length })}
                   </Button>
                 </>
@@ -229,9 +278,22 @@ export function CampaignProposal({
               )}
             </div>
           )}
-          {approved && !!made.data && (
-            <p className="text-xs text-muted-foreground">{t("ch.cp.tasksDone")}</p>
+          {legacy && (
+            <p role="alert" className="text-xs text-warning">
+              {t("ch.work.legacy")}
+            </p>
           )}
+          {approved && canEdit && currentWork.length > 0 && !legacy && (
+            <Button variant="outline" disabled={busy} onClick={createTasks}>
+              {t("ch.work.resumeAssignment")}
+            </Button>
+          )}
+          {version.isError && (
+            <p role="alert" className="text-xs text-destructive">
+              {t("ch.work.unavailable")}
+            </p>
+          )}
+          <CampaignWork tasks={proposalWork} blocked={blocked} />
           {proposal.status === "draft" && !canDecide && (
             <p className="text-xs text-muted-foreground">{t("ch.cp.needsAdmin")}</p>
           )}

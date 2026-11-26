@@ -1,4 +1,11 @@
 # AI Growth OS — Task Queue
+## Execution correction (26 November 2026)
+- [x] Implement campaign proposal → contextual specialist tasks → recorded results → human review → next-step preparation: stable per-version task IDs, atomic insert batches, resumable assignment, separate run approval, recorded result stages, explicit capped rework with human feedback and actual result downloads. Not an E2E completion claim.
+- [ ] Validate campaign UX on mobile and desktop; authenticated staging flows require existing safe test access, never security changes.
+- [x] Continue independent work: scoped CRM sales/retention/reactivation handoffs, currency-separated pipeline values and complete scoped task/CRM reads; Growth Officer receives bounded selected-campaign result/decision evidence. External actions and production remain unauthorized.
+- [ ] Remaining A–H programme is not complete: broader UX, lead intake, operational retention/referrals, real integrations and authenticated end-to-end workflows still remain; real providers require credentials/authorization, browser verification requires safe staging test access.
+- [x] Re-verify authorized featurebranch, staging identity and baseline: 1,005 tests passed in 127 files; no schema changes.
+- [x] Validation so far: 1,026 unit/component tests in 129 files; all 57 staging SQL suites pass and roll back (including campaign batch, assignment, RLS and specialist QC). Browser: signed-out staging login only on desktop/tablet/phone; no overflow/runtime errors. Authenticated central flow NOT RUN. GitHub remains a separate post-commit check.
 ## Integrated product gap discovery (26 November 2026)
 - [x] Review all 26 requested capability areas against existing implementation and tests; source review and live validation separated in docs/ux/PRODUCT_COMPLETENESS_GAPS.md.
 - [x] Reliable campaign measurement windows, provenance, dated cost comparisons, scoped experiment evidence and prioritized contextual Growth Officer handoffs; no duplicate model, paid AI or external action.

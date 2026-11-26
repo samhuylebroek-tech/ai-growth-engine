@@ -21,4 +21,14 @@ describe("proposalTasks", () => {
   it("labels tasks with the proposal id", () => {
     expect(proposalTaskLabel("abc")).toBe("proposal:abc");
   });
+  it("never converts a KPI or risk list into executable activities", () => {
+    expect(proposalTasks("## KPIs\n- Leads per week\n## Risks\n- Insufficient budget")).toEqual([]);
+  });
+  it("keeps activities in nested sections and strips information labels", () => {
+    expect(
+      proposalTasks(
+        "## Activities\n### Content\n- [recommendation] Write landing page\n## KPIs\n- Leads",
+      ),
+    ).toEqual(["Write landing page"]);
+  });
 });

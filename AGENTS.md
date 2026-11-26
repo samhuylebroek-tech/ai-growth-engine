@@ -83,3 +83,4 @@ use the editor.
 - AI answers label each statement (fact, calculated, estimate, hypothesis, recommendation, missing) via the shared `CLAIM_RULE` and render through `AiMarkdown`; a 'fact' worded as uncertain is shown as a hypothesis and untagged text is never upgraded.
 - CI ESLint enforces Prettier on every source file: run `scripts/ci/format-changed.sh` before each commit (platform-generated `src/integrations/supabase/` is excluded via `.prettierignore`), so the pull-request check never accumulates formatting debt again.
 - GitHub sync is verified, never assumed: after each round run `bun scripts/ci/github-status.ts` (read-only, public API) and report Synchronized / Not synchronized / Unknown with the CI result per check; CI pins its Bun version to match local.
+- Campaign work uses stable IDs + human decisions to avoid false completion.

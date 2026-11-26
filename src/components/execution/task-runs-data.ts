@@ -1,6 +1,6 @@
+import { collectPages } from "@/lib/pagination";
 import {
   growthDb,
-  isNotInstalled,
   retryUnlessNotInstalled,
   type ExecutionSettingsRow,
   type TaskProfileRow,
@@ -56,26 +56,46 @@ export function taskExecutionOptions(
       if (!orgId || !wsId) throw new Error("Choose a workspace");
       if (canSettle) {
         const rec = await growthDb.rpc("reconcile_task_runs", { _workspace: wsId });
-        if (rec.error && isNotInstalled(rec.error)) throw rec.error;
+        if (rec.error) throw rec.error;
       }
-      const [s, p, r] = await Promise.all([
-        growthDb.from("execution_settings").select("*").eq("workspace_id", wsId).maybeSingle(),
+      const watermark = new Date().toISOString();
+      const [s, profiles, runRows] = await Promise.all([
         growthDb
-          .from("task_execution_profiles")
+          .from("execution_settings")
           .select("*")
           .eq("org_id", orgId)
           .eq("workspace_id", wsId)
-          .limit(2000),
-        growthDb
-          .from("task_runs")
-          .select("*")
-          .eq("org_id", orgId)
-          .eq("workspace_id", wsId)
-          .order("created_at", { ascending: false })
-          .limit(1000),
+          .maybeSingle(),
+        collectPages(async (cursor, size) => {
+          let query = growthDb
+            .from("task_execution_profiles")
+            .select("*")
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .lte("assigned_at", watermark)
+            .order("task_id")
+            .limit(size);
+          if (cursor) query = query.gt("task_id", cursor);
+          const r = await query;
+          return { error: r.error, data: r.data?.map((p) => ({ ...p, id: p.task_id })) ?? null };
+        }),
+        collectPages(async (cursor, size) => {
+          let query = growthDb
+            .from("task_runs")
+            .select("*")
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .lte("created_at", watermark)
+            .order("id")
+            .limit(size);
+          if (cursor) query = query.gt("id", cursor);
+          return await query;
+        }),
       ]);
-      for (const x of [s, p, r]) if (x.error) throw x.error;
-      const runs = r.data ?? [];
+      if (s.error) throw s.error;
+      const runs = runRows.sort(
+        (a, b) => b.created_at.localeCompare(a.created_at) || b.id.localeCompare(a.id),
+      );
       const month = new Date();
       month.setUTCDate(1);
       month.setUTCHours(0, 0, 0, 0);
@@ -90,7 +110,7 @@ export function taskExecutionOptions(
         );
       return {
         settings: { ...DEFAULT_SETTINGS, ...(s.data ?? {}) },
-        profiles: p.data ?? [],
+        profiles,
         runs,
         monthUsed,
       };

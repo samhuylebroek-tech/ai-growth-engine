@@ -1,6 +1,10 @@
 // Rules for AI task execution shared by the server runner, the Tasks screen, Home and tests.
 // The database (proposal 0063) enforces every state change; these helpers only decide what to offer.
 import { z } from "zod";
+import { hasRole, type OrgRole } from "@/lib/permissions";
+
+export const executionRole = (role: OrgRole | null): "viewer" | "member" | "admin" =>
+  hasRole(role, "admin") ? "admin" : hasRole(role, "member") ? "member" : "viewer";
 
 export const SPECIALIST_KEYS = [
   "business_analyst",
@@ -249,6 +253,8 @@ export function runActions(i: {
   taskType: TaskType | null;
   taskStatus: string;
   blocked: boolean;
+  resultAccepted?: boolean;
+  resultNeedsRework?: boolean;
 }): RunAction[] {
   if (i.role === "viewer" || !i.taskType || i.taskType === "external") return [];
   const out: RunAction[] = [];
@@ -262,11 +268,19 @@ export function runActions(i: {
   )
     out.push("run");
   if (!closed && !i.blocked && s === "failed" && i.attempts < MAX_ATTEMPTS) out.push("retry");
+  if (
+    !closed &&
+    !i.blocked &&
+    s === "succeeded" &&
+    i.resultNeedsRework &&
+    i.attempts < MAX_ATTEMPTS
+  )
+    out.push("retry");
   if (s === "awaiting_approval" && i.role === "admin") out.push("approve", "reject");
   if (s === "queued") out.push(...(i.blocked ? [] : ["start" as const]), "pause");
   if (s === "paused") out.push("resume");
   if (s && ["queued", "paused", "awaiting_approval"].includes(s)) out.push("cancel");
-  if (s === "succeeded" && !closed) out.push("accept");
+  if (s === "succeeded" && !closed && i.resultAccepted) out.push("accept");
   return out;
 }
 
@@ -299,6 +313,38 @@ export function parseTaskOutput(raw: string): TaskOutput {
     .replace(/\s*```$/, "");
   return taskOutputSchema.parse(JSON.parse(trimmed));
 }
+/** Recorded recovery wrappers are parsed exactly like the original delivery, never treated as validated by default. */
+export function recordedTaskOutput(value: unknown): TaskOutput | null {
+  const parsed = taskOutputSchema.safeParse(value);
+  if (parsed.success) return parsed.data;
+  if (
+    !value ||
+    typeof value !== "object" ||
+    !("markdown" in value) ||
+    typeof value.markdown !== "string"
+  )
+    return null;
+  try {
+    return parseTaskOutput(value.markdown);
+  } catch {
+    return null;
+  }
+}
+export function taskOutputMarkdown(output: TaskOutput): string {
+  return [
+    `# ${output.title}`,
+    output.summary,
+    ...output.sections.map((section) => `## ${section.heading}\n\n${section.body}`),
+    ...(output.evidence_gaps.length
+      ? [`## Evidence gaps\n${output.evidence_gaps.map((gap) => `- ${gap}`).join("\n")}`]
+      : []),
+    ...(output.external_actions.length
+      ? [
+          `## External actions — not authorized or executed\n${output.external_actions.map((action) => `- ${action.action}${action.system ? ` (${action.system})` : ""}`).join("\n")}`,
+        ]
+      : []),
+  ].join("\n\n");
+}
 export const TASK_OUTPUT_FORMAT = `Return ONLY JSON: {"title":"...","summary":"2-4 sentences","sections":[{"heading":"...","body":"markdown"}],"deliverables":["..."],"evidence_gaps":["..."],"next_steps":[{"title":"...","owner":"team|ai"}],"external_actions":[{"action":"...","system":"..."}]}. 1-8 sections. List anything that would publish, send, spend or change an outside system under external_actions; you cannot do those yourself.`;
 
 /** Growth Officer's rule-based check of a specialist result; it flags, it never changes the result. */
@@ -308,7 +354,7 @@ export function reviewOutput(output: unknown): {
   next: "accept" | "fill_gaps" | "approve_external";
 } {
   const parsed = taskOutputSchema.safeParse(output);
-  if (!parsed.success) return { flags: ["recovered"], next: "accept" };
+  if (!parsed.success) return { flags: ["recovered"], next: "fill_gaps" };
   const o = parsed.data;
   const flags: ReviewFlag[] = [];
   if (o.evidence_gaps.length) flags.push("evidence_gaps");

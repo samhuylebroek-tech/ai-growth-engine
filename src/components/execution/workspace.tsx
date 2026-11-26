@@ -1568,7 +1568,13 @@ function WorkDetails({
                   </dd>
                 </div>
               </dl>
-              <CampaignProposal campaignId={item.id} notes={notes} />
+              <CampaignProposal
+                key={`${o.org?.id}/${o.workspace?.id}/${item.id}`}
+                campaignId={item.id}
+                notes={notes}
+                tasks={q.data?.tasks ?? []}
+                blocked={blockedTasks(q.data?.notes ?? [], q.data?.tasks ?? [])}
+              />
               <CampaignGuidance campaignId={item.id} />
             </>
           )}

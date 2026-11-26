@@ -1,3 +1,5 @@
+import { CrmGuidance } from "@/components/crm/guidance";
+import { collectPages } from "@/lib/pagination";
 import { useState } from "react";
 import { PageHeader } from "@/components/app/status";
 import { useI18n } from "@/lib/i18n";
@@ -7,17 +9,17 @@ import { toast } from "sonner";
 import { useOrg } from "@/lib/org-context";
 import { hasRole } from "@/lib/permissions";
 import { supabase } from "@/integrations/supabase/client";
-import { STAGES, pipelineSummary, nextStage, type Stage } from "@/lib/pipeline";
+import { STAGES, pipelineSummary, pipelineCurrencies, nextStage, type Stage } from "@/lib/pipeline";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
 const sel =
   "h-9 w-full min-w-0 max-w-full rounded-md border border-input bg-background px-2 text-sm sm:w-auto sm:max-w-56";
-const money = (n: number, tag?: string) =>
+const money = (n: number, tag?: string, currency = "EUR") =>
   new Intl.NumberFormat(tag, {
     style: "currency",
-    currency: "EUR",
+    currency,
     maximumFractionDigits: 0,
   }).format(n);
 
@@ -29,7 +31,7 @@ export function Pipeline() {
     return <p className="p-6 text-muted-foreground">{tx("marketing.crm.chooseWs")}</p>;
   return (
     <Board
-      key={workspace.id}
+      key={`${org.id}/${workspace.id}`}
       orgId={org.id}
       wsId={workspace.id}
       canEdit={hasRole(workspaceRole, "member")}
@@ -43,37 +45,66 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
   const stageLabel = (s: string) =>
     STAGES.includes(s as Stage) ? tx(`marketing.crm.stage.${s as Stage}`) : s;
   const data = useQuery({
-    queryKey: ["pipeline", wsId],
+    queryKey: ["pipeline", orgId, wsId],
     queryFn: async () => {
-      const [c, d, g] = await Promise.all([
-        supabase
+      const watermark = new Date().toISOString();
+      const contacts = await collectPages(async (cursor, size) => {
+        let query = supabase
           .from("crm_contacts")
           .select("*")
+          .eq("org_id", orgId)
           .eq("workspace_id", wsId)
           .eq("status", "active")
-          .order("name")
-          .limit(500),
-        supabase
-          .from("crm_deals")
-          .select("*")
-          .eq("workspace_id", wsId)
-          .order("updated_at", { ascending: false })
-          .limit(500),
-        supabase
-          .from("growth_goals")
-          .select("id,title")
-          .eq("workspace_id", wsId)
-          .neq("status", "archived")
-          .limit(100),
+          .lte("created_at", watermark)
+          .order("id")
+          .limit(size);
+        if (cursor) query = query.gt("id", cursor);
+        return await query;
+      });
+      const [deals, goals] = await Promise.all([
+        collectPages(async (cursor, size) => {
+          let query = supabase
+            .from("crm_deals")
+            .select("*")
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .lte("created_at", watermark)
+            .order("id")
+            .limit(size);
+          if (cursor) query = query.gt("id", cursor);
+          return await query;
+        }),
+        collectPages(async (cursor, size) => {
+          let query = supabase
+            .from("growth_goals")
+            .select("id,title")
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .neq("status", "archived")
+            .order("id")
+            .limit(size);
+          if (cursor) query = query.gt("id", cursor);
+          return await query;
+        }),
       ]);
-      if (c.error || d.error || g.error) throw c.error ?? d.error ?? g.error;
-      return { contacts: c.data, deals: d.data, goals: g.data };
+      return {
+        contacts: contacts.sort((a, b) => a.name.localeCompare(b.name)),
+        deals: deals.sort((a, b) => b.updated_at.localeCompare(a.updated_at)),
+        goals,
+      };
     },
   });
-  const refresh = () => qc.invalidateQueries({ queryKey: ["pipeline", wsId] });
+  const refresh = () => qc.invalidateQueries({ queryKey: ["pipeline", orgId, wsId] });
   const [tab, setTab] = useState<"deals" | "contacts">("deals");
   const [c, setC] = useState({ name: "", company: "", email: "", phone: "", source: "" });
-  const [d, setD] = useState({ title: "", contact: "", value: "", close: "", goal: "" });
+  const [d, setD] = useState({
+    title: "",
+    contact: "",
+    value: "",
+    close: "",
+    goal: "",
+    currency: "EUR",
+  });
 
   const addContact = async () => {
     if (!c.name.trim()) return void toast.error(tx("marketing.crm.nameContact"));
@@ -95,6 +126,7 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
     const value = d.value.trim() === "" ? 0 : Number(d.value);
     if (!Number.isFinite(value) || value < 0)
       return void toast.error(tx("marketing.crm.validValue"));
+    if (!/^[A-Z]{3}$/.test(d.currency)) return void toast.error(tx("marketing.crm.validValue"));
     const r = await supabase.from("crm_deals").insert({
       org_id: orgId,
       workspace_id: wsId,
@@ -102,10 +134,11 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
       contact_id: d.contact || null,
       goal_id: d.goal || null,
       value,
+      currency: d.currency,
       expected_close: d.close || null,
     });
     if (r.error) return void toast.error(tx("marketing.crm.dealFailed"));
-    setD({ title: "", contact: "", value: "", close: "", goal: "" });
+    setD({ title: "", contact: "", value: "", close: "", goal: "", currency: "EUR" });
     await refresh();
   };
   const setStage = async (id: string, stage: string) => {
@@ -116,6 +149,7 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
       .from("crm_deals")
       .update({ stage, lost_reason })
       .eq("id", id)
+      .eq("org_id", orgId)
       .eq("workspace_id", wsId);
     if (r.error) toast.error(tx("marketing.crm.updateFailed"));
     await refresh();
@@ -125,6 +159,7 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
       .from("crm_contacts")
       .update({ status: "archived" })
       .eq("id", id)
+      .eq("org_id", orgId)
       .eq("workspace_id", wsId);
     if (r.error) toast.error(tx("marketing.crm.archiveFailed"));
     await refresh();
@@ -135,7 +170,8 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
   if (data.error || !data.data)
     return <p className="p-6 text-destructive">{tx("marketing.crm.loadFailed")}</p>;
   const { contacts, deals, goals } = data.data;
-  const s = pipelineSummary(deals);
+  const s = pipelineSummary(deals.map((d) => ({ stage: d.stage, value: 0 })));
+  const currencies = pipelineCurrencies(deals);
   const contactName = (id: string | null) => contacts.find((x) => x.id === id)?.name;
 
   return (
@@ -145,12 +181,12 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
         {[
           [
             tx("marketing.crm.openValue"),
-            money(s.open, tag),
+            currencies.map((c) => money(c.open, tag, c.currency)).join(" · ") || "—",
             tx("marketing.crm.openDeals", { n: s.openCount }),
           ],
           [
             tx("marketing.crm.wonValue"),
-            money(s.won, tag),
+            currencies.map((c) => money(c.won, tag, c.currency)).join(" · ") || "—",
             tx("marketing.crm.wonN", { n: s.wonCount }),
           ],
           [tx("marketing.crm.lost"), String(s.lostCount), tx("marketing.crm.deals")],
@@ -162,11 +198,12 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
         ].map(([l, v, h]) => (
           <div key={l} className="rounded-lg border bg-card p-3">
             <p className="text-xs text-muted-foreground">{l}</p>
-            <p className="text-xl font-semibold">{v}</p>
+            <p className="break-words text-lg font-semibold">{v}</p>
             <p className="text-xs text-muted-foreground">{h}</p>
           </div>
         ))}
       </div>
+      <p className="text-xs text-muted-foreground">{tx("marketing.crm.guideNote")}</p>
       <div className="flex gap-2">
         <Button
           variant={tab === "deals" ? "default" : "outline"}
@@ -210,12 +247,22 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
               </select>
               <Input
                 aria-label={tx("marketing.crm.value")}
-                placeholder={tx("marketing.crm.valueEur")}
+                placeholder={tx("marketing.crm.value")}
                 inputMode="decimal"
                 className="w-32"
                 value={d.value}
                 onChange={(e) => setD({ ...d, value: e.target.value })}
               />
+              <label className="grid gap-1 text-xs">
+                {tx("marketing.crm.currency")}
+                <Input
+                  className="w-24"
+                  aria-label={tx("marketing.crm.currency")}
+                  maxLength={3}
+                  value={d.currency}
+                  onChange={(e) => setD({ ...d, currency: e.target.value.toUpperCase() })}
+                />
+              </label>
               <Input
                 aria-label={tx("marketing.crm.expectedClose")}
                 type="date"
@@ -265,8 +312,9 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
                           className="space-y-1 rounded-md border bg-card p-2 text-sm"
                         >
                           <p className="break-words font-medium">{x.title}</p>
+                          <CrmGuidance kind="crm_deals" id={x.id} stage={x.stage} />
                           <p className="text-xs text-muted-foreground">
-                            {money(Number(x.value), tag)}
+                            {money(Number(x.value), tag, x.currency)}
                             {contactName(x.contact_id) ? ` · ${contactName(x.contact_id)}` : ""}
                             {x.expected_close
                               ? tx("marketing.crm.close", {
@@ -404,7 +452,8 @@ function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit:
                           tx("marketing.crm.noDetails")}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <CrmGuidance kind="crm_contacts" id={x.id} />
                       <Badge variant="outline">
                         {tx("marketing.crm.openDealsBadge", { n: open })}
                       </Badge>

@@ -1,6 +1,14 @@
 import { z } from "zod";
 export const executionRefSchema = z.object({
-  kind: z.enum(["projects", "tasks", "campaigns", "approvals", "activity_events"]),
+  kind: z.enum([
+    "projects",
+    "tasks",
+    "campaigns",
+    "approvals",
+    "activity_events",
+    "crm_contacts",
+    "crm_deals",
+  ]),
   id: z.guid(),
 });
 export const executionSelectionSchema = z

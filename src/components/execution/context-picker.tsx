@@ -4,6 +4,7 @@ import type { MessageKey } from "@/lib/i18n/messages";
 import { useQuery } from "@tanstack/react-query";
 import { useOrg } from "@/lib/org-context";
 import { executionOptions } from "@/lib/execution";
+import { supabase } from "@/integrations/supabase/client";
 import type { ExecutionRef } from "@/lib/execution-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,48 @@ export function ExecutionContextPicker({
   const o = useOrg();
   const { t } = useI18n();
   const query = useQuery(executionOptions(o.org?.id, o.workspace?.id, o.userId));
+  const contactIds = value.filter((r) => r.kind === "crm_contacts").map((r) => r.id);
+  const dealIds = value.filter((r) => r.kind === "crm_deals").map((r) => r.id);
+  const crm = useQuery({
+    queryKey: ["selected-crm-context", o.org?.id, o.workspace?.id, contactIds, dealIds],
+    enabled: !!o.org && !!o.workspace && contactIds.length + dealIds.length > 0,
+    queryFn: async () => {
+      if (!o.org || !o.workspace) throw new Error("Choose a business");
+      const [contacts, deals] = await Promise.all([
+        contactIds.length
+          ? supabase
+              .from("crm_contacts")
+              .select("id,name,status")
+              .eq("org_id", o.org.id)
+              .eq("workspace_id", o.workspace.id)
+              .in("id", contactIds)
+          : { data: [], error: null },
+        dealIds.length
+          ? supabase
+              .from("crm_deals")
+              .select("id,title,stage")
+              .eq("org_id", o.org.id)
+              .eq("workspace_id", o.workspace.id)
+              .in("id", dealIds)
+          : { data: [], error: null },
+      ]);
+      if (contacts.error || deals.error) throw contacts.error ?? deals.error;
+      return [
+        ...(contacts.data ?? []).map((c) => ({
+          kind: "crm_contacts" as const,
+          id: c.id,
+          title: c.name,
+          detail: c.status,
+        })),
+        ...(deals.data ?? []).map((d) => ({
+          kind: "crm_deals" as const,
+          id: d.id,
+          title: d.title,
+          detail: d.stage,
+        })),
+      ];
+    },
+  });
   const [search, setSearch] = useState("");
   const records = query.data
     ? [
@@ -40,7 +83,7 @@ export function ExecutionContextPicker({
         })),
       ]
     : [];
-  const matches = records.filter((r) =>
+  const matches = [...records, ...(crm.data ?? [])].filter((r) =>
     `${r.title} ${r.kind}`.toLowerCase().includes(search.toLowerCase()),
   );
   return (
@@ -71,7 +114,7 @@ export function ExecutionContextPicker({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        {query.isError ? (
+        {query.isError || crm.isError ? (
           <p role="alert" className="mt-3 text-xs text-destructive">
             {t("officer.ctx.failed")}
             <Button variant="link" onClick={() => query.refetch()}>
@@ -105,7 +148,14 @@ export function ExecutionContextPicker({
                   <span className="min-w-0 break-words">
                     {r.title}
                     <span className="mt-1 block text-2xs text-muted-foreground">
-                      {t(`officer.ctx.kind.${r.kind}` as MessageKey)} · {r.detail}
+                      {t(
+                        r.kind === "crm_contacts"
+                          ? "marketing.crm.contact"
+                          : r.kind === "crm_deals"
+                            ? "marketing.crm.dealsTab"
+                            : (`officer.ctx.kind.${r.kind}` as MessageKey),
+                      )}{" "}
+                      · {r.detail}
                     </span>
                   </span>
                 </label>

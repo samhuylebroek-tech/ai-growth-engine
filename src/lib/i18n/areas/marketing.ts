@@ -3,6 +3,18 @@ import { defineArea } from "../define";
 // Interface texts for the "marketing" area. Keys start with "marketing.".
 export const marketing = defineArea("marketing", {
   en: {
+    "marketing.crm.currency": "Currency",
+    "marketing.crm.followup": "Prepare sales follow-up",
+    "marketing.crm.retention": "Prepare retention & referrals",
+    "marketing.crm.reactivation": "Prepare reactivation",
+    "marketing.crm.followupPrompt":
+      "Use the explicitly selected contact or deal and verified business context. Propose qualification questions, a relevant next sales step and a concrete follow-up draft. Cite recorded information; identify missing needs, consent and timing. Do not invent customer intent, contact anyone, update a CRM or send anything. This is a proposal for human review.",
+    "marketing.crm.retentionPrompt":
+      "Use the explicitly selected won deal and verified business context to prepare a customer-retention plan and optional referral or partnership approach. A won deal is not proof of customer satisfaction, consent or received revenue. Give concrete draft material, missing checks and a measurable next step. Do not contact anyone, send anything or approve external actions.",
+    "marketing.crm.reactivationPrompt":
+      "Use the explicitly selected lost deal and recorded loss reason to propose a careful reactivation plan and follow-up draft. Do not infer consent, dissatisfaction or reasons beyond the records. Explain whether recontact is appropriate and what needs confirmation. Do not contact anyone or send anything.",
+    "marketing.crm.guideNote":
+      "AI starts only after you send the prepared question. Nothing is sent to the contact.",
     "marketing.crm.loading": "Loading…",
     "marketing.crm.chooseWs": "Choose a workspace to manage your pipeline.",
     "marketing.crm.nameContact": "Give the contact a name.",
@@ -415,6 +427,18 @@ export const marketing = defineArea("marketing", {
     "marketing.cs.unplanned": "Not yet planned ({n})",
   },
   nl: {
+    "marketing.crm.currency": "Valuta",
+    "marketing.crm.followup": "Verkoopopvolging voorbereiden",
+    "marketing.crm.retention": "Klantbehoud & referrals voorbereiden",
+    "marketing.crm.reactivation": "Heractivatie voorbereiden",
+    "marketing.crm.followupPrompt":
+      "Gebruik het expliciet geselecteerde contact of de deal en de bevestigde bedrijfscontext. Stel kwalificatievragen, een relevante volgende verkoopstap en een concrete opvolgtekst voor. Verwijs naar vastgelegde informatie; benoem ontbrekende behoeften, toestemming en timing. Verzin geen klantintentie, contacteer niemand, wijzig geen CRM en verstuur niets. Dit is een voorstel voor menselijke beoordeling.",
+    "marketing.crm.retentionPrompt":
+      "Gebruik de expliciet geselecteerde gewonnen deal en bevestigde bedrijfscontext voor een klantbehoudplan en eventueel referrals of partnerships. Een gewonnen deal bewijst geen klanttevredenheid, toestemming of ontvangen omzet. Lever concrete concepttekst, ontbrekende controles en een meetbare volgende stap. Contacteer niemand, verstuur niets en keur geen externe acties goed.",
+    "marketing.crm.reactivationPrompt":
+      "Gebruik de expliciet geselecteerde verloren deal en de vastgelegde verliesreden voor een zorgvuldig heractivatieplan en opvolgtekst. Leid geen toestemming, ontevredenheid of andere oorzaken af buiten de gegevens. Leg uit of opnieuw contact passend is en wat bevestigd moet worden. Contacteer niemand en verstuur niets.",
+    "marketing.crm.guideNote":
+      "AI start pas als je de voorbereide vraag verstuurt. Er wordt niets naar het contact verzonden.",
     "marketing.crm.loading": "Laden…",
     "marketing.crm.chooseWs": "Kies een werkruimte om je pipeline te beheren.",
     "marketing.crm.nameContact": "Geef het contact een naam.",
@@ -831,6 +855,18 @@ export const marketing = defineArea("marketing", {
     "marketing.cs.unplanned": "Nog niet gepland ({n})",
   },
   fr: {
+    "marketing.crm.currency": "Devise",
+    "marketing.crm.followup": "Préparer le suivi commercial",
+    "marketing.crm.retention": "Préparer fidélisation et recommandations",
+    "marketing.crm.reactivation": "Préparer la réactivation",
+    "marketing.crm.followupPrompt":
+      "Utilise le contact ou l’affaire explicitement sélectionné et le contexte vérifié. Propose des questions de qualification, une prochaine étape commerciale et un brouillon concret de suivi. Cite les données enregistrées et les besoins, consentements et délais manquants. N’invente aucune intention client, ne contacte personne, ne modifie aucun CRM et n’envoie rien. Prépare une proposition à évaluer.",
+    "marketing.crm.retentionPrompt":
+      "Utilise l’affaire gagnée sélectionnée et le contexte vérifié pour préparer un plan de fidélisation et une approche de recommandation ou partenariat. Une affaire gagnée ne prouve ni satisfaction, ni consentement, ni revenu reçu. Fournis un brouillon concret, les vérifications manquantes et une prochaine étape mesurable. Ne contacte personne, n’envoie rien et n’approuve aucune action externe.",
+    "marketing.crm.reactivationPrompt":
+      "Utilise l’affaire perdue sélectionnée et sa raison enregistrée pour préparer un plan prudent de réactivation et un brouillon de suivi. Ne déduis pas de consentement ni de causes absentes des données. Explique si une reprise de contact est appropriée et ce qui doit être confirmé. Ne contacte personne et n’envoie rien.",
+    "marketing.crm.guideNote":
+      "L’IA démarre après l’envoi de la question préparée. Rien n’est envoyé au contact.",
     "marketing.crm.loading": "Chargement…",
     "marketing.crm.chooseWs": "Choisissez un espace pour gérer votre pipeline.",
     "marketing.crm.nameContact": "Donnez un nom au contact.",

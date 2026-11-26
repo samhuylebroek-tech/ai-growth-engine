@@ -2,6 +2,39 @@ import { defineArea } from "../define";
 
 export const ch = defineArea("ch", {
   en: {
+    "ch.work.title": "Specialist work & results",
+    "ch.work.separation":
+      "Created ≠ assigned ≠ executed ≠ reviewed. Each AI run needs its own approval. External execution remains separate.",
+    "ch.work.unavailable":
+      "Specialist progress could not be checked. No execution or approval is assumed.",
+    "ch.work.loading": "Checking specialist work…",
+    "ch.work.retry": "Check again",
+    "ch.work.unassigned": "No specialist assigned",
+    "ch.work.open": "Work & result",
+    "ch.work.next": "Prepare next action (external execution is separate)",
+    "ch.work.assignmentPending":
+      "Tasks exist, but some specialist assignments could not be confirmed. Resume assignment without creating tasks again.",
+    "ch.work.resumeAssignment": "Check and complete assignments",
+    "ch.work.changed":
+      "The proposal changed. Reload it and review the current version before creating work.",
+    "ch.work.legacy":
+      "Earlier tasks have no exact proposal version. Review existing work before creating a new batch; automatic conversion is blocked to avoid duplicates.",
+    "ch.work.failed":
+      "Work preparation could not be confirmed. Refresh and check existing tasks; do not assume nothing was saved.",
+    "ch.work.stage.created": "Created — not executed",
+    "ch.work.stage.assigned": "Assigned — not started",
+    "ch.work.stage.awaiting_approval": "AI run awaiting approval",
+    "ch.work.stage.queued": "Approved run — ready to start",
+    "ch.work.stage.paused": "AI run paused",
+    "ch.work.stage.running": "Specialist working",
+    "ch.work.stage.failed": "Execution failed",
+    "ch.work.stage.uncertain": "Outcome unknown — do not retry",
+    "ch.work.stage.cancelled": "Run cancelled or rejected",
+    "ch.work.stage.executed": "Result delivered — awaiting review",
+    "ch.work.stage.result_missing": "Execution recorded — deliverable needs checking",
+    "ch.work.stage.reviewed": "Deliverable reviewed & accepted",
+    "ch.work.stage.corrections": "Corrections required — not ready",
+    "ch.work.stage.rework": "Result rejected or needs rework",
     "ch.audience": "Audience",
     "ch.channels": "Channels",
     "ch.noAudience": "Audience not recorded",
@@ -42,7 +75,7 @@ export const ch = defineArea("ch", {
     "ch.cp.tasksHint":
       "{n} activities found. Tasks are internal work only; nothing is published, sent or spent.",
     "ch.cp.tasksCreate": "Create {n} tasks",
-    "ch.cp.tasksDone": "Tasks created from this approved plan.",
+    "ch.cp.tasksDone": "Internal tasks prepared; specialist execution has not started.",
     "ch.cp.tasksNone":
       "No list of activities found in the plan. Add bullet points to create tasks.",
     "ch.cp.reopens": "Saving changes returns the proposal to draft for a new decision.",
@@ -105,6 +138,39 @@ export const ch = defineArea("ch", {
     "ch.filter.at_risk": "Needs attention",
   },
   nl: {
+    "ch.work.title": "Specialistenwerk & resultaten",
+    "ch.work.separation":
+      "Aangemaakt ≠ toegewezen ≠ uitgevoerd ≠ beoordeeld. Elke AI-uitvoering vraagt eigen goedkeuring. Externe uitvoering blijft apart.",
+    "ch.work.unavailable":
+      "De specialistvoortgang kon niet worden gecontroleerd. Uitvoering of goedkeuring wordt niet aangenomen.",
+    "ch.work.loading": "Specialistenwerk controleren…",
+    "ch.work.retry": "Opnieuw controleren",
+    "ch.work.unassigned": "Geen specialist toegewezen",
+    "ch.work.open": "Werk & resultaat",
+    "ch.work.next": "Volgende actie voorbereiden (externe uitvoering blijft apart)",
+    "ch.work.assignmentPending":
+      "Taken bestaan, maar sommige specialisttoewijzingen konden niet worden bevestigd. Hervat de toewijzing zonder opnieuw taken te maken.",
+    "ch.work.resumeAssignment": "Toewijzingen controleren en aanvullen",
+    "ch.work.changed":
+      "Het voorstel is gewijzigd. Herlaad en beoordeel de huidige versie voordat je werk aanmaakt.",
+    "ch.work.legacy":
+      "Eerdere taken hebben geen exacte voorstelversie. Controleer bestaand werk; automatische omzetting is geblokkeerd om dubbele taken te voorkomen.",
+    "ch.work.failed":
+      "Werkvoorbereiding kon niet worden bevestigd. Vernieuw en controleer bestaande taken; neem niet aan dat niets is opgeslagen.",
+    "ch.work.stage.created": "Aangemaakt — niet uitgevoerd",
+    "ch.work.stage.assigned": "Toegewezen — niet gestart",
+    "ch.work.stage.awaiting_approval": "AI-uitvoering wacht op goedkeuring",
+    "ch.work.stage.queued": "Uitvoering goedgekeurd — klaar om te starten",
+    "ch.work.stage.paused": "AI-uitvoering gepauzeerd",
+    "ch.work.stage.running": "Specialist werkt",
+    "ch.work.stage.failed": "Uitvoering mislukt",
+    "ch.work.stage.uncertain": "Uitkomst onbekend — niet opnieuw proberen",
+    "ch.work.stage.cancelled": "Uitvoering geannuleerd of afgewezen",
+    "ch.work.stage.executed": "Resultaat opgeleverd — wacht op beoordeling",
+    "ch.work.stage.result_missing": "Uitvoering vastgelegd — resultaat controleren",
+    "ch.work.stage.reviewed": "Resultaat beoordeeld & aanvaard",
+    "ch.work.stage.corrections": "Correcties nodig — nog niet klaar",
+    "ch.work.stage.rework": "Resultaat afgewezen of opnieuw uitwerken",
     "ch.audience": "Doelgroep",
     "ch.channels": "Kanalen",
     "ch.noAudience": "Doelgroep niet vastgelegd",
@@ -145,7 +211,8 @@ export const ch = defineArea("ch", {
     "ch.cp.tasksHint":
       "{n} activiteiten gevonden. Taken zijn alleen intern werk; er wordt niets gepubliceerd, verzonden of uitgegeven.",
     "ch.cp.tasksCreate": "Maak {n} taken",
-    "ch.cp.tasksDone": "Taken aangemaakt uit dit goedgekeurde plan.",
+    "ch.cp.tasksDone":
+      "Interne taken voorbereid; specialisten hebben het werk nog niet uitgevoerd.",
     "ch.cp.tasksNone":
       "Geen lijst met activiteiten in het plan gevonden. Voeg opsommingstekens toe om taken te maken.",
     "ch.cp.reopens":
@@ -209,6 +276,39 @@ export const ch = defineArea("ch", {
     "ch.filter.at_risk": "Vraagt aandacht",
   },
   fr: {
+    "ch.work.title": "Travail des spécialistes et résultats",
+    "ch.work.separation":
+      "Créé ≠ attribué ≠ exécuté ≠ évalué. Chaque exécution IA exige son approbation. L’exécution externe reste séparée.",
+    "ch.work.unavailable":
+      "La progression n’a pas pu être vérifiée. Aucune exécution ni approbation n’est présumée.",
+    "ch.work.loading": "Vérification du travail…",
+    "ch.work.retry": "Vérifier à nouveau",
+    "ch.work.unassigned": "Aucun spécialiste attribué",
+    "ch.work.open": "Travail et résultat",
+    "ch.work.next": "Préparer la prochaine action (exécution externe séparée)",
+    "ch.work.assignmentPending":
+      "Les tâches existent, mais certaines attributions ne sont pas confirmées. Reprenez l’attribution sans recréer les tâches.",
+    "ch.work.resumeAssignment": "Vérifier et compléter les attributions",
+    "ch.work.changed":
+      "La proposition a changé. Rechargez et examinez sa version actuelle avant de créer le travail.",
+    "ch.work.legacy":
+      "Les anciennes tâches n’ont pas de version exacte. Vérifiez le travail existant ; la conversion automatique est bloquée pour éviter les doublons.",
+    "ch.work.failed":
+      "La préparation n’est pas confirmée. Actualisez et vérifiez les tâches ; ne supposez pas que rien n’a été enregistré.",
+    "ch.work.stage.created": "Créé — non exécuté",
+    "ch.work.stage.assigned": "Attribué — non démarré",
+    "ch.work.stage.awaiting_approval": "Exécution IA à approuver",
+    "ch.work.stage.queued": "Exécution approuvée — prête",
+    "ch.work.stage.paused": "Exécution IA en pause",
+    "ch.work.stage.running": "Spécialiste au travail",
+    "ch.work.stage.failed": "Exécution échouée",
+    "ch.work.stage.uncertain": "Résultat inconnu — ne pas réessayer",
+    "ch.work.stage.cancelled": "Exécution annulée ou rejetée",
+    "ch.work.stage.executed": "Résultat livré — à évaluer",
+    "ch.work.stage.result_missing": "Exécution enregistrée — livrable à vérifier",
+    "ch.work.stage.reviewed": "Livrable évalué et accepté",
+    "ch.work.stage.corrections": "Corrections requises — pas prêt",
+    "ch.work.stage.rework": "Résultat rejeté ou à refaire",
     "ch.audience": "Audience",
     "ch.channels": "Canaux",
     "ch.noAudience": "Audience non enregistrée",
@@ -249,7 +349,7 @@ export const ch = defineArea("ch", {
     "ch.cp.tasksHint":
       "{n} activités trouvées. Les tâches restent internes ; rien n'est publié, envoyé ni dépensé.",
     "ch.cp.tasksCreate": "Créer {n} tâches",
-    "ch.cp.tasksDone": "Tâches créées à partir de ce plan approuvé.",
+    "ch.cp.tasksDone": "Tâches internes préparées ; le travail des spécialistes n’a pas démarré.",
     "ch.cp.tasksNone":
       "Aucune liste d'activités trouvée dans le plan. Ajoutez des puces pour créer des tâches.",
     "ch.cp.reopens":

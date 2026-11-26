@@ -74,22 +74,30 @@ const ACTIVITY_HEADING =
 const HEADING = /^#{1,6}\s/;
 const ITEM = /^\s*(?:[-*•]|\d+[.)])\s+(?:\[[ x]\]\s+)?(.+)$/;
 
-/** Extracts task titles from an approved plan: list items under an activities heading, else every list item.
+/** Extracts explicit activities; fallback accepts a plain list, never KPI/risk/budget sections.
  * Pure and deterministic (no AI, no credits); duplicates removed, capped at PROPOSAL_TASK_MAX. */
 export function proposalTasks(text: string): string[] {
   const lines = text.split(/\r?\n/);
   const collect = (onlyActivities: boolean) => {
     const out: string[] = [];
     let inside = !onlyActivities;
+    let activityLevel = 0;
     for (const line of lines) {
       if (HEADING.test(line)) {
-        if (onlyActivities) inside = ACTIVITY_HEADING.test(line);
+        if (onlyActivities) {
+          const level = line.match(/^#+/)?.[0].length ?? 0;
+          if (ACTIVITY_HEADING.test(line)) {
+            inside = true;
+            activityLevel = level;
+          } else if (level <= activityLevel) inside = false;
+        }
         continue;
       }
       const m = inside ? ITEM.exec(line) : null;
       if (!m?.[1]) continue;
       const title = m[1]
         .replace(/\*\*|__|`/g, "")
+        .replace(/^\[(?:fact|calc|estimate|hypothesis|recommendation|missing)\]:?\s*/i, "")
         .replace(/\s+/g, " ")
         .trim()
         .slice(0, 200);
@@ -99,7 +107,9 @@ export function proposalTasks(text: string): string[] {
     return out;
   };
   const found = collect(true);
-  return (found.length ? found : collect(false)).slice(0, PROPOSAL_TASK_MAX);
+  return (
+    found.length ? found : lines.some((line) => HEADING.test(line)) ? [] : collect(false)
+  ).slice(0, PROPOSAL_TASK_MAX);
 }
 
 /** Label linking tasks to the exact approved proposal note, used to prevent creating them twice. */
