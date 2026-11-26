@@ -1,4 +1,8 @@
 # AI Growth OS — Task Queue
+## Continuation mandate (26 November 2026)
+- [x] Lead intake step 1: pure validation (consent, honeypot, 3 s fill time, normalised email, per-day idempotency key) in src/lib/lead-intake.ts, 6 tests.
+- [ ] Lead intake step 2: staging schema (form keys → workspace, insert-only intake, rate limit) + public /api/public/lead route + CRM contact creation.
+- [ ] Product-wide UX transformation on four domains; authenticated E2E (blocked: no safe staging test account).
 ## Execution correction (26 November 2026)
 - [x] Implement campaign proposal → contextual specialist tasks → recorded results → human review → next-step preparation: stable per-version task IDs, atomic insert batches, resumable assignment, separate run approval, recorded result stages, explicit capped rework with human feedback and actual result downloads. Not an E2E completion claim.
 - [ ] Validate campaign UX on mobile and desktop; authenticated staging flows require existing safe test access, never security changes.
