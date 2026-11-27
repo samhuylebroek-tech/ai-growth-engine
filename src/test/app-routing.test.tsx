@@ -15,9 +15,14 @@ describe("App routing", () => {
 
     expect(matches.at(-1)?.routeId).not.toBe(rootRouteId);
   });
-  it.each(NAVIGATION.flatMap(group => group.items.map(item => item.to)))("resolves the implemented navigation destination %s", (path) => {
-    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
-    const matched = router.matchRoutes(path).at(-1);
-    expect(matched?.routeId).toBe(path === "/app" ? "/_authenticated/app/" : `/_authenticated${path}`);
-  });
+  it.each(NAVIGATION.flatMap((group) => group.items.map((item) => item.to)))(
+    "resolves the implemented navigation destination %s",
+    (path) => {
+      const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+      const matched = router.matchRoutes(path).at(-1);
+      expect(matched?.routeId).toBe(
+        path === "/app" ? "/_authenticated/app/" : `/_authenticated${path}`,
+      );
+    },
+  );
 });

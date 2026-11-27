@@ -1,93 +1,656 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Shield, LogOut, Zap, Menu, X, Sun, Moon, Search, ChevronRight, Sparkles, Building2 } from "lucide-react";
+import {
+  Shield,
+  LogOut,
+  Zap,
+  Menu,
+  X,
+  Sun,
+  Moon,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+  Building2,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { OrgProvider, useOrg } from "@/lib/org-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { NAVIGATION, primaryNavigation } from "@/lib/navigation";
-import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
-import { pageHead } from "@/lib/page-head";
+import {
+  FALLBACK_GROUP,
+  NAVIGATION,
+  primaryNavigation,
+  navigationDomain,
+  navigationGroupKey,
+  navigationPageKey,
+} from "@/lib/navigation";
+import {
+  CommandDialog,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
+import { localHead } from "@/lib/page-head";
 import { WorkspaceContext, WorkspaceTools } from "@/components/app/workspace-tools";
 import { searchWorkspace, type WorkspaceSearchHit } from "@/lib/workspace-search";
+import { useI18n } from "@/lib/i18n";
+import { LOCALES, LOCALE_NAME, MESSAGES, isLocale, type MessageKey } from "@/lib/i18n/messages";
+import { browserEnvironment } from "@/lib/environment";
 
 export const Route = createFileRoute("/_authenticated/app")({
-  head: () => pageHead("Workspace", "Your business growth workspace."),
-  component: () => <OrgProvider><Shell /></OrgProvider>,
+  head: () => localHead("workspace"),
+  component: () => (
+    <OrgProvider>
+      <Shell />
+    </OrgProvider>
+  ),
 });
 
 function Shell() {
-  const o = useOrg(); const qc = useQueryClient(); const navigate = useNavigate();
-  const path = useRouterState({ select: s => s.location.pathname });
-  const group = NAVIGATION.find(g => g.items.some(it => it.to === path)) ?? NAVIGATION.find(g => g.group === "Knowledge");
-  const current = group?.items.find(it => it.to === path);
-  const [open, setOpen] = useState(false); const [search, setSearch] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(""); const [debouncedTerm, setDebouncedTerm] = useState("");
-  useEffect(() => { const timer = setTimeout(() => setDebouncedTerm(searchTerm.trim()), 250); return () => clearTimeout(timer); }, [searchTerm]);
-  useEffect(() => { setSearchTerm(""); setDebouncedTerm(""); }, [o.org?.id, o.workspace?.id]);
-  const records = useQuery({ queryKey: ["workspace-search", o.org?.id, o.workspace?.id, o.userId, debouncedTerm], enabled: search && !!o.org && !!o.workspace && debouncedTerm.length >= 2, queryFn: () => {
-    if (!o.org || !o.workspace) return [];
-    return searchWorkspace(supabase, { orgId: o.org.id, workspaceId: o.workspace.id, userId: o.userId }, debouncedTerm);
-  } });
+  const { t, locale, setLocale } = useI18n();
+  const roleLabel = (r: string) =>
+    `settings.role.${r}` in MESSAGES.en ? t(`settings.role.${r}` as MessageKey) : r;
+  const kindLabel = (k: string) =>
+    `pages.sh.kind.${k}` in MESSAGES.en
+      ? t(`pages.sh.kind.${k}` as MessageKey)
+      : k.replaceAll("_", " ");
+  const navLabel = (to: string) => t(navigationPageKey(to));
+  const groupLabel = (g: string) => t(navigationGroupKey(g));
+  const staging = browserEnvironment(import.meta.env["VITE_APP_ENVIRONMENT"]) === "staging";
+  const o = useOrg();
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+  const path = useRouterState({ select: (s) => s.location.pathname });
+  // Detail pages (e.g. /app/performance/<id>) belong to their parent destination.
+  const isAt = (to: string) => to === path || (to !== "/app" && path.startsWith(`${to}/`));
+  const group =
+    NAVIGATION.find((g) => g.items.some((it) => isAt(it.to))) ??
+    NAVIGATION.find((g) => g.group === FALLBACK_GROUP);
+  const current = group?.items.find((it) => isAt(it.to));
+  const domain = navigationDomain(group?.group);
+  const contextualGroups = NAVIGATION.filter((g) =>
+    domain?.groups.some((name) => name === g.group),
+  );
+  const [open, setOpen] = useState(false);
+  const [desktop, setDesktop] = useState(false);
+  const drawerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const media = matchMedia("(min-width: 1024px)");
+    const update = () => setDesktop(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  useEffect(() => {
+    if (!open || desktop) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const drawer = drawerRef.current;
+    if (!drawer) return;
+    const targets = () =>
+      Array.from(
+        drawer.querySelectorAll<HTMLElement>("a[href],button:not([disabled]),select,input"),
+      ).filter((node) => node.getClientRects().length > 0);
+    targets()[0]?.focus();
+    const trap = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const nodes = targets();
+      const first = nodes[0],
+        last = nodes.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
+    drawer.addEventListener("keydown", trap);
+    return () => {
+      drawer.removeEventListener("keydown", trap);
+      previous?.focus();
+    };
+  }, [open, desktop]);
+  const tabsRef = useRef<HTMLElement>(null);
+  // Keep the current tab visible when a destination has more tabs than fit (phones, tablets).
+  useEffect(() => {
+    const nav = tabsRef.current;
+    const active = nav?.querySelector<HTMLElement>('[data-status="active"]');
+    if (!nav || !active) return;
+    const left = active.offsetLeft - nav.offsetLeft;
+    // 40 px leaves room for the scroll arrow that covers each overflowing edge.
+    if (
+      left < nav.scrollLeft + 40 ||
+      left + active.offsetWidth > nav.scrollLeft + nav.clientWidth - 40
+    )
+      nav.scrollLeft = left - 48;
+    updateTabEdges();
+  }, [path, o.loading]);
+  // Arrows appear only when tabs are hidden on that side (tablets, phones), so every tab stays reachable by pointer.
+  const [tabEdges, setTabEdges] = useState({ left: false, right: false });
+  function updateTabEdges() {
+    const nav = tabsRef.current;
+    if (!nav) return;
+    const left = nav.scrollLeft > 4;
+    const right = nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 4;
+    setTabEdges((e) => (e.left === left && e.right === right ? e : { left, right }));
+  }
+  useEffect(() => {
+    const nav = tabsRef.current;
+    if (!nav || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => updateTabEdges());
+    ro.observe(nav);
+    return () => ro.disconnect();
+  });
+  function scrollTabs(dir: 1 | -1) {
+    const nav = tabsRef.current;
+    if (!nav) return;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    nav.scrollBy({ left: dir * nav.clientWidth * 0.6, behavior: reduce ? "instant" : "smooth" });
+  }
+  const [search, setSearch] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedTerm, setDebouncedTerm] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedTerm(searchTerm.trim()), 250);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+  useEffect(() => {
+    setSearchTerm("");
+    setDebouncedTerm("");
+  }, [o.org?.id, o.workspace?.id]);
+  const records = useQuery({
+    queryKey: ["workspace-search", o.org?.id, o.workspace?.id, o.userId, debouncedTerm],
+    enabled: search && !!o.org && !!o.workspace && debouncedTerm.length >= 2,
+    queryFn: () => {
+      if (!o.org || !o.workspace) return [];
+      return searchWorkspace(
+        supabase,
+        { orgId: o.org.id, workspaceId: o.workspace.id, userId: o.userId },
+        debouncedTerm,
+      );
+    },
+  });
   function openRecord(hit: WorkspaceSearchHit) {
-    setSearch(false); setOpen(false);
+    setSearch(false);
+    setOpen(false);
     if (hit.kind === "projects") navigate({ to: "/app/projects", search: { item: hit.id } });
     else if (hit.kind === "tasks") navigate({ to: "/app/tasks", search: { item: hit.id } });
     else if (hit.kind === "campaigns") navigate({ to: "/app/campaigns", search: { item: hit.id } });
-    else navigate({ to: hit.kind === "documents" ? "/app/documents" : hit.kind === "business_facts" ? "/app/profile" : "/app/growth-officer" });
+    else
+      navigate({
+        to:
+          hit.kind === "documents"
+            ? "/app/documents"
+            : hit.kind === "business_facts"
+              ? "/app/profile"
+              : "/app/growth-officer",
+      });
   }
   useEffect(() => {
-    const key = (e: KeyboardEvent) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setSearch(s => !s); } if (e.key === "Escape") setOpen(false); };
-    document.addEventListener("keydown", key); return () => document.removeEventListener("keydown", key);
+    const key = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearch((s) => !s);
+      }
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", key);
+    return () => document.removeEventListener("keydown", key);
   }, []);
-  useEffect(() => { if (!open) return; const previous = document.body.style.overflow; document.body.style.overflow = "hidden"; return () => { document.body.style.overflow = previous; }; }, [open]);
-  async function signOut() { await qc.cancelQueries(); qc.clear(); await supabase.auth.signOut(); navigate({ to: "/auth", search: { redirect: undefined }, replace: true }); }
-  if (o.loading) return <div role="status" className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">Opening your workspace…</div>;
-  if (o.error) return <div role="alert" className="flex min-h-screen flex-col items-center justify-center gap-4"><p>Your workspace could not load.</p><Button onClick={() => o.refresh()}>Retry</Button></div>;
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [open]);
+  async function signOut() {
+    await qc.cancelQueries();
+    qc.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", search: { redirect: undefined }, replace: true });
+  }
+  if (o.loading)
+    return (
+      <div
+        role="status"
+        className="flex min-h-screen items-center justify-center text-sm text-muted-foreground"
+      >
+        {t("pages.sh.opening")}
+      </div>
+    );
+  if (o.error)
+    return (
+      <div role="alert" className="flex min-h-screen flex-col items-center justify-center gap-4">
+        <p>{t("pages.sh.loadFailed")}</p>
+        <Button onClick={() => o.refresh()}>{t("pages.sh.retry")}</Button>
+      </div>
+    );
   if (!o.memberships.length) return <CreateOrganization />;
-  return <div className="flex min-h-screen bg-background">
-    <a href="#main-content" className="sr-only z-50 focus:not-sr-only focus:fixed focus:bg-card focus:p-3">Skip to content</a>
-    <aside aria-label="Main navigation" className={cn("fixed inset-y-0 left-0 z-40 flex w-[224px] shrink-0 flex-col border-r border-border bg-surface transition-transform lg:sticky lg:top-0 lg:h-dvh lg:translate-x-0", open ? "translate-x-0" : "-translate-x-full")}>
-      <div className="flex h-20 items-center justify-between px-5"><Link to="/app" className="flex items-center gap-2.5"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"><Zap className="h-4 w-4" /></span><span className="text-sm font-bold leading-tight">Growth Engine<span className="block text-[10px] font-medium text-muted-foreground">BUSINESS OPERATING SYSTEM</span></span></Link><Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(false)} aria-label="Close menu"><X /></Button></div>
-      <div className="mx-5 border-b border-border pb-4 text-xs text-muted-foreground"><p className="truncate font-medium text-foreground">{o.org?.name}</p><p className="mt-1 truncate">{o.workspace?.name ?? "No workspace access"}</p></div>
-      <nav className="flex-1 overflow-y-auto px-3 py-5"><div className="mb-3 px-2 section-label">Workspace</div><div className="space-y-1">{primaryNavigation.map(it => <Button key={it.to} variant="ghost" asChild className={cn("w-full justify-start gap-3 px-3 text-sm text-muted-foreground", group?.group === it.group && "bg-card font-semibold text-foreground shadow-sm")}><Link to={it.to} onClick={() => setOpen(false)}><it.icon className={cn(group?.group === it.group && "text-primary")} />{it.group === "Intelligence" ? "Growth intelligence" : it.group === "Work" ? "Work & approvals" : it.label === "Business knowledge" ? "Knowledge" : it.group === "Settings" ? "Settings" : it.label}</Link></Button>)}</div><Button variant="ghost" onClick={() => setSearch(true)} className="mt-6 w-full justify-start gap-3 px-3 text-muted-foreground"><Search />Search & actions</Button>{o.isPlatformStaff && <Button variant="ghost" className="mt-3 w-full justify-start" asChild><Link to="/admin"><Shield />Owner center</Link></Button>}</nav>
-      <div className="border-t border-border p-3"><div className="flex items-center gap-2 px-2 py-2"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-card text-xs font-semibold">{o.email.slice(0,1).toUpperCase()}</span><div className="min-w-0"><p className="truncate text-xs font-medium">{o.email}</p><p className="mt-0.5 text-[10px] capitalize text-muted-foreground">{o.role} · {o.workspaceRole ?? "no workspace access"}</p></div></div><div className="flex items-center justify-between"><Button variant="ghost" size="sm" onClick={signOut} className="text-muted-foreground"><LogOut />Sign out</Button><Button variant="ghost" size="icon" aria-label="Toggle color theme" title="Toggle color theme" onClick={() => { const dark = document.documentElement.classList.toggle("dark"); localStorage.setItem("ago.theme", dark ? "dark" : "light"); }}><Sun className="hidden dark:block" /><Moon className="dark:hidden" /></Button></div></div>
-    </aside>
-    {open && <div className="fixed inset-0 z-30 bg-foreground/30 lg:hidden" onClick={() => setOpen(false)} />}
-    <CommandDialog open={search} onOpenChange={setSearch}><CommandInput value={searchTerm} onValueChange={setSearchTerm} maxLength={100} placeholder="Search your workspace…" /><CommandList><CommandEmpty>{records.isFetching ? "Searching…" : "No matching destinations or records."}</CommandEmpty>{records.isError && <p role="alert" className="px-4 py-3 text-xs text-destructive">Workspace records could not load.<Button variant="link" size="sm" onClick={() => records.refetch()}>Retry</Button></p>}{!!records.data?.length && <CommandGroup heading="Workspace records · up to 5 per category">{records.data.map(hit => <CommandItem key={`${hit.kind}:${hit.id}`} value={`${searchTerm} ${hit.kind} ${hit.title}`} onSelect={() => openRecord(hit)}><Search /><span className="min-w-0 break-words"><span className="block">{hit.title}</span><span className="text-xs text-muted-foreground">{hit.kind.replaceAll("_", " ")}</span></span></CommandItem>)}</CommandGroup>}<CommandGroup heading="Quick actions"><CommandItem onSelect={() => { setSearch(false); navigate({ to: "/app/growth-officer" }); }}><Sparkles />Ask the Growth Officer</CommandItem><CommandItem onSelect={() => { setSearch(false); navigate({ to: "/app/onboarding" }); }}><Building2 />Review business profile</CommandItem></CommandGroup>{NAVIGATION.map(g => <CommandGroup key={g.group} heading={g.group}>{g.items.map(it => <CommandItem key={it.to} value={`${g.group} ${it.label}`} onSelect={() => { setSearch(false); setOpen(false); navigate({ to: it.to }); }}><it.icon />{it.label}</CommandItem>)}</CommandGroup>)}</CommandList></CommandDialog>
-    <main id="main-content" className="min-w-0 flex-1">
-      <header className="flex h-16 items-center gap-1 border-b border-border px-3 sm:gap-3 md:px-8"><Button variant="ghost" size="icon" className="shrink-0 lg:hidden" onClick={() => setOpen(true)} aria-label="Open menu"><Menu /></Button><div className="min-w-0"><WorkspaceContext /></div><span className="hidden text-xs text-muted-foreground xl:block">/ {current?.label ?? "Business discovery"}</span><div className="ml-auto flex shrink-0 items-center gap-1"><Button variant="ghost" size="sm" className="px-2 text-muted-foreground" onClick={() => setSearch(true)} aria-label="Search pages" title="Search & actions"><Search /><span className="hidden text-xs lg:inline">Search workspace</span></Button><div key={`${o.userId}/${o.org?.id}/${o.workspace?.id}`}><WorkspaceTools /></div></div></header>
-      {group && group.items.length > 1 && <nav aria-label={`${group.group} navigation`} className="flex gap-4 overflow-x-auto border-b border-border px-4 md:px-8">{group.items.map(it => <Link key={it.to} to={it.to} className="shrink-0 border-b-2 border-transparent py-3 text-xs font-medium text-muted-foreground hover:text-foreground" activeProps={{ className: "border-primary text-foreground" }}><span>{it.label}</span></Link>)}</nav>}
-      <div key={`${o.org?.id}/${o.workspace?.id}`} className="app-content mx-auto max-w-[1320px] px-4 py-7 md:px-8 md:py-9 lg:px-10">{!o.workspace && <div role="status" className="mb-6 border-l-2 border-warning pl-4 text-sm">No workspace access has been assigned. Ask your organization owner to assign access.</div>}<Outlet /></div>
-    </main>
-  </div>;
+  return (
+    <div className="flex min-h-screen bg-background">
+      <a
+        href="#main-content"
+        className="sr-only z-50 focus:not-sr-only focus:fixed focus:bg-card focus:p-3"
+      >
+        {t("shell.skip")}
+      </a>
+      <aside
+        ref={drawerRef}
+        inert={!open && !desktop}
+        aria-label={t("pages.sh.mainNav")}
+        className={cn(
+          "fixed inset-y-0 left-0 z-40 flex w-[224px] shrink-0 flex-col border-r border-border bg-surface transition-transform lg:sticky lg:top-0 lg:h-dvh lg:translate-x-0",
+          open ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
+        <div className="flex h-20 items-center justify-between px-5">
+          <Link to="/app" className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <Zap className="h-4 w-4" />
+            </span>
+            <span className="text-sm font-bold leading-tight">
+              Growth Engine
+              <span className="block text-2xs font-medium text-muted-foreground">
+                AI Growth Engine
+              </span>
+            </span>
+          </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
+            onClick={() => setOpen(false)}
+            aria-label={t("shell.closeMenu")}
+          >
+            <X />
+          </Button>
+        </div>
+        <div className="mx-5 border-b border-border pb-4 text-xs text-muted-foreground">
+          <p className="truncate font-medium text-foreground">{o.org?.name}</p>
+          <p className="mt-1 truncate">{o.workspace?.name ?? t("shell.noWorkspace")}</p>
+        </div>
+        <nav className="flex-1 overflow-y-auto px-3 py-5">
+          <div className="mb-3 px-2 section-label">{t("shell.workspace")}</div>
+          <div className="space-y-1">
+            {primaryNavigation.map((it) => (
+              <Button
+                key={it.to}
+                variant="ghost"
+                asChild
+                className={cn(
+                  "h-auto min-h-9 w-full justify-start gap-3 whitespace-normal px-3 py-2 text-left text-sm text-muted-foreground",
+                  domain?.domain === it.domain && "bg-card font-semibold text-foreground shadow-sm",
+                )}
+              >
+                <Link
+                  to={it.to}
+                  onClick={() => setOpen(false)}
+                  aria-current={domain?.domain === it.domain ? "location" : undefined}
+                >
+                  <it.icon className={cn(domain?.domain === it.domain && "text-primary")} />
+                  {t(`lead.domain.${it.domain}`)}
+                </Link>
+              </Button>
+            ))}
+          </div>
+          {contextualGroups.length > 1 && (
+            <div className="mt-5 border-t border-border pt-4">
+              <p className="mb-2 px-3 text-xs text-muted-foreground">{t("lead.domain.context")}</p>
+              {contextualGroups.map((g) => (
+                <Button
+                  key={g.group}
+                  variant="ghost"
+                  asChild
+                  className={cn(
+                    "h-auto min-h-11 w-full justify-start whitespace-normal text-left text-xs",
+                    group?.group === g.group && "bg-muted font-semibold",
+                  )}
+                >
+                  <Link to={g.items[0].to} onClick={() => setOpen(false)}>
+                    {groupLabel(g.group)}
+                  </Link>
+                </Button>
+              ))}
+            </div>
+          )}
+          <div className="mt-5 border-t border-border pt-3">
+            <Button
+              variant="ghost"
+              asChild
+              className="h-auto min-h-11 w-full justify-start whitespace-normal text-left text-xs"
+            >
+              <Link to="/app/organization" onClick={() => setOpen(false)}>
+                <Building2 />
+                {t("lead.domain.settings")}
+              </Link>
+            </Button>
+          </div>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setOpen(false);
+              setSearch(true);
+            }}
+            className="mt-6 w-full justify-start gap-3 px-3 text-muted-foreground"
+          >
+            <Search />
+            {t("shell.searchActions")}
+          </Button>
+          {o.isPlatformStaff && (
+            <Button variant="ghost" className="mt-3 w-full justify-start" asChild>
+              <Link to="/admin">
+                <Shield />
+                {t("shell.ownerCenter")}
+              </Link>
+            </Button>
+          )}
+        </nav>
+        <div className="border-t border-border p-3">
+          <div className="flex items-center gap-2 px-2 py-2">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-card text-xs font-semibold">
+              {o.email.slice(0, 1).toUpperCase()}
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-xs font-medium">{o.email}</p>
+              <p className="mt-0.5 text-2xs capitalize text-muted-foreground">
+                {o.role ? roleLabel(o.role) : ""} ·{" "}
+                {o.workspaceRole ? roleLabel(o.workspaceRole) : t("pages.sh.noWsAccess")}
+              </p>
+            </div>
+          </div>
+          <div className="px-2 pb-2">
+            <select
+              aria-label={t("shell.language")}
+              title={t("shell.language")}
+              value={locale}
+              onChange={(e) => {
+                if (isLocale(e.target.value)) setLocale(e.target.value);
+              }}
+              className="h-8 w-full min-w-0 rounded-md border border-border bg-background px-1.5 text-xs text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {LOCALES.map((l) => (
+                <option key={l} value={l}>
+                  {LOCALE_NAME[l]}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center justify-between">
+            <Button variant="ghost" size="sm" onClick={signOut} className="text-muted-foreground">
+              <LogOut />
+              {t("shell.signOut")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={t("shell.theme")}
+              title={t("shell.theme")}
+              onClick={() => {
+                const dark = document.documentElement.classList.toggle("dark");
+                localStorage.setItem("ago.theme", dark ? "dark" : "light");
+              }}
+            >
+              <Sun className="hidden dark:block" />
+              <Moon className="dark:hidden" />
+            </Button>
+          </div>
+        </div>
+      </aside>
+      {open && (
+        <div
+          className="fixed inset-0 z-30 bg-foreground/30 lg:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+      <CommandDialog open={search} onOpenChange={setSearch}>
+        <CommandInput
+          value={searchTerm}
+          onValueChange={setSearchTerm}
+          maxLength={100}
+          placeholder={t("shell.searchPlaceholder")}
+        />
+        <CommandList>
+          <CommandEmpty>
+            {records.isFetching ? t("pages.sh.searching") : t("pages.sh.noMatches")}
+          </CommandEmpty>
+          {records.isError && (
+            <p role="alert" className="px-4 py-3 text-xs text-destructive">
+              {t("pages.sh.recordsFailed")}
+              <Button variant="link" size="sm" onClick={() => records.refetch()}>
+                {t("pages.sh.retry")}
+              </Button>
+            </p>
+          )}
+          {!!records.data?.length && (
+            <CommandGroup heading={t("pages.sh.records")}>
+              {records.data.map((hit) => (
+                <CommandItem
+                  key={`${hit.kind}:${hit.id}`}
+                  value={`${searchTerm} ${hit.kind} ${hit.title}`}
+                  onSelect={() => openRecord(hit)}
+                >
+                  <Search />
+                  <span className="min-w-0 break-words">
+                    <span className="block">{hit.title}</span>
+                    <span className="text-xs text-muted-foreground">{kindLabel(hit.kind)}</span>
+                  </span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+          <CommandGroup heading={t("pages.sh.quick")}>
+            <CommandItem
+              onSelect={() => {
+                setSearch(false);
+                navigate({ to: "/app/growth-officer" });
+              }}
+            >
+              <Sparkles />
+              {t("pages.sh.ask")}
+            </CommandItem>
+            <CommandItem
+              onSelect={() => {
+                setSearch(false);
+                navigate({ to: "/app/onboarding" });
+              }}
+            >
+              <Building2 />
+              {t("pages.sh.reviewProfile")}
+            </CommandItem>
+          </CommandGroup>
+          {NAVIGATION.map((g) => (
+            <CommandGroup key={g.group} heading={groupLabel(g.group)}>
+              {g.items.map((it) => (
+                <CommandItem
+                  key={it.to}
+                  value={`${g.group} ${it.label} ${navLabel(it.to)}`}
+                  onSelect={() => {
+                    setSearch(false);
+                    setOpen(false);
+                    navigate({ to: it.to });
+                  }}
+                >
+                  <it.icon />
+                  {navLabel(it.to)}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ))}
+        </CommandList>
+      </CommandDialog>
+      <main id="main-content" inert={open && !desktop} className="min-w-0 flex-1">
+        <header className="flex h-16 items-center gap-1 border-b border-border px-3 sm:gap-3 md:px-8">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0 lg:hidden"
+            onClick={() => setOpen(true)}
+            aria-label={t("shell.openMenu")}
+          >
+            <Menu />
+          </Button>
+          <div className="min-w-0 overflow-hidden">
+            <WorkspaceContext />
+          </div>
+          {staging && (
+            <span
+              role="note"
+              className="shrink-0 rounded-full border border-warning/40 bg-warning/10 px-2 py-0.5 text-2xs font-semibold text-warning"
+              title={t("shell.staging")}
+            >
+              <span className="sm:hidden">Staging</span>
+              <span className="hidden sm:inline">{t("shell.staging")}</span>
+            </span>
+          )}
+          <span className="hidden text-xs text-muted-foreground xl:block">
+            / {current ? navLabel(current.to) : t("shell.discovery")}
+          </span>
+          <div className="ml-auto flex shrink-0 items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="px-2 text-muted-foreground"
+              onClick={() => setSearch(true)}
+              aria-label={t("shell.search")}
+              title={t("shell.searchActions")}
+            >
+              <Search />
+              <span className="hidden text-xs lg:inline">{t("shell.searchShort")}</span>
+            </Button>
+            <div key={`${o.userId}/${o.org?.id}/${o.workspace?.id}`}>
+              <WorkspaceTools />
+            </div>
+          </div>
+        </header>
+        {group && group.items.length > 1 && (
+          <div className="relative border-b border-border">
+            <nav
+              ref={tabsRef}
+              aria-label={groupLabel(group.group)}
+              onScroll={updateTabEdges}
+              className="flex gap-4 overflow-x-auto px-4 [mask-image:linear-gradient(to_right,transparent,black_16px,black_calc(100%-24px),transparent)] [scrollbar-width:none] md:px-6 lg:gap-5 lg:px-8"
+            >
+              {group.items.map((it) => (
+                <Link
+                  key={it.to}
+                  to={it.to}
+                  activeOptions={{ exact: "exact" in it && it.exact }}
+                  className="flex min-h-11 shrink-0 items-center border-b-2 border-transparent text-xs font-medium text-muted-foreground hover:text-foreground data-[status=active]:border-primary data-[status=active]:text-foreground"
+                >
+                  <span>{navLabel(it.to)}</span>
+                </Link>
+              ))}
+            </nav>
+            {(["left", "right"] as const).map((side) =>
+              tabEdges[side] ? (
+                <Button
+                  key={side}
+                  type="button"
+                  variant="ghost"
+                  aria-label={side === "left" ? t("lead.previousPages") : t("lead.nextPages")}
+                  onClick={() => scrollTabs(side === "left" ? -1 : 1)}
+                  className={cn(
+                    "absolute inset-y-0 hidden w-9 items-center justify-center bg-background text-muted-foreground hover:text-foreground sm:flex",
+                    side === "left"
+                      ? "left-0 border-r border-border"
+                      : "right-0 border-l border-border",
+                  )}
+                >
+                  {side === "left" ? (
+                    <ChevronLeft className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </Button>
+              ) : null,
+            )}
+          </div>
+        )}
+        <div
+          key={`${o.org?.id}/${o.workspace?.id}`}
+          className="app-content mx-auto max-w-[1320px] px-4 py-7 md:px-8 md:py-9 lg:px-10"
+        >
+          {!o.workspace && (
+            <div role="status" className="mb-6 border-l-2 border-warning pl-4 text-sm">
+              {t("pages.sh.noAssignment")}
+            </div>
+          )}
+          <Outlet />
+        </div>
+      </main>
+    </div>
+  );
 }
 
 function CreateOrganization() {
-  const o = useOrg(); const navigate = useNavigate();
-  const [name, setName] = useState(""); const [ws, setWs] = useState(""); const [busy, setBusy] = useState(false);
+  const o = useOrg();
+  const navigate = useNavigate();
+  const { t } = useI18n();
+  const [name, setName] = useState("");
+  const [ws, setWs] = useState("");
+  const [busy, setBusy] = useState(false);
   async function submit(e: React.FormEvent) {
-    e.preventDefault(); setBusy(true);
-    const { data, error } = await supabase.rpc("create_organization", { _name: name, _workspace_name: ws || name });
+    e.preventDefault();
+    setBusy(true);
+    const { data, error } = await supabase.rpc("create_organization", {
+      _name: name,
+      _workspace_name: ws || name,
+    });
     setBusy(false);
-    if (error) { toast.error(error.message); return; }
-    o.setOrgId(data as string); await o.refresh();
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    o.setOrgId(data as string);
+    await o.refresh();
     navigate({ to: "/app/onboarding" });
   }
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <form onSubmit={submit} className="w-full max-w-md py-8">
-        <div className="text-xs font-medium uppercase tracking-wider text-primary">Your growth workspace</div>
-        <h1 className="mt-2 text-2xl font-bold">Create your organization</h1>
-        <p className="mt-1 text-sm text-muted-foreground">You'll start on a 14-day free trial with 200 AI credits. No card needed.</p>
+        <div className="text-xs font-medium uppercase tracking-wider text-primary">
+          {t("pages.co.kicker")}
+        </div>
+        <h1 className="mt-2 text-2xl font-bold">{t("pages.co.title")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("pages.co.sub")}</p>
         <div className="mt-6 space-y-4">
-          <div className="space-y-1.5"><Label htmlFor="org">Organization name</Label><Input id="org" required maxLength={120} value={name} onChange={(e) => setName(e.target.value)} placeholder="Acme Inc." /></div>
-          <div className="space-y-1.5"><Label htmlFor="ws">First brand or workspace <span className="text-muted-foreground">(optional)</span></Label><Input id="ws" maxLength={120} value={ws} onChange={(e) => setWs(e.target.value)} placeholder="Same as organization" /></div>
-          <Button className="w-full" disabled={busy}>{busy ? "Creating…" : "Continue"}</Button>
+          <div className="space-y-1.5">
+            <Label htmlFor="org">{t("pages.co.org")}</Label>
+            <Input
+              id="org"
+              required
+              maxLength={120}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Acme Inc."
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="ws">
+              {t("pages.co.ws")}{" "}
+              <span className="text-muted-foreground">{t("pages.co.optional")}</span>
+            </Label>
+            <Input
+              id="ws"
+              maxLength={120}
+              value={ws}
+              onChange={(e) => setWs(e.target.value)}
+              placeholder={t("pages.co.wsPh")}
+            />
+          </div>
+          <Button className="w-full" disabled={busy}>
+            {busy ? t("pages.co.creating") : t("pages.co.continue")}
+          </Button>
         </div>
       </form>
     </div>

@@ -1,0 +1,299 @@
+import { defineArea } from "../define";
+
+// The first growth journey after onboarding ("gj"): twelve steps, their states and who may act. Keys start with "gj.".
+export const gj = defineArea("gj", {
+  en: {
+    "gj.title": "Your growth journey",
+    "gj.intro":
+      "From what we know about your business to your first campaign. Each step opens the page where you do it; nothing is created for you.",
+    "gj.progress": "{done} of {total} action steps done (reading steps are not counted)",
+    "gj.now": "Step {n} of {total}",
+    "gj.allDone": "Every step has been taken. Home keeps showing the next most useful action.",
+    "gj.show": "Show all steps",
+    "gj.hide": "Hide steps",
+    "gj.loading": "Loading your growth journey…",
+    "gj.unknown": "This could not be read just now, so its status is unknown. Try again later.",
+    "gj.state.done": "Done",
+    "gj.state.attention": "Needs attention",
+    "gj.state.todo": "To do",
+    "gj.state.waiting": "After an earlier step",
+    "gj.state.ready": "Look any time",
+    "gj.state.unknown": "Unknown",
+    "gj.who.viewer": "Everyone can open this.",
+    "gj.who.member": "A member, editor or administrator can do this.",
+    "gj.who.editor": "An editor or administrator can do this.",
+    "gj.who.admin": "An administrator decides this step.",
+    "gj.who.owner": "The owner decides this step.",
+    "gj.onboarding.title": "Tell us how your business works",
+    "gj.onboarding.cta": "Answer the questions",
+    "gj.onboarding.done":
+      "All {total} key questions are answered. You can change answers at any time.",
+    "gj.onboarding.attention":
+      "{n} of {total} key questions answered. Partial answers already help; the rest makes advice more specific.",
+    "gj.onboarding.todo":
+      "A few short questions about customers, sales, challenges and boundaries. Skip what you do not know.",
+    "gj.review.title": "See what AI Growth Engine understands",
+    "gj.review.cta": "Open the summary",
+    "gj.review.ready":
+      "{n} of {total} topics are known. The summary shows what is confirmed and what is still missing.",
+    "gj.confirm.title": "Correct or confirm important details",
+    "gj.confirm.cta": "Open business details",
+    "gj.confirm.attention":
+      "Not yet confirmed: {n}. These were found or assumed; advice only treats confirmed details as facts.",
+    "gj.confirm.done": "Everything known has been confirmed.",
+    "gj.confirm.waiting": "Nothing to confirm yet. Answer the questions or add your website first.",
+    "gj.situation.title": "Review your growth situation",
+    "gj.situation.cta": "Open growth situation",
+    "gj.situation.ready":
+      "What goes well, what is unknown and where the biggest opportunity is, from your own records. No credits.",
+    "gj.ask.title": "Ask the Growth Officer a prepared question",
+    "gj.ask.cta": "Prepare the question",
+    "gj.ask.done":
+      "Your conversations with the Growth Officer: {n}. Every statement is labelled so you can see what it rests on.",
+    "gj.ask.todo":
+      "One prepared question about the most valuable first step. It costs a few credits; nothing changes without you.",
+    "gj.opportunity.title": "Understand the most important opportunity",
+    "gj.opportunity.cta": "Open opportunities",
+    "gj.opportunity.done": "Opportunities recorded: {n}, ranked by impact, effort and evidence.",
+    "gj.opportunity.todo":
+      "Optional: compare opportunities before choosing a goal. You can also set a goal directly.",
+    "gj.goal.title": "Define a measurable goal",
+    "gj.goal.cta": "Open goals",
+    "gj.goal.done": "Measurable goals with a starting point and a target: {n}.",
+    "gj.goal.attention":
+      "Active goals: {total}, but none has a metric, starting point and target yet, so progress cannot be measured.",
+    "gj.goal.todo": "Choose one result to grow, with a starting point, a target and a date.",
+    "gj.strategy.title": "Receive a recommended strategy",
+    "gj.strategy.cta": "Open goals",
+    "gj.strategy.done": "Strategies recorded for your goals: {n}.",
+    "gj.strategy.todo":
+      "On the goal, ask for a strategy. It costs credits and is saved as a proposal; nothing starts automatically.",
+    "gj.strategy.waiting": "Comes after a measurable goal.",
+    "gj.initiatives.title": "Review the proposed initiatives",
+    "gj.initiatives.cta": "Open goals",
+    "gj.initiatives.done": "Approved plans with initiatives: {n}.",
+    "gj.initiatives.attention":
+      "A plan is waiting for a decision. An administrator approves it, rejects it with a reason or asks for changes.",
+    "gj.initiatives.todo": "Turn a strategy into a plan with initiatives, then have it approved.",
+    "gj.initiatives.waiting": "Comes after a strategy.",
+    "gj.campaign.title": "Move toward the first campaign",
+    "gj.campaign.cta": "Open campaigns",
+    "gj.campaign.done": "Campaigns in preparation or running: {n}.",
+    "gj.campaign.todo":
+      "Create a campaign linked to your goal. Nothing is published or spent without approval.",
+    "gj.campaign.waiting": "Comes after a measurable goal.",
+    "gj.resources.title": "Understand resources, budget and approvals",
+    "gj.resources.cta": "Open goals and budget",
+    "gj.resources.ctaApprovals": "Open approvals",
+    "gj.resources.attention":
+      "Proposals waiting for a decision: {n}. They cannot go ahead before that.",
+    "gj.resources.done": "Budget lines recorded: {total}. No proposals are waiting.",
+    "gj.resources.todo":
+      "Record what you plan to spend per channel and month, so spending can be checked against it.",
+    "gj.resources.waiting": "Comes after a goal or campaign.",
+    "gj.next.title": "See what happens next",
+    "gj.next.cta": "Open Home",
+    "gj.next.ready":
+      "Home always shows the one next step for you, based on your records. Results appear under Performance and Reports.",
+  },
+  nl: {
+    "gj.title": "Je groeitraject",
+    "gj.intro":
+      "Van wat we over je bedrijf weten tot je eerste campagne. Elke stap opent de pagina waar je het doet; er wordt niets voor je aangemaakt.",
+    "gj.progress": "{done} van {total} actiestappen klaar (leesstappen tellen niet mee)",
+    "gj.now": "Stap {n} van {total}",
+    "gj.allDone": "Alle stappen zijn gezet. Home blijft de volgende nuttigste actie tonen.",
+    "gj.show": "Alle stappen tonen",
+    "gj.hide": "Stappen verbergen",
+    "gj.loading": "Je groeitraject wordt geladen…",
+    "gj.unknown":
+      "Dit kon nu niet gelezen worden, dus de status is onbekend. Probeer het later opnieuw.",
+    "gj.state.done": "Klaar",
+    "gj.state.attention": "Vraagt aandacht",
+    "gj.state.todo": "Te doen",
+    "gj.state.waiting": "Na een eerdere stap",
+    "gj.state.ready": "Altijd te bekijken",
+    "gj.state.unknown": "Onbekend",
+    "gj.who.viewer": "Iedereen kan dit openen.",
+    "gj.who.member": "Een lid, redacteur of beheerder kan dit doen.",
+    "gj.who.editor": "Een redacteur of beheerder kan dit doen.",
+    "gj.who.admin": "Een beheerder beslist over deze stap.",
+    "gj.who.owner": "De eigenaar beslist over deze stap.",
+    "gj.onboarding.title": "Vertel hoe je bedrijf werkt",
+    "gj.onboarding.cta": "Vragen beantwoorden",
+    "gj.onboarding.done":
+      "Alle {total} kernvragen zijn beantwoord. Je kunt antwoorden altijd aanpassen.",
+    "gj.onboarding.attention":
+      "{n} van {total} kernvragen beantwoord. Gedeeltelijke antwoorden helpen al; de rest maakt advies specifieker.",
+    "gj.onboarding.todo":
+      "Een paar korte vragen over klanten, verkoop, uitdagingen en grenzen. Sla over wat je niet weet.",
+    "gj.review.title": "Bekijk wat AI Growth Engine begrijpt",
+    "gj.review.cta": "Samenvatting openen",
+    "gj.review.ready":
+      "{n} van {total} onderwerpen zijn bekend. De samenvatting toont wat bevestigd is en wat nog ontbreekt.",
+    "gj.confirm.title": "Corrigeer of bevestig belangrijke gegevens",
+    "gj.confirm.cta": "Bedrijfsgegevens openen",
+    "gj.confirm.attention":
+      "Nog niet bevestigd: {n}. Deze zijn gevonden of aangenomen; advies behandelt alleen bevestigde gegevens als feit.",
+    "gj.confirm.done": "Alles wat bekend is, is bevestigd.",
+    "gj.confirm.waiting":
+      "Nog niets te bevestigen. Beantwoord eerst de vragen of voeg je website toe.",
+    "gj.situation.title": "Bekijk je groeisituatie",
+    "gj.situation.cta": "Groeisituatie openen",
+    "gj.situation.ready":
+      "Wat goed gaat, wat onbekend is en waar de grootste kans ligt, uit je eigen gegevens. Kost geen credits.",
+    "gj.ask.title": "Stel de Growth Officer een klaargezette vraag",
+    "gj.ask.cta": "Vraag klaarzetten",
+    "gj.ask.done":
+      "Jouw gesprekken met de Growth Officer: {n}. Elke uitspraak heeft een label, zodat je ziet waarop ze rust.",
+    "gj.ask.todo":
+      "Eén klaargezette vraag over de waardevolste eerste stap. Het kost een paar credits; er verandert niets zonder jou.",
+    "gj.opportunity.title": "Begrijp de belangrijkste groeikans",
+    "gj.opportunity.cta": "Groeikansen openen",
+    "gj.opportunity.done":
+      "Vastgelegde groeikansen: {n}, gerangschikt op impact, inspanning en bewijs.",
+    "gj.opportunity.todo":
+      "Optioneel: vergelijk kansen voordat je een doel kiest. Je kunt ook meteen een doel instellen.",
+    "gj.goal.title": "Stel een meetbaar doel",
+    "gj.goal.cta": "Doelen openen",
+    "gj.goal.done": "Meetbare doelen met een vertrekpunt en een streefwaarde: {n}.",
+    "gj.goal.attention":
+      "Actieve doelen: {total}, maar nog geen enkel met maatstaf, vertrekpunt en streefwaarde, dus vooruitgang is niet te meten.",
+    "gj.goal.todo":
+      "Kies één resultaat om te laten groeien, met een vertrekpunt, een streefwaarde en een datum.",
+    "gj.strategy.title": "Ontvang een aanbevolen strategie",
+    "gj.strategy.cta": "Doelen openen",
+    "gj.strategy.done": "Vastgelegde strategieën voor je doelen: {n}.",
+    "gj.strategy.todo":
+      "Vraag bij het doel een strategie aan. Dat kost credits en wordt als voorstel bewaard; er start niets automatisch.",
+    "gj.strategy.waiting": "Komt na een meetbaar doel.",
+    "gj.initiatives.title": "Bekijk de voorgestelde initiatieven",
+    "gj.initiatives.cta": "Doelen openen",
+    "gj.initiatives.done": "Goedgekeurde plannen met initiatieven: {n}.",
+    "gj.initiatives.attention":
+      "Een plan wacht op een beslissing. Een beheerder keurt het goed, wijst het af met een reden of vraagt aanpassingen.",
+    "gj.initiatives.todo":
+      "Maak van een strategie een plan met initiatieven en laat het goedkeuren.",
+    "gj.initiatives.waiting": "Komt na een strategie.",
+    "gj.campaign.title": "Werk naar de eerste campagne",
+    "gj.campaign.cta": "Campagnes openen",
+    "gj.campaign.done": "Campagnes in voorbereiding of actief: {n}.",
+    "gj.campaign.todo":
+      "Maak een campagne die aan je doel gekoppeld is. Er wordt niets gepubliceerd of uitgegeven zonder goedkeuring.",
+    "gj.campaign.waiting": "Komt na een meetbaar doel.",
+    "gj.resources.title": "Begrijp middelen, budget en goedkeuringen",
+    "gj.resources.cta": "Doelen en budget openen",
+    "gj.resources.ctaApprovals": "Goedkeuringen openen",
+    "gj.resources.attention":
+      "Voorstellen die op een beslissing wachten: {n}. Ze kunnen pas daarna verder.",
+    "gj.resources.done": "Vastgelegde budgetregels: {total}. Er wachten geen voorstellen.",
+    "gj.resources.todo":
+      "Leg vast wat je per kanaal en maand wilt uitgeven, zodat uitgaven daaraan getoetst kunnen worden.",
+    "gj.resources.waiting": "Komt na een doel of campagne.",
+    "gj.next.title": "Zie wat er daarna gebeurt",
+    "gj.next.cta": "Home openen",
+    "gj.next.ready":
+      "Home toont altijd jouw ene volgende stap, op basis van je gegevens. Resultaten verschijnen onder Prestaties en Rapporten.",
+  },
+  fr: {
+    "gj.title": "Votre parcours de croissance",
+    "gj.intro":
+      "De ce que nous savons de votre entreprise à votre première campagne. Chaque étape ouvre la page où vous la réalisez ; rien n’est créé à votre place.",
+    "gj.progress":
+      "{done} étapes d’action sur {total} terminées (les étapes de lecture ne comptent pas)",
+    "gj.now": "Étape {n} sur {total}",
+    "gj.allDone":
+      "Toutes les étapes sont franchies. L’accueil continue d’afficher l’action la plus utile.",
+    "gj.show": "Afficher toutes les étapes",
+    "gj.hide": "Masquer les étapes",
+    "gj.loading": "Chargement de votre parcours de croissance…",
+    "gj.unknown":
+      "Impossible de lire cette information pour le moment ; son statut est donc inconnu. Réessayez plus tard.",
+    "gj.state.done": "Terminé",
+    "gj.state.attention": "À examiner",
+    "gj.state.todo": "À faire",
+    "gj.state.waiting": "Après une étape précédente",
+    "gj.state.ready": "À consulter",
+    "gj.state.unknown": "Inconnu",
+    "gj.who.viewer": "Tout le monde peut l’ouvrir.",
+    "gj.who.member": "Un membre, un éditeur ou un administrateur peut le faire.",
+    "gj.who.editor": "Un éditeur ou un administrateur peut le faire.",
+    "gj.who.admin": "Un administrateur décide de cette étape.",
+    "gj.who.owner": "Le propriétaire décide de cette étape.",
+    "gj.onboarding.title": "Expliquez le fonctionnement de votre entreprise",
+    "gj.onboarding.cta": "Répondre aux questions",
+    "gj.onboarding.done":
+      "Les {total} questions clés ont une réponse. Vous pouvez modifier vos réponses à tout moment.",
+    "gj.onboarding.attention":
+      "{n} questions clés sur {total} ont une réponse. Des réponses partielles aident déjà ; le reste rend les conseils plus précis.",
+    "gj.onboarding.todo":
+      "Quelques questions courtes sur vos clients, vos ventes, vos défis et vos limites. Passez ce que vous ne savez pas.",
+    "gj.review.title": "Voir ce que AI Growth Engine comprend",
+    "gj.review.cta": "Ouvrir le résumé",
+    "gj.review.ready":
+      "{n} sujets sur {total} sont connus. Le résumé montre ce qui est confirmé et ce qui manque encore.",
+    "gj.confirm.title": "Corriger ou confirmer les informations importantes",
+    "gj.confirm.cta": "Ouvrir les informations de l’entreprise",
+    "gj.confirm.attention":
+      "Pas encore confirmé : {n}. Ces informations ont été trouvées ou supposées ; les conseils ne traitent comme faits que les informations confirmées.",
+    "gj.confirm.done": "Tout ce qui est connu a été confirmé.",
+    "gj.confirm.waiting":
+      "Rien à confirmer pour l’instant. Répondez d’abord aux questions ou ajoutez votre site web.",
+    "gj.situation.title": "Examiner votre situation de croissance",
+    "gj.situation.cta": "Ouvrir la situation de croissance",
+    "gj.situation.ready":
+      "Ce qui va bien, ce qui est inconnu et où se trouve la plus grande opportunité, à partir de vos propres données. Sans crédits.",
+    "gj.ask.title": "Poser une question préparée au Growth Officer",
+    "gj.ask.cta": "Préparer la question",
+    "gj.ask.done":
+      "Vos conversations avec le Growth Officer : {n}. Chaque affirmation est étiquetée pour montrer sur quoi elle repose.",
+    "gj.ask.todo":
+      "Une question préparée sur la première étape la plus utile. Elle coûte quelques crédits ; rien ne change sans vous.",
+    "gj.opportunity.title": "Comprendre l’opportunité la plus importante",
+    "gj.opportunity.cta": "Ouvrir les opportunités",
+    "gj.opportunity.done":
+      "Opportunités enregistrées : {n}, classées par impact, effort et preuves.",
+    "gj.opportunity.todo":
+      "Facultatif : comparez les opportunités avant de choisir un objectif. Vous pouvez aussi fixer un objectif directement.",
+    "gj.goal.title": "Définir un objectif mesurable",
+    "gj.goal.cta": "Ouvrir les objectifs",
+    "gj.goal.done": "Objectifs mesurables avec un point de départ et une cible : {n}.",
+    "gj.goal.attention":
+      "Objectifs actifs : {total}, mais aucun n’a encore d’indicateur, de point de départ et de cible : la progression ne peut pas être mesurée.",
+    "gj.goal.todo":
+      "Choisissez un résultat à faire croître, avec un point de départ, une cible et une date.",
+    "gj.strategy.title": "Recevoir une stratégie recommandée",
+    "gj.strategy.cta": "Ouvrir les objectifs",
+    "gj.strategy.done": "Stratégies enregistrées pour vos objectifs : {n}.",
+    "gj.strategy.todo":
+      "Demandez une stratégie sur l’objectif. Cela coûte des crédits et est enregistré comme proposition ; rien ne démarre automatiquement.",
+    "gj.strategy.waiting": "Vient après un objectif mesurable.",
+    "gj.initiatives.title": "Examiner les initiatives proposées",
+    "gj.initiatives.cta": "Ouvrir les objectifs",
+    "gj.initiatives.done": "Plans approuvés avec des initiatives : {n}.",
+    "gj.initiatives.attention":
+      "Un plan attend une décision. Un administrateur l’approuve, le refuse avec une raison ou demande des modifications.",
+    "gj.initiatives.todo":
+      "Transformez une stratégie en plan avec des initiatives, puis faites-le approuver.",
+    "gj.initiatives.waiting": "Vient après une stratégie.",
+    "gj.campaign.title": "Avancer vers la première campagne",
+    "gj.campaign.cta": "Ouvrir les campagnes",
+    "gj.campaign.done": "Campagnes en préparation ou en cours : {n}.",
+    "gj.campaign.todo":
+      "Créez une campagne liée à votre objectif. Rien n’est publié ni dépensé sans approbation.",
+    "gj.campaign.waiting": "Vient après un objectif mesurable.",
+    "gj.resources.title": "Comprendre ressources, budget et approbations",
+    "gj.resources.cta": "Ouvrir objectifs et budget",
+    "gj.resources.ctaApprovals": "Ouvrir les approbations",
+    "gj.resources.attention":
+      "Propositions en attente de décision : {n}. Elles ne peuvent pas avancer avant.",
+    "gj.resources.done": "Lignes de budget enregistrées : {total}. Aucune proposition en attente.",
+    "gj.resources.todo":
+      "Indiquez ce que vous prévoyez de dépenser par canal et par mois, pour pouvoir comparer les dépenses.",
+    "gj.resources.waiting": "Vient après un objectif ou une campagne.",
+    "gj.next.title": "Voir la suite",
+    "gj.next.cta": "Ouvrir l’accueil",
+    "gj.next.ready":
+      "L’accueil affiche toujours votre prochaine étape, d’après vos données. Les résultats apparaissent dans Performance et Rapports.",
+  },
+});

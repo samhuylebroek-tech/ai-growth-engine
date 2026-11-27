@@ -1,0 +1,16 @@
+# Secret scanning for this repository (CI job "Secret scan" and local `gitleaks git`).
+# Default gitleaks rules plus an allowlist for test placeholders only: each entry is an obviously fake value that
+# tests use to prove keys are refused. Never allowlist a whole directory or a real-looking value.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Test placeholders that look like keys but are not"
+regexTarget = "match"
+regexes = [
+  '''(?:sk|rk)_(?:live|test)_abcdefghijklmnop''',
+  '''rk_test_abcdefghijk''',
+  '''sb_secret_DO_NOT_LEAK''',
+]
+# The generated browser config holds only the public project address and publishable key (public by design).
+paths = ['''^\.env$''']

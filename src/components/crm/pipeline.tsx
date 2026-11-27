@@ -1,142 +1,745 @@
+import { CrmGuidance } from "@/components/crm/guidance";
+import { CustomerCare } from "@/components/crm/customer-care";
+import { collectPages } from "@/lib/pagination";
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { z } from "zod";
+import { Field } from "@/components/app/field";
+import { PageHeader } from "@/components/app/status";
+import { useI18n } from "@/lib/i18n";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useOrg } from "@/lib/org-context";
 import { hasRole } from "@/lib/permissions";
 import { supabase } from "@/integrations/supabase/client";
-import { STAGES, STAGE_LABELS, pipelineSummary, nextStage } from "@/lib/pipeline";
+import {
+  STAGES,
+  pipelineSummary,
+  pipelineCurrencies,
+  nextStage,
+  pipelineMatches,
+  type Stage,
+} from "@/lib/pipeline";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
-const sel = "h-9 rounded-md border border-input bg-background px-2 text-sm";
-const money = (n: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
+const sel =
+  "h-9 w-full min-w-0 max-w-full rounded-md border border-input bg-background px-2 text-sm sm:w-auto sm:max-w-56";
+const money = (n: number, tag?: string, currency = "EUR") =>
+  new Intl.NumberFormat(tag, {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(n);
 
-export function Pipeline() {
+export function Pipeline({ initialContact }: { initialContact?: string | undefined } = {}) {
   const { workspace, org, workspaceRole, loading } = useOrg();
-  if (loading) return <p className="p-6 text-muted-foreground">Loading…</p>;
-  if (!workspace || !org) return <p className="p-6 text-muted-foreground">Choose a workspace to manage your pipeline.</p>;
-  return <Board key={workspace.id} orgId={org.id} wsId={workspace.id} canEdit={hasRole(workspaceRole, "member")} />;
+  const { t: tx } = useI18n();
+  if (loading) return <p className="p-6 text-muted-foreground">{tx("marketing.crm.loading")}</p>;
+  if (!workspace || !org)
+    return <p className="p-6 text-muted-foreground">{tx("marketing.crm.chooseWs")}</p>;
+  return (
+    <Board
+      key={`${org.id}/${workspace.id}`}
+      orgId={org.id}
+      wsId={workspace.id}
+      canEdit={hasRole(workspaceRole, "member")}
+      initialContact={initialContact}
+    />
+  );
 }
 
-function Board({ orgId, wsId, canEdit }: { orgId: string; wsId: string; canEdit: boolean }) {
+function Board({
+  orgId,
+  wsId,
+  canEdit,
+  initialContact,
+}: {
+  orgId: string;
+  wsId: string;
+  canEdit: boolean;
+  initialContact?: string | undefined;
+}) {
   const qc = useQueryClient();
-  const data = useQuery({ queryKey: ["pipeline", wsId], queryFn: async () => {
-    const [c, d, g] = await Promise.all([
-      supabase.from("crm_contacts").select("*").eq("workspace_id", wsId).eq("status", "active").order("name").limit(500),
-      supabase.from("crm_deals").select("*").eq("workspace_id", wsId).order("updated_at", { ascending: false }).limit(500),
-      supabase.from("growth_goals").select("id,title").eq("workspace_id", wsId).neq("status", "archived").limit(100),
-    ]);
-    if (c.error || d.error || g.error) throw c.error ?? d.error ?? g.error;
-    return { contacts: c.data, deals: d.data, goals: g.data };
-  } });
-  const refresh = () => qc.invalidateQueries({ queryKey: ["pipeline", wsId] });
-  const [tab, setTab] = useState<"deals" | "contacts">("deals");
+  const { t: tx, tag } = useI18n();
+  const stageLabel = (s: string) =>
+    STAGES.includes(s as Stage) ? tx(`marketing.crm.stage.${s as Stage}`) : s;
+  const data = useQuery({
+    queryKey: ["pipeline", orgId, wsId],
+    queryFn: async () => {
+      const watermark = new Date().toISOString();
+      const contacts = await collectPages(async (cursor, size) => {
+        let query = supabase
+          .from("crm_contacts")
+          .select("*")
+          .eq("org_id", orgId)
+          .eq("workspace_id", wsId)
+          .eq("status", "active")
+          .lte("created_at", watermark)
+          .order("id")
+          .limit(size);
+        if (cursor) query = query.gt("id", cursor);
+        return await query;
+      });
+      const [deals, goals] = await Promise.all([
+        collectPages(async (cursor, size) => {
+          let query = supabase
+            .from("crm_deals")
+            .select("*")
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .lte("created_at", watermark)
+            .order("id")
+            .limit(size);
+          if (cursor) query = query.gt("id", cursor);
+          return await query;
+        }),
+        collectPages(async (cursor, size) => {
+          let query = supabase
+            .from("growth_goals")
+            .select("id,title")
+            .eq("org_id", orgId)
+            .eq("workspace_id", wsId)
+            .neq("status", "archived")
+            .order("id")
+            .limit(size);
+          if (cursor) query = query.gt("id", cursor);
+          return await query;
+        }),
+      ]);
+      return {
+        contacts: contacts.sort((a, b) => a.name.localeCompare(b.name)),
+        deals: deals.sort((a, b) => b.updated_at.localeCompare(a.updated_at)),
+        goals,
+      };
+    },
+  });
+  const refresh = () => qc.invalidateQueries({ queryKey: ["pipeline", orgId, wsId] });
+  const [tab, setTab] = useState<"deals" | "contacts" | "care">(
+    initialContact ? "contacts" : "deals",
+  );
+  const [contactScope, setContactScope] = useState(initialContact);
+  const [loss, setLoss] = useState<{ id: string; title: string } | null>(null);
+  const [lossReason, setLossReason] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("open");
   const [c, setC] = useState({ name: "", company: "", email: "", phone: "", source: "" });
-  const [d, setD] = useState({ title: "", contact: "", value: "", close: "", goal: "" });
+  const [d, setD] = useState({
+    title: "",
+    contact: "",
+    value: "",
+    close: "",
+    goal: "",
+    currency: "EUR",
+  });
 
   const addContact = async () => {
-    if (!c.name.trim()) return void toast.error("Give the contact a name.");
-    const r = await supabase.from("crm_contacts").insert({ org_id: orgId, workspace_id: wsId, name: c.name.trim(), company: c.company.trim(), email: c.email.trim(), phone: c.phone.trim(), source: c.source.trim() });
-    if (r.error) return void toast.error("Could not save the contact.");
-    setC({ name: "", company: "", email: "", phone: "", source: "" }); await refresh();
+    if (busy || !canEdit) return;
+    const valid = z
+      .object({
+        name: z.string().trim().min(1).max(200),
+        company: z.string().trim().max(200),
+        email: z.union([z.email().max(255), z.literal("")]),
+        phone: z.string().trim().max(60),
+        source: z.string().trim().max(80),
+      })
+      .safeParse({ ...c, email: c.email.trim().toLowerCase() });
+    if (!valid.success) return void toast.error(tx("lead.invalid"));
+    setBusy(true);
+    try {
+      const r = await supabase.from("crm_contacts").insert({
+        org_id: orgId,
+        workspace_id: wsId,
+        ...valid.data,
+      });
+      if (r.error) throw new Error("contact refused");
+      setCreating(false);
+      setC({ name: "", company: "", email: "", phone: "", source: "" });
+      await refresh();
+    } catch {
+      toast.error(tx("marketing.crm.contactFailed"));
+    } finally {
+      setBusy(false);
+    }
   };
   const addDeal = async () => {
-    if (!d.title.trim()) return void toast.error("Give the deal a name.");
+    if (busy || !canEdit) return;
+    if (!d.title.trim() || d.title.trim().length > 200)
+      return void toast.error(tx("marketing.crm.nameDeal"));
     const value = d.value.trim() === "" ? 0 : Number(d.value);
-    if (!Number.isFinite(value) || value < 0) return void toast.error("Enter a valid value.");
-    const r = await supabase.from("crm_deals").insert({ org_id: orgId, workspace_id: wsId, title: d.title.trim(), contact_id: d.contact || null, goal_id: d.goal || null, value, expected_close: d.close || null });
-    if (r.error) return void toast.error("Could not save the deal.");
-    setD({ title: "", contact: "", value: "", close: "", goal: "" }); await refresh();
+    if (!Number.isFinite(value) || value < 0)
+      return void toast.error(tx("marketing.crm.validValue"));
+    if (!/^[A-Z]{3}$/.test(d.currency)) return void toast.error(tx("marketing.crm.validValue"));
+    setBusy(true);
+    try {
+      const r = await supabase.from("crm_deals").insert({
+        org_id: orgId,
+        workspace_id: wsId,
+        title: d.title.trim(),
+        contact_id: d.contact || null,
+        goal_id: d.goal || null,
+        value,
+        currency: d.currency,
+        expected_close: d.close || null,
+      });
+      if (r.error) throw new Error("deal refused");
+      setCreating(false);
+      setD({ title: "", contact: "", value: "", close: "", goal: "", currency: "EUR" });
+      await refresh();
+    } catch {
+      toast.error(tx("marketing.crm.dealFailed"));
+    } finally {
+      setBusy(false);
+    }
   };
-  const setStage = async (id: string, stage: string) => {
-    let lost_reason = "";
-    if (stage === "lost") lost_reason = (window.prompt("Why was this deal lost? (optional)") ?? "").slice(0, 500);
-    const r = await supabase.from("crm_deals").update({ stage, lost_reason }).eq("id", id).eq("workspace_id", wsId);
-    if (r.error) toast.error("Could not update the deal."); await refresh();
+  const setStage = async (id: string, stage: string, lost_reason = "") => {
+    if (busy || !canEdit) return;
+    setBusy(true);
+    try {
+      const r = await supabase
+        .from("crm_deals")
+        .update({ stage, lost_reason: lost_reason.trim().slice(0, 500) })
+        .eq("id", id)
+        .eq("org_id", orgId)
+        .eq("workspace_id", wsId)
+        .select("id")
+        .single();
+      if (r.error || !r.data) throw new Error("update refused");
+      setLoss(null);
+      setLossReason("");
+      await refresh();
+    } catch {
+      toast.error(tx("marketing.crm.updateFailed"));
+    } finally {
+      setBusy(false);
+    }
   };
   const archiveContact = async (id: string) => {
-    const r = await supabase.from("crm_contacts").update({ status: "archived" }).eq("id", id).eq("workspace_id", wsId);
-    if (r.error) toast.error("Could not archive."); await refresh();
+    if (busy || !canEdit) return;
+    setBusy(true);
+    try {
+      const r = await supabase
+        .from("crm_contacts")
+        .update({ status: "archived" })
+        .eq("id", id)
+        .eq("org_id", orgId)
+        .eq("workspace_id", wsId)
+        .select("id")
+        .single();
+      if (r.error || !r.data) throw new Error("archive refused");
+      await refresh();
+    } catch {
+      toast.error(tx("marketing.crm.archiveFailed"));
+    } finally {
+      setBusy(false);
+    }
   };
 
-  if (data.isLoading) return <p className="p-6 text-muted-foreground">Loading pipeline…</p>;
-  if (data.error || !data.data) return <p className="p-6 text-destructive">Could not load the pipeline.</p>;
+  if (data.isLoading)
+    return <p className="p-6 text-muted-foreground">{tx("marketing.crm.loadingPipe")}</p>;
+  if (data.error || !data.data)
+    return (
+      <div role="alert" className="space-y-4 p-6">
+        <p className="text-destructive">{tx("marketing.crm.loadFailed")}</p>
+        <Button variant="outline" onClick={() => void refresh()}>
+          {tx("lead.retry")}
+        </Button>
+      </div>
+    );
   const { contacts, deals, goals } = data.data;
-  const s = pipelineSummary(deals);
-  const contactName = (id: string | null) => contacts.find(x => x.id === id)?.name;
+  const s = pipelineSummary(deals.map((d) => ({ stage: d.stage, value: 0 })));
+  const currencies = pipelineCurrencies(deals);
+  const contactName = (id: string | null) => contacts.find((x) => x.id === id)?.name;
+  const visibleContacts = contacts.filter(
+    (c) =>
+      (!contactScope || c.id === contactScope) &&
+      pipelineMatches([c.name, c.company, c.email, c.phone, c.source], search),
+  );
+  const visibleDeals = deals.filter(
+    (d) =>
+      (!contactScope || d.contact_id === contactScope) &&
+      pipelineMatches([d.title, contactName(d.contact_id) ?? null], search) &&
+      (filter === "all" ||
+        (filter === "open" ? d.stage !== "won" && d.stage !== "lost" : d.stage === filter)),
+  );
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
-      <header>
-        <h1 className="text-2xl font-semibold">Sales pipeline</h1>
-        <p className="text-sm text-muted-foreground">Contacts and deals you enter yourself. No CRM is connected, so nothing is imported or sent.</p>
-      </header>
+    <div className="space-y-6">
+      <PageHeader
+        title={tx("marketing.crm.title")}
+        description={tx("marketing.crm.intro")}
+        actions={
+          <Button variant="outline" asChild>
+            <Link to="/app/leads">{tx("lead.title")}</Link>
+          </Button>
+        }
+      />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {[["Open value", money(s.open), `${s.openCount} open deals`], ["Won value", money(s.won), `${s.wonCount} won`], ["Lost", String(s.lostCount), "deals"], ["Win rate", s.winRate === null ? "—" : `${s.winRate}%`, "of closed deals"]].map(([l, v, h]) => (
-          <div key={l} className="rounded-lg border bg-card p-3"><p className="text-xs text-muted-foreground">{l}</p><p className="text-xl font-semibold">{v}</p><p className="text-xs text-muted-foreground">{h}</p></div>
+        {[
+          [
+            tx("marketing.crm.openValue"),
+            currencies.map((c) => money(c.open, tag, c.currency)).join(" · ") || "—",
+            tx("marketing.crm.openDeals", { n: s.openCount }),
+          ],
+          [
+            tx("marketing.crm.wonValue"),
+            currencies.map((c) => money(c.won, tag, c.currency)).join(" · ") || "—",
+            tx("marketing.crm.wonN", { n: s.wonCount }),
+          ],
+          [tx("marketing.crm.lost"), String(s.lostCount), tx("marketing.crm.deals")],
+          [
+            tx("marketing.crm.winRate"),
+            s.winRate === null ? "—" : `${s.winRate}%`,
+            tx("marketing.crm.ofClosed"),
+          ],
+        ].map(([l, v, h]) => (
+          <div key={l} className="rounded-lg border bg-card p-3">
+            <p className="text-xs text-muted-foreground">{l}</p>
+            <p className="break-words text-lg font-semibold">{v}</p>
+            <p className="text-xs text-muted-foreground">{h}</p>
+          </div>
         ))}
       </div>
-      <div className="flex gap-2">
-        <Button variant={tab === "deals" ? "default" : "outline"} size="sm" onClick={() => setTab("deals")}>Deals</Button>
-        <Button variant={tab === "contacts" ? "default" : "outline"} size="sm" onClick={() => setTab("contacts")}>Contacts ({contacts.length})</Button>
-      </div>
-
-      {tab === "deals" ? (<>
-        {canEdit && <div className="flex flex-wrap items-end gap-2 rounded-lg border bg-card p-3">
-          <Input aria-label="Deal name" placeholder="Deal name" className="w-full sm:w-56" value={d.title} onChange={e => setD({ ...d, title: e.target.value })} />
-          <select aria-label="Contact" className={sel} value={d.contact} onChange={e => setD({ ...d, contact: e.target.value })}><option value="">No contact</option>{contacts.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select>
-          <Input aria-label="Value" placeholder="Value (EUR)" inputMode="decimal" className="w-32" value={d.value} onChange={e => setD({ ...d, value: e.target.value })} />
-          <Input aria-label="Expected close" type="date" className="w-40" value={d.close} onChange={e => setD({ ...d, close: e.target.value })} />
-          <select aria-label="Goal" className={sel} value={d.goal} onChange={e => setD({ ...d, goal: e.target.value })}><option value="">No goal</option>{goals.map(x => <option key={x.id} value={x.id}>{x.title}</option>)}</select>
-          <Button size="sm" onClick={addDeal}><Plus className="mr-1 h-4 w-4" />Add deal</Button>
-        </div>}
-        <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
-          {STAGES.map(stage => {
-            const list = deals.filter(x => x.stage === stage);
-            return (
-              <section key={stage} className="min-w-0 rounded-lg border bg-muted/40 p-2">
-                <h2 className="mb-2 flex items-center justify-between text-sm font-medium">{STAGE_LABELS[stage]}<Badge variant="secondary">{list.length}</Badge></h2>
-                <div className="space-y-2">
-                  {list.length === 0 && <p className="px-1 text-xs text-muted-foreground">No deals</p>}
-                  {list.map(x => { const n = nextStage(x.stage); return (
-                    <article key={x.id} className="space-y-1 rounded-md border bg-card p-2 text-sm">
-                      <p className="break-words font-medium">{x.title}</p>
-                      <p className="text-xs text-muted-foreground">{money(Number(x.value))}{contactName(x.contact_id) ? ` · ${contactName(x.contact_id)}` : ""}{x.expected_close ? ` · close ${x.expected_close}` : ""}</p>
-                      {x.stage === "lost" && x.lost_reason && <p className="text-xs text-muted-foreground">Reason: {x.lost_reason}</p>}
-                      {canEdit && <div className="flex flex-wrap gap-1 pt-1">
-                        {n && <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => setStage(x.id, n)}>→ {STAGE_LABELS[n]}</Button>}
-                        {x.stage !== "won" && x.stage !== "lost" ? <>
-                          <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => setStage(x.id, "won")}>Won</Button>
-                          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setStage(x.id, "lost")}>Lost</Button>
-                        </> : <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setStage(x.id, "negotiation")}>Reopen</Button>}
-                      </div>}
-                    </article>); })}
-                </div>
-              </section>
-            );
-          })}
+      <p className="text-xs text-muted-foreground">{tx("marketing.crm.guideNote")}</p>
+      {contactScope && (
+        <div className="flex flex-wrap items-center gap-3 border-l-2 border-primary pl-4">
+          <p className="text-sm">{contactName(contactScope) ?? tx("lead.contactUnavailable")}</p>
+          <Button variant="ghost" size="sm" onClick={() => setContactScope(undefined)}>
+            {tx("lead.allCustomers")}
+          </Button>
         </div>
-      </>) : (<>
-        {canEdit && <div className="flex flex-wrap items-end gap-2 rounded-lg border bg-card p-3">
-          <Input aria-label="Contact name" placeholder="Name" className="w-full sm:w-44" value={c.name} onChange={e => setC({ ...c, name: e.target.value })} />
-          <Input aria-label="Company" placeholder="Company" className="w-full sm:w-44" value={c.company} onChange={e => setC({ ...c, company: e.target.value })} />
-          <Input aria-label="Email" placeholder="Email" type="email" className="w-full sm:w-52" value={c.email} onChange={e => setC({ ...c, email: e.target.value })} />
-          <Input aria-label="Phone" placeholder="Phone" className="w-full sm:w-36" value={c.phone} onChange={e => setC({ ...c, phone: e.target.value })} />
-          <Input aria-label="Source" placeholder="Source (e.g. website)" className="w-full sm:w-44" value={c.source} onChange={e => setC({ ...c, source: e.target.value })} />
-          <Button size="sm" onClick={addContact}><Plus className="mr-1 h-4 w-4" />Add contact</Button>
-        </div>}
-        {contacts.length === 0 ? <p className="text-sm text-muted-foreground">No contacts yet.</p> :
-          <ul className="divide-y rounded-lg border bg-card">
-            {contacts.map(x => { const open = deals.filter(y => y.contact_id === x.id && y.stage !== "won" && y.stage !== "lost").length; return (
-              <li key={x.id} className="flex flex-wrap items-center justify-between gap-2 p-3 text-sm">
-                <div className="min-w-0"><p className="font-medium">{x.name}{x.company ? <span className="text-muted-foreground"> · {x.company}</span> : null}</p>
-                  <p className="break-all text-xs text-muted-foreground">{[x.email, x.phone, x.source].filter(Boolean).join(" · ") || "No details"}</p></div>
-                <div className="flex items-center gap-2"><Badge variant="outline">{open} open deals</Badge>{canEdit && <Button size="sm" variant="ghost" onClick={() => archiveContact(x.id)}>Archive</Button>}</div>
-              </li>); })}
-          </ul>}
-      </>)}
+      )}
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          variant={tab === "deals" ? "default" : "outline"}
+          size="sm"
+          aria-pressed={tab === "deals"}
+          onClick={() => {
+            setTab("deals");
+            setCreating(false);
+          }}
+        >
+          {tx("marketing.crm.dealsTab")}
+        </Button>
+        <Button
+          variant={tab === "contacts" ? "default" : "outline"}
+          size="sm"
+          aria-pressed={tab === "contacts"}
+          onClick={() => {
+            setTab("contacts");
+            setCreating(false);
+          }}
+        >
+          {tx("marketing.crm.contactsTab", { n: contacts.length })}
+        </Button>
+        <Button
+          variant={tab === "care" ? "default" : "outline"}
+          size="sm"
+          aria-pressed={tab === "care"}
+          onClick={() => {
+            setTab("care");
+            setCreating(false);
+          }}
+        >
+          {tx("marketing.care.title")}
+        </Button>
+        {canEdit && tab !== "care" && (
+          <Button
+            className="ml-auto"
+            variant="outline"
+            onClick={() => setCreating((v) => !v)}
+            aria-expanded={creating}
+          >
+            <Plus />
+            {tab === "deals" ? tx("marketing.crm.addDeal") : tx("marketing.crm.addContact")}
+          </Button>
+        )}
+      </div>
+      {tab !== "care" && (
+        <div className="flex flex-wrap items-end gap-4">
+          <Field label={tx("lead.searchCrm")} className="w-full sm:max-w-sm">
+            <Input
+              type="search"
+              maxLength={100}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </Field>
+          {tab === "deals" && (
+            <Field label={tx("lead.showDeals")}>
+              <select className={sel} value={filter} onChange={(e) => setFilter(e.target.value)}>
+                <option value="open">{tx("lead.openDeals")}</option>
+                <option value="all">{tx("lead.allDeals")}</option>
+                <option value="won">{stageLabel("won")}</option>
+                <option value="lost">{stageLabel("lost")}</option>
+              </select>
+            </Field>
+          )}
+        </div>
+      )}
+
+      {tab === "care" ? (
+        <CustomerCare
+          orgId={orgId}
+          wsId={wsId}
+          canEdit={canEdit}
+          deals={deals}
+          contacts={contacts}
+          contactScope={contactScope}
+        />
+      ) : tab === "deals" ? (
+        <>
+          {canEdit && creating && (
+            <form
+              className="grid gap-4 border-y border-border py-5 sm:grid-cols-2 lg:grid-cols-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void addDeal();
+              }}
+            >
+              <Field label={tx("marketing.crm.dealName")}>
+                <Input
+                  required
+                  maxLength={200}
+                  value={d.title}
+                  onChange={(e) => setD({ ...d, title: e.target.value })}
+                />
+              </Field>
+              <Field label={tx("marketing.crm.contact")}>
+                <select
+                  className={sel}
+                  value={d.contact}
+                  onChange={(e) => setD({ ...d, contact: e.target.value })}
+                >
+                  <option value="">{tx("marketing.crm.noContact")}</option>
+                  {contacts.map((x) => (
+                    <option key={x.id} value={x.id}>
+                      {x.name}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label={tx("marketing.crm.value")}>
+                <Input
+                  inputMode="decimal"
+                  value={d.value}
+                  onChange={(e) => setD({ ...d, value: e.target.value })}
+                />
+              </Field>
+              <Field label={tx("marketing.crm.currency")}>
+                <Input
+                  required
+                  maxLength={3}
+                  value={d.currency}
+                  onChange={(e) => setD({ ...d, currency: e.target.value.toUpperCase() })}
+                />
+              </Field>
+              <Field label={tx("marketing.crm.expectedClose")}>
+                <Input
+                  type="date"
+                  value={d.close}
+                  onChange={(e) => setD({ ...d, close: e.target.value })}
+                />
+              </Field>
+              <Field label={tx("marketing.crm.goal")}>
+                <select
+                  className={sel}
+                  value={d.goal}
+                  onChange={(e) => setD({ ...d, goal: e.target.value })}
+                >
+                  <option value="">{tx("marketing.crm.noGoal")}</option>
+                  {goals.map((x) => (
+                    <option key={x.id} value={x.id}>
+                      {x.title}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Button disabled={busy} type="submit">
+                <Plus />
+                {tx("marketing.crm.addDeal")}
+              </Button>
+            </form>
+          )}
+          {!visibleDeals.length && (search || filter !== "all") && (
+            <p role="status" className="text-sm text-muted-foreground">
+              {tx("lead.noMatches")}
+            </p>
+          )}
+          <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+            {STAGES.map((stage) => {
+              const list = visibleDeals.filter((x) => x.stage === stage);
+              return (
+                <section key={stage} className="min-w-0 rounded-lg border bg-muted/40 p-2">
+                  <h2 className="mb-2 flex items-center justify-between text-sm font-medium">
+                    {stageLabel(stage)}
+                    <Badge variant="secondary">{list.length}</Badge>
+                  </h2>
+                  <div className="space-y-2">
+                    {list.length === 0 && (
+                      <p className="px-1 text-xs text-muted-foreground">
+                        {tx("marketing.crm.noDeals")}
+                      </p>
+                    )}
+                    {list.map((x) => {
+                      const n = nextStage(x.stage);
+                      return (
+                        <article
+                          key={x.id}
+                          className="space-y-1 rounded-md border bg-card p-2 text-sm"
+                        >
+                          <p className="break-words font-medium">{x.title}</p>
+                          <CrmGuidance kind="crm_deals" id={x.id} stage={x.stage} />
+                          <p className="text-xs text-muted-foreground">
+                            {money(Number(x.value), tag, x.currency)}
+                            {contactName(x.contact_id) ? ` · ${contactName(x.contact_id)}` : ""}
+                            {x.expected_close
+                              ? tx("marketing.crm.close", {
+                                  d: new Date(`${x.expected_close}T12:00:00`).toLocaleDateString(
+                                    tag,
+                                  ),
+                                })
+                              : ""}
+                          </p>
+                          {x.stage === "lost" && x.lost_reason && (
+                            <p className="text-xs text-muted-foreground">
+                              {tx("marketing.crm.reason", { r: x.lost_reason })}
+                            </p>
+                          )}
+                          {canEdit && (
+                            <div className="flex flex-wrap gap-1 pt-1">
+                              {n && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 px-2 text-xs"
+                                  onClick={() => setStage(x.id, n)}
+                                  disabled={busy}
+                                >
+                                  → {stageLabel(n)}
+                                </Button>
+                              )}
+                              {x.stage !== "won" && x.stage !== "lost" ? (
+                                <>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-7 px-2 text-xs"
+                                    onClick={() => setStage(x.id, "won")}
+                                    disabled={busy}
+                                  >
+                                    {tx("marketing.crm.won")}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-7 px-2 text-xs"
+                                    disabled={busy}
+                                    onClick={() => {
+                                      setLoss({ id: x.id, title: x.title });
+                                      setLossReason("");
+                                    }}
+                                  >
+                                    {tx("marketing.crm.lostBtn")}
+                                  </Button>
+                                </>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7 px-2 text-xs"
+                                  onClick={() => setStage(x.id, "negotiation")}
+                                  disabled={busy}
+                                >
+                                  {tx("marketing.crm.reopen")}
+                                </Button>
+                              )}
+                            </div>
+                          )}
+                        </article>
+                      );
+                    })}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
+        </>
+      ) : (
+        <>
+          {canEdit && creating && (
+            <form
+              className="grid gap-4 border-y border-border py-5 sm:grid-cols-2 lg:grid-cols-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void addContact();
+              }}
+            >
+              <Field label={tx("marketing.crm.contactName")}>
+                <Input
+                  required
+                  maxLength={200}
+                  autoComplete="name"
+                  value={c.name}
+                  onChange={(e) => setC({ ...c, name: e.target.value })}
+                />
+              </Field>
+              <Field label={tx("marketing.crm.company")}>
+                <Input
+                  maxLength={200}
+                  autoComplete="organization"
+                  value={c.company}
+                  onChange={(e) => setC({ ...c, company: e.target.value })}
+                />
+              </Field>
+              <Field label={tx("marketing.crm.email")}>
+                <Input
+                  type="email"
+                  maxLength={255}
+                  autoComplete="email"
+                  value={c.email}
+                  onChange={(e) => setC({ ...c, email: e.target.value })}
+                />
+              </Field>
+              <Field label={tx("marketing.crm.phone")}>
+                <Input
+                  type="tel"
+                  maxLength={60}
+                  autoComplete="tel"
+                  value={c.phone}
+                  onChange={(e) => setC({ ...c, phone: e.target.value })}
+                />
+              </Field>
+              <Field label={tx("marketing.crm.source")}>
+                <Input
+                  maxLength={80}
+                  value={c.source}
+                  onChange={(e) => setC({ ...c, source: e.target.value })}
+                />
+              </Field>
+              <Button disabled={busy} type="submit">
+                <Plus />
+                {tx("marketing.crm.addContact")}
+              </Button>
+            </form>
+          )}
+          {visibleContacts.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {search ? tx("lead.noMatches") : tx("marketing.crm.noContacts")}
+            </p>
+          ) : (
+            <ul className="divide-y rounded-lg border bg-card">
+              {visibleContacts.map((x) => {
+                const open = deals.filter(
+                  (y) => y.contact_id === x.id && y.stage !== "won" && y.stage !== "lost",
+                ).length;
+                return (
+                  <li
+                    key={x.id}
+                    className="flex flex-wrap items-center justify-between gap-2 p-3 text-sm"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-medium">
+                        {x.name}
+                        {x.company ? (
+                          <span className="text-muted-foreground"> · {x.company}</span>
+                        ) : null}
+                      </p>
+                      <p className="break-all text-xs text-muted-foreground">
+                        {[x.email, x.phone, x.source].filter(Boolean).join(" · ") ||
+                          tx("marketing.crm.noDetails")}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <CrmGuidance kind="crm_contacts" id={x.id} />
+                      <Badge variant="outline">
+                        {tx("marketing.crm.openDealsBadge", { n: open })}
+                      </Badge>
+                      {canEdit && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={busy}
+                          onClick={() => {
+                            setD({
+                              title: "",
+                              contact: x.id,
+                              value: "",
+                              close: "",
+                              goal: "",
+                              currency: "EUR",
+                            });
+                            setTab("deals");
+                            setCreating(true);
+                          }}
+                        >
+                          <Plus />
+                          {tx("marketing.crm.addDeal")}
+                        </Button>
+                      )}
+                      {canEdit && (
+                        <Button size="sm" variant="ghost" onClick={() => archiveContact(x.id)}>
+                          {tx("marketing.crm.archive")}
+                        </Button>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </>
+      )}
+      <Dialog
+        open={loss !== null}
+        onOpenChange={(open) => {
+          if (!open && !busy) setLoss(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{tx("marketing.crm.lostBtn")}</DialogTitle>
+            <DialogDescription className="break-words">{loss?.title}</DialogDescription>
+          </DialogHeader>
+          <form
+            className="space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (loss) void setStage(loss.id, "lost", lossReason);
+            }}
+          >
+            <Field label={tx("marketing.crm.lostWhy")}>
+              <Textarea
+                maxLength={500}
+                value={lossReason}
+                onChange={(e) => setLossReason(e.target.value)}
+                disabled={busy}
+              />
+            </Field>
+            <DialogFooter>
+              <Button type="button" variant="outline" disabled={busy} onClick={() => setLoss(null)}>
+                {tx("marketing.cs.cancel")}
+              </Button>
+              <Button type="submit" disabled={busy}>
+                {tx("lead.record")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

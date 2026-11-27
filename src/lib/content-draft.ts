@@ -2,9 +2,22 @@ import { z } from "zod";
 import { quoteUntrusted } from "@/lib/security/upload";
 
 export const CONTENT_TYPES = [
-  "Blog article", "LinkedIn personal post", "LinkedIn company post", "Facebook post", "Instagram caption",
-  "Email newsletter", "Marketing email", "Landing page", "Product description", "Service description",
-  "Advertising copy", "Case study", "Video script", "Short-form content", "Lead magnet", "Sales content",
+  "Blog article",
+  "LinkedIn personal post",
+  "LinkedIn company post",
+  "Facebook post",
+  "Instagram caption",
+  "Email newsletter",
+  "Marketing email",
+  "Landing page",
+  "Product description",
+  "Service description",
+  "Advertising copy",
+  "Case study",
+  "Video script",
+  "Short-form content",
+  "Lead magnet",
+  "Sales content",
 ] as const;
 export const LENGTHS = ["short", "medium", "long"] as const;
 
@@ -20,20 +33,46 @@ export const draftBriefSchema = z.object({
 });
 export type DraftBrief = z.infer<typeof draftBriefSchema>;
 
-type Profile = { name: string; tone: string; style: string; audience: string; channels: string[]; examples: string; examples_authorized: boolean };
+type Profile = {
+  name: string;
+  tone: string;
+  style: string;
+  audience: string;
+  channels: string[];
+  examples: string;
+  examples_authorized: boolean;
+};
 
 /** Writing profile context; examples are included only when explicitly authorized. */
 export function writingProfileContext(p: Profile | null): string {
   if (!p) return "No writing profile selected.";
-  const parts = [`Name: ${p.name}`, `Tone: ${p.tone}`, `Style: ${p.style}`, `Audience: ${p.audience}`, `Channels: ${p.channels.join(", ")}`].join("\n");
-  const examples = p.examples_authorized && p.examples.trim() ? `\n\n${quoteUntrusted("authorized writing examples", p.examples, 8000)}` : "";
+  const parts = [
+    `Name: ${p.name}`,
+    `Tone: ${p.tone}`,
+    `Style: ${p.style}`,
+    `Audience: ${p.audience}`,
+    `Channels: ${p.channels.join(", ")}`,
+  ].join("\n");
+  const examples =
+    p.examples_authorized && p.examples.trim()
+      ? `\n\n${quoteUntrusted("authorized writing examples", p.examples, 8000)}`
+      : "";
   return quoteUntrusted("writing profile", parts, 4000) + examples;
 }
 
 export function briefText(b: DraftBrief, channel: string, campaign: string | null): string {
-  return [`Content type: ${b.contentType}`, `Channel: ${channel}`, `Language: ${b.language}`, `Objective: ${b.objective}`,
-    `Audience: ${b.audience || "use writing profile"}`, `Tone: ${b.tone || "use writing profile"}`, `Length: ${b.length}`,
-    `Keywords: ${b.keywords || "none"}`, `Call to action: ${b.cta || "none"}`, `Campaign: ${campaign ?? "none"}`].join("\n");
+  return [
+    `Content type: ${b.contentType}`,
+    `Channel: ${channel}`,
+    `Language: ${b.language}`,
+    `Objective: ${b.objective}`,
+    `Audience: ${b.audience || "use writing profile"}`,
+    `Tone: ${b.tone || "use writing profile"}`,
+    `Length: ${b.length}`,
+    `Keywords: ${b.keywords || "none"}`,
+    `Call to action: ${b.cta || "none"}`,
+    `Campaign: ${campaign ?? "none"}`,
+  ].join("\n");
 }
 
 export const DRAFT_INSTRUCTIONS = `You are the Content specialist in AI Growth Engine writing a draft for human review.

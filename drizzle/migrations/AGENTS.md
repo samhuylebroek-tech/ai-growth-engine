@@ -1,0 +1,1 @@
+- New public tables and privileged functions revoke the default anon and TRUNCATE privileges in the same migration; `tests/sql/privilege_hardening.sql` enforces it because default privileges grant everything.

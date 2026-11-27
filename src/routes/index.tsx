@@ -1,11 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Zap, Compass, BookOpen, CheckSquare } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { pageHead } from "@/lib/page-head";
-import cover from "@/assets/growth-engine-cover.jpg";
-export const Route = createFileRoute("/")({ head: () => pageHead("AI Growth Engine", "Your business growth workspace: confirmed knowledge, evidence-aware AI strategy and actions you control."), component: Index });
-function Index() {
-  return <div className="min-h-screen bg-background text-foreground"><nav className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-3 px-5 md:px-10"><Link to="/" className="flex items-center gap-2.5 text-base font-bold"><Zap className="h-5 w-5 text-primary" />AI Growth Engine</Link><div className="flex items-center gap-2"><Button variant="ghost" className="hidden sm:inline-flex" asChild><Link to="/pricing">Plans</Link></Button><Button variant="outline" asChild><Link to="/auth" search={{ redirect: undefined }}>Sign in</Link></Button></div></nav>
-    <header className="relative isolate flex min-h-[540px] items-center overflow-hidden md:min-h-[590px]"><img src={cover} width={1536} height={1024} className="absolute inset-0 -z-20 h-full w-full object-cover" alt="A bright business studio with a worktable and notebooks" /><div className="absolute inset-0 -z-10 bg-background/75" /><div className="mx-auto w-full max-w-7xl px-5 py-16 md:px-10"><p className="section-label mb-5">Your business growth operating system</p><h1 className="max-w-2xl text-5xl font-semibold leading-tight md:text-6xl">AI Growth Engine</h1><p className="mt-6 max-w-xl text-lg leading-relaxed">A clear picture of your business.<br />A more confident next move.</p><p className="mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground">Bring your business knowledge, growth priorities and AI partner together. Get recommendations grounded in confirmed facts, with every action under your control.</p><Button size="lg" className="mt-8" asChild><Link to="/auth" search={{ redirect: undefined }}>Create your growth workspace <ArrowRight /></Link></Button><p className="mt-4 text-xs text-muted-foreground">14-day trial · 200 AI credits · No card required</p></div></header>
-    <section className="mx-auto grid max-w-7xl gap-8 px-5 py-12 md:grid-cols-3 md:px-10">{[{icon: BookOpen,title: "One business foundation",text: "Website research, private documents and business facts with traceable sources."},{icon: Compass,title: "One growth partner",text: "Your Growth Officer helps turn business context into priorities and plans."},{icon: CheckSquare,title: "Your decisions",text: "Review proposed actions, keep a record of work and follow AI credit usage."}].map(({icon:Icon,title,text}) => <div key={title}><Icon className="mb-4 h-5 w-5 text-primary" /><h2 className="text-base font-semibold">{title}</h2><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{text}</p></div>)}</section><footer className="border-t border-border px-5 py-6 text-center text-xs text-muted-foreground">© 2026 AI Growth Engine</footer></div>;
-}
+import { createFileRoute } from "@tanstack/react-router";
+import { localHead } from "@/lib/page-head";
+import { PublicExperience } from "@/components/public/experience";
+export const Route = createFileRoute("/")({
+  head: () => localHead("home"),
+  component: PublicExperience,
+});

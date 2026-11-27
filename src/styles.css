@@ -38,6 +38,9 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
   --font-display: "Manrope", sans-serif;
+  /* Smallest step of the type scale (captions, meta lines, chips). Never go below it. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
   --font-sans: "Manrope", sans-serif;
   --color-primary-glow: var(--primary-glow);
   --color-success: var(--success);
@@ -200,7 +203,8 @@
   .prose-chat strong { color: var(--color-foreground); font-weight: 600; }
   .prose-chat code { background: var(--color-muted); border-radius: 0.25rem; padding: 0 0.25rem; }
   .prose-chat table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
-  .prose-chat td, .prose-chat th { border: 1px solid var(--border); padding: 0.5rem; }
+  .prose-chat td, .prose-chat th { border: 1px solid var(--border); padding: 0.5rem; min-width: 9rem; vertical-align: top; text-align: left; overflow-wrap: normal; word-break: normal; }
+  .prose-chat th { background: var(--muted); font-weight: 600; }
   .prose-chat pre { overflow-x: auto; max-width: 100%; }
   .app-content { animation: content-in 180ms ease-out; }
   .section-label { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0; color: var(--muted-foreground); }

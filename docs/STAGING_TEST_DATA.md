@@ -1,0 +1,149 @@
+# Staging test-data inventory (Phase 8.1)
+
+Read-only inventory of the staging database (`tvfbvzytjpizqwixkecx`), taken during Phase 8.1. **Nothing was
+deleted or changed.** Production holds none of this data. Counts are rows at inventory time.
+
+## What exists
+
+| Organization / business | Goals | Campaigns | Projects | Tasks | Revenue records | Brands | Conversations | AI runs | Task runs | External actions |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Staging Bakery / Main workspace | 4 | 1 | 4 | 12 | 2 | 1 | 12 | 17 | 5 | 6 |
+| Staging Bakery / Staging Catering | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Staging Rival Co / Rival workspace | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+
+Organization level (Staging Bakery): 1 organization strategy (draft), 4 organization opportunities, 1 shared
+initiative (committed), 29 exchange-rate rows (official ECB + earlier manual test rates), 30 credit-ledger entries,
+4 members. Staging Rival Co exists only to prove isolation (1 ledger entry, 1 member). 5 staging auth users.
+
+## Classification
+
+- **Fixtures needed for isolation tests** — Staging Rival Co, the two Staging Bakery businesses, the five staging
+  users and their memberships. The SQL suites create their own rolled-back fixtures, but browser checks and
+  `scripts/staging/preflight.ts` rely on these. *Keep.*
+- **QA-named records** — goals "QA Journey: more online bookings" (archived) and "QA: Grow qualified leads",
+  campaigns "QA office breakfast boxes" and "QA catering lunch offer", task "QA align calendar". *Candidates for
+  archiving.*
+- **Records produced by real staging AI runs** — the Dutch goals/projects/tasks from the growth plan, the
+  organization strategy draft, its opportunities, and the shared LinkedIn initiative with its two projects. They
+  are the only end-to-end evidence that paid AI output was stored and converted correctly. *Keep until the release
+  review is closed.*
+- **Simulated external actions** — six actions on `sim.wordpress` / `sim.hubspot`, all marked simulated. Never sent
+  anywhere. *Keep as lifecycle evidence.*
+- **Accounting history** — credit ledger, reservations, usage events, AI receipts, audit log: append-only by design
+  and protected by triggers. *Never delete* — removing them would break the reconciliation the credit overview
+  checks.
+- **Manual exchange rates** — earlier manual test rates next to official ECB rates. Official rates already win on
+  the same date. *Keep*; they document the manual-rate path.
+
+- **Phase 8.2 evidence walkthrough (2026-11-20)** — one team proposal "QA-E2E evidence …" (formal level,
+  approved by the QA admin) with one linked evidence item pointing at the manual "Qualified leads" measurement
+  (now "used in a decision"). Evidence items and their history are insert-only by design. *Keep as approval
+  evidence; the proposal can be withdrawn through the app if a clean list is wanted.*
+
+- **Phase 8.2 extended sprint (2026-11-20, re-counted by read-only query)** — business counts are unchanged from the
+  table above, plus two business facts "QA delivery fee …" in Main workspace (one confirmed, one returned to review
+  by the conflict-resolution walkthrough) and one `facts.conflict_resolved` audit entry. Ledger 57, 5 auth users.
+  *Keep as conflict-resolution evidence; the unconfirmed value can be deleted in the business profile if wanted.*
+
+- **Phase 8.3 sprint (2026-11-20)** — staging proposal 0075 added two insert-only tables. Browser walkthroughs created
+  four business facts "QA openingsuren …" (two topics, both currently "disputed again"), their conflict history
+  (review started, value chosen, reopened) and one recommendation dismissed then restored, each with audit entries.
+  *Keep as decision-memory evidence; unwanted fact values can be deleted in the business profile; history stays.*
+
+- **Phase 8.4 sprint (2026-11-20)** — staging proposal 0076 added `business_checks` (insert-only) and
+  `business_check_settings`. Browser walkthroughs recorded four business checks in Main workspace (one weekly,
+  three manual), set the check frequency to weekly, and created one task "QA achterstallige controletaak"
+  (deadline 2 Nov 2026, so it is overdue on purpose) with matching audit entries. *Keep as monitoring evidence;
+  the task can be completed or cancelled in the app if wanted; checks stay.*
+
+- **Phase 8.4 sprint 2 (2026-11-20)** — staging proposals 0077–0078 added `task_replan_proposals`,
+  `task_replan_decisions` and `campaign_spend_entries` (all insert-only). Browser walkthroughs in Main workspace:
+  "QA achterstallige controletaak" was re-planned twice (2 Nov → 23 Nov, then → 18 Dec with priority high) and now
+  waits on "QA align calendar" (one dependency note); campaign "QA office breakfast boxes" got budget EUR 300 and four
+  simulated spend entries (EUR 200 ref SIM-QA-1, reservation EUR 50, EUR 120 ref SIM-QA-2, correction −EUR 10), so it
+  shows a budget overrun on purpose. *Keep as test evidence; entries are permanent history by design.*
+
+- **Phase 8.5 experiments (2026-11-20)** — staging proposals 0079 (experiment lifecycle, observations, history) and 0080
+  (simulated results are never evidence). Main workspace: "QA checkout reassurance banner" went through the whole
+  lifecycle with simulated observations (12/12 then 30/30 per group) and was completed as "successful"; 0080 relabelled
+  its evidence strength from "controlled" to "inconclusive" because the data was simulated. One Growth Officer draft
+  ("Toets of een herbestelherinnering …", 5 credits) was created from a real AI request. *Keep; history is insert-only.*
+
+- **Phase 8.5 specialist quality control (2026-11-20)** — staging proposal 0081. Main workspace task "Zoekwoorden voor de
+  zakelijke cateringpagina" (SEO, high priority): one real second review by the Content Specialist (7 credits, score
+  75/100, acceptable, five findings) and an admin decision "accepted with corrections". *Keep; reviews and decisions are
+  insert-only.*
+
+- **Phase 8.6 re-planning analysis (2026-11-21)** — staging proposal 0082. Main workspace task "Analyseer de vraag naar
+  zakelijke lunches in de buurt" (overdue): a rule-based re-planning proposal prepared by QA Member and one real Growth
+  Officer analysis (5 credits, recommends option A). The proposal is intentionally left undecided so no task dates
+  changed. Test-account passwords were rotated by `seed-users.ts` after a sandbox restart (no other change). *Keep.*
+
+- **Phase 8.6 campaign diagnosis (2026-11-21)** — QA Member created one task from the diagnosis of "QA office
+  breakfast boxes" ("Review the remaining budget…", labels `campaign-advice`, `advice:review_budget`). *Keep.*
+
+- **Phase 8.7 situation explanation (2026-11-21)** — QA Admin requested one Growth Officer explanation of the growth
+  situation (5 credits, private request record with purpose `situation_narrative`). *Keep.*
+
+- **Phase 8.7 campaign advice (2026-11-21)** — QA Member requested one Growth Officer advice for "QA office breakfast
+  boxes" (5 credits, private request record with purpose `campaign_advice`). The campaign itself was not changed. *Keep.*
+
+- **Campaign operating system, proposal 0083 (2026-11-22)** — "QA office breakfast boxes"
+  (`5ceb24e7-277e-4a5e-b2fc-9427a792c58e`) is linked to goal "QA: Grow qualified leads", strategy "QA: Lead plan", a
+  qualified-leads KPI (start 4, target 10) and a hypothesis; it has EUR limits of 150 per week and 300 in total (reason
+  "QA 8.7 limit test (staging)"), one refused simulated spend attempt in the audit log, and status history
+  active → needs attention → active with QA reasons. A second campaign "QA 8.7 lifecycle campaign" was created by QA Member,
+  submitted for approval and approved by QA Admin. *Keep (history is insert-only).*
+
+- **Goal measurement (2026-11-22)** — goal "QA: Grow qualified leads" was given the metric "gekwalificeerde leads",
+  starting value 4, target 10 and current value 6 through the goals screen (entered values, not a connected source). *Keep.*
+
+- **Unified budget allocation, proposal 0084 (2026-11-22)** — Concurrency check (`scripts/staging/concurrency-budget.ts`):
+  budget line `qa_concurrency` (EUR 100, `ca4e36bd-2d23-462f-87fd-73e7a542aeff`) with EUR 60 allocated to "QA office
+  breakfast boxes" and one refused concurrent allocation event. Browser checks: two `paid_social` EUR 10,000 lines for
+  the same month (the second came from a re-run of the screen test), EUR 4,000 → 3,500 allocated to "QA office breakfast
+  boxes" and EUR 3,000 → 3,500 to "QA 8.7 lifecycle campaign"; one refused over-allocation; one QA Member move request
+  (EUR 500, reason "QA 8.8 move request (staging)") approved by QA Admin; one simulated EUR 250 spend linked to the
+  `paid_social` line on "QA 8.7 lifecycle campaign" and one refused EUR 3,600 attempt. Allocation events and spend are
+  insert-only. *Keep.*
+
+- **Phase 8.8 second stage (Staging Bakery / Main workspace, 2026-11-21).** One cost model "cost per month" valid from
+  2026-11-01 set by QA Admin; one recorded cost-of-goods entry EUR 300 for 2026-11-01 – 2026-11-30 (note "QA 8.8 November
+  cost of goods") with corrections −50 and +20 (effective EUR 270); one refused over-correction (−9,999). Cost entries and
+  cost models are insert-only. *Keep.*
+
+## Cleanup proposal (needs separate approval)
+
+1. Archive (status change, not delete) the five QA-named goals/campaigns/tasks through the normal app screens.
+2. Leave every accounting, audit, AI-receipt and simulated-action record untouched.
+3. If a clean demo business is wanted, create a new staging organization instead of deleting history.
+4. Production: nothing to clean; none of this data exists there.
+
+## Phase 8.8 third stage (21 Nov 2026)
+- One platform credit price version: EUR 0.05 per credit, starting 21 Nov 2026 12:10 (local), methodology "Staging QA: average provider cost per credit". Price versions are insert-only by design and cannot be removed; a later version replaces it.
+- Proposal 0086 applied to staging only (credit price history visible to the Platform Owner only).
+
+
+## Phase 8.8 final completion (21 Nov 2026)
+- Proposal 0087 applied to staging only (official-rate import accepts the ECB 90-day history).
+- ECB history imported for the QA organization through the app: 65 publication days (24 Aug – 20 Nov 2026), 1,885 official rates in total; official rates are permanent by design. *Keep.*
+- Staging Catering (second business): two USD sales recorded through the app (USD 116 on 15 Oct, USD 220 on 5 Nov, customer reference STG-FX-1) and one USD 50 refund on 18 Nov belonging to the October sale. Revenue records are permanent. *Keep.*
+- Task "QA office breakfast boxes: Review the remaining budget…" got the Growth Strategist (analysis, no approval) and one successful AI run: 6 credits at 12:51, valued EUR 0.30 at the staging price. *Keep.*
+
+## Phase 9 (21 Nov 2026)
+- Main workspace: one USD 250 sale on 15 Oct 2026 recorded through the app's revenue call (customer reference qa-phase9-usd, note "QA Phase 9: USD test sale for converted Home figures") to check converted Home figures. Revenue records are permanent. *Keep.*
+- Draft strategy version 2 created for goal "QA Journey: more online bookings" (archived goal) and for "QA: Grow qualified leads", to check version comparison (adds "QA Phase 9: booking reminder test", risk "QA Phase 9: reminder fatigue"). *Keep.*
+- No schema changes; staging ledger unchanged.
+
+## Grand master round 1 (22 Nov 2026)
+- Main workspace (Staging Bakery): three confirmed business facts added by QA Owner through the profile screen to check the "What we know" summary: "Industry" = "Artisan bakery (QA guidance check)" (twice, same value, so no conflict) and "Tone of voice" = "Warm and plain (QA guidance check)". *Keep.*
+- Data source connection limit: seven Stripe connect attempts by QA Admin and one by QA Owner with an invented, invalid restricted key (Stripe answered 401; nothing was stored). Counters are hidden and expire on their own. *Keep.*
+- Staging test account passwords rotated by `seed-users.ts` (sandbox file only).
+- No schema changes; staging ledger 57, proposals to 0090.
+
+## Round 2 (22 Nov 2026)
+- Proposal 0091 applied to staging only (guided onboarding answers saved by editors as confirmed facts, audited, stale edits refused). Ledger still 57.
+- Main workspace (Staging Bakery): 13 onboarding answers by QA Admin through the guided questions (customers, sales, challenges, ambitions, boundaries; resources skipped), plus one change of "Customer needs and problems" by QA Owner while QA Admin had the same step open (the admin's stale save was refused). Audit: 13 `business_answer.added`, 1 `business_answer.changed`. *Keep.*
+- Five Growth Officer questions by QA Admin (facts, calculation, missing data, recommendation, hypothesis): 5 conversations, 27 credits (usage events 5+5+5+7+5 = ledger −27; balance 76 → 49). *Keep.*
+- Website-check limit test: competitor "QA rate-limit target" (website example.com, an RFC 2606 documentation domain) added for QA Member; five counted checks taken through `consume_rate_limit` (no fetch), then the 6th, 7th and 8th attempts in the browser (NL/EN/FR) were refused before any fetch; one attempt on unregistered example.org counted as one failed attempt. No SEO audit saved. Counters are hidden and expire on their own. *Keep.*
+- Staging test account passwords rotated by `seed-users.ts` (sandbox file only).

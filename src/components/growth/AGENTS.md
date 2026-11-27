@@ -1,2 +1,4 @@
 - Growth strategies are explicit metered single requests (kind `strategy`); saved strategies are insert-only per request key; project/task conversion is a separate user action.
 - Budget reallocation proposals are deterministic rules, never AI, within hard caps and keeping total planned budget unchanged.
+- Each goal shows a read-only growth chain built by the pure `growth-chain` rules over caller-RLS reads; it flags possible duplicate work but never merges records or changes goal progress.
+- Plan decisions (approve, reject with reason, request changes) are append-only rows written by a role-checked RPC on draft plans only; edits always become a new strategy and plan version, never an in-place change.

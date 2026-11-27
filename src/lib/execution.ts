@@ -39,7 +39,7 @@ export const planSchema = z
           description: z.string().max(12000),
           due_date: dateInput,
           priority: z.enum(["low", "medium", "high", "urgent"]),
-          owner_id: z.string().uuid().or(z.literal("")),
+          owner_id: z.guid().or(z.literal("")),
         }),
       )
       .min(1)
@@ -52,7 +52,52 @@ export const planSchema = z
   });
 export type ExecutionPlan = z.infer<typeof planSchema>;
 /** Extract only explicit bullet/numbered steps. This is a local editable draft, not a second AI call. */
+const CLAIM_TAG = /^\[(?:fact|calc|calculation|estimate|hypothesis|recommendation|missing)\]:?\s*/i;
+const clip = (v: unknown, n: number) =>
+  typeof v === "string" ? v.replace(/\*\*/g, "").trim().replace(CLAIM_TAG, "").slice(0, n) : "";
+/** Saved structured answers (strategies, specialist analyses) are JSON; draft from their fields instead of raw braces. */
+function draftFromStructured(content: string): ExecutionPlan | null {
+  if (!content.trimStart().startsWith("{")) return null;
+  let d: unknown;
+  try {
+    d = JSON.parse(content);
+  } catch {
+    return null;
+  }
+  if (!d || typeof d !== "object" || Array.isArray(d)) return null;
+  const o = d as Record<string, unknown>;
+  const summary = clip(o["summary"], 12000);
+  const title =
+    clip(o["title"], 200) || clip(summary.split(/(?<=[.!?])\s/)[0], 200) || "Growth action plan";
+  const list = ["next_steps", "actions", "steps", "tasks"].map((k) => o[k]).find(Array.isArray) as
+    unknown[] | undefined;
+  const steps = (list ?? [])
+    .map((x) => {
+      if (typeof x === "string") return { title: clip(x, 200), description: "" };
+      const r = (x && typeof x === "object" ? x : {}) as Record<string, unknown>;
+      return {
+        title: clip(r["title"] ?? r["action"] ?? r["step"] ?? r["name"], 200),
+        description: clip(r["detail"] ?? r["description"], 12000),
+      };
+    })
+    .filter((t) => t.title);
+  const unique = [...new Map(steps.map((t) => [t.title.toLowerCase(), t])).values()].slice(0, 40);
+  return {
+    title,
+    description: summary,
+    objective: "",
+    category: "marketing",
+    tasks: (unique.length ? unique : [{ title, description: "" }]).map((t) => ({
+      ...t,
+      due_date: "",
+      priority: "medium",
+      owner_id: "",
+    })),
+  };
+}
 export function draftExecutionPlan(content: string): ExecutionPlan {
+  const structured = draftFromStructured(content);
+  if (structured) return structured;
   const lines = content.split("\n");
   const steps = lines
     .filter((l) => /^\s*(?:[-*]|\d+[.)])\s+/.test(l))
@@ -60,6 +105,8 @@ export function draftExecutionPlan(content: string): ExecutionPlan {
       l
         .replace(/^\s*(?:[-*]|\d+[.)])\s+/, "")
         .replace(/\*\*/g, "")
+        // Information labels from AI answers (src/lib/claims.ts) are not part of a task title.
+        .replace(CLAIM_TAG, "")
         .trim(),
     )
     .filter(Boolean);
@@ -100,7 +147,9 @@ export function executionSummary(
       .filter((t) => t.due_date && t.due_date > today)
       .sort((a, b) => (a.due_date ?? "").localeCompare(b.due_date ?? "")),
     mine: open.filter((t) => t.owner_id === userId),
-    active: [...projects, ...campaigns].filter((p) => p.status === "active"),
+    active: [...projects, ...campaigns].filter((p) =>
+      ["active", "needs_attention", "optimizing"].includes(p.status),
+    ),
     review: open.filter((t) => t.status === "review"),
   };
 }
@@ -118,31 +167,103 @@ export function executionOptions(orgId?: string, workspaceId?: string, userId?: 
     queryFn: async () => {
       if (!orgId || !workspaceId) throw new Error("Choose a workspace");
       const watermark = new Date().toISOString();
-      function all<K extends "projects" | "tasks" | "campaigns" | "execution_notes" | "approvals">(table: K) {
+      function all<K extends "projects" | "tasks" | "campaigns" | "execution_notes" | "approvals">(
+        table: K,
+      ) {
         // Build predicates with concrete table types; the client generic cannot narrow shared columns.
         return collectPages<Database["public"]["Tables"][K]["Row"]>(async (cursor, size) => {
           const build = () => {
-            if (table === "projects") return supabase.from("projects").select("*").eq("org_id", orgId ?? "").eq("workspace_id", workspaceId ?? "").lte("created_at", watermark).order("id").limit(size);
-            if (table === "tasks") return supabase.from("tasks").select("*").eq("org_id", orgId ?? "").eq("workspace_id", workspaceId ?? "").lte("created_at", watermark).order("id").limit(size);
-            if (table === "campaigns") return supabase.from("campaigns").select("*").eq("org_id", orgId ?? "").eq("workspace_id", workspaceId ?? "").lte("created_at", watermark).order("id").limit(size);
-            if (table === "execution_notes") return supabase.from("execution_notes").select("*").eq("org_id", orgId ?? "").eq("workspace_id", workspaceId ?? "").lte("created_at", watermark).order("id").limit(size);
-            return supabase.from("approvals").select("*").eq("org_id", orgId ?? "").eq("workspace_id", workspaceId ?? "").lte("created_at", watermark).order("id").limit(size);
+            if (table === "projects")
+              return supabase
+                .from("projects")
+                .select("*")
+                .eq("org_id", orgId ?? "")
+                .eq("workspace_id", workspaceId ?? "")
+                .lte("created_at", watermark)
+                .order("id")
+                .limit(size);
+            if (table === "tasks")
+              return supabase
+                .from("tasks")
+                .select("*")
+                .eq("org_id", orgId ?? "")
+                .eq("workspace_id", workspaceId ?? "")
+                .lte("created_at", watermark)
+                .order("id")
+                .limit(size);
+            if (table === "campaigns")
+              return supabase
+                .from("campaigns")
+                .select("*")
+                .eq("org_id", orgId ?? "")
+                .eq("workspace_id", workspaceId ?? "")
+                .lte("created_at", watermark)
+                .order("id")
+                .limit(size);
+            if (table === "execution_notes")
+              return supabase
+                .from("execution_notes")
+                .select("*")
+                .eq("org_id", orgId ?? "")
+                .eq("workspace_id", workspaceId ?? "")
+                .lte("created_at", watermark)
+                .order("id")
+                .limit(size);
+            return supabase
+              .from("approvals")
+              .select("*")
+              .eq("org_id", orgId ?? "")
+              .eq("workspace_id", workspaceId ?? "")
+              .lte("created_at", watermark)
+              .order("id")
+              .limit(size);
           };
           const query = build();
           const result = await (cursor ? query.gt("id", cursor) : query);
-          return { data: result.data as Database["public"]["Tables"][K]["Row"][] | null, error: result.error };
+          return {
+            data: result.data as Database["public"]["Tables"][K]["Row"][] | null,
+            error: result.error,
+          };
         });
       }
-      const [projectRows, taskRows, campaignRows, noteRows, events, members, approvalRows] = await Promise.all([
-        all("projects"), all("tasks"), all("campaigns"), all("execution_notes"),
-        supabase.from("activity_events").select("*").eq("org_id", orgId).eq("workspace_id", workspaceId).order("created_at", { ascending: false }).order("id").limit(200),
-        supabase.rpc("execution_workspace_members", { _workspace: workspaceId }), all("approvals"),
-      ]);
+      const [projectRows, taskRows, campaignRows, noteRows, events, members, approvalRows] =
+        await Promise.all([
+          all("projects"),
+          all("tasks"),
+          all("campaigns"),
+          all("execution_notes"),
+          supabase
+            .from("activity_events")
+            .select("*")
+            .eq("org_id", orgId)
+            .eq("workspace_id", workspaceId)
+            .order("created_at", { ascending: false })
+            .order("id")
+            .limit(200),
+          supabase.rpc("execution_workspace_members", { _workspace: workspaceId }),
+          all("approvals"),
+        ]);
       for (const result of [events, members]) if (result.error) throw result.error;
-      const projects = { data: projectRows.sort((a,b) => b.updated_at.localeCompare(a.updated_at) || a.id.localeCompare(b.id)) };
-      const tasks = { data: taskRows.sort((a,b) => b.created_at.localeCompare(a.created_at) || a.id.localeCompare(b.id)) };
-      const campaigns = { data: campaignRows.sort((a,b) => b.updated_at.localeCompare(a.updated_at) || a.id.localeCompare(b.id)) };
-      const notes = { data: noteRows.sort((a,b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id)) };
+      const projects = {
+        data: projectRows.sort(
+          (a, b) => b.updated_at.localeCompare(a.updated_at) || a.id.localeCompare(b.id),
+        ),
+      };
+      const tasks = {
+        data: taskRows.sort(
+          (a, b) => b.created_at.localeCompare(a.created_at) || a.id.localeCompare(b.id),
+        ),
+      };
+      const campaigns = {
+        data: campaignRows.sort(
+          (a, b) => b.updated_at.localeCompare(a.updated_at) || a.id.localeCompare(b.id),
+        ),
+      };
+      const notes = {
+        data: noteRows.sort(
+          (a, b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id),
+        ),
+      };
       const approvals = { data: approvalRows };
       return {
         projects: projects.data ?? [],
@@ -169,4 +290,15 @@ export function nextOccurrence(due: string, recurrence: string) {
     );
   } else throw new Error("Task is not recurring");
   return d.toISOString().slice(0, 10);
+}
+
+/**
+ * Goal used when converting a recommendation: an explicit choice wins, including "" for "no growth goal";
+ * only when nothing was chosen yet is the top-priority goal preselected.
+ */
+export function pickConversionGoal(
+  chosen: string | null,
+  goals: readonly { id: string }[] | undefined,
+): string {
+  return chosen ?? goals?.[0]?.id ?? "";
 }

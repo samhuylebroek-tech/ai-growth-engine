@@ -4,7 +4,15 @@ import { requestAttemptKey } from "@/lib/single-ai-request";
 describe("persistent request identities", () => {
   const a = "00000000-0000-4000-8000-000000000001";
   const b = "00000000-0000-4000-8000-000000000002";
-  function store() { const map = new Map<string, string>(); return { getItem: (k: string) => map.get(k) ?? null, setItem: (k: string, v: string) => { map.set(k, v); } }; }
+  function store() {
+    const map = new Map<string, string>();
+    return {
+      getItem: (k: string) => map.get(k) ?? null,
+      setItem: (k: string, v: string) => {
+        map.set(k, v);
+      },
+    };
+  }
   it("reuses the same request after interruption and reload", () => {
     const storage = store();
     expect(requestAttemptKey(storage, "user/org/workspace/officer", "question", () => a)).toBe(a);

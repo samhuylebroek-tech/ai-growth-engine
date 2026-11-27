@@ -46,3 +46,17 @@ Restrictive RLS policies compose with existing permissive policies on workspace 
 
 ## 2026-11-16 controlled Release 0
 `single_ai_requests` keys original input by user/org/workspace/request identity and atomically saves final conversations/proposals. Private receipts preserve paid text independently of final conversation persistence. Already-claimed delivery/outcome can be recorded after membership revocation only with server proof, original authenticated user/key and matching immutable run/reservation identity; no new dispatch, read, settlement or recovery authorization is granted. Current-member checks still protect reconciliation and final saving. An expired token or failed delivery transport can still prevent receipt ingestion; no worker or automatic transport replay exists. Full release/dependency target: docs/MASTER_RELEASE_MAP.md.
+
+## Signals and interface language — 2026-11-20
+
+- **Signals (`src/lib/signals.ts`)** — deterministic checks over the scoped business context: conflicting
+  figures (initiative or goal value vs. its linked metric), completed initiatives without a measured
+  outcome, missing monthly results, stale goals and website checks, overdue or stale deals, budget over
+  plan or cap per currency, and metrics that beat plan two months running. Ranked by impact (×3),
+  urgency (×2) and feasibility. The Command Center shows them as "Signals and next best actions" with a
+  one-click hand-off to the Growth Officer; the same list goes into the Growth Officer context under
+  "DETECTED SIGNALS" with its own evidence class, so the AI raises them unprompted. No AI credits.
+- **Interface language (`src/lib/i18n/`)** — English, Dutch and French dictionaries; the choice is stored
+  in a cookie and read on the server and in the browser, so the page language (`<html lang>`) and text
+  match from the first render. Translated so far: navigation, header and menu, status labels, the
+  Command Center frame and signals. Other screens still use English text and move over screen by screen.

@@ -1,0 +1,2 @@
+- Lead screens use the staging-only public capability RPCs and scoped caller-RLS inbox; never claim success before the atomic persistence response, because form, consent, CRM association and follow-up must stay connected.
+- Public form retries preserve the exact request and displayed consent snapshot; transport errors are unconfirmed, never proof that nothing was saved.

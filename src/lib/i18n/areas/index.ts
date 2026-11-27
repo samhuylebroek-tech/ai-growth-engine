@@ -1,0 +1,277 @@
+import { account } from "./account";
+import { officer } from "./officer";
+import { goals } from "./goals";
+import { performance } from "./performance";
+import { settings } from "./settings";
+import { work } from "./work";
+import { marketing } from "./marketing";
+import { pages } from "./pages";
+import { home } from "./home";
+import { run } from "./run";
+import { orch } from "./orch";
+import { cost } from "./cost";
+import { xa } from "./xa";
+import { bi } from "./bi";
+import { org } from "./org";
+import { ogo } from "./ogo";
+import { ev } from "./ev";
+import { head } from "./head";
+import { apv } from "./apv";
+import { reg } from "./reg";
+import { pg } from "./pg";
+import { own } from "./own";
+import { mon } from "./mon";
+import { rp } from "./rp";
+import { rep } from "./rep";
+import { grp } from "./grp";
+import { exp } from "./exp";
+import { qc } from "./qc";
+import { ra } from "./ra";
+import { ci } from "./ci";
+import { sa } from "./sa";
+import { sn } from "./sn";
+import { cn } from "./cn";
+import { cos } from "./cos";
+import { ba } from "./ba";
+import { ae } from "./ae";
+import { kp } from "./kp";
+import { ge } from "./ge";
+import { rl } from "./rl";
+import { sec } from "./sec";
+import { kg } from "./kg";
+import { bk } from "./bk";
+import { sx } from "./sx";
+import { lim } from "./lim";
+import { gx } from "./gx";
+import { ob } from "./ob";
+import { cl } from "./cl";
+import { gj } from "./gj";
+import { evd } from "./evd";
+import { ph } from "./ph";
+import { ch } from "./ch";
+import { site } from "./site";
+import { lead } from "./lead";
+import { tg } from "./tg";
+
+/** Every screen area; each keeps its own texts so areas can be translated independently. */
+export const AREAS = [
+  account,
+  officer,
+  goals,
+  performance,
+  settings,
+  work,
+  marketing,
+  pages,
+  home,
+  run,
+  orch,
+  cost,
+  xa,
+  bi,
+  org,
+  ogo,
+  ev,
+  head,
+  apv,
+  reg,
+  pg,
+  own,
+  mon,
+  rp,
+  rep,
+  grp,
+  exp,
+  qc,
+  ra,
+  ci,
+  sa,
+  sn,
+  cn,
+  cos,
+  ba,
+  ae,
+  kp,
+  ge,
+  rl,
+  sec,
+  kg,
+  bk,
+  sx,
+  lim,
+  gx,
+  ob,
+  cl,
+  gj,
+  evd,
+  ph,
+  ch,
+  site,
+  lead,
+  tg,
+] as const;
+export const AREA_EN = {
+  ...account.en,
+  ...officer.en,
+  ...goals.en,
+  ...performance.en,
+  ...settings.en,
+  ...work.en,
+  ...marketing.en,
+  ...pages.en,
+  ...home.en,
+  ...run.en,
+  ...orch.en,
+  ...cost.en,
+  ...xa.en,
+  ...bi.en,
+  ...org.en,
+  ...ogo.en,
+  ...ev.en,
+  ...head.en,
+  ...apv.en,
+  ...reg.en,
+  ...pg.en,
+  ...own.en,
+  ...mon.en,
+  ...rp.en,
+  ...rep.en,
+  ...grp.en,
+  ...exp.en,
+  ...qc.en,
+  ...ra.en,
+  ...ci.en,
+  ...sa.en,
+  ...sn.en,
+  ...cn.en,
+  ...cos.en,
+  ...ba.en,
+  ...ae.en,
+  ...kp.en,
+  ...ge.en,
+  ...rl.en,
+  ...sec.en,
+  ...kg.en,
+  ...bk.en,
+  ...sx.en,
+  ...lim.en,
+  ...gx.en,
+  ...ob.en,
+  ...cl.en,
+  ...gj.en,
+  ...evd.en,
+  ...ph.en,
+  ...ch.en,
+  ...site.en,
+  ...lead.en,
+};
+export const AREA_NL = {
+  ...account.nl,
+  ...officer.nl,
+  ...goals.nl,
+  ...performance.nl,
+  ...settings.nl,
+  ...work.nl,
+  ...marketing.nl,
+  ...pages.nl,
+  ...home.nl,
+  ...run.nl,
+  ...orch.nl,
+  ...cost.nl,
+  ...xa.nl,
+  ...bi.nl,
+  ...org.nl,
+  ...ogo.nl,
+  ...ev.nl,
+  ...head.nl,
+  ...apv.nl,
+  ...reg.nl,
+  ...pg.nl,
+  ...own.nl,
+  ...mon.nl,
+  ...rp.nl,
+  ...rep.nl,
+  ...grp.nl,
+  ...exp.nl,
+  ...qc.nl,
+  ...ra.nl,
+  ...ci.nl,
+  ...sa.nl,
+  ...sn.nl,
+  ...cn.nl,
+  ...cos.nl,
+  ...ba.nl,
+  ...ae.nl,
+  ...kp.nl,
+  ...ge.nl,
+  ...rl.nl,
+  ...sec.nl,
+  ...kg.nl,
+  ...bk.nl,
+  ...sx.nl,
+  ...lim.nl,
+  ...gx.nl,
+  ...ob.nl,
+  ...cl.nl,
+  ...gj.nl,
+  ...evd.nl,
+  ...ph.nl,
+  ...ch.nl,
+  ...site.nl,
+  ...lead.nl,
+};
+export const AREA_FR = {
+  ...account.fr,
+  ...officer.fr,
+  ...goals.fr,
+  ...performance.fr,
+  ...settings.fr,
+  ...work.fr,
+  ...marketing.fr,
+  ...pages.fr,
+  ...home.fr,
+  ...run.fr,
+  ...orch.fr,
+  ...cost.fr,
+  ...xa.fr,
+  ...bi.fr,
+  ...org.fr,
+  ...ogo.fr,
+  ...ev.fr,
+  ...head.fr,
+  ...apv.fr,
+  ...reg.fr,
+  ...pg.fr,
+  ...own.fr,
+  ...mon.fr,
+  ...rp.fr,
+  ...rep.fr,
+  ...grp.fr,
+  ...exp.fr,
+  ...qc.fr,
+  ...ra.fr,
+  ...ci.fr,
+  ...sa.fr,
+  ...sn.fr,
+  ...cn.fr,
+  ...cos.fr,
+  ...ba.fr,
+  ...ae.fr,
+  ...kp.fr,
+  ...ge.fr,
+  ...rl.fr,
+  ...sec.fr,
+  ...kg.fr,
+  ...bk.fr,
+  ...sx.fr,
+  ...lim.fr,
+  ...gx.fr,
+  ...ob.fr,
+  ...cl.fr,
+  ...gj.fr,
+  ...evd.fr,
+  ...ph.fr,
+  ...ch.fr,
+  ...site.fr,
+  ...lead.fr,
+};

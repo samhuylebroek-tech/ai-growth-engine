@@ -30,6 +30,8 @@ use the editor.
 <!-- LOVABLE:END -->
 
 ## Project rules
+- Campaign home/workspace share ExecutionWorkspace; command center stays at /app/overview. Cards reuse spendSummary/unknown states. Public demos are labelled illustrations; question-bound session references use the existing scoped AI reader, avoiding duplicate accounting or stale context.
+- Route-load recovery is eagerly shared by the router default and root boundary; failed module imports require a user-triggered document reload, not a cached-import retry, so recovery remains available when a page chunk is missing.
 - Tenant data is isolated by `org_id` + RLS; app code never uses the service-role client — privileged changes go through SECURITY DEFINER SQL functions with explicit role checks.
 - Platform roles (`platform_roles`) and org roles (`organization_members.role`) are separate tables; never derive one from the other.
 - Every AI call goes through `meteredGenerate` in `src/lib/ai.functions.ts` (entitlement → credits → provider → usage event); never call the gateway directly from elsewhere.
@@ -50,7 +52,7 @@ use the editor.
 - Workspace access requires explicit workspace assignments capped by organization role; organization owners retain all-workspace administration, and restrictive policies also protect storage and scoped RPCs.
 - Workspace creation goes through the atomic quota-checked SQL function, not direct inserts, to prevent concurrent plan-limit bypasses.
 - Shared code navigation drives the drawer and page-search dialog so visible destinations remain consistent and implemented.
-- Group navigation into primary destinations with contextual tabs from the same manifest; retain existing route URLs so saved links remain valid.
+- Group navigation into primary destinations ordered along the growth journey, each with at most seven contextual tabs from the same manifest (guarded by `src/test/navigation.test.ts`); retain existing route URLs so saved links remain valid. UX findings and backlog live in `docs/ux/UX_AUDIT.md`.
 - Home and intelligence share one scoped summary query; question handoffs are session-only and keyed by organization/workspace so drafts never cross contexts.
 - Conversation messages are loaded only after verifying their parent conversation belongs to the active organization/workspace and authenticated user, because messages have no workspace column.
 - Owner-center server reads require the exact Platform Owner role and fail closed, so general platform staff cannot access owner operations.
@@ -67,3 +69,18 @@ use the editor.
 - Settlement, refunds and coordination mutations require server-only accounting proof in addition to caller role checks; browser callers cannot forge paid execution. Completed coordination output is checkpointed before parsing.
 - Metered AI dispatch is claimed once; private receipts precede settlement. Single requests use scoped immutable keys and atomic answer/proposal persistence. Recovery never replays inference; unknown outcomes retain reservations.
 - Claimed delivery/outcome writes require server proof, caller/key and immutable run/reservation identity; revocation still denies reads, settlement, recovery and new dispatch, preserving paid output without restoring access.
+- A declared APP_ENVIRONMENT is checked on every request by `src/lib/environment.ts`; mixed or production-referencing staging settings return 503 instead of serving, so staging can never silently fall back to live configuration.
+- Proactive signals come from deterministic rules in `src/lib/signals.ts` over the same scoped business context the Growth Officer reads, so Home and AI agree and cost no credits; signals point to evidence, never to a cause.
+- An uncertain AI outcome is closed only by the requester or an org admin through a proof-checked SQL function that counts the reserved credits as used; it never refunds or replays, because the provider may already have run and billed.
+- AI task execution (proposal 0063): each attempt is a database-owned task_runs row using single-request accounting under the run key; outcomes come from recorded AI/credit state, leases expire into reconciliation, uncertain runs are never retried, so nothing is charged or run twice.
+- Task-run eligibility is one SQL gate (task_run_gate, proposal 0064) shared by manual runs and bounded admin-started cycles that log a reason per task; schedules only mark cycles due, since runs need a signed-in session.
+- Business intelligence (proposal 0066): revenue is a permanent per-currency ledger, attribution is pure `src/lib/bi/` over RLS reads; see `src/lib/bi/AGENTS.md`.
+- Multi-business organizations (proposals 0067–0070): businesses are workspaces, org reporting and org intelligence are pure over RLS reads, and organization decisions only take effect through each business's own rights; see `src/lib/org/AGENTS.md`.
+- Rate limits (proposal 0090) are enforced in the database: triggers on run/upload inserts, `consume_rate_limit` before outside fetches, insert-only hidden counters; refusals surface via `src/lib/rate-limit.ts`, so no path can skip a limit and no credits are reserved for a refused request.
+- Home recommends one next step from pure `src/lib/next-step.ts` over the records Home already reads, in fixed priority and only steps the viewer's role permits; it costs no credits and unknown reads are never treated as absent.
+- IDs are validated with `z.guid()` (Zod 4), not the strict RFC UUID check, because the database derives some keys from md5; `src/test/zod-upgrade.test.ts` guards this and the minimum Zod version.
+- Guided onboarding (proposal 0091): questions are a code manifest in `src/lib/onboarding/questions.ts` whose keys the SQL allowlist must equal; answers are confirmed business facts (source "Onboarding answer") saved only through `save_business_answers`, so Business Knowledge, the Growth Officer and the next step read one store.
+- AI answers label each statement (fact, calculated, estimate, hypothesis, recommendation, missing) via the shared `CLAIM_RULE` and render through `AiMarkdown`; a 'fact' worded as uncertain is shown as a hypothesis and untagged text is never upgraded.
+- CI ESLint enforces Prettier on every source file: run `scripts/ci/format-changed.sh` before each commit (platform-generated `src/integrations/supabase/` is excluded via `.prettierignore`), so the pull-request check never accumulates formatting debt again.
+- GitHub sync is verified, never assumed: after each round run `bun scripts/ci/github-status.ts` (read-only, public API) and report Synchronized / Not synchronized / Unknown with the CI result per check; CI pins its Bun version to match local.
+- Campaign work uses stable IDs + human decisions to avoid false completion.

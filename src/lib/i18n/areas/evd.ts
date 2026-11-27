@@ -1,0 +1,264 @@
+import { defineArea } from "../define";
+
+// Evidence behind one labelled AI statement ("evd"): the panel that opens from a label. Keys start with "evd.".
+export const evd = defineArea("evd", {
+  en: {
+    "evd.figureFor": "{label}: show source, formula and period",
+    "evd.src.revenue": "Revenue ledger (sales, refunds and corrections you recorded or imported)",
+    "evd.src.spend": "Campaign spending ledger (actual entries only)",
+    "evd.src.campaign": "Campaign record",
+    "evd.src.tasks": "Tasks of this business",
+    "evd.src.runs": "Recorded AI runs and their charged credits",
+    "evd.src.reviews": "Second reviews and editor decisions",
+    "evd.src.experiments": "Experiments and their recorded evaluations",
+    "evd.src.economics":
+      "Growth economics: revenue, campaign spending, business costs and AI credits",
+    "evd.src.budget": "Budget lines and their allocations",
+    "evd.src.plan": "Approved growth plan, its initiatives and their recorded KPI values",
+    "evd.src.proposals": "Improvement proposals and their measured outcomes",
+    "evd.fx.progress": "(current value − starting point) ÷ (target − starting point)",
+    "evd.fx.pattern":
+      "Count of measured outcomes per lever and channel; shows what happened, not why",
+    "evd.src.usage": "AI usage ledger",
+    "evd.src.records": "The records of this business that this report needs",
+    "evd.fx.refunds": "Refunds and cancellations, counted in the month of the original sale",
+    "evd.fx.net": "Sales − refunds and cancellations ± corrections, per currency",
+    "evd.fx.change": "(this period − previous period) ÷ previous period",
+    "evd.fx.perSpend":
+      "Net revenue ÷ campaign spending in the same currency; not attributed return",
+    "evd.fx.health": "Campaign progress rules: dates, tasks and actual spending",
+    "evd.fx.remaining": "Budget − actual spending",
+    "evd.fx.overdue": "Open tasks with a due date before today",
+    "evd.fx.perSuccess": "Credits ÷ successful runs",
+    "evd.fx.avgScore": "Average score of the second reviews",
+    "evd.fx.gp": "Net revenue − recorded cost of goods sold, per currency",
+    "evd.fx.gpEstimate":
+      "Net revenue × the estimated margin rate of your cost model; not recorded costs",
+    "evd.fx.margin": "Gross profit ÷ net revenue × 100",
+    "evd.fx.cac":
+      "Actual acquisition spending ÷ customers whose first recorded sale falls in the period",
+    "evd.fx.rpc":
+      "Net revenue ÷ customers with a recorded sale, over all recorded sales; not a predicted lifetime value",
+    "evd.fx.aiCost": "Credits used × credit price in effect when they were used",
+    "evd.scope.business": "Business level",
+    "evd.scope.organization": "Organization level",
+    "evd.hint": "Tap or click a label to see what that statement rests on.",
+    "evd.openFor": "{label}: show what this statement rests on",
+    "evd.records": "Records it rests on",
+    "evd.loading": "Looking up the records…",
+    "evd.loadError": "The records could not be read just now, so nothing here is confirmed.",
+    "evd.incomplete":
+      "Not every business fact could be read, so a record that is not found may still exist.",
+    "evd.notFound":
+      "{code}: not found. It may have been removed, belong to another business, or you may not have access to it.",
+    "evd.ambiguous": "{code}: matches more than one record, so it is not used as evidence.",
+    "evd.changed": "Changed after this answer",
+    "evd.confirmed": "Confirmed by the business",
+    "evd.unconfirmed": "Not confirmed",
+    "evd.source": "Source: {s}",
+    "evd.recordedConfidence": "Recorded confidence: {n}%",
+    "evd.recorded": "Recorded {date}",
+    "evd.updated": "Last changed {date}",
+    "evd.openRecord": "Open",
+    "evd.stated": "As written in the answer (not checked)",
+    "evd.f.source": "Source",
+    "evd.f.formula": "Formula",
+    "evd.f.period": "Period",
+    "evd.f.basis": "Basis",
+    "evd.f.uncertainty": "Uncertainty",
+    "evd.type.fact": "Business fact",
+    "evd.type.goal": "Goal",
+    "evd.type.initiative": "Initiative",
+    "evd.type.campaign": "Campaign",
+    "evd.type.metric": "Metric",
+    "evd.s.linked": "Supported: this rests on a record of your business that you can open below.",
+    "evd.s.unconfirmed":
+      "Weak: the record it cites is not confirmed yet. Confirm it before relying on this.",
+    "evd.s.inputs_linked":
+      "Calculated by the AI from the records below. Check the formula before using the result.",
+    "evd.s.stated":
+      "Not verified: the answer names a source, but it is not linked to a record you can open.",
+    "evd.s.broken": "Not verified: the records it cites could not be found.",
+    "evd.s.none": "No source or record is given for this statement. Treat it as unverified.",
+    "evd.s.not_result":
+      "This is not a verified result. Any records or basis it names are shown below.",
+    "evd.s.missing":
+      "This information is not in your records. The statement explains why it matters and how to get it.",
+  },
+  nl: {
+    "evd.figureFor": "{label}: toon bron, formule en periode",
+    "evd.src.revenue":
+      "Omzetregister (verkopen, terugbetalingen en correcties die je registreerde of importeerde)",
+    "evd.src.spend": "Register campagne-uitgaven (alleen echte boekingen)",
+    "evd.src.campaign": "Campagnegegevens",
+    "evd.src.tasks": "Taken van dit bedrijf",
+    "evd.src.runs": "Vastgelegde AI-uitvoeringen en hun aangerekende credits",
+    "evd.src.reviews": "Tweede beoordelingen en beslissingen van redacteurs",
+    "evd.src.experiments": "Experimenten en hun vastgelegde evaluaties",
+    "evd.src.economics": "Groei-economie: omzet, campagne-uitgaven, bedrijfskosten en AI-credits",
+    "evd.src.budget": "Budgetlijnen en hun toewijzingen",
+    "evd.src.plan": "Goedgekeurd groeiplan, de initiatieven en hun vastgelegde KPI-waarden",
+    "evd.src.proposals": "Verbetervoorstellen en hun gemeten resultaten",
+    "evd.fx.progress": "(huidige waarde − startpunt) ÷ (doel − startpunt)",
+    "evd.fx.pattern":
+      "Aantal gemeten resultaten per hefboom en kanaal; toont wat er gebeurde, niet waarom",
+    "evd.src.usage": "AI-verbruiksregister",
+    "evd.src.records": "De gegevens van dit bedrijf die dit rapport nodig heeft",
+    "evd.fx.refunds":
+      "Terugbetalingen en annuleringen, geteld in de maand van de oorspronkelijke verkoop",
+    "evd.fx.net": "Verkopen − terugbetalingen en annuleringen ± correcties, per valuta",
+    "evd.fx.change": "(deze periode − vorige periode) ÷ vorige periode",
+    "evd.fx.perSpend":
+      "Netto-omzet ÷ campagne-uitgaven in dezelfde valuta; geen toegewezen rendement",
+    "evd.fx.health": "Regels voor campagnevoortgang: datums, taken en echte uitgaven",
+    "evd.fx.remaining": "Budget − echte uitgaven",
+    "evd.fx.overdue": "Open taken met een deadline vóór vandaag",
+    "evd.fx.perSuccess": "Credits ÷ geslaagde uitvoeringen",
+    "evd.fx.avgScore": "Gemiddelde score van de tweede beoordelingen",
+    "evd.fx.gp": "Netto-omzet − geregistreerde kostprijs van verkopen, per valuta",
+    "evd.fx.gpEstimate":
+      "Netto-omzet × de geschatte margeratio van je kostenmodel; geen geregistreerde kosten",
+    "evd.fx.margin": "Brutowinst ÷ netto-omzet × 100",
+    "evd.fx.cac":
+      "Echte wervingsuitgaven ÷ klanten van wie de eerste geregistreerde verkoop in de periode valt",
+    "evd.fx.rpc":
+      "Netto-omzet ÷ klanten met een geregistreerde verkoop, over alle geregistreerde verkopen; geen voorspelde klantwaarde",
+    "evd.fx.aiCost": "Gebruikte credits × creditprijs die gold op het moment van gebruik",
+    "evd.scope.business": "Bedrijfsniveau",
+    "evd.scope.organization": "Organisatieniveau",
+    "evd.hint": "Tik of klik op een label om te zien waarop die uitspraak rust.",
+    "evd.openFor": "{label}: toon waarop deze uitspraak rust",
+    "evd.records": "Gegevens waarop het rust",
+    "evd.loading": "Gegevens worden opgezocht…",
+    "evd.loadError": "De gegevens konden nu niet gelezen worden, dus hier is niets bevestigd.",
+    "evd.incomplete":
+      "Niet alle bedrijfsfeiten konden gelezen worden, dus een gegeven dat niet gevonden wordt, kan toch bestaan.",
+    "evd.notFound":
+      "{code}: niet gevonden. Het kan verwijderd zijn, bij een ander bedrijf horen of je hebt er geen toegang toe.",
+    "evd.ambiguous":
+      "{code}: past bij meer dan één gegeven en wordt daarom niet als bewijs gebruikt.",
+    "evd.changed": "Gewijzigd na dit antwoord",
+    "evd.confirmed": "Bevestigd door het bedrijf",
+    "evd.unconfirmed": "Niet bevestigd",
+    "evd.source": "Bron: {s}",
+    "evd.recordedConfidence": "Vastgelegde zekerheid: {n}%",
+    "evd.recorded": "Vastgelegd op {date}",
+    "evd.updated": "Laatst gewijzigd op {date}",
+    "evd.openRecord": "Openen",
+    "evd.stated": "Zoals in het antwoord staat (niet gecontroleerd)",
+    "evd.f.source": "Bron",
+    "evd.f.formula": "Formule",
+    "evd.f.period": "Periode",
+    "evd.f.basis": "Grondslag",
+    "evd.f.uncertainty": "Onzekerheid",
+    "evd.type.fact": "Bedrijfsfeit",
+    "evd.type.goal": "Doel",
+    "evd.type.initiative": "Initiatief",
+    "evd.type.campaign": "Campagne",
+    "evd.type.metric": "Meetwaarde",
+    "evd.s.linked":
+      "Onderbouwd: dit rust op een gegeven van je bedrijf dat je hieronder kunt openen.",
+    "evd.s.unconfirmed":
+      "Zwak: het gegeven waarnaar het verwijst is nog niet bevestigd. Bevestig het voordat je hierop vertrouwt.",
+    "evd.s.inputs_linked":
+      "Berekend door de AI uit de gegevens hieronder. Controleer de formule voordat je de uitkomst gebruikt.",
+    "evd.s.stated":
+      "Niet gecontroleerd: het antwoord noemt een bron, maar die is niet gekoppeld aan een gegeven dat je kunt openen.",
+    "evd.s.broken": "Niet gecontroleerd: de gegevens waarnaar het verwijst, zijn niet gevonden.",
+    "evd.s.none":
+      "Bij deze uitspraak staat geen bron of gegeven. Beschouw ze als niet gecontroleerd.",
+    "evd.s.not_result":
+      "Dit is geen gecontroleerd resultaat. Gegevens of een grondslag die het noemt, staan hieronder.",
+    "evd.s.missing":
+      "Deze informatie staat niet in je gegevens. De uitspraak legt uit waarom ze belangrijk is en hoe je ze krijgt.",
+  },
+  fr: {
+    "evd.figureFor": "{label} : voir la source, la formule et la période",
+    "evd.src.revenue":
+      "Registre du chiffre d’affaires (ventes, remboursements et corrections enregistrés ou importés)",
+    "evd.src.spend": "Registre des dépenses de campagne (écritures réelles uniquement)",
+    "evd.src.campaign": "Fiche de la campagne",
+    "evd.src.tasks": "Tâches de cette entreprise",
+    "evd.src.runs": "Exécutions d’IA enregistrées et crédits facturés",
+    "evd.src.reviews": "Secondes relectures et décisions des éditeurs",
+    "evd.src.experiments": "Expériences et leurs évaluations enregistrées",
+    "evd.src.economics":
+      "Économie de la croissance : chiffre d’affaires, dépenses de campagne, coûts et crédits d’IA",
+    "evd.src.budget": "Lignes budgétaires et leurs affectations",
+    "evd.src.plan":
+      "Plan de croissance approuvé, ses initiatives et leurs valeurs d’indicateur enregistrées",
+    "evd.src.proposals": "Propositions d’amélioration et leurs résultats mesurés",
+    "evd.fx.progress": "(valeur actuelle − point de départ) ÷ (objectif − point de départ)",
+    "evd.fx.pattern":
+      "Nombre de résultats mesurés par levier et canal ; montre ce qui s’est passé, pas pourquoi",
+    "evd.src.usage": "Registre d’utilisation de l’IA",
+    "evd.src.records": "Les données de cette entreprise nécessaires à ce rapport",
+    "evd.fx.refunds": "Remboursements et annulations, comptés dans le mois de la vente d’origine",
+    "evd.fx.net": "Ventes − remboursements et annulations ± corrections, par devise",
+    "evd.fx.change": "(cette période − période précédente) ÷ période précédente",
+    "evd.fx.perSpend":
+      "Chiffre d’affaires net ÷ dépenses de campagne dans la même devise ; pas un rendement attribué",
+    "evd.fx.health": "Règles d’avancement de campagne : dates, tâches et dépenses réelles",
+    "evd.fx.remaining": "Budget − dépenses réelles",
+    "evd.fx.overdue": "Tâches ouvertes dont l’échéance est passée",
+    "evd.fx.perSuccess": "Crédits ÷ exécutions réussies",
+    "evd.fx.avgScore": "Score moyen des secondes relectures",
+    "evd.fx.gp": "Chiffre d’affaires net − coût des ventes enregistré, par devise",
+    "evd.fx.gpEstimate":
+      "Chiffre d’affaires net × taux de marge estimé de votre modèle de coûts ; pas des coûts enregistrés",
+    "evd.fx.margin": "Marge brute ÷ chiffre d’affaires net × 100",
+    "evd.fx.cac":
+      "Dépenses d’acquisition réelles ÷ clients dont la première vente enregistrée tombe dans la période",
+    "evd.fx.rpc":
+      "Chiffre d’affaires net ÷ clients ayant une vente enregistrée, sur toutes les ventes ; pas une valeur vie client prédite",
+    "evd.fx.aiCost": "Crédits utilisés × prix du crédit en vigueur au moment de l’utilisation",
+    "evd.scope.business": "Niveau entreprise",
+    "evd.scope.organization": "Niveau organisation",
+    "evd.hint": "Touchez ou cliquez sur une étiquette pour voir sur quoi repose l’affirmation.",
+    "evd.openFor": "{label} : voir sur quoi repose cette affirmation",
+    "evd.records": "Données sur lesquelles elle repose",
+    "evd.loading": "Recherche des données…",
+    "evd.loadError":
+      "Les données n’ont pas pu être lues pour le moment ; rien n’est donc confirmé ici.",
+    "evd.incomplete":
+      "Toutes les informations de l’entreprise n’ont pas pu être lues ; une donnée introuvable peut donc exister.",
+    "evd.notFound":
+      "{code} : introuvable. Elle a peut-être été supprimée, appartient à une autre entreprise ou vous n’y avez pas accès.",
+    "evd.ambiguous":
+      "{code} : correspond à plusieurs données ; elle n’est donc pas utilisée comme preuve.",
+    "evd.changed": "Modifiée après cette réponse",
+    "evd.confirmed": "Confirmée par l’entreprise",
+    "evd.unconfirmed": "Non confirmée",
+    "evd.source": "Source : {s}",
+    "evd.recordedConfidence": "Fiabilité enregistrée : {n} %",
+    "evd.recorded": "Enregistrée le {date}",
+    "evd.updated": "Modifiée le {date}",
+    "evd.openRecord": "Ouvrir",
+    "evd.stated": "Tel qu’écrit dans la réponse (non vérifié)",
+    "evd.f.source": "Source",
+    "evd.f.formula": "Formule",
+    "evd.f.period": "Période",
+    "evd.f.basis": "Base",
+    "evd.f.uncertainty": "Incertitude",
+    "evd.type.fact": "Information de l’entreprise",
+    "evd.type.goal": "Objectif",
+    "evd.type.initiative": "Initiative",
+    "evd.type.campaign": "Campagne",
+    "evd.type.metric": "Indicateur",
+    "evd.s.linked":
+      "Étayée : elle repose sur une donnée de votre entreprise que vous pouvez ouvrir ci-dessous.",
+    "evd.s.unconfirmed":
+      "Faible : la donnée citée n’est pas encore confirmée. Confirmez-la avant de vous y fier.",
+    "evd.s.inputs_linked":
+      "Calculée par l’IA à partir des données ci-dessous. Vérifiez la formule avant d’utiliser le résultat.",
+    "evd.s.stated":
+      "Non vérifiée : la réponse cite une source, mais elle n’est liée à aucune donnée que vous pouvez ouvrir.",
+    "evd.s.broken": "Non vérifiée : les données citées sont introuvables.",
+    "evd.s.none":
+      "Aucune source ni donnée n’accompagne cette affirmation. Considérez-la comme non vérifiée.",
+    "evd.s.not_result":
+      "Ce n’est pas un résultat vérifié. Les données ou la base qu’elle cite figurent ci-dessous.",
+    "evd.s.missing":
+      "Cette information ne figure pas dans vos données. L’affirmation explique pourquoi elle compte et comment l’obtenir.",
+  },
+});

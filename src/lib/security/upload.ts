@@ -9,17 +9,26 @@ export const ALLOWED_UPLOADS: Record<string, string> = {
 };
 const EXT_OK = ["pdf", "docx", "xlsx", "csv", "txt", "md"];
 
-export function validateUpload(name: string, mime: string, size: number): { ok: true } | { ok: false; reason: string } {
+export function validateUpload(
+  name: string,
+  mime: string,
+  size: number,
+): { ok: true } | { ok: false; reason: string } {
   const ext = name.split(".").pop()?.toLowerCase() ?? "";
   if (!EXT_OK.includes(ext)) return { ok: false, reason: "File type not supported" };
-  if (mime && !ALLOWED_UPLOADS[mime] && !(ext === "md" || ext === "csv")) return { ok: false, reason: "File type not supported" };
+  if (mime && !ALLOWED_UPLOADS[mime] && !(ext === "md" || ext === "csv"))
+    return { ok: false, reason: "File type not supported" };
   if (size <= 0) return { ok: false, reason: "File is empty" };
   if (size > MAX_UPLOAD_BYTES) return { ok: false, reason: "File is larger than 20 MB" };
   return { ok: true };
 }
 
 export function safeFileName(name: string): string {
-  return name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/-+/g, "-").slice(0, 120);
+  return name
+    .normalize("NFKD")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 120);
 }
 
 /** Wrap untrusted text before it enters a prompt so the model treats it as data. */

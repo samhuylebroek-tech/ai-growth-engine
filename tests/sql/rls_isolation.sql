@@ -29,8 +29,8 @@ begin
   select id into wb from public.workspaces where org_id = ob;
   -- Immutable tenant associations prevent bypass via UPDATE, even within the actor's org.
   insert into public.business_facts(org_id,workspace_id,key,value,source_type) values(ob,wb,'own','own','user');
-  begin update public.business_facts set workspace_id=wa where org_id=ob; fail:=fail+1; failures:=failures||' cross_workspace_fact_update'; exception when others then pass:=pass+1; end;
-  begin perform public.confirm_business_profile(wa,'{}','[{"key":"test","value":"x","source_type":"user","confidence":1,"verified":true}]'); fail:=fail+1; failures:=failures||' cross_tenant_confirmation'; exception when others then pass:=pass+1; end;
+  begin update public.business_facts set workspace_id=wa where org_id=ob; fail:=fail+1; failures:=failures||' cross_workspace_fact_update'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.confirm_business_profile(wa,'{}','[{"key":"test","value":"x","source_type":"user","confidence":1,"verified":true}]'); fail:=fail+1; failures:=failures||' cross_tenant_confirmation'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   if not public.has_platform_role('platform_owner') then pass:=pass+1; else fail:=fail+1; failures:=failures||' org_owner_is_platform_owner'; end if;
 
   -- B cannot see A's data
@@ -44,18 +44,18 @@ begin
   select count(*) into n from public.business_profiles where org_id = oa; if n = 0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' B_sees_profileA'; end if;
   -- B cannot write into A
   begin insert into public.business_facts(org_id, workspace_id, key, value, source_type) values (oa, wa, 'x','y','user'); fail:=fail+1; failures:=failures||' B_inserts_factA';
-  exception when others then pass:=pass+1; end;
+  exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   begin insert into public.business_facts(org_id, workspace_id, key, value, source_type) values (ob, wa, 'x','y','user'); fail:=fail+1; failures:=failures||' B_cross_ws_insert';
-  exception when others then pass:=pass+1; end;
+  exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   update public.organizations set name = 'hacked' where id = oa; get diagnostics n = row_count; if n = 0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' B_updates_orgA'; end if;
   delete from public.workspaces where id = wa; get diagnostics n = row_count; if n = 0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' B_deletes_wsA'; end if;
-  begin perform public.decide_approval(ap, true, 'x'); fail:=fail+1; failures:=failures||' B_approves_A'; exception when others then pass:=pass+1; end;
-  begin perform public.consume_credits(oa, 1, 'x'); fail:=fail+1; failures:=failures||' B_spends_A'; exception when others then pass:=pass+1; end;
-  begin perform public.credit_balance(oa); fail:=fail+1; failures:=failures||' B_reads_balanceA'; exception when others then pass:=pass+1; end;
-  begin insert into public.organization_members(org_id,user_id,role) values (oa, ub, 'owner'); fail:=fail+1; failures:=failures||' B_joins_A'; exception when others then pass:=pass+1; end;
-  begin perform public.admin_grant_credits(ob, 99999, 'x'); fail:=fail+1; failures:=failures||' B_grants_self'; exception when others then pass:=pass+1; end;
-  begin insert into public.credit_ledger(org_id, delta, reason) values (ob, 99999, 'adjustment'); fail:=fail+1; failures:=failures||' B_ledger_insert'; exception when others then pass:=pass+1; end;
-  begin insert into public.platform_roles(user_id, role) values (ub, 'platform_owner'); fail:=fail+1; failures:=failures||' B_self_platform_owner'; exception when others then pass:=pass+1; end;
+  begin perform public.decide_approval(ap, true, 'x'); fail:=fail+1; failures:=failures||' B_approves_A'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.consume_credits(oa, 1, 'x'); fail:=fail+1; failures:=failures||' B_spends_A'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.credit_balance(oa); fail:=fail+1; failures:=failures||' B_reads_balanceA'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin insert into public.organization_members(org_id,user_id,role) values (oa, ub, 'owner'); fail:=fail+1; failures:=failures||' B_joins_A'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.admin_grant_credits(ob, 99999, 'x'); fail:=fail+1; failures:=failures||' B_grants_self'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin insert into public.credit_ledger(org_id, delta, reason) values (ob, 99999, 'adjustment'); fail:=fail+1; failures:=failures||' B_ledger_insert'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin insert into public.platform_roles(user_id, role) values (ub, 'platform_owner'); fail:=fail+1; failures:=failures||' B_self_platform_owner'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   update public.subscriptions set plan_key = 'enterprise' where org_id = ob; get diagnostics n = row_count; if n = 0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' B_upgrades_self'; end if;
   execute 'reset role';
 
@@ -64,10 +64,10 @@ begin
   execute 'set local role authenticated';
   select count(*) into n from public.business_facts where org_id = oa; if n = 1 then pass:=pass+1; else fail:=fail+1; failures:=failures||' viewer_cannot_read'; end if;
   begin insert into public.business_facts(org_id, workspace_id, key, value, source_type) values (oa, wa, 'x','y','user'); fail:=fail+1; failures:=failures||' viewer_writes';
-  exception when others then pass:=pass+1; end;
-  begin perform public.decide_approval(ap, true, 'x'); fail:=fail+1; failures:=failures||' viewer_approves'; exception when others then pass:=pass+1; end;
-  begin perform public.consume_credits(oa, 1, 'x'); fail:=fail+1; failures:=failures||' viewer_spends'; exception when others then pass:=pass+1; end;
-  begin perform public.confirm_business_profile(wa,'{}','[{"key":"test","value":"x","source_type":"user","confidence":1,"verified":true}]'); fail:=fail+1; failures:=failures||' viewer_confirms'; exception when others then pass:=pass+1; end;
+  exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.decide_approval(ap, true, 'x'); fail:=fail+1; failures:=failures||' viewer_approves'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.consume_credits(oa, 1, 'x'); fail:=fail+1; failures:=failures||' viewer_spends'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
+  begin perform public.confirm_business_profile(wa,'{}','[{"key":"test","value":"x","source_type":"user","confidence":1,"verified":true}]'); fail:=fail+1; failures:=failures||' viewer_confirms'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   update public.organization_members set role = 'admin' where org_id = oa and user_id = uv; get diagnostics n = row_count; if n = 0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' viewer_self_promote'; end if;
   execute 'reset role';
 
@@ -76,9 +76,9 @@ begin
   execute 'set local role authenticated';
   if public.credit_balance(oa) = 200 then pass:=pass+1; else fail:=fail+1; failures:=failures||' trial_grant'; end if;
   if public.consume_credits(oa, 5, 'test') = 195 then pass:=pass+1; else fail:=fail+1; failures:=failures||' consume'; end if;
-  begin perform public.consume_credits(oa, 1000, 'x'); fail:=fail+1; failures:=failures||' overspend'; exception when others then pass:=pass+1; end;
+  begin perform public.consume_credits(oa, 1000, 'x'); fail:=fail+1; failures:=failures||' overspend'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   if public.decide_approval(ap, true, 'ok') = 'approved' then pass:=pass+1; else fail:=fail+1; failures:=failures||' approve'; end if;
-  begin perform public.decide_approval(ap, false, 'again'); fail:=fail+1; failures:=failures||' double_decide'; exception when others then pass:=pass+1; end;
+  begin perform public.decide_approval(ap, false, 'again'); fail:=fail+1; failures:=failures||' double_decide'; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   select count(*) into n from public.audit_logs where org_id = oa; if n >= 2 then pass:=pass+1; else fail:=fail+1; failures:=failures||' audit_written'; end if;
   perform public.confirm_business_profile(wa,'{"description":"Confirmed business"}','[{"key":"identity","value":"Business A","source_type":"user","source_ref":"confirmation","confidence":1,"verified":true}]');
   perform public.confirm_business_profile(wa,'{"description":"Confirmed business"}','[{"key":"identity","value":"Business A","source_type":"user","source_ref":"confirmation","confidence":1,"verified":true}]');
@@ -90,7 +90,7 @@ begin
   perform set_config('request.jwt.claims', '{"role":"anon"}', true);
   execute 'set local role anon';
   select count(*) into n from public.plans; if n >= 6 then pass:=pass+1; else fail:=fail+1; failures:=failures||' anon_plans'; end if;
-  begin select count(*) into n from public.organizations; if n = 0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' anon_orgs'; end if; exception when others then pass:=pass+1; end;
+  begin select count(*) into n from public.organizations; if n = 0 then pass:=pass+1; else fail:=fail+1; failures:=failures||' anon_orgs'; end if; exception when others then if sqlstate in ('P0001','42501','23514','23505','23503') then pass:=pass+1; else fail:=fail+1; failures:=failures||' unexpected:'||sqlstate||':'||left(sqlerrm,60); end if; end;
   execute 'reset role';
 
   raise exception 'RLS_RESULT pass=% fail=% failures=[%]', pass, fail, failures;
