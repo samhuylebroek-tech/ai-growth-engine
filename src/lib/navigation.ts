@@ -31,6 +31,7 @@ import {
   Bot,
   ListChecks,
   Wallet,
+  Map,
 } from "lucide-react";
 import type { MessageKey } from "@/lib/i18n/messages";
 
@@ -47,6 +48,7 @@ export const NAVIGATION = [
       { to: "/app/growth-officer", label: "Growth Officer", icon: Sparkles },
       { to: "/app/agents", label: "AI specialists", icon: Bot },
       { to: "/app/notifications", label: "Notifications", icon: Bell },
+      { to: "/app/test-guide", label: "Test guide", icon: Map },
     ],
   },
   {

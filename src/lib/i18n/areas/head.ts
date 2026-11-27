@@ -50,6 +50,8 @@ export const head = defineArea("head", {
     "head.content.d":
       "Write, version, compare and approve each exact content version with writing profiles.",
     "head.modules.t": "Growth areas",
+    "head.testGuide.t": "Test guide",
+    "head.testGuide.d": "Seven journeys to test the product from start to finish.",
     "head.modules.d": "Strategy, marketing, sales, website and measurement availability.",
     "head.intelligence.t": "Growth intelligence",
     "head.intelligence.d":
@@ -155,6 +157,8 @@ export const head = defineArea("head", {
     "head.content.d":
       "Schrijf, versieer, vergelijk en keur elke exacte contentversie goed met schrijfprofielen.",
     "head.modules.t": "Groeidomeinen",
+    "head.testGuide.t": "Testgids",
+    "head.testGuide.d": "Zeven trajecten om het product van begin tot eind te testen.",
     "head.modules.d": "Beschikbaarheid van strategie, marketing, verkoop, website en meting.",
     "head.intelligence.t": "Groei-inzicht",
     "head.intelligence.d":
@@ -260,6 +264,8 @@ export const head = defineArea("head", {
     "head.content.d":
       "Rédigez, versionnez, comparez et approuvez chaque version exacte avec des profils d'écriture.",
     "head.modules.t": "Domaines de croissance",
+    "head.testGuide.t": "Guide de test",
+    "head.testGuide.d": "Sept parcours pour tester le produit du début à la fin.",
     "head.modules.d":
       "Disponibilité de la stratégie, du marketing, des ventes, du site web et de la mesure.",
     "head.intelligence.t": "Intelligence de croissance",

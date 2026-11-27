@@ -170,6 +170,7 @@ const en = {
   "nav./app/documents": "Documents",
   "nav./app/settings": "Organization & team",
   "nav./app/agents": "AI specialists",
+  "nav./app/test-guide": "Test guide",
   "nav./app/integrations": "Data sources",
   "nav./app/billing": "Plan & credits",
   // shell
@@ -552,6 +553,7 @@ const nl: Dictionary = {
   "nav./app/documents": "Documenten",
   "nav./app/settings": "Organisatie & team",
   "nav./app/agents": "AI-specialisten",
+  "nav./app/test-guide": "Testgids",
   "nav./app/integrations": "Gegevensbronnen",
   "nav./app/billing": "Abonnement & tegoed",
   "shell.workspace": "Werkruimte",
@@ -931,6 +933,7 @@ const fr: Dictionary = {
   "nav./app/documents": "Documents",
   "nav./app/settings": "Organisation & équipe",
   "nav./app/agents": "Spécialistes IA",
+  "nav./app/test-guide": "Guide de test",
   "nav./app/integrations": "Sources de données",
   "nav./app/billing": "Abonnement & crédits",
   "shell.workspace": "Espace de travail",

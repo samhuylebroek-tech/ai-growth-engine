@@ -51,6 +51,7 @@ import { ph } from "./ph";
 import { ch } from "./ch";
 import { site } from "./site";
 import { lead } from "./lead";
+import { tg } from "./tg";
 
 /** Every screen area; each keeps its own texts so areas can be translated independently. */
 export const AREAS = [
@@ -107,6 +108,7 @@ export const AREAS = [
   ch,
   site,
   lead,
+  tg,
 ] as const;
 export const AREA_EN = {
   ...account.en,
